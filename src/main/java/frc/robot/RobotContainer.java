@@ -14,16 +14,28 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.*;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+// import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.ClimberSubSystem;
+import frc.robot.subsystems.LightsSubsystem;
+import frc.robot.subsystems.NoteSubSystem;
+import frc.robot.subsystems.NoteSubSystem.ActionRequest;
+import frc.robot.subsystems.NoteSubSystem.Target;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -43,8 +55,16 @@ public class RobotContainer {
   private final Drive drive;
 
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandXboxController m_xboxController = new CommandXboxController(0);
 
+  CommandPS4Controller m_ps4Controller = new CommandPS4Controller(1);
+
+  private final LightsSubsystem m_lightsSubsystem = new LightsSubsystem();
+  NoteSubSystem m_NoteSubSystem = new NoteSubSystem();
+  ClimberSubSystem m_Climber = new ClimberSubSystem();
+  DigitalInput m_noteSensor2 = new DigitalInput(0);
+  Trigger m_NoteSensorTrigger2 = new Trigger(m_noteSensor2::get);
+  private boolean m_climbActive = false;
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -85,6 +105,44 @@ public class RobotContainer {
         break;
     }
 
+    NamedCommands.registerCommand(
+        "shoot_spinup",
+        Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.SHOOT_SPINUP)));
+    NamedCommands.registerCommand(
+        "target_speaker",
+        new SetTargetCustomCmd(
+            m_NoteSubSystem, Constants.ANGLE.SPEAKER, Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
+    NamedCommands.registerCommand(
+        "shoot", Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.SHOOT)));
+
+    NamedCommands.registerCommand(
+        "target_intake", Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.INTAKE)));
+    NamedCommands.registerCommand(
+        "intake", Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.INTAKENOTE)));
+
+    NamedCommands.registerCommand(
+        "target_speaker_1m",
+        new SetTargetCustomCmd(
+            m_NoteSubSystem, Constants.ANGLE.SPEAKER_1M, Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
+    NamedCommands.registerCommand(
+        "target_speaker_podium",
+        new SetTargetCustomCmd(
+            m_NoteSubSystem,
+            Constants.ANGLE.SPEAKER_PODIUM,
+            Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
+    NamedCommands.registerCommand(
+        "target_speaker_podium_source",
+        new SetTargetCustomCmd(
+            m_NoteSubSystem,
+            Constants.ANGLE.SPEAKER_PODIUM_SOURCE,
+            Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
+    NamedCommands.registerCommand(
+        "target_speaker_stage",
+        new SetTargetCustomCmd(
+            m_NoteSubSystem, Constants.ANGLE.SPEAKER_STAGE, Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
+
+    // NamedCommands.registerCommand("DelayStart", new WaitCommand(m_autoWaitTimeSelected));
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -119,25 +177,25 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            () -> -m_xboxController.getLeftY(),
+            () -> -m_xboxController.getLeftX(),
+            () -> -m_xboxController.getRightX()));
 
     // Lock to 0° when A button is held
-    controller
+    m_xboxController
         .a()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
+                () -> -m_xboxController.getLeftY(),
+                () -> -m_xboxController.getLeftX(),
                 () -> new Rotation2d()));
 
     // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    m_xboxController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Reset gyro to 0° when B button is pressed
-    controller
+    m_xboxController
         .b()
         .onTrue(
             Commands.runOnce(
@@ -147,9 +205,118 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    controller
+    m_xboxController
         .back()
         .onTrue(Commands.runOnce(() -> drive.setPose(new Pose2d()), drive).ignoringDisable(true));
+
+    m_xboxController
+        .y()
+        .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.SPEAKER_PODIUM)));
+    m_xboxController.b().onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.AMP)));
+    // m_xboxController.x().onTrue(Commands.runOnce(()->m_NoteSubSystem.setTarget(Target.TRAP)));
+    m_xboxController.a().onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.SPEAKER)));
+    // for trial
+    // m_xboxController.a().onTrue(new SetTargetCustomCmd(m_NoteSubSystem, Constants.ANGLE.SPEAKER,
+    // Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
+
+    m_xboxController
+        .leftTrigger()
+        .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.INTAKENOTE)));
+    m_xboxController
+        .rightTrigger()
+        .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.SHOOT)));
+    m_xboxController
+        .leftBumper()
+        .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.SPIT_NOTE2)));
+    m_xboxController
+        .rightBumper()
+        .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.SHOOT_SPINUP)));
+    m_xboxController
+        .start()
+        .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.STOP_ALL)));
+
+    m_ps4Controller
+        .triangle()
+        .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.SPEAKER_PODIUM)));
+    m_ps4Controller.circle().onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.AMP)));
+    m_ps4Controller.square().onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.TRAP)));
+    m_ps4Controller
+        .cross()
+        .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.SPEAKER)));
+
+    // m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.FEEDSTATION_SPIN)));
+    m_ps4Controller
+        .L2()
+        .onTrue(
+            Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.DISLODGE_WITH_SHOOTER)));
+    m_ps4Controller
+        .R1()
+        .onTrue(
+            Commands.runOnce(() -> m_NoteSubSystem.setPassSpeed(Constants.SHOOTER.PASS1_SPEED)));
+    m_ps4Controller
+        .R2()
+        .onTrue(
+            Commands.runOnce(() -> m_NoteSubSystem.setPassSpeed(Constants.SHOOTER.PASS2_SPEED)));
+
+    // m_ps4Controller.L2().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.INTAKENOTE)));
+    // m_ps4Controller.R2().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.SHOOT)));
+    // m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.SPIT_NOTE2)));
+    // m_ps4Controller.R1().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.SHOOT_SPINUP)));
+    // m_ps4Controller.touchpad().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.STOP)));
+
+    m_ps4Controller.options().onTrue(Commands.runOnce(() -> m_NoteSubSystem.setHaveNote1(false)));
+
+    m_ps4Controller
+        .povLeft()
+        .onTrue(
+            Commands.runOnce(
+                () -> m_NoteSubSystem.bumpShooterSpeed((-Constants.SHOOTER.BUMP_VALUE))));
+    m_ps4Controller
+        .povRight()
+        .onTrue(
+            Commands.runOnce(
+                () -> m_NoteSubSystem.bumpShooterSpeed((Constants.SHOOTER.BUMP_VALUE))));
+    m_ps4Controller
+        .povUp()
+        .onTrue(
+            Commands.runOnce(
+                () -> m_NoteSubSystem.bumpAnglePosition((-Constants.ANGLE.BUMP_VALUE))));
+    m_ps4Controller
+        .povDown()
+        .onTrue(
+            Commands.runOnce(
+                () -> m_NoteSubSystem.bumpAnglePosition((Constants.ANGLE.BUMP_VALUE))));
+
+    // //Left Joystick Y
+    // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake1Speed((-Constants.INTAKE.BUMP_VALUE))));
+    // m_ps4Controller.axisLessThan(1,-0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake1Speed((Constants.INTAKE.BUMP_VALUE))));
+    // //Right Joystick Y
+    // m_ps4Controller.axisGreaterThan(5,0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake2Speed((-Constants.INTAKE.BUMP_VALUE))));
+    // m_ps4Controller.axisLessThan(5,-0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake2Speed((Constants.INTAKE.BUMP_VALUE))));
+
+    m_ps4Controller.share().onTrue(Commands.runOnce(() -> m_NoteSubSystem.resetSetpoints()));
+
+    m_ps4Controller
+        .PS()
+        .onTrue(
+            Commands.runOnce(() -> m_climbActive = !m_climbActive)
+                .andThen(() -> m_Climber.setPitMode(m_climbActive))
+                .andThen(() -> SmartDashboard.putBoolean("ClimberPitMode", m_climbActive)));
+
+    m_Climber.setDefaultCommand(
+        Commands.run(
+            () ->
+                m_Climber.setSpeedVout(
+                    m_ps4Controller.getLeftY() * 12, -m_ps4Controller.getRightY() * 12),
+            m_Climber));
+
+    // m_NoteSensorTrigger1.onTrue(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor1",
+    // true)))
+    //                    .onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor1",
+    // false)));
+    m_NoteSensorTrigger2
+        .onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("NoteSensor2", true)))
+        .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("NoteSensor2", false)));
   }
 
   /**
@@ -159,5 +326,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  public void StopSubSystems() {
+    m_NoteSubSystem.setAction(ActionRequest.STOP_ALL);
   }
 }

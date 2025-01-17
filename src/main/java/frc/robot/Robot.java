@@ -35,7 +35,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  */
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
-  private RobotContainer robotContainer;
+  public static RobotContainer robotContainer;
 
   public Robot() {
     // Record metadata
@@ -121,7 +121,10 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    robotContainer.StopSubSystems();
+    // SignalLogger.stop();
+  }
 
   /** This function is called periodically when disabled. */
   @Override
