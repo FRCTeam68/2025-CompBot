@@ -15,6 +15,24 @@
           "data": {
             "name": "shoot"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Dinner Winner"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Midnight_Snack"
+          }
         }
       ]
     }
