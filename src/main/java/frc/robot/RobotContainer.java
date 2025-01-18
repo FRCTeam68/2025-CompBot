@@ -13,6 +13,8 @@
 
 package frc.robot;
 
+import static frc.robot.subsystems.vision.VisionConstants.*;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -32,7 +34,6 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 // import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ClimberSubSystem;
-import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.NoteSubSystem;
 import frc.robot.subsystems.NoteSubSystem.ActionRequest;
 import frc.robot.subsystems.NoteSubSystem.Target;
@@ -42,6 +43,10 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOLimelight;
+// import edu.wpi.first.math.controller.PIDController;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -53,13 +58,13 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+  private final Vision vision;
 
   // Controller
   private final CommandXboxController m_xboxController = new CommandXboxController(0);
 
   CommandPS4Controller m_ps4Controller = new CommandPS4Controller(1);
 
-  private final LightsSubsystem m_lightsSubsystem = new LightsSubsystem();
   NoteSubSystem m_NoteSubSystem = new NoteSubSystem();
   ClimberSubSystem m_Climber = new ClimberSubSystem();
   DigitalInput m_noteSensor2 = new DigitalInput(0);
@@ -80,6 +85,11 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOLimelight("limelight-shoot'", drive::getRotation),
+                new VisionIO() {});
         break;
 
       case SIM:
@@ -91,6 +101,9 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+        // (Use same number of dummy implementations as the real robot)
+        // no sim for limelight????  use blank
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
         break;
 
       default:
@@ -102,6 +115,8 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+        // (Use same number of dummy implementations as the real robot)
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
         break;
     }
 
@@ -191,6 +206,15 @@ public class RobotContainer {
                 () -> -m_xboxController.getLeftX(),
                 () -> new Rotation2d()));
 
+    m_xboxController
+        .y()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -m_xboxController.getLeftY(),
+                () -> -m_xboxController.getLeftX(),
+                () -> new Rotation2d(vision.getTargetX(0).getRadians())));
+
     // Switch to X pattern when X button is pressed
     m_xboxController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
@@ -205,16 +229,35 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
+    // Auto aim command example
+    // @SuppressWarnings("resource")
+    // PIDController aimController = new PIDController(0.2, 0.0, 0.0);
+    // aimController.enableContinuousInput(-Math.PI, Math.PI);
+    // m_xboxController
+    //     .y()
+    //     .whileTrue(
+    //         Commands.startRun(
+    //             () -> {  aimController.reset(); },
+    // 			() -> {  DriveCommands.joystickDriveAtAngle(
+    //                 drive,
+    //                 () -> -m_xboxController.getLeftY(),
+    //                 () -> -m_xboxController.getLeftX(),
+    //                 aimController.calculate(vision.getTargetX(0).getRadians()));
+    //             },
+    //             drive));
+
     m_xboxController
         .back()
         .onTrue(Commands.runOnce(() -> drive.setPose(new Pose2d()), drive).ignoringDisable(true));
 
-    m_xboxController
-        .y()
-        .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.SPEAKER_PODIUM)));
-    m_xboxController.b().onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.AMP)));
+    // m_xboxController
+    //     .y()
+    //     .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.SPEAKER_PODIUM)));
+    // m_xboxController.b().onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.AMP)));
     // m_xboxController.x().onTrue(Commands.runOnce(()->m_NoteSubSystem.setTarget(Target.TRAP)));
-    m_xboxController.a().onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.SPEAKER)));
+    // m_xboxController.a().onTrue(Commands.runOnce(() ->
+    // m_NoteSubSystem.setTarget(Target.SPEAKER)));
+
     // for trial
     // m_xboxController.a().onTrue(new SetTargetCustomCmd(m_NoteSubSystem, Constants.ANGLE.SPEAKER,
     // Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
