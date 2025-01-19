@@ -30,7 +30,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.*;
-import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 // import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ClimberSubSystem;
@@ -88,8 +87,8 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOLimelight("limelight-shoot'", drive::getRotation),
-                new VisionIO() {});
+                new VisionIOLimelight(camera0Name, drive::getRotation),
+                new VisionIOLimelight(camera1Name, drive::getRotation));
         break;
 
       case SIM:
