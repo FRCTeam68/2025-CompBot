@@ -19,6 +19,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -42,10 +43,14 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.rollers.RollerSystem;
+import frc.robot.subsystems.rollers.RollerSystemIO;
+import frc.robot.subsystems.rollers.RollerSystemIOSim;
+import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
+// import edu.wpi.first.math.controller.PIDController;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
-// import edu.wpi.first.math.controller.PIDController;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -58,6 +63,7 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
+  private final RollerSystem roller;
 
   // Controller
   private final CommandXboxController m_xboxController = new CommandXboxController(0);
@@ -89,6 +95,10 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 new VisionIOLimelight(camera0Name, drive::getRotation),
                 new VisionIOLimelight(camera1Name, drive::getRotation));
+
+        roller =
+            new RollerSystem("Roller", new RollerSystemIOTalonFX(25, "rio", 40, false, false, 0));
+
         break;
 
       case SIM:
@@ -103,6 +113,8 @@ public class RobotContainer {
         // (Use same number of dummy implementations as the real robot)
         // no sim for limelight????  use blank
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        roller =
+            new RollerSystem("Roller", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
         break;
 
       default:
@@ -116,6 +128,7 @@ public class RobotContainer {
                 new ModuleIO() {});
         // (Use same number of dummy implementations as the real robot)
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        roller = new RollerSystem("Roller", new RollerSystemIO() {});
         break;
     }
 
