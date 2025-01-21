@@ -22,9 +22,33 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
+  private static final LoggedTunableNumber drivekS =
+      new LoggedTunableNumber("Drive/Module/DrivekS");
+  private static final LoggedTunableNumber drivekV =
+      new LoggedTunableNumber("Drive/Module/DrivekV");
+  private static final LoggedTunableNumber drivekT =
+      new LoggedTunableNumber("Drive/Module/DrivekT");
+  private static final LoggedTunableNumber drivekP =
+      new LoggedTunableNumber("Drive/Module/DrivekP");
+  private static final LoggedTunableNumber drivekD =
+      new LoggedTunableNumber("Drive/Module/DrivekD");
+  private static final LoggedTunableNumber turnkP = new LoggedTunableNumber("Drive/Module/TurnkP");
+  private static final LoggedTunableNumber turnkD = new LoggedTunableNumber("Drive/Module/TurnkD");
+
+  static {
+    drivekS.initDefault(0.014);
+    drivekV.initDefault(0.134);
+    drivekT.initDefault(0);
+    drivekP.initDefault(0.1);
+    drivekD.initDefault(0);
+    turnkP.initDefault(10.0);
+    turnkD.initDefault(0);
+  }
+
   private final ModuleIO io;
   private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
   private final int index;
@@ -58,10 +82,19 @@ public class Module {
             AlertType.kError);
   }
 
-  public void periodic() {
+  public void updateInputs() {
     io.updateInputs(inputs);
     Logger.processInputs("Drive/Module" + Integer.toString(index), inputs);
+  }
 
+  public void periodic() {
+    // Update tunable numbers
+    if (drivekP.hasChanged(hashCode()) || drivekD.hasChanged(hashCode())) {
+      io.setDrivePID(drivekP.get(), 0, drivekD.get());
+    }
+    if (turnkP.hasChanged(hashCode()) || turnkD.hasChanged(hashCode())) {
+      io.setTurnPID(turnkP.get(), 0, turnkD.get());
+    }
     // Calculate positions for odometry
     int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
     odometryPositions = new SwerveModulePosition[sampleCount];
@@ -143,5 +176,10 @@ public class Module {
   /** Returns the module velocity in rotations/sec (Phoenix native units). */
   public double getFFCharacterizationVelocity() {
     return Units.radiansToRotations(inputs.driveVelocityRadPerSec);
+  }
+
+  /* Sets brake mode to {@code enabled} */
+  public void setBrakeMode(boolean enabled) {
+    io.setBrakeMode(enabled);
   }
 }
