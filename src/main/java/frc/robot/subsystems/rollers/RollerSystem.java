@@ -37,6 +37,7 @@ public class RollerSystem extends SubsystemBase {
 
   @AutoLogOutput
   public Command runRoller(double inputVolts) {
-    return startEnd(() -> io.runVolts(inputVolts), () -> io.stop());
+    // return startEnd(() -> io.runVolts(inputVolts), () -> io.stop());
+    return run(() -> io.runVolts(inputVolts));
   }
 }

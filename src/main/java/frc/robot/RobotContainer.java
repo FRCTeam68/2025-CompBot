@@ -33,7 +33,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.*;
 import frc.robot.generated.TunerConstants;
 // import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.ClimberSubSystem;
+// import frc.robot.subsystems.ClimberSubSystem;
 import frc.robot.subsystems.NoteSubSystem;
 import frc.robot.subsystems.NoteSubSystem.ActionRequest;
 import frc.robot.subsystems.NoteSubSystem.Target;
@@ -71,7 +71,7 @@ public class RobotContainer {
   CommandPS4Controller m_ps4Controller = new CommandPS4Controller(1);
 
   NoteSubSystem m_NoteSubSystem = new NoteSubSystem();
-  ClimberSubSystem m_Climber = new ClimberSubSystem();
+  // ClimberSubSystem m_Climber = new ClimberSubSystem();
   DigitalInput m_noteSensor2 = new DigitalInput(0);
   Trigger m_NoteSensorTrigger2 = new Trigger(m_noteSensor2::get);
   private boolean m_climbActive = false;
@@ -97,7 +97,8 @@ public class RobotContainer {
                 new VisionIOLimelight(camera1Name, drive::getRotation));
 
         roller =
-            new RollerSystem("Roller", new RollerSystemIOTalonFX(25, "rio", 40, false, false, 0));
+            new RollerSystem(
+                "Roller", new RollerSystemIOTalonFX(40, "DRIVEbus", 40, false, false, 0));
 
         break;
 
@@ -351,19 +352,20 @@ public class RobotContainer {
 
     m_ps4Controller.share().onTrue(Commands.runOnce(() -> m_NoteSubSystem.resetSetpoints()));
 
-    m_ps4Controller
-        .PS()
-        .onTrue(
-            Commands.runOnce(() -> m_climbActive = !m_climbActive)
-                .andThen(() -> m_Climber.setPitMode(m_climbActive))
-                .andThen(() -> SmartDashboard.putBoolean("ClimberPitMode", m_climbActive)));
+    // m_ps4Controller
+    //     .PS()
+    //     .onTrue(
+    //         Commands.runOnce(() -> m_climbActive = !m_climbActive)
+    //             .andThen(() -> m_Climber.setPitMode(m_climbActive))
+    //             .andThen(() -> SmartDashboard.putBoolean("ClimberPitMode", m_climbActive)));
 
-    m_Climber.setDefaultCommand(
-        Commands.run(
-            () ->
-                m_Climber.setSpeedVout(
-                    m_ps4Controller.getLeftY() * 12, -m_ps4Controller.getRightY() * 12),
-            m_Climber));
+    // m_Climber.setDefaultCommand(
+    //     Commands.run(
+    //         () ->
+    //             m_Climber.setSpeedVout(
+    //                 m_ps4Controller.getLeftY() * 12, -m_ps4Controller.getRightY() * 12),
+    //         m_Climber));
+    m_ps4Controller.PS().onTrue(roller.runRoller(2).withTimeout(7));
 
     // m_NoteSensorTrigger1.onTrue(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor1",
     // true)))
