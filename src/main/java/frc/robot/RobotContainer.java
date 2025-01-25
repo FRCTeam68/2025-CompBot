@@ -365,7 +365,7 @@ public class RobotContainer {
     //             m_Climber.setSpeedVout(
     //                 m_ps4Controller.getLeftY() * 12, -m_ps4Controller.getRightY() * 12),
     //         m_Climber));
-    m_ps4Controller.PS().onTrue(roller.runRoller(2).withTimeout(7));
+    m_ps4Controller.PS().onTrue(roller.runRoller(2));
 
     // m_NoteSensorTrigger1.onTrue(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor1",
     // true)))

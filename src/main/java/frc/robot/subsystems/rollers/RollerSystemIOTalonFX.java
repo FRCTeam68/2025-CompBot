@@ -23,6 +23,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import org.littletonrobotics.junction.Logger;
 
 /** Generic roller IO implementation for a roller or series of rollers using a Kraken. */
 public class RollerSystemIOTalonFX implements RollerSystemIO {
@@ -92,6 +93,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   @Override
   public void runVolts(double volts) {
     talon.setControl(voltageOut.withOutput(volts));
+    Logger.recordOutput("Roller/setpoint", volts);
   }
 
   @Override
