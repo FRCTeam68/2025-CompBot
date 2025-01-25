@@ -63,7 +63,8 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
-  private final RollerSystem roller;
+  private final RollerSystem rollerLeft;
+  private final RollerSystem rollerRight;
 
   // Controller
   private final CommandXboxController m_xboxController = new CommandXboxController(0);
@@ -96,9 +97,12 @@ public class RobotContainer {
                 new VisionIOLimelight(camera0Name, drive::getRotation),
                 new VisionIOLimelight(camera1Name, drive::getRotation));
 
-        roller =
+        rollerLeft =
             new RollerSystem(
-                "Roller", new RollerSystemIOTalonFX(41, "DRIVEbus", 40, false, false, 0));
+                "RollerLeft", new RollerSystemIOTalonFX(40, "DRIVEbus", 40, false, false, 0));
+        rollerRight =
+            new RollerSystem(
+                "RollerRight", new RollerSystemIOTalonFX(41, "DRIVEbus", 40, false, false, 0));
 
         break;
 
@@ -114,8 +118,12 @@ public class RobotContainer {
         // (Use same number of dummy implementations as the real robot)
         // no sim for limelight????  use blank
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
-        roller =
-            new RollerSystem("Roller", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+        rollerLeft =
+            new RollerSystem(
+                "RollerLeft", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+        rollerRight =
+            new RollerSystem(
+                "RollerRight", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
         break;
 
       default:
@@ -129,7 +137,8 @@ public class RobotContainer {
                 new ModuleIO() {});
         // (Use same number of dummy implementations as the real robot)
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
-        roller = new RollerSystem("Roller", new RollerSystemIO() {});
+        rollerLeft = new RollerSystem("RollerLeft", new RollerSystemIO() {});
+        rollerRight = new RollerSystem("RollerRight", new RollerSystemIO() {});
         break;
     }
 
@@ -365,8 +374,10 @@ public class RobotContainer {
     //             m_Climber.setSpeedVout(
     //                 m_ps4Controller.getLeftY() * 12, -m_ps4Controller.getRightY() * 12),
     //         m_Climber));
-    roller.setDefaultCommand(
-        Commands.run(() -> roller.runRoller(m_ps4Controller.getLeftY() * 12), roller));
+    rollerLeft.setDefaultCommand(
+        Commands.run(() -> rollerLeft.runRoller(m_ps4Controller.getLeftY() * 12), rollerLeft));
+    rollerRight.setDefaultCommand(
+        Commands.run(() -> rollerRight.runRoller(-m_ps4Controller.getRightY() * 12), rollerRight));
 
     // m_NoteSensorTrigger1.onTrue(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor1",
     // true)))
