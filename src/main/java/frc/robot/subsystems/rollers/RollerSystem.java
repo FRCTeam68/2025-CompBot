@@ -9,7 +9,6 @@ package frc.robot.subsystems.rollers;
 
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -36,8 +35,8 @@ public class RollerSystem extends SubsystemBase {
   }
 
   @AutoLogOutput
-  public Command runRoller(double inputVolts) {
+  public void runRoller(double inputVolts) {
     // return startEnd(() -> io.runVolts(inputVolts), () -> io.stop());
-    return runOnce(() -> io.runVolts(inputVolts));
+    io.runVolts(inputVolts);
   }
 }

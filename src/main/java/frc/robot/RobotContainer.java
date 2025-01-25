@@ -74,7 +74,7 @@ public class RobotContainer {
   // ClimberSubSystem m_Climber = new ClimberSubSystem();
   DigitalInput m_noteSensor2 = new DigitalInput(0);
   Trigger m_NoteSensorTrigger2 = new Trigger(m_noteSensor2::get);
-  private boolean m_climbActive = false;
+  // private boolean m_climbActive = false;
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -98,7 +98,7 @@ public class RobotContainer {
 
         roller =
             new RollerSystem(
-                "Roller", new RollerSystemIOTalonFX(40, "DRIVEbus", 40, false, false, 0));
+                "Roller", new RollerSystemIOTalonFX(41, "DRIVEbus", 40, false, false, 0));
 
         break;
 
@@ -350,7 +350,7 @@ public class RobotContainer {
     // m_ps4Controller.axisGreaterThan(5,0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake2Speed((-Constants.INTAKE.BUMP_VALUE))));
     // m_ps4Controller.axisLessThan(5,-0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake2Speed((Constants.INTAKE.BUMP_VALUE))));
 
-    m_ps4Controller.share().onTrue(Commands.runOnce(() -> m_NoteSubSystem.resetSetpoints()));
+    // m_ps4Controller.share().onTrue(Commands.runOnce(() -> m_NoteSubSystem.resetSetpoints()));
 
     // m_ps4Controller
     //     .PS()
@@ -365,7 +365,7 @@ public class RobotContainer {
     //             m_Climber.setSpeedVout(
     //                 m_ps4Controller.getLeftY() * 12, -m_ps4Controller.getRightY() * 12),
     //         m_Climber));
-    m_ps4Controller.PS().onTrue(roller.runRoller(2));
+    m_ps4Controller.share().onTrue(Commands.run(() -> roller.runRoller(2)));
 
     // m_NoteSensorTrigger1.onTrue(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor1",
     // true)))
