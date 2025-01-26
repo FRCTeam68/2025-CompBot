@@ -22,26 +22,31 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 public class Module {
-  // private LoggedNetworkNumber drivekS = new LoggedNetworkNumber("Tuning/Drive/Module/DrivekS",0);
-  // private LoggedNetworkNumber drivekV = new LoggedNetworkNumber("Tuning/Drive/Module/DrivekV",0);
-  // private LoggedNetworkNumber drivekA = new LoggedNetworkNumber("Tuning/Drive/Module/DrivekA",0);
-  private LoggedNetworkNumber drivekP = new LoggedNetworkNumber("Tuning/Drive/Module/DrivekP", 2);
-  private LoggedNetworkNumber drivekD = new LoggedNetworkNumber("Tuning/Drive/Module/DrivekD", 0);
-  private LoggedNetworkNumber turnkP = new LoggedNetworkNumber("Tuning/Drive/Module/TurnkP", 50);
-  private LoggedNetworkNumber turnkD = new LoggedNetworkNumber("Tuning/Drive/Module/TurnkD", 0);
+  private static final LoggedTunableNumber drivekS =
+      new LoggedTunableNumber("Drive/Module/DrivekS");
+  private static final LoggedTunableNumber drivekV =
+      new LoggedTunableNumber("Drive/Module/DrivekV");
+  private static final LoggedTunableNumber drivekA =
+      new LoggedTunableNumber("Drive/Module/DrivekA");
+  private static final LoggedTunableNumber drivekP =
+      new LoggedTunableNumber("Drive/Module/DrivekP");
+  private static final LoggedTunableNumber drivekD =
+      new LoggedTunableNumber("Drive/Module/DrivekD");
+  private static final LoggedTunableNumber turnkP = new LoggedTunableNumber("Drive/Module/TurnkP");
+  private static final LoggedTunableNumber turnkD = new LoggedTunableNumber("Drive/Module/TurnkD");
 
   static {
-    // drivekS.initDefault(0.014);
-    // drivekV.initDefault(0.134);
-    // drivekA.initDefault(0);
-    // drivekP.initDefault(0.1);
-    // drivekD.initDefault(0);
-    // turnkP.initDefault(10.0);
-    // turnkD.initDefault(0);
+    drivekS.initDefault(0.12);
+    drivekV.initDefault(0.116);
+    drivekA.initDefault(0.007);
+    drivekP.initDefault(2.0);
+    drivekD.initDefault(0);
+    turnkP.initDefault(100.0);
+    turnkD.initDefault(0.5);
   }
 
   private final ModuleIO io;
@@ -84,12 +89,12 @@ public class Module {
 
   public void periodic() {
     // Update tunable numbers
-    // if (drivekP.hasChanged(hashCode()) || drivekD.hasChanged(hashCode())) {
-    //   io.setDrivePID(drivekP.get(), 0, drivekD.get());
-    // }
-    // if (turnkP.hasChanged(hashCode()) || turnkD.hasChanged(hashCode())) {
-    //   io.setTurnPID(turnkP.get(), 0, turnkD.get());
-    // }
+    if (drivekP.hasChanged(hashCode()) || drivekD.hasChanged(hashCode())) {
+      io.setDrivePID(drivekP.get(), 0, drivekD.get());
+    }
+    if (turnkP.hasChanged(hashCode()) || turnkD.hasChanged(hashCode())) {
+      io.setTurnPID(turnkP.get(), 0, turnkD.get());
+    }
     // Calculate positions for odometry
     int sampleCount = inputs.odometryTimestamps.length; // All signals are sampled together
     odometryPositions = new SwerveModulePosition[sampleCount];
