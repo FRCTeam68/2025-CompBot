@@ -26,6 +26,14 @@ public interface RollerSystemIO {
   /* Run rollers at volts */
   default void setVolts(double volts) {}
 
+  /* Run rollers at speed */
+  default void setSpeed(double speed) {}
+
+  /* Run rollers at position */
+  default void setPosition(double rotations) {}
+
+  default void setZero() {}
+
   /* Stop rollers */
   default void stop() {}
 }

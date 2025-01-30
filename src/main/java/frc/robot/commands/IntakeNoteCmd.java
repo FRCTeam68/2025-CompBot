@@ -2,19 +2,19 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.NoteSubSystem;
-import frc.robot.subsystems.NoteSubSystem.ActionRequest;
+import frc.robot.Constants;
+import frc.robot.subsystems.rollers.RollerSystem;
 import org.littletonrobotics.junction.Logger;
 
 public class IntakeNoteCmd extends Command {
 
-  private NoteSubSystem m_noteSubSystem;
+  private RollerSystem intake;
   private Timer cmdTimer;
 
-  public IntakeNoteCmd(NoteSubSystem noteSubSystem) {
+  public void IntakeCoralCmd(RollerSystem roller) {
     // Use addRequirements() here to declare subsystem dependencies.
-    m_noteSubSystem = noteSubSystem;
-    addRequirements(m_noteSubSystem);
+    intake = roller;
+    addRequirements(intake);
     cmdTimer = new Timer();
   }
 
@@ -23,7 +23,7 @@ public class IntakeNoteCmd extends Command {
   public void initialize() {
     cmdTimer.reset();
     cmdTimer.start();
-    m_noteSubSystem.setAction(ActionRequest.INTAKENOTE);
+    intake.setSpeed(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -33,12 +33,16 @@ public class IntakeNoteCmd extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    Logger.recordOutput("IntakeCmd", "end");
+    Logger.recordOutput("IntakeCoralCmd", "end");
   }
 
   // Command will run until the button is released, or autonomous timer hits
   @Override
   public boolean isFinished() {
-    return (m_noteSubSystem.getHaveNote1());
+    return (false);
+    // return (intake.getHaveCoral());
+
+    // return ((m_noteSubSystem.atTargetAngle()) && (m_noteSubSystem.atTargetSpeed())
+    // || (cmdTimer.hasElapsed(2)));
   }
 }

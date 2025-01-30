@@ -7,6 +7,7 @@
 
 package frc.robot.subsystems.rollers;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -38,5 +39,28 @@ public class RollerSystem extends SubsystemBase {
   public void setVolts(double inputVolts) {
     // return startEnd(() -> io.runVolts(inputVolts), () -> io.stop());
     io.setVolts(inputVolts);
+    // Logger.recordOutput(name + "/setpointVolts", inputVolts);
+  }
+
+  @AutoLogOutput
+  public void setSpeed(double speed) {
+    // in rotations per second
+    io.setSpeed(speed);
+    // Logger.recordOutput(name + "/setpointSpeed", speed);
+  }
+
+  @AutoLogOutput
+  public void setPosition(double position) {
+    // in rotations
+    io.setPosition(position);
+    // Logger.recordOutput(name + "/setpointPosition", position);
+  }
+
+  public double getSpeed() {
+    return Units.radiansToRotations(inputs.velocityRadsPerSec);
+  }
+
+  public double getPosition() {
+    return Units.radiansToRotations(inputs.positionRads);
   }
 }

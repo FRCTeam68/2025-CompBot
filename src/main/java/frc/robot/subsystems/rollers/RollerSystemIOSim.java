@@ -10,6 +10,7 @@ package frc.robot.subsystems.rollers;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
@@ -41,6 +42,16 @@ public class RollerSystemIOSim implements RollerSystemIO {
   public void setVolts(double volts) {
     appliedVoltage = MathUtil.clamp(volts, -12.0, 12.0);
     sim.setInputVoltage(appliedVoltage);
+  }
+
+  @Override
+  public void setSpeed(double speed) {
+    sim.setAngularVelocity(Units.rotationsToRadians(speed));
+  }
+
+  @Override
+  public void setPosition(double position) {
+    sim.setAngle(Units.rotationsToRadians(position));
   }
 
   @Override

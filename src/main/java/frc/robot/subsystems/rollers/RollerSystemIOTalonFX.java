@@ -12,7 +12,10 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -23,7 +26,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import org.littletonrobotics.junction.Logger;
 
 /** Generic roller IO implementation for a roller or series of rollers using a Kraken. */
 public class RollerSystemIOTalonFX implements RollerSystemIO {
@@ -38,22 +40,53 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
 
   // Single shot for voltage mode, robot loop will call continuously
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true).withUpdateFreqHz(0);
+  private final VelocityVoltage voltageVelocity = new VelocityVoltage(0);
+  ;
+  // private final VelocityTorqueCurrentFOC torqueVelocity  = new VelocityTorqueCurrentFOC(0);
+  private final MotionMagicVoltage mmvPosition = new MotionMagicVoltage(0);
   private final NeutralOut neutralOut = new NeutralOut();
 
   private final double reduction;
 
   public RollerSystemIOTalonFX(
-      int id, String bus, int currentLimitAmps, boolean invert, boolean brake, double reduction) {
+      int id,
+      String bus,
+      int currentLimitAmps,
+      boolean invert,
+      int followerID,
+      boolean followOpposite,
+      boolean brake,
+      double reduction) {
     this.reduction = reduction;
     talon = new TalonFX(id, bus);
 
     TalonFXConfiguration config = new TalonFXConfiguration();
+    config.MotionMagic.MotionMagicCruiseVelocity =
+        20; // 80; //106; // 5 rotations per second cruise
+    config.MotionMagic.MotionMagicAcceleration =
+        40; // 100; // Take approximately 0.5 seconds to reach max vel
+    config.MotionMagic.MotionMagicJerk = 400; // 700;
+    config.Slot0.kP = 4.8F; // 55.0F;
+    config.Slot0.kI = 0.0F;
+    config.Slot0.kD = 0.0F;
+    config.Slot0.kV = 0.1; // 0.0F;
+    config.Slot0.kS = 0.25F; // Approximately 0.25V to get the mechanism moving
+
+    config.Voltage.PeakForwardVoltage = 12;
+    config.Voltage.PeakReverseVoltage = -12;
+
     config.MotorOutput.Inverted =
         invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
     config.MotorOutput.NeutralMode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
     config.CurrentLimits.SupplyCurrentLimit = currentLimitAmps;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.TorqueCurrent.PeakForwardTorqueCurrent = currentLimitAmps;
+    config.TorqueCurrent.PeakReverseTorqueCurrent = -currentLimitAmps;
     tryUntilOk(5, () -> talon.getConfigurator().apply(config));
+
+    if (followerID != 0) {
+      talon.setControl(new Follower(followerID, followOpposite));
+    }
 
     position = talon.getPosition();
     velocity = talon.getVelocity();
@@ -93,7 +126,23 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   @Override
   public void setVolts(double volts) {
     talon.setControl(voltageOut.withOutput(volts));
-    Logger.recordOutput("Roller/setpointVolts", volts);
+  }
+
+  @Override
+  public void setSpeed(double speed) {
+    talon.setControl(voltageVelocity.withVelocity(speed));
+  }
+
+  @Override
+  public void setPosition(double rotations) {
+    talon.setControl(mmvPosition.withPosition(rotations));
+  }
+
+  @Override
+  public void setZero() {
+    setVolts(0);
+    // m_angleLeftMotor.setControl(m_brake);
+    setPosition(0);
   }
 
   @Override
