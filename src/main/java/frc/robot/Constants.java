@@ -72,7 +72,7 @@ public final class Constants {
     // public static final double kV = 0.0;
     // public static final double kA = 0.0;
     public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(.1).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
+        new Slot0Configs().withKP(.2).withKI(0).withKD(0).withKS(0).withKV(0.13).withKA(0);
   }
 
   public static final class ELEVATOR { // old AngleSubSystem
@@ -101,7 +101,7 @@ public final class Constants {
     // public static final double kV = 0.0;
     // public static final double kA = 0.0;
     public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(.1).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
+        new Slot0Configs().withKP(4.8).withKI(0).withKD(0).withKS(0.25).withKV(0.1).withKA(0);
   }
 
   public static final class WRIST {
@@ -122,7 +122,7 @@ public final class Constants {
     // public static final double kV = 0.0;
     // public static final double kA = 0.0;
     public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(.1).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
+        new Slot0Configs().withKP(1).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
   }
 
   public static final class CLIMBER {
