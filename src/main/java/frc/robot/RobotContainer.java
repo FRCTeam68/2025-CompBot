@@ -375,9 +375,9 @@ public class RobotContainer {
     //                 m_ps4Controller.getLeftY() * 12, -m_ps4Controller.getRightY() * 12),
     //         m_Climber));
     rollerLeft.setDefaultCommand(
-        Commands.run(() -> rollerLeft.runRoller(m_ps4Controller.getLeftY() * 12), rollerLeft));
+        Commands.run(() -> rollerLeft.setVolts(m_ps4Controller.getLeftY() * 12), rollerLeft));
     rollerRight.setDefaultCommand(
-        Commands.run(() -> rollerRight.runRoller(-m_ps4Controller.getRightY() * 12), rollerRight));
+        Commands.run(() -> rollerRight.setVolts(-m_ps4Controller.getRightY() * 12), rollerRight));
 
     // m_NoteSensorTrigger1.onTrue(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor1",
     // true)))

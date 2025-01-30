@@ -91,9 +91,9 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   }
 
   @Override
-  public void runVolts(double volts) {
+  public void setVolts(double volts) {
     talon.setControl(voltageOut.withOutput(volts));
-    Logger.recordOutput("Roller/setpoint", volts);
+    Logger.recordOutput("Roller/setpointVolts", volts);
   }
 
   @Override

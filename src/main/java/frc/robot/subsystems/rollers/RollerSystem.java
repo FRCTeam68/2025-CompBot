@@ -35,8 +35,8 @@ public class RollerSystem extends SubsystemBase {
   }
 
   @AutoLogOutput
-  public void runRoller(double inputVolts) {
+  public void setVolts(double inputVolts) {
     // return startEnd(() -> io.runVolts(inputVolts), () -> io.stop());
-    io.runVolts(inputVolts);
+    io.setVolts(inputVolts);
   }
 }

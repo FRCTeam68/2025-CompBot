@@ -18,10 +18,6 @@ public class RollerSystemIOSim implements RollerSystemIO {
   private final DCMotorSim sim;
   private double appliedVoltage = 0.0;
 
-  private static final DCMotor motorModel = DCMotor.getKrakenX60Foc(1);
-  private static final double reduction = (18.0 / 12.0);
-  private static final double moi = 0.001;
-
   public RollerSystemIOSim(DCMotor motorModel, double reduction, double moi) {
     sim =
         new DCMotorSim(LinearSystemId.createDCMotorSystem(motorModel, moi, reduction), motorModel);
@@ -30,7 +26,7 @@ public class RollerSystemIOSim implements RollerSystemIO {
   @Override
   public void updateInputs(RollerSystemIOInputs inputs) {
     if (DriverStation.isDisabled()) {
-      runVolts(0.0);
+      setVolts(0.0);
     }
 
     inputs.connected = true;
@@ -42,13 +38,13 @@ public class RollerSystemIOSim implements RollerSystemIO {
   }
 
   @Override
-  public void runVolts(double volts) {
+  public void setVolts(double volts) {
     appliedVoltage = MathUtil.clamp(volts, -12.0, 12.0);
     sim.setInputVoltage(appliedVoltage);
   }
 
   @Override
   public void stop() {
-    runVolts(0.0);
+    setVolts(0.0);
   }
 }

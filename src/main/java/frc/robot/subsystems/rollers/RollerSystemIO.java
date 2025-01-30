@@ -24,7 +24,7 @@ public interface RollerSystemIO {
   default void updateInputs(RollerSystemIOInputs inputs) {}
 
   /* Run rollers at volts */
-  default void runVolts(double volts) {}
+  default void setVolts(double volts) {}
 
   /* Stop rollers */
   default void stop() {}
