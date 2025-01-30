@@ -102,21 +102,57 @@ public class RobotContainer {
         climberLeft =
             new RollerSystem(
                 "ClimberLeft",
-                new RollerSystemIOTalonFX(40, "DRIVEbus", 40, false, 0, false, false, 0));
+                new RollerSystemIOTalonFX(
+                    40,
+                    "DRIVEbus",
+                    40,
+                    false,
+                    0,
+                    false,
+                    false,
+                    0,
+                    Constants.CLIMBER.SLOT0_CONFIGS));
+        climberLeft.setPID(
+            Constants.CLIMBER.SLOT0_CONFIGS); // init tunables in the parent roller system
+
         climberRight =
             new RollerSystem(
                 "ClimberRight",
-                new RollerSystemIOTalonFX(41, "DRIVEbus", 40, false, 0, false, false, 0));
+                new RollerSystemIOTalonFX(
+                    41,
+                    "DRIVEbus",
+                    40,
+                    false,
+                    0,
+                    false,
+                    false,
+                    0,
+                    Constants.CLIMBER.SLOT0_CONFIGS));
+        climberRight.setPID(
+            Constants.CLIMBER.SLOT0_CONFIGS); // init tunables in the parent roller system
 
         intakeShooter =
             new RollerSystem(
                 "IntakeShooter",
-                new RollerSystemIOTalonFX(30, "rio", 40, false, 0, false, false, 0));
+                new RollerSystemIOTalonFX(
+                    30,
+                    "rio",
+                    40,
+                    false,
+                    0,
+                    false,
+                    false,
+                    0,
+                    Constants.INTAKE_SHOOTER.SLOT0_CONFIGS));
+        intakeShooter.setPID(
+            Constants.INTAKE_SHOOTER.SLOT0_CONFIGS); // init tunables in the parent roller system
 
         wrist =
             new RollerSystem(
-                "Wrist", new RollerSystemIOTalonFX(31, "rio", 40, false, 0, false, false, 0));
-
+                "Wrist",
+                new RollerSystemIOTalonFX(
+                    31, "rio", 40, false, 0, false, false, 0, Constants.WRIST.SLOT0_CONFIGS));
+        wrist.setPID(Constants.WRIST.SLOT0_CONFIGS); // init tunables in the parent roller system
         break;
 
       case SIM:

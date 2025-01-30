@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -64,6 +65,14 @@ public final class Constants {
     public static final double CORAL_SHOOT_SPEED = -20;
     public static final double CORAL_SHOOT_TIMEOUT = 2;
     public static final double BUMP_VALUE = 1; // rotations
+    // public static final double kP = 0.1;
+    // public static final double kI = 0.0;
+    // public static final double kD = 0.0;
+    // public static final double kS = 0.0;
+    // public static final double kV = 0.0;
+    // public static final double kA = 0.0;
+    public static final Slot0Configs SLOT0_CONFIGS =
+        new Slot0Configs().withKP(.1).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
   }
 
   public static final class ELEVATOR { // old AngleSubSystem
@@ -85,6 +94,14 @@ public final class Constants {
     public static final double A2 = 10;
     public static final double A1 = 2;
     public static final double BUMP_VALUE = .5; // rotations
+    // public static final double kP = 0.1;
+    // public static final double kI = 0.0;
+    // public static final double kD = 0.0;
+    // public static final double kS = 0.0;
+    // public static final double kV = 0.0;
+    // public static final double kA = 0.0;
+    public static final Slot0Configs SLOT0_CONFIGS =
+        new Slot0Configs().withKP(.1).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
   }
 
   public static final class WRIST {
@@ -98,6 +115,14 @@ public final class Constants {
     public static final double A2 = 20;
     public static final double A1 = 20;
     public static final double BUMP_VALUE = .5; // rotations
+    // public static final double kP = 0.1;
+    // public static final double kI = 0.0;
+    // public static final double kD = 0.0;
+    // public static final double kS = 0.0;
+    // public static final double kV = 0.0;
+    // public static final double kA = 0.0;
+    public static final Slot0Configs SLOT0_CONFIGS =
+        new Slot0Configs().withKP(.1).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
   }
 
   public static final class CLIMBER {
@@ -106,6 +131,14 @@ public final class Constants {
     public static final String CANBUS = "DRIVEbus";
     public static final double MAX_HEIGHT =
         132; // 122;  // old hooks: 115;   //100 rotates is about 9in
+    // public static final double kP = 0.1;
+    // public static final double kI = 0.0;
+    // public static final double kD = 0.0;
+    // public static final double kS = 0.0;
+    // public static final double kV = 0.0;
+    // public static final double kA = 0.0;
+    public static final Slot0Configs SLOT0_CONFIGS =
+        new Slot0Configs().withKP(.1).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
   }
 
   public static final class RED_TAGS {

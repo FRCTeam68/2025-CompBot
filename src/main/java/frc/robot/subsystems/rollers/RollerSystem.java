@@ -7,10 +7,12 @@
 
 package frc.robot.subsystems.rollers;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -21,9 +23,23 @@ public class RollerSystem extends SubsystemBase {
   private final Alert disconnected;
   protected final Timer stateTimer = new Timer();
 
+  private LoggedTunableNumber rollerkP;
+  private LoggedTunableNumber rollerkI;
+  private LoggedTunableNumber rollerkD;
+  private LoggedTunableNumber rollerkS;
+  private LoggedTunableNumber rollerkV;
+  private LoggedTunableNumber rollerkA;
+
   public RollerSystem(String name, RollerSystemIO io) {
     this.name = name;
     this.io = io;
+
+    rollerkP = new LoggedTunableNumber("Roller/" + name + "/kP");
+    rollerkI = new LoggedTunableNumber("Roller/" + name + "/kI");
+    rollerkD = new LoggedTunableNumber("Roller/" + name + "/kD");
+    rollerkS = new LoggedTunableNumber("Roller/" + name + "/kS");
+    rollerkV = new LoggedTunableNumber("Roller/" + name + "/kV");
+    rollerkA = new LoggedTunableNumber("Roller/" + name + "/kA");
 
     disconnected = new Alert(name + " motor disconnected!", Alert.AlertType.kWarning);
     stateTimer.start();
@@ -33,6 +49,34 @@ public class RollerSystem extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs(name, inputs);
     disconnected.set(!inputs.connected);
+
+    // Update tunable numbers
+    if (rollerkP.hasChanged(hashCode())
+        || rollerkI.hasChanged(hashCode())
+        || rollerkD.hasChanged(hashCode())
+        || rollerkS.hasChanged(hashCode())
+        || rollerkV.hasChanged(hashCode())
+        || rollerkA.hasChanged(hashCode())) {
+      Slot0Configs newconfig = new Slot0Configs();
+      newconfig.kP = rollerkP.get();
+      newconfig.kI = rollerkI.get();
+      newconfig.kD = rollerkD.get();
+      newconfig.kS = rollerkS.get();
+      newconfig.kV = rollerkV.get();
+      newconfig.kA = rollerkA.get();
+      io.setPID(newconfig);
+    }
+  }
+
+  // must call this once and only once in robotcontainer after each RollerSystem is created
+  public void setPID(Slot0Configs newconfig) {
+    rollerkP.initDefault(newconfig.kP);
+    rollerkI.initDefault(newconfig.kI);
+    rollerkD.initDefault(newconfig.kD);
+    rollerkS.initDefault(newconfig.kS);
+    rollerkV.initDefault(newconfig.kV);
+    rollerkA.initDefault(newconfig.kA);
+    io.setPID(newconfig);
   }
 
   @AutoLogOutput

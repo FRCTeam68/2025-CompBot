@@ -11,6 +11,7 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -30,6 +31,7 @@ import edu.wpi.first.units.measure.Voltage;
 /** Generic roller IO implementation for a roller or series of rollers using a Kraken. */
 public class RollerSystemIOTalonFX implements RollerSystemIO {
   private final TalonFX talon;
+  private final TalonFXConfiguration config = new TalonFXConfiguration();
 
   private final StatusSignal<Angle> position;
   private final StatusSignal<AngularVelocity> velocity;
@@ -56,21 +58,22 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
       int followerID,
       boolean followOpposite,
       boolean brake,
-      double reduction) {
+      double reduction,
+      Slot0Configs slot0Configs) {
     this.reduction = reduction;
     talon = new TalonFX(id, bus);
 
-    TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotionMagic.MotionMagicCruiseVelocity =
         20; // 80; //106; // 5 rotations per second cruise
     config.MotionMagic.MotionMagicAcceleration =
         40; // 100; // Take approximately 0.5 seconds to reach max vel
     config.MotionMagic.MotionMagicJerk = 400; // 700;
-    config.Slot0.kP = 4.8F; // 55.0F;
-    config.Slot0.kI = 0.0F;
-    config.Slot0.kD = 0.0F;
-    config.Slot0.kV = 0.1; // 0.0F;
-    config.Slot0.kS = 0.25F; // Approximately 0.25V to get the mechanism moving
+    config.Slot0.kP = slot0Configs.kP;
+    config.Slot0.kI = slot0Configs.kI;
+    config.Slot0.kD = slot0Configs.kD;
+    config.Slot0.kS = slot0Configs.kS;
+    config.Slot0.kV = slot0Configs.kV;
+    config.Slot0.kV = slot0Configs.kA;
 
     config.Voltage.PeakForwardVoltage = 12;
     config.Voltage.PeakReverseVoltage = -12;
@@ -148,5 +151,16 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   @Override
   public void stop() {
     talon.setControl(neutralOut);
+  }
+
+  @Override
+  public void setPID(Slot0Configs newconfig) {
+    config.Slot0.kP = newconfig.kP;
+    config.Slot0.kI = newconfig.kI;
+    config.Slot0.kD = newconfig.kD;
+    config.Slot0.kS = newconfig.kS;
+    config.Slot0.kV = newconfig.kV;
+    config.Slot0.kA = newconfig.kA;
+    tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
   }
 }
