@@ -15,7 +15,9 @@ public interface RollerSystemIO {
   static class RollerSystemIOInputs {
     public boolean connected = false;
     public double positionRads = 0.0;
+    public double positionRotations = 0.0;
     public double velocityRadsPerSec = 0.0;
+    public double velocityRotsPerSec = 0.0;
     public double appliedVoltage = 0.0;
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;

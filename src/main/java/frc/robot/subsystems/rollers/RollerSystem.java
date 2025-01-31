@@ -8,7 +8,6 @@
 package frc.robot.subsystems.rollers;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -101,10 +100,10 @@ public class RollerSystem extends SubsystemBase {
   }
 
   public double getSpeed() {
-    return Units.radiansToRotations(inputs.velocityRadsPerSec);
+    return inputs.velocityRotsPerSec;
   }
 
   public double getPosition() {
-    return Units.radiansToRotations(inputs.positionRads);
+    return inputs.positionRotations;
   }
 }
