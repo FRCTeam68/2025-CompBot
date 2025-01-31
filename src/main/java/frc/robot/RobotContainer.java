@@ -16,7 +16,7 @@ package frc.robot;
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
+// import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -34,9 +34,9 @@ import frc.robot.commands.*;
 import frc.robot.generated.TunerConstants;
 // import frc.robot.subsystems.CommandSwerveDrivetrain;
 // import frc.robot.subsystems.ClimberSubSystem;
-import frc.robot.subsystems.NoteSubSystem;
-import frc.robot.subsystems.NoteSubSystem.ActionRequest;
-import frc.robot.subsystems.NoteSubSystem.Target;
+// import frc.robot.subsystems.NoteSubSystem;
+// import frc.robot.subsystems.NoteSubSystem.ActionRequest;
+// import frc.robot.subsystems.NoteSubSystem.Target;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -63,15 +63,17 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
-  private final RollerSystem rollerLeft;
-  private final RollerSystem rollerRight;
+  private final RollerSystem climberLeft;
+  private final RollerSystem climberRight;
+  private final RollerSystem intakeShooter;
+  private final RollerSystem wrist;
 
   // Controller
   private final CommandXboxController m_xboxController = new CommandXboxController(0);
 
   CommandPS4Controller m_ps4Controller = new CommandPS4Controller(1);
 
-  NoteSubSystem m_NoteSubSystem = new NoteSubSystem();
+  // NoteSubSystem m_NoteSubSystem = new NoteSubSystem();
   // ClimberSubSystem m_Climber = new ClimberSubSystem();
   DigitalInput m_noteSensor2 = new DigitalInput(0);
   Trigger m_NoteSensorTrigger2 = new Trigger(m_noteSensor2::get);
@@ -97,12 +99,23 @@ public class RobotContainer {
                 new VisionIOLimelight(camera0Name, drive::getRotation),
                 new VisionIOLimelight(camera1Name, drive::getRotation));
 
-        rollerLeft =
+        climberLeft =
             new RollerSystem(
-                "RollerLeft", new RollerSystemIOTalonFX(40, "DRIVEbus", 40, false, false, 0));
-        rollerRight =
+                "ClimberLeft",
+                new RollerSystemIOTalonFX(40, "DRIVEbus", 40, false, 0, false, false, 0));
+        climberRight =
             new RollerSystem(
-                "RollerRight", new RollerSystemIOTalonFX(41, "DRIVEbus", 40, false, false, 0));
+                "ClimberRight",
+                new RollerSystemIOTalonFX(41, "DRIVEbus", 40, false, 0, false, false, 0));
+
+        intakeShooter =
+            new RollerSystem(
+                "IntakeShooter",
+                new RollerSystemIOTalonFX(30, "rio", 40, false, 0, false, false, 0));
+
+        wrist =
+            new RollerSystem(
+                "Wrist", new RollerSystemIOTalonFX(31, "rio", 40, false, 0, false, false, 0));
 
         break;
 
@@ -118,12 +131,17 @@ public class RobotContainer {
         // (Use same number of dummy implementations as the real robot)
         // no sim for limelight????  use blank
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
-        rollerLeft =
+        climberLeft =
             new RollerSystem(
-                "RollerLeft", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
-        rollerRight =
+                "ClimberLeft", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+        climberRight =
             new RollerSystem(
-                "RollerRight", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+                "ClimberRight", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+        intakeShooter =
+            new RollerSystem(
+                "IntakeShooter", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+        wrist = new RollerSystem("Wrist", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+
         break;
 
       default:
@@ -137,46 +155,49 @@ public class RobotContainer {
                 new ModuleIO() {});
         // (Use same number of dummy implementations as the real robot)
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
-        rollerLeft = new RollerSystem("RollerLeft", new RollerSystemIO() {});
-        rollerRight = new RollerSystem("RollerRight", new RollerSystemIO() {});
+        climberLeft = new RollerSystem("ClimberLeft", new RollerSystemIO() {});
+        climberRight = new RollerSystem("ClimberRight", new RollerSystemIO() {});
+        intakeShooter = new RollerSystem("IntakeShooter", new RollerSystemIO() {});
+        wrist = new RollerSystem("Wrist", new RollerSystemIO() {});
         break;
     }
 
-    NamedCommands.registerCommand(
-        "shoot_spinup",
-        Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.SHOOT_SPINUP)));
-    NamedCommands.registerCommand(
-        "target_speaker",
-        new SetTargetCustomCmd(
-            m_NoteSubSystem, Constants.ANGLE.SPEAKER, Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
-    NamedCommands.registerCommand(
-        "shoot", Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.SHOOT)));
+    // NamedCommands.registerCommand(
+    //     "shoot_spinup",
+    //     Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.SHOOT_SPINUP)));
+    // NamedCommands.registerCommand(
+    //     "target_speaker",
+    //     new SetTargetCustomCmd(
+    //         m_NoteSubSystem, Constants.ANGLE.SPEAKER, Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
+    // NamedCommands.registerCommand(
+    //     "shoot", Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.SHOOT)));
 
-    NamedCommands.registerCommand(
-        "target_intake", Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.INTAKE)));
-    NamedCommands.registerCommand(
-        "intake", Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.INTAKENOTE)));
+    // NamedCommands.registerCommand(
+    //     "target_intake", Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.INTAKE)));
+    // NamedCommands.registerCommand(
+    //     "intake", Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.INTAKENOTE)));
 
-    NamedCommands.registerCommand(
-        "target_speaker_1m",
-        new SetTargetCustomCmd(
-            m_NoteSubSystem, Constants.ANGLE.SPEAKER_1M, Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
-    NamedCommands.registerCommand(
-        "target_speaker_podium",
-        new SetTargetCustomCmd(
-            m_NoteSubSystem,
-            Constants.ANGLE.SPEAKER_PODIUM,
-            Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
-    NamedCommands.registerCommand(
-        "target_speaker_podium_source",
-        new SetTargetCustomCmd(
-            m_NoteSubSystem,
-            Constants.ANGLE.SPEAKER_PODIUM_SOURCE,
-            Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
-    NamedCommands.registerCommand(
-        "target_speaker_stage",
-        new SetTargetCustomCmd(
-            m_NoteSubSystem, Constants.ANGLE.SPEAKER_STAGE, Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
+    // NamedCommands.registerCommand(
+    //     "target_speaker_1m",
+    //     new SetTargetCustomCmd(
+    //         m_NoteSubSystem, Constants.ANGLE.SPEAKER_1M, Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
+    // NamedCommands.registerCommand(
+    //     "target_speaker_podium",
+    //     new SetTargetCustomCmd(
+    //         m_NoteSubSystem,
+    //         Constants.ANGLE.SPEAKER_PODIUM,
+    //         Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
+    // NamedCommands.registerCommand(
+    //     "target_speaker_podium_source",
+    //     new SetTargetCustomCmd(
+    //         m_NoteSubSystem,
+    //         Constants.ANGLE.SPEAKER_PODIUM_SOURCE,
+    //         Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
+    // NamedCommands.registerCommand(
+    //     "target_speaker_stage",
+    //     new SetTargetCustomCmd(
+    //         m_NoteSubSystem, Constants.ANGLE.SPEAKER_STAGE,
+    // Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
 
     // NamedCommands.registerCommand("DelayStart", new WaitCommand(m_autoWaitTimeSelected));
 
@@ -286,71 +307,62 @@ public class RobotContainer {
 
     m_xboxController
         .leftTrigger()
-        .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.INTAKENOTE)));
+        .onTrue(
+            Commands.runOnce(
+                () -> intakeShooter.setSpeed(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED)));
     m_xboxController
         .rightTrigger()
-        .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.SHOOT)));
-    m_xboxController
-        .leftBumper()
-        .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.SPIT_NOTE2)));
-    m_xboxController
-        .rightBumper()
-        .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.SHOOT_SPINUP)));
-    m_xboxController
-        .start()
-        .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.STOP_ALL)));
+        .onTrue(
+            Commands.runOnce(
+                () -> intakeShooter.setSpeed(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED)));
+    // m_xboxController.leftBumper().onTrue(Commands.runOnce(() ->
+    // m_NoteSubSystem.setAction(ActionRequest.SPIT_NOTE2)));
+    // m_xboxController.rightBumper().onTrue(Commands.runOnce(() ->
+    // m_NoteSubSystem.setAction(ActionRequest.SHOOT_SPINUP)));
+    // m_xboxController.start().onTrue(Commands.runOnce(() ->
+    // m_NoteSubSystem.setAction(ActionRequest.STOP_ALL)));
 
     m_ps4Controller
         .triangle()
-        .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.SPEAKER_PODIUM)));
-    m_ps4Controller.circle().onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.AMP)));
-    m_ps4Controller.square().onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.TRAP)));
-    m_ps4Controller
-        .cross()
-        .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.SPEAKER)));
+        .onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L3)));
+    m_ps4Controller.circle().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L2)));
+    m_ps4Controller.square().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L4)));
+    m_ps4Controller.cross().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L1)));
 
     // m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.FEEDSTATION_SPIN)));
-    m_ps4Controller
-        .L2()
-        .onTrue(
-            Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.DISLODGE_WITH_SHOOTER)));
-    m_ps4Controller
-        .R1()
-        .onTrue(
-            Commands.runOnce(() -> m_NoteSubSystem.setPassSpeed(Constants.SHOOTER.PASS1_SPEED)));
-    m_ps4Controller
-        .R2()
-        .onTrue(
-            Commands.runOnce(() -> m_NoteSubSystem.setPassSpeed(Constants.SHOOTER.PASS2_SPEED)));
+    // m_ps4Controller.L2().onTrue(Commands.runOnce(() ->
+    // m_NoteSubSystem.setAction(ActionRequest.DISLODGE_WITH_SHOOTER)));
+    m_ps4Controller.R1().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.A1)));
+    m_ps4Controller.R2().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.A2)));
 
-    // m_ps4Controller.L2().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.INTAKENOTE)));
-    // m_ps4Controller.R2().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.SHOOT)));
-    // m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.SPIT_NOTE2)));
-    // m_ps4Controller.R1().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.SHOOT_SPINUP)));
     // m_ps4Controller.touchpad().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.STOP)));
-
-    m_ps4Controller.options().onTrue(Commands.runOnce(() -> m_NoteSubSystem.setHaveNote1(false)));
+    // m_ps4Controller.options().onTrue(Commands.runOnce(() ->
+    // m_NoteSubSystem.setHaveNote1(false)));
 
     m_ps4Controller
         .povLeft()
         .onTrue(
             Commands.runOnce(
-                () -> m_NoteSubSystem.bumpShooterSpeed((-Constants.SHOOTER.BUMP_VALUE))));
+                () ->
+                    intakeShooter.setSpeed(
+                        intakeShooter.getSpeed() - Constants.INTAKE_SHOOTER.BUMP_VALUE)));
     m_ps4Controller
         .povRight()
         .onTrue(
             Commands.runOnce(
-                () -> m_NoteSubSystem.bumpShooterSpeed((Constants.SHOOTER.BUMP_VALUE))));
+                () ->
+                    intakeShooter.setSpeed(
+                        intakeShooter.getSpeed() + Constants.INTAKE_SHOOTER.BUMP_VALUE)));
     m_ps4Controller
         .povUp()
         .onTrue(
             Commands.runOnce(
-                () -> m_NoteSubSystem.bumpAnglePosition((-Constants.ANGLE.BUMP_VALUE))));
+                () -> wrist.setSpeed(wrist.getPosition() + Constants.INTAKE_SHOOTER.BUMP_VALUE)));
     m_ps4Controller
         .povDown()
         .onTrue(
             Commands.runOnce(
-                () -> m_NoteSubSystem.bumpAnglePosition((Constants.ANGLE.BUMP_VALUE))));
+                () -> wrist.setSpeed(wrist.getPosition() - Constants.INTAKE_SHOOTER.BUMP_VALUE)));
 
     // //Left Joystick Y
     // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake1Speed((-Constants.INTAKE.BUMP_VALUE))));
@@ -361,28 +373,16 @@ public class RobotContainer {
 
     // m_ps4Controller.share().onTrue(Commands.runOnce(() -> m_NoteSubSystem.resetSetpoints()));
 
-    // m_ps4Controller
-    //     .PS()
-    //     .onTrue(
+    // m_ps4Controller.PS().onTrue(
     //         Commands.runOnce(() -> m_climbActive = !m_climbActive)
     //             .andThen(() -> m_Climber.setPitMode(m_climbActive))
     //             .andThen(() -> SmartDashboard.putBoolean("ClimberPitMode", m_climbActive)));
 
-    // m_Climber.setDefaultCommand(
-    //     Commands.run(
-    //         () ->
-    //             m_Climber.setSpeedVout(
-    //                 m_ps4Controller.getLeftY() * 12, -m_ps4Controller.getRightY() * 12),
-    //         m_Climber));
-    rollerLeft.setDefaultCommand(
-        Commands.run(() -> rollerLeft.runRoller(m_ps4Controller.getLeftY() * 12), rollerLeft));
-    rollerRight.setDefaultCommand(
-        Commands.run(() -> rollerRight.runRoller(-m_ps4Controller.getRightY() * 12), rollerRight));
+    climberLeft.setDefaultCommand(
+        Commands.run(() -> climberLeft.setVolts(m_ps4Controller.getLeftY() * 12), climberLeft));
+    climberRight.setDefaultCommand(
+        Commands.run(() -> climberRight.setVolts(-m_ps4Controller.getRightY() * 12), climberRight));
 
-    // m_NoteSensorTrigger1.onTrue(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor1",
-    // true)))
-    //                    .onFalse(Commands.runOnce(()->SmartDashboard.putBoolean("NoteSensor1",
-    // false)));
     m_NoteSensorTrigger2
         .onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("NoteSensor2", true)))
         .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("NoteSensor2", false)));
@@ -397,7 +397,7 @@ public class RobotContainer {
     return autoChooser.get();
   }
 
-  public void StopSubSystems() {
-    m_NoteSubSystem.setAction(ActionRequest.STOP_ALL);
-  }
+  //   public void StopSubSystems() {
+  //     m_NoteSubSystem.setAction(ActionRequest.STOP_ALL);
+  //   }
 }

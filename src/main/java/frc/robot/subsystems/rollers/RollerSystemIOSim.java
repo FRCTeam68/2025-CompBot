@@ -10,6 +10,7 @@ package frc.robot.subsystems.rollers;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
@@ -17,10 +18,6 @@ import frc.robot.Constants;
 public class RollerSystemIOSim implements RollerSystemIO {
   private final DCMotorSim sim;
   private double appliedVoltage = 0.0;
-
-  private static final DCMotor motorModel = DCMotor.getKrakenX60Foc(1);
-  private static final double reduction = (18.0 / 12.0);
-  private static final double moi = 0.001;
 
   public RollerSystemIOSim(DCMotor motorModel, double reduction, double moi) {
     sim =
@@ -30,7 +27,7 @@ public class RollerSystemIOSim implements RollerSystemIO {
   @Override
   public void updateInputs(RollerSystemIOInputs inputs) {
     if (DriverStation.isDisabled()) {
-      runVolts(0.0);
+      setVolts(0.0);
     }
 
     inputs.connected = true;
@@ -42,13 +39,23 @@ public class RollerSystemIOSim implements RollerSystemIO {
   }
 
   @Override
-  public void runVolts(double volts) {
+  public void setVolts(double volts) {
     appliedVoltage = MathUtil.clamp(volts, -12.0, 12.0);
     sim.setInputVoltage(appliedVoltage);
   }
 
   @Override
+  public void setSpeed(double speed) {
+    sim.setAngularVelocity(Units.rotationsToRadians(speed));
+  }
+
+  @Override
+  public void setPosition(double position) {
+    sim.setAngle(Units.rotationsToRadians(position));
+  }
+
+  @Override
   public void stop() {
-    runVolts(0.0);
+    setVolts(0.0);
   }
 }
