@@ -7,6 +7,7 @@
 
 package frc.robot.subsystems.rollers;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface RollerSystemIO {
@@ -14,7 +15,9 @@ public interface RollerSystemIO {
   static class RollerSystemIOInputs {
     public boolean connected = false;
     public double positionRads = 0.0;
+    public double positionRotations = 0.0;
     public double velocityRadsPerSec = 0.0;
+    public double velocityRotsPerSec = 0.0;
     public double appliedVoltage = 0.0;
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;
@@ -36,4 +39,7 @@ public interface RollerSystemIO {
 
   /* Stop rollers */
   default void stop() {}
+
+  /** Set P, I, and D gains for closed loop control on drive motor. */
+  public default void setPID(Slot0Configs newconfig) {}
 }

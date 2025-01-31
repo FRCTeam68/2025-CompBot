@@ -54,6 +54,10 @@ public class RollerSystemIOSim implements RollerSystemIO {
     sim.setAngle(Units.rotationsToRadians(position));
   }
 
+  // @Override
+  // public void setPID(double kP, double kI, double kD) {
+  // }
+
   @Override
   public void stop() {
     setVolts(0.0);

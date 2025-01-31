@@ -102,21 +102,57 @@ public class RobotContainer {
         climberLeft =
             new RollerSystem(
                 "ClimberLeft",
-                new RollerSystemIOTalonFX(40, "DRIVEbus", 40, false, 0, false, false, 0));
+                new RollerSystemIOTalonFX(
+                    40,
+                    "DRIVEbus",
+                    40,
+                    false,
+                    0,
+                    false,
+                    false,
+                    1,
+                    Constants.CLIMBER.SLOT0_CONFIGS));
+        climberLeft.setPID(
+            Constants.CLIMBER.SLOT0_CONFIGS); // init tunables in the parent roller system
+
         climberRight =
             new RollerSystem(
                 "ClimberRight",
-                new RollerSystemIOTalonFX(41, "DRIVEbus", 40, false, 0, false, false, 0));
+                new RollerSystemIOTalonFX(
+                    41,
+                    "DRIVEbus",
+                    40,
+                    false,
+                    0,
+                    false,
+                    false,
+                    1,
+                    Constants.CLIMBER.SLOT0_CONFIGS));
+        climberRight.setPID(
+            Constants.CLIMBER.SLOT0_CONFIGS); // init tunables in the parent roller system
 
         intakeShooter =
             new RollerSystem(
                 "IntakeShooter",
-                new RollerSystemIOTalonFX(30, "rio", 40, false, 0, false, false, 0));
+                new RollerSystemIOTalonFX(
+                    30,
+                    "rio",
+                    40,
+                    false,
+                    0,
+                    false,
+                    false,
+                    1,
+                    Constants.INTAKE_SHOOTER.SLOT0_CONFIGS));
+        intakeShooter.setPID(
+            Constants.INTAKE_SHOOTER.SLOT0_CONFIGS); // init tunables in the parent roller system
 
         wrist =
             new RollerSystem(
-                "Wrist", new RollerSystemIOTalonFX(31, "rio", 40, false, 0, false, false, 0));
-
+                "Wrist",
+                new RollerSystemIOTalonFX(
+                    31, "rio", 40, false, 0, false, false, 1, Constants.WRIST.SLOT0_CONFIGS));
+        wrist.setPID(Constants.WRIST.SLOT0_CONFIGS); // init tunables in the parent roller system
         break;
 
       case SIM:
@@ -319,21 +355,24 @@ public class RobotContainer {
     // m_NoteSubSystem.setAction(ActionRequest.SPIT_NOTE2)));
     // m_xboxController.rightBumper().onTrue(Commands.runOnce(() ->
     // m_NoteSubSystem.setAction(ActionRequest.SHOOT_SPINUP)));
-    // m_xboxController.start().onTrue(Commands.runOnce(() ->
-    // m_NoteSubSystem.setAction(ActionRequest.STOP_ALL)));
+    m_xboxController
+        .start()
+        .onTrue(
+            Commands.runOnce(() -> intakeShooter.setSpeed(0))
+                .andThen(Commands.runOnce(() -> wrist.setPosition(0))));
 
     m_ps4Controller
         .triangle()
-        .onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L3)));
-    m_ps4Controller.circle().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L2)));
-    m_ps4Controller.square().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L4)));
+        .onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L4)));
+    m_ps4Controller.circle().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L3)));
+    m_ps4Controller.square().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L2)));
     m_ps4Controller.cross().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L1)));
 
     // m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.FEEDSTATION_SPIN)));
     // m_ps4Controller.L2().onTrue(Commands.runOnce(() ->
     // m_NoteSubSystem.setAction(ActionRequest.DISLODGE_WITH_SHOOTER)));
-    m_ps4Controller.R1().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.A1)));
-    m_ps4Controller.R2().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.A2)));
+    m_ps4Controller.R1().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.A2)));
+    m_ps4Controller.R2().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.A1)));
 
     // m_ps4Controller.touchpad().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.STOP)));
     // m_ps4Controller.options().onTrue(Commands.runOnce(() ->
@@ -357,12 +396,12 @@ public class RobotContainer {
         .povUp()
         .onTrue(
             Commands.runOnce(
-                () -> wrist.setSpeed(wrist.getPosition() + Constants.INTAKE_SHOOTER.BUMP_VALUE)));
+                () -> wrist.setSpeed(wrist.getPosition() + Constants.WRIST.BUMP_VALUE)));
     m_ps4Controller
         .povDown()
         .onTrue(
             Commands.runOnce(
-                () -> wrist.setSpeed(wrist.getPosition() - Constants.INTAKE_SHOOTER.BUMP_VALUE)));
+                () -> wrist.setSpeed(wrist.getPosition() - Constants.WRIST.BUMP_VALUE)));
 
     // //Left Joystick Y
     // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake1Speed((-Constants.INTAKE.BUMP_VALUE))));
