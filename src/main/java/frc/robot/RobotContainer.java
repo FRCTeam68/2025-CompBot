@@ -365,24 +365,14 @@ public class RobotContainer {
 
     m_ps4Controller
         .triangle()
-        .onTrue(
-            Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L4))
-                .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L4))));
-    m_ps4Controller
-        .circle()
-        .onTrue(
-            Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L3))
-                .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L3))));
-    m_ps4Controller
-        .square()
-        .onTrue(
-            Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L2))
-                .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L2))));
-    m_ps4Controller
-        .cross()
-        .onTrue(
-            Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L1))
-                .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L1))));
+        .onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L4)));
+    // .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L4))));
+    m_ps4Controller.circle().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L3)));
+    // .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L3))));
+    m_ps4Controller.square().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L2)));
+    // .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L2))));
+    m_ps4Controller.cross().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L1)));
+    // .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L1))));
 
     // m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.FEEDSTATION_SPIN)));
     // m_ps4Controller.L2().onTrue(Commands.runOnce(() ->
