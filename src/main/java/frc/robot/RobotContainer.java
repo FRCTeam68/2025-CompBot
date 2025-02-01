@@ -16,7 +16,7 @@ package frc.robot;
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-// import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -32,11 +32,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.*;
 import frc.robot.generated.TunerConstants;
-// import frc.robot.subsystems.CommandSwerveDrivetrain;
-// import frc.robot.subsystems.ClimberSubSystem;
-// import frc.robot.subsystems.NoteSubSystem;
-// import frc.robot.subsystems.NoteSubSystem.ActionRequest;
-// import frc.robot.subsystems.NoteSubSystem.Target;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -47,7 +42,6 @@ import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.rollers.RollerSystemIOSim;
 import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
-// import edu.wpi.first.math.controller.PIDController;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
@@ -67,18 +61,17 @@ public class RobotContainer {
   //   private final RollerSystem climberRight;
   private final RollerSystem intakeShooter;
   private final RollerSystem wrist;
+  private final RollerSystem elevator;
+  private final RollerSystem elevatorFollower;
 
   // Controller
   private final CommandXboxController m_xboxController = new CommandXboxController(0);
 
   CommandPS4Controller m_ps4Controller = new CommandPS4Controller(1);
 
-  // NoteSubSystem m_NoteSubSystem = new NoteSubSystem();
-  // ClimberSubSystem m_Climber = new ClimberSubSystem();
   DigitalInput m_noteSensor2 = new DigitalInput(0);
   Trigger m_NoteSensorTrigger2 = new Trigger(m_noteSensor2::get);
-  // private boolean m_climbActive = false;
-  // Dashboard inputs
+
   private final LoggedDashboardChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -135,24 +128,90 @@ public class RobotContainer {
             new RollerSystem(
                 "IntakeShooter",
                 new RollerSystemIOTalonFX(
-                    30,
-                    "rio",
+                    Constants.INTAKE_SHOOTER.CANID,
+                    Constants.INTAKE_SHOOTER.CANBUS,
                     40,
                     false,
                     0,
                     false,
                     false,
-                    1,
-                    Constants.INTAKE_SHOOTER.SLOT0_CONFIGS));
-        intakeShooter.setPID(
-            Constants.INTAKE_SHOOTER.SLOT0_CONFIGS); // init tunables in the parent roller system
+                    1));
+        // init tunables in the parent roller system
+        intakeShooter.setPID(Constants.INTAKE_SHOOTER.SLOT0_CONFIGS);
+        intakeShooter.setMotionMagic(Constants.INTAKE_SHOOTER.MOTIONMAGIC_CONFIGS);
 
         wrist =
             new RollerSystem(
                 "Wrist",
                 new RollerSystemIOTalonFX(
-                    31, "rio", 40, false, 0, false, false, 1, Constants.WRIST.SLOT0_CONFIGS));
-        wrist.setPID(Constants.WRIST.SLOT0_CONFIGS); // init tunables in the parent roller system
+                    Constants.WRIST.CANID, Constants.WRIST.CANBUS, 40, false, 0, false, false, 1));
+        // init tunables in the parent roller system
+        wrist.setPID(Constants.WRIST.SLOT0_CONFIGS);
+        wrist.setMotionMagic(Constants.WRIST.MOTIONMAGIC_CONFIGS);
+
+        elevator =
+            new RollerSystem(
+                "Elevator",
+                new RollerSystemIOTalonFX(
+                    Constants.ELEVATOR.LEFT_CANID,
+                    Constants.ELEVATOR.CANBUS,
+                    40,
+                    false,
+                    0,
+                    false,
+                    false,
+                    1));
+        // init tunables in the parent roller system
+        elevator.setPID(Constants.ELEVATOR.SLOT0_CONFIGS);
+        elevator.setMotionMagic(Constants.ELEVATOR.MOTIONMAGIC_CONFIGS);
+        elevatorFollower =
+            new RollerSystem(
+                "ElevatorFollower",
+                new RollerSystemIOTalonFX(
+                    Constants.ELEVATOR.RIGHT_CANID,
+                    Constants.ELEVATOR.CANBUS,
+                    40,
+                    true,
+                    Constants.ELEVATOR.LEFT_CANID,
+                    true,
+                    false,
+                    1));
+        // init tunables in the parent roller system
+        elevatorFollower.setPID(Constants.ELEVATOR.SLOT0_CONFIGS);
+        elevatorFollower.setMotionMagic(Constants.ELEVATOR.MOTIONMAGIC_CONFIGS);
+
+        // climberLeft =
+        //     new RollerSystem(
+        //         "ClimberLeft",
+        //         new RollerSystemIOTalonFX(
+        //             Constants.CLIMBER.LEFT_CANID,
+        //             Constants.CLIMBER.CANBUS,
+        //             40,
+        //             false,
+        //             0,
+        //             false,
+        //             false,
+        //             1));
+        // // init tunables in the parent roller system
+        // climberLeft.setPID(Constants.CLIMBER.SLOT0_CONFIGS);
+        // climberLeft.setMotionMagic(Constants.CLIMBER.MOTIONMAGIC_CONFIGS);
+
+        // climberRight =
+        //     new RollerSystem(
+        //         "ClimberRight",
+        //         new RollerSystemIOTalonFX(
+        //             Constants.CLIMBER.RIGHT_CANID,
+        //             Constants.CLIMBER.CANBUS,
+        //             40,
+        //             false,
+        //             0,
+        //             false,
+        //             false,
+        //             1));
+        // // init tunables in the parent roller system
+        // climberRight.setPID(Constants.CLIMBER.SLOT0_CONFIGS);
+        // climberRight.setMotionMagic(Constants.CLIMBER.MOTIONMAGIC_CONFIGS);
+
         break;
 
       case SIM:
@@ -167,17 +226,29 @@ public class RobotContainer {
         // (Use same number of dummy implementations as the real robot)
         // no sim for limelight????  use blank
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+
         // climberLeft =
         //     new RollerSystem(
         //         "ClimberLeft", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
         // climberRight =
         //     new RollerSystem(
         //         "ClimberRight", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+
         intakeShooter =
             new RollerSystem(
                 "IntakeShooter", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
         wrist = new RollerSystem("Wrist", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
-
+        elevator =
+            new RollerSystem("Elevator", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+        elevatorFollower =
+            new RollerSystem(
+                "ElevatorFollower", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+        // climberLeft =
+        //     new RollerSystem(
+        //         "ClimberLeft", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+        // climberRight =
+        //     new RollerSystem(
+        //         "ClimberRight", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
         break;
 
       default:
@@ -191,51 +262,26 @@ public class RobotContainer {
                 new ModuleIO() {});
         // (Use same number of dummy implementations as the real robot)
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+
         // climberLeft = new RollerSystem("ClimberLeft", new RollerSystemIO() {});
         // climberRight = new RollerSystem("ClimberRight", new RollerSystemIO() {});
+
         intakeShooter = new RollerSystem("IntakeShooter", new RollerSystemIO() {});
         wrist = new RollerSystem("Wrist", new RollerSystemIO() {});
+        elevator = new RollerSystem("Elevator", new RollerSystemIO() {});
+        elevatorFollower = new RollerSystem("ElevatorFollower", new RollerSystemIO() {});
+        // climberLeft = new RollerSystem("ClimberLeft", new RollerSystemIO() {});
+        // climberRight = new RollerSystem("ClimberRight", new RollerSystemIO() {});
         break;
     }
 
-    // NamedCommands.registerCommand(
-    //     "shoot_spinup",
-    //     Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.SHOOT_SPINUP)));
-    // NamedCommands.registerCommand(
-    //     "target_speaker",
-    //     new SetTargetCustomCmd(
-    //         m_NoteSubSystem, Constants.ANGLE.SPEAKER, Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
-    // NamedCommands.registerCommand(
-    //     "shoot", Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.SHOOT)));
-
-    // NamedCommands.registerCommand(
-    //     "target_intake", Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.INTAKE)));
-    // NamedCommands.registerCommand(
-    //     "intake", Commands.runOnce(() -> m_NoteSubSystem.setAction(ActionRequest.INTAKENOTE)));
-
-    // NamedCommands.registerCommand(
-    //     "target_speaker_1m",
-    //     new SetTargetCustomCmd(
-    //         m_NoteSubSystem, Constants.ANGLE.SPEAKER_1M, Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
-    // NamedCommands.registerCommand(
-    //     "target_speaker_podium",
-    //     new SetTargetCustomCmd(
-    //         m_NoteSubSystem,
-    //         Constants.ANGLE.SPEAKER_PODIUM,
-    //         Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
-    // NamedCommands.registerCommand(
-    //     "target_speaker_podium_source",
-    //     new SetTargetCustomCmd(
-    //         m_NoteSubSystem,
-    //         Constants.ANGLE.SPEAKER_PODIUM_SOURCE,
-    //         Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
-    // NamedCommands.registerCommand(
-    //     "target_speaker_stage",
-    //     new SetTargetCustomCmd(
-    //         m_NoteSubSystem, Constants.ANGLE.SPEAKER_STAGE,
-    // Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
-
-    // NamedCommands.registerCommand("DelayStart", new WaitCommand(m_autoWaitTimeSelected));
+    NamedCommands.registerCommand(
+        "shoot",
+        Commands.runOnce(() -> intakeShooter.setSpeed(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED)));
+    NamedCommands.registerCommand(
+        "intake",
+        Commands.runOnce(
+            () -> intakeShooter.setSpeed(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED)));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -364,9 +410,13 @@ public class RobotContainer {
     m_ps4Controller
         .triangle()
         .onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L4)));
+    // .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L4))));
     m_ps4Controller.circle().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L3)));
+    // .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L3))));
     m_ps4Controller.square().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L2)));
+    // .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L2))));
     m_ps4Controller.cross().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L1)));
+    // .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L1))));
 
     // m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.FEEDSTATION_SPIN)));
     // m_ps4Controller.L2().onTrue(Commands.runOnce(() ->
@@ -378,30 +428,36 @@ public class RobotContainer {
     // m_ps4Controller.options().onTrue(Commands.runOnce(() ->
     // m_NoteSubSystem.setHaveNote1(false)));
 
-    m_ps4Controller
-        .povLeft()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    intakeShooter.setSpeed(
-                        intakeShooter.getSpeed() - Constants.INTAKE_SHOOTER.BUMP_VALUE)));
-    m_ps4Controller
-        .povRight()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    intakeShooter.setSpeed(
-                        intakeShooter.getSpeed() + Constants.INTAKE_SHOOTER.BUMP_VALUE)));
+    // m_ps4Controller.povLeft()
+    //     .onTrue(Commands.runOnce(() ->
+    //                 intakeShooter.setSpeed(
+    //                     intakeShooter.getSpeed() - Constants.INTAKE_SHOOTER.BUMP_VALUE)));
+    // m_ps4Controller.povRight()
+    //     .onTrue(Commands.runOnce(() ->
+    //                 intakeShooter.setSpeed(
+    //                     intakeShooter.getSpeed() + Constants.INTAKE_SHOOTER.BUMP_VALUE)));
     m_ps4Controller
         .povUp()
         .onTrue(
             Commands.runOnce(
-                () -> wrist.setSpeed(wrist.getPosition() + Constants.WRIST.BUMP_VALUE)));
+                () ->
+                    elevator.setPosition(elevator.getPosition() + Constants.ELEVATOR.BUMP_VALUE)));
     m_ps4Controller
         .povDown()
         .onTrue(
             Commands.runOnce(
-                () -> wrist.setSpeed(wrist.getPosition() - Constants.WRIST.BUMP_VALUE)));
+                () ->
+                    elevator.setPosition(elevator.getPosition() - Constants.ELEVATOR.BUMP_VALUE)));
+    m_ps4Controller
+        .povLeft()
+        .onTrue(
+            Commands.runOnce(
+                () -> wrist.setPosition(wrist.getPosition() + Constants.WRIST.BUMP_VALUE)));
+    m_ps4Controller
+        .povRight()
+        .onTrue(
+            Commands.runOnce(
+                () -> wrist.setPosition(wrist.getPosition() - Constants.WRIST.BUMP_VALUE)));
 
     // //Left Joystick Y
     // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake1Speed((-Constants.INTAKE.BUMP_VALUE))));

@@ -7,10 +7,12 @@
 
 package frc.robot.subsystems.rollers;
 
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -29,6 +31,10 @@ public class RollerSystem extends SubsystemBase {
   private LoggedTunableNumber rollerkV;
   private LoggedTunableNumber rollerkA;
 
+  private LoggedTunableNumber rollerMMV;
+  private LoggedTunableNumber rollerMMA;
+  private LoggedTunableNumber rollerMMJ;
+
   public RollerSystem(String name, RollerSystemIO io) {
     this.name = name;
     this.io = io;
@@ -40,6 +46,10 @@ public class RollerSystem extends SubsystemBase {
     rollerkV = new LoggedTunableNumber("Roller/" + name + "/kV");
     rollerkA = new LoggedTunableNumber("Roller/" + name + "/kA");
 
+    rollerMMV = new LoggedTunableNumber("Roller/" + name + "/MMV");
+    rollerMMA = new LoggedTunableNumber("Roller/" + name + "/MMA");
+    rollerMMJ = new LoggedTunableNumber("Roller/" + name + "/MMJ");
+
     disconnected = new Alert(name + " motor disconnected!", Alert.AlertType.kWarning);
     stateTimer.start();
   }
@@ -50,20 +60,31 @@ public class RollerSystem extends SubsystemBase {
     disconnected.set(!inputs.connected);
 
     // Update tunable numbers
-    if (rollerkP.hasChanged(hashCode())
-        || rollerkI.hasChanged(hashCode())
-        || rollerkD.hasChanged(hashCode())
-        || rollerkS.hasChanged(hashCode())
-        || rollerkV.hasChanged(hashCode())
-        || rollerkA.hasChanged(hashCode())) {
-      Slot0Configs newconfig = new Slot0Configs();
-      newconfig.kP = rollerkP.get();
-      newconfig.kI = rollerkI.get();
-      newconfig.kD = rollerkD.get();
-      newconfig.kS = rollerkS.get();
-      newconfig.kV = rollerkV.get();
-      newconfig.kA = rollerkA.get();
-      io.setPID(newconfig);
+    if (Constants.tuningMode) {
+      if (rollerkP.hasChanged(hashCode())
+          || rollerkI.hasChanged(hashCode())
+          || rollerkD.hasChanged(hashCode())
+          || rollerkS.hasChanged(hashCode())
+          || rollerkV.hasChanged(hashCode())
+          || rollerkA.hasChanged(hashCode())) {
+        Slot0Configs newconfig = new Slot0Configs();
+        newconfig.kP = rollerkP.get();
+        newconfig.kI = rollerkI.get();
+        newconfig.kD = rollerkD.get();
+        newconfig.kS = rollerkS.get();
+        newconfig.kV = rollerkV.get();
+        newconfig.kA = rollerkA.get();
+        io.setPID(newconfig);
+      }
+      if (rollerMMV.hasChanged(hashCode())
+          || rollerMMA.hasChanged(hashCode())
+          || rollerMMJ.hasChanged(hashCode())) {
+        MotionMagicConfigs newMMconfig = new MotionMagicConfigs();
+        newMMconfig.MotionMagicCruiseVelocity = rollerMMV.get();
+        newMMconfig.MotionMagicAcceleration = rollerMMA.get();
+        newMMconfig.MotionMagicJerk = rollerMMJ.get();
+        io.setMotionMagic(newMMconfig);
+      }
     }
   }
 
@@ -76,6 +97,14 @@ public class RollerSystem extends SubsystemBase {
     rollerkV.initDefault(newconfig.kV);
     rollerkA.initDefault(newconfig.kA);
     io.setPID(newconfig);
+  }
+
+  // must call this once and only once in robotcontainer after each RollerSystem is created
+  public void setMotionMagic(MotionMagicConfigs newconfig) {
+    rollerMMV.initDefault(newconfig.MotionMagicCruiseVelocity);
+    rollerMMA.initDefault(newconfig.MotionMagicAcceleration);
+    rollerMMJ.initDefault(newconfig.MotionMagicJerk);
+    io.setMotionMagic(newconfig);
   }
 
   @AutoLogOutput
