@@ -13,6 +13,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.wpilibj.RobotBase;
 
@@ -48,14 +49,6 @@ public final class Constants {
     public static final double MAX_VOLTAGE = 12;
   }
 
-  // public static final class INTAKE {
-  //   public static final int CANID = 20;
-  //   public static final String CANBUS = "DRIVEbus";
-  //   public static final double TAKE_NOTE_SPEED = 20;
-  //   public static final double SPIT_NOTE_SPEED = 30;
-  //   public static final double BUMP_VALUE = 0.2; // 50 counts / second = 10rps
-  // }
-
   public static final class INTAKE_SHOOTER {
     public static final int CANID = 30;
     // public static final int RIGHT_CANID = 31;
@@ -65,47 +58,18 @@ public final class Constants {
     public static final double CORAL_SHOOT_SPEED = -20;
     public static final double CORAL_SHOOT_TIMEOUT = 2;
     public static final double BUMP_VALUE = 1; // rotations
-    // public static final double kP = 0.1;
-    // public static final double kI = 0.0;
-    // public static final double kD = 0.0;
-    // public static final double kS = 0.0;
-    // public static final double kV = 0.0;
-    // public static final double kA = 0.0;
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(.2).withKI(0).withKD(0).withKS(0).withKV(0.13).withKA(0);
-  }
-
-  public static final class ELEVATOR { // old AngleSubSystem
-    public static final int LEFT_CANID = 32;
-    public static final int RIGHT_CANID = 33;
-    public static final String CANBUS = "rio";
-
-    // increasing value makes shooter side go down
-    // decreasing value makes shooter side go up
-    // as of Feb 22nd we cannot go steeper than speaker position of 0
-    // so AMP and TRAP are also 0
-    // motor rotations
-    public static final double MIN_POSITION = 0;
-    public static final double MAX_POSITION = 50;
-    public static final double L4 = 30;
-    public static final double L3 = 25;
-    public static final double L2 = 15;
-    public static final double L1 = 5;
-    public static final double A2 = 10;
-    public static final double A1 = 2;
-    public static final double BUMP_VALUE = .5; // rotations
-    // public static final double kP = 0.1;
-    // public static final double kI = 0.0;
-    // public static final double kD = 0.0;
-    // public static final double kS = 0.0;
-    // public static final double kV = 0.0;
-    // public static final double kA = 0.0;
-    public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(4.8).withKI(0).withKD(0).withKS(0.25).withKV(0.1).withKA(0);
+    public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
+        new MotionMagicConfigs()
+            .withMotionMagicCruiseVelocity(20)
+            .withMotionMagicAcceleration(40)
+            .withMotionMagicJerk(400);
   }
 
   public static final class WRIST {
     public static final int CANID = 31; // old shooterSubSystem right, top
+    public static final String CANBUS = "rio";
     public static final double MIN_POSITION = 0;
     public static final double MAX_POSITION = 10;
     public static final double L4 = 22;
@@ -115,30 +79,49 @@ public final class Constants {
     public static final double A2 = 20;
     public static final double A1 = 20;
     public static final double BUMP_VALUE = .5; // rotations
-    // public static final double kP = 0.1;
-    // public static final double kI = 0.0;
-    // public static final double kD = 0.0;
-    // public static final double kS = 0.0;
-    // public static final double kV = 0.0;
-    // public static final double kA = 0.0;
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(1).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
+    public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
+        new MotionMagicConfigs()
+            .withMotionMagicCruiseVelocity(20)
+            .withMotionMagicAcceleration(40)
+            .withMotionMagicJerk(400);
+  }
+
+  public static final class ELEVATOR { // old AngleSubSystem
+    public static final int LEFT_CANID = 32;
+    public static final int RIGHT_CANID = 33;
+    public static final String CANBUS = "rio";
+    public static final double MIN_POSITION = 0;
+    public static final double MAX_POSITION = 10;
+    public static final double L4 = 4;
+    public static final double L3 = 3;
+    public static final double L2 = 2;
+    public static final double L1 = 1;
+    public static final double A2 = -2;
+    public static final double A1 = -3;
+    public static final double BUMP_VALUE = .5; // rotations
+    public static final Slot0Configs SLOT0_CONFIGS =
+        new Slot0Configs().withKP(4.8).withKI(0).withKD(0).withKS(0.25).withKV(0.1).withKA(0);
+    public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
+        new MotionMagicConfigs()
+            .withMotionMagicCruiseVelocity(20)
+            .withMotionMagicAcceleration(40)
+            .withMotionMagicJerk(400);
   }
 
   public static final class CLIMBER {
     public static final int LEFT_CANID = 40;
     public static final int RIGHT_CANID = 41;
     public static final String CANBUS = "DRIVEbus";
-    public static final double MAX_HEIGHT =
-        132; // 122;  // old hooks: 115;   //100 rotates is about 9in
-    // public static final double kP = 0.1;
-    // public static final double kI = 0.0;
-    // public static final double kD = 0.0;
-    // public static final double kS = 0.0;
-    // public static final double kV = 0.0;
-    // public static final double kA = 0.0;
+    public static final double MAX_HEIGHT = 132; // 100 rotates is about 9in
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(.1).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
+    public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
+        new MotionMagicConfigs()
+            .withMotionMagicCruiseVelocity(20)
+            .withMotionMagicAcceleration(40)
+            .withMotionMagicJerk(400);
   }
 
   public static final class RED_TAGS {

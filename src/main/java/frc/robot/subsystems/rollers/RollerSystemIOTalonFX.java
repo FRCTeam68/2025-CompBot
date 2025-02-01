@@ -11,6 +11,7 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -58,22 +59,23 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
       int followerID,
       boolean followOpposite,
       boolean brake,
-      double reduction,
-      Slot0Configs slot0Configs) {
+      double reduction) {
     this.reduction = reduction;
     talon = new TalonFX(id, bus);
 
-    config.MotionMagic.MotionMagicCruiseVelocity =
-        20; // 80; //106; // 5 rotations per second cruise
-    config.MotionMagic.MotionMagicAcceleration =
-        40; // 100; // Take approximately 0.5 seconds to reach max vel
-    config.MotionMagic.MotionMagicJerk = 400; // 700;
-    config.Slot0.kP = slot0Configs.kP;
-    config.Slot0.kI = slot0Configs.kI;
-    config.Slot0.kD = slot0Configs.kD;
-    config.Slot0.kS = slot0Configs.kS;
-    config.Slot0.kV = slot0Configs.kV;
-    config.Slot0.kV = slot0Configs.kA;
+    // comment out, just use defaults from creation of new config?????
+    // config.MotionMagic.MotionMagicCruiseVelocity =
+    //     20; // 80; //106; // 5 rotations per second cruise
+    // config.MotionMagic.MotionMagicAcceleration =
+    //     40; // 100; // Take approximately 0.5 seconds to reach max vel
+    // config.MotionMagic.MotionMagicJerk = 400; // 700;
+
+    // config.Slot0.kP = .1;
+    // config.Slot0.kI = 0;
+    // config.Slot0.kD = 0;
+    // config.Slot0.kS = 0;
+    // config.Slot0.kV = 0;
+    // config.Slot0.kV = 0;
 
     config.Voltage.PeakForwardVoltage = 12;
     config.Voltage.PeakReverseVoltage = -12;
@@ -163,6 +165,14 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
     config.Slot0.kS = newconfig.kS;
     config.Slot0.kV = newconfig.kV;
     config.Slot0.kA = newconfig.kA;
+    tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
+  }
+
+  @Override
+  public void setMotionMagic(MotionMagicConfigs newconfig) {
+    config.MotionMagic.MotionMagicCruiseVelocity = newconfig.MotionMagicCruiseVelocity;
+    config.MotionMagic.MotionMagicAcceleration = newconfig.MotionMagicAcceleration;
+    config.MotionMagic.MotionMagicJerk = newconfig.MotionMagicJerk;
     tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
   }
 }

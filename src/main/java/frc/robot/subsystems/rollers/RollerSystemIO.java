@@ -7,6 +7,7 @@
 
 package frc.robot.subsystems.rollers;
 
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -42,4 +43,7 @@ public interface RollerSystemIO {
 
   /** Set P, I, and D gains for closed loop control on drive motor. */
   public default void setPID(Slot0Configs newconfig) {}
+
+  /** Set motion magic velocity, acceleration and jerk. */
+  public default void setMotionMagic(MotionMagicConfigs newconfig) {}
 }
