@@ -57,8 +57,8 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
-  private final RollerSystem climberLeft;
-  private final RollerSystem climberRight;
+  //   private final RollerSystem climberLeft;
+  //   private final RollerSystem climberRight;
   private final RollerSystem intakeShooter;
   private final RollerSystem wrist;
   private final RollerSystem elevator;
@@ -148,37 +148,37 @@ public class RobotContainer {
         elevatorFollower.setPID(Constants.ELEVATOR.SLOT0_CONFIGS);
         elevatorFollower.setMotionMagic(Constants.ELEVATOR.MOTIONMAGIC_CONFIGS);
 
-        climberLeft =
-            new RollerSystem(
-                "ClimberLeft",
-                new RollerSystemIOTalonFX(
-                    Constants.CLIMBER.LEFT_CANID,
-                    Constants.CLIMBER.CANBUS,
-                    40,
-                    false,
-                    0,
-                    false,
-                    false,
-                    1));
-        // init tunables in the parent roller system
-        climberLeft.setPID(Constants.CLIMBER.SLOT0_CONFIGS);
-        climberLeft.setMotionMagic(Constants.CLIMBER.MOTIONMAGIC_CONFIGS);
+        // climberLeft =
+        //     new RollerSystem(
+        //         "ClimberLeft",
+        //         new RollerSystemIOTalonFX(
+        //             Constants.CLIMBER.LEFT_CANID,
+        //             Constants.CLIMBER.CANBUS,
+        //             40,
+        //             false,
+        //             0,
+        //             false,
+        //             false,
+        //             1));
+        // // init tunables in the parent roller system
+        // climberLeft.setPID(Constants.CLIMBER.SLOT0_CONFIGS);
+        // climberLeft.setMotionMagic(Constants.CLIMBER.MOTIONMAGIC_CONFIGS);
 
-        climberRight =
-            new RollerSystem(
-                "ClimberRight",
-                new RollerSystemIOTalonFX(
-                    Constants.CLIMBER.RIGHT_CANID,
-                    Constants.CLIMBER.CANBUS,
-                    40,
-                    false,
-                    0,
-                    false,
-                    false,
-                    1));
-        // init tunables in the parent roller system
-        climberRight.setPID(Constants.CLIMBER.SLOT0_CONFIGS);
-        climberRight.setMotionMagic(Constants.CLIMBER.MOTIONMAGIC_CONFIGS);
+        // climberRight =
+        //     new RollerSystem(
+        //         "ClimberRight",
+        //         new RollerSystemIOTalonFX(
+        //             Constants.CLIMBER.RIGHT_CANID,
+        //             Constants.CLIMBER.CANBUS,
+        //             40,
+        //             false,
+        //             0,
+        //             false,
+        //             false,
+        //             1));
+        // // init tunables in the parent roller system
+        // climberRight.setPID(Constants.CLIMBER.SLOT0_CONFIGS);
+        // climberRight.setMotionMagic(Constants.CLIMBER.MOTIONMAGIC_CONFIGS);
 
         break;
 
@@ -203,12 +203,12 @@ public class RobotContainer {
         elevatorFollower =
             new RollerSystem(
                 "ElevatorFollower", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
-        climberLeft =
-            new RollerSystem(
-                "ClimberLeft", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
-        climberRight =
-            new RollerSystem(
-                "ClimberRight", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+        // climberLeft =
+        //     new RollerSystem(
+        //         "ClimberLeft", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+        // climberRight =
+        //     new RollerSystem(
+        //         "ClimberRight", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
         break;
 
       default:
@@ -226,8 +226,8 @@ public class RobotContainer {
         wrist = new RollerSystem("Wrist", new RollerSystemIO() {});
         elevator = new RollerSystem("Elevator", new RollerSystemIO() {});
         elevatorFollower = new RollerSystem("ElevatorFollower", new RollerSystemIO() {});
-        climberLeft = new RollerSystem("ClimberLeft", new RollerSystemIO() {});
-        climberRight = new RollerSystem("ClimberRight", new RollerSystemIO() {});
+        // climberLeft = new RollerSystem("ClimberLeft", new RollerSystemIO() {});
+        // climberRight = new RollerSystem("ClimberRight", new RollerSystemIO() {});
         break;
     }
 
@@ -439,10 +439,11 @@ public class RobotContainer {
     //             .andThen(() -> m_Climber.setPitMode(m_climbActive))
     //             .andThen(() -> SmartDashboard.putBoolean("ClimberPitMode", m_climbActive)));
 
-    climberLeft.setDefaultCommand(
-        Commands.run(() -> climberLeft.setVolts(m_ps4Controller.getLeftY() * 12), climberLeft));
-    climberRight.setDefaultCommand(
-        Commands.run(() -> climberRight.setVolts(-m_ps4Controller.getRightY() * 12), climberRight));
+    // climberLeft.setDefaultCommand(
+    //     Commands.run(() -> climberLeft.setVolts(m_ps4Controller.getLeftY() * 12), climberLeft));
+    // climberRight.setDefaultCommand(
+    //     Commands.run(() -> climberRight.setVolts(-m_ps4Controller.getRightY() * 12),
+    // climberRight));
 
     m_NoteSensorTrigger2
         .onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("NoteSensor2", true)))
