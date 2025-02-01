@@ -164,9 +164,14 @@ public class Drive extends SubsystemBase {
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
     for (var module : modules) {
-      module.periodic();
+      module.updateInputs();
     }
     odometryLock.unlock();
+
+    // Call periodic on modules
+    for (var module : modules) {
+      module.periodic();
+    }
 
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
@@ -330,6 +335,11 @@ public class Drive extends SubsystemBase {
   /** Returns the current odometry rotation. */
   public Rotation2d getRotation() {
     return getPose().getRotation();
+  }
+
+  /** Returns the raw gyro rotation read by the IMU */
+  public Rotation2d getGyroRotation() {
+    return gyroInputs.yawPosition;
   }
 
   /** Resets the current odometry pose. */

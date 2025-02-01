@@ -1,0 +1,109 @@
+// Copyright (c) 2025 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
+
+package frc.robot.subsystems.rollers;
+
+import com.ctre.phoenix6.configs.Slot0Configs;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.LoggedTunableNumber;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
+public class RollerSystem extends SubsystemBase {
+  private final String name;
+  private final RollerSystemIO io;
+  protected final RollerSystemIOInputsAutoLogged inputs = new RollerSystemIOInputsAutoLogged();
+  private final Alert disconnected;
+  protected final Timer stateTimer = new Timer();
+
+  private LoggedTunableNumber rollerkP;
+  private LoggedTunableNumber rollerkI;
+  private LoggedTunableNumber rollerkD;
+  private LoggedTunableNumber rollerkS;
+  private LoggedTunableNumber rollerkV;
+  private LoggedTunableNumber rollerkA;
+
+  public RollerSystem(String name, RollerSystemIO io) {
+    this.name = name;
+    this.io = io;
+
+    rollerkP = new LoggedTunableNumber("Roller/" + name + "/kP");
+    rollerkI = new LoggedTunableNumber("Roller/" + name + "/kI");
+    rollerkD = new LoggedTunableNumber("Roller/" + name + "/kD");
+    rollerkS = new LoggedTunableNumber("Roller/" + name + "/kS");
+    rollerkV = new LoggedTunableNumber("Roller/" + name + "/kV");
+    rollerkA = new LoggedTunableNumber("Roller/" + name + "/kA");
+
+    disconnected = new Alert(name + " motor disconnected!", Alert.AlertType.kWarning);
+    stateTimer.start();
+  }
+
+  public void periodic() {
+    io.updateInputs(inputs);
+    Logger.processInputs(name, inputs);
+    disconnected.set(!inputs.connected);
+
+    // Update tunable numbers
+    if (rollerkP.hasChanged(hashCode())
+        || rollerkI.hasChanged(hashCode())
+        || rollerkD.hasChanged(hashCode())
+        || rollerkS.hasChanged(hashCode())
+        || rollerkV.hasChanged(hashCode())
+        || rollerkA.hasChanged(hashCode())) {
+      Slot0Configs newconfig = new Slot0Configs();
+      newconfig.kP = rollerkP.get();
+      newconfig.kI = rollerkI.get();
+      newconfig.kD = rollerkD.get();
+      newconfig.kS = rollerkS.get();
+      newconfig.kV = rollerkV.get();
+      newconfig.kA = rollerkA.get();
+      io.setPID(newconfig);
+    }
+  }
+
+  // must call this once and only once in robotcontainer after each RollerSystem is created
+  public void setPID(Slot0Configs newconfig) {
+    rollerkP.initDefault(newconfig.kP);
+    rollerkI.initDefault(newconfig.kI);
+    rollerkD.initDefault(newconfig.kD);
+    rollerkS.initDefault(newconfig.kS);
+    rollerkV.initDefault(newconfig.kV);
+    rollerkA.initDefault(newconfig.kA);
+    io.setPID(newconfig);
+  }
+
+  @AutoLogOutput
+  public void setVolts(double inputVolts) {
+    // return startEnd(() -> io.runVolts(inputVolts), () -> io.stop());
+    io.setVolts(inputVolts);
+    // Logger.recordOutput(name + "/setpointVolts", inputVolts);
+  }
+
+  @AutoLogOutput
+  public void setSpeed(double speed) {
+    // in rotations per second
+    io.setSpeed(speed);
+    // Logger.recordOutput(name + "/setpointSpeed", speed);
+  }
+
+  @AutoLogOutput
+  public void setPosition(double position) {
+    // in rotations
+    io.setPosition(position);
+    // Logger.recordOutput(name + "/setpointPosition", position);
+  }
+
+  public double getSpeed() {
+    return inputs.velocityRotsPerSec;
+  }
+
+  public double getPosition() {
+    return inputs.positionRotations;
+  }
+}
