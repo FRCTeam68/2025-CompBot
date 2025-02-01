@@ -92,6 +92,38 @@ public class RobotContainer {
                 new VisionIOLimelight(camera0Name, drive::getRotation),
                 new VisionIOLimelight(camera1Name, drive::getRotation));
 
+        // climberLeft =
+        //     new RollerSystem(
+        //         "ClimberLeft",
+        //         new RollerSystemIOTalonFX(
+        //             40,
+        //             "DRIVEbus",
+        //             40,
+        //             false,
+        //             0,
+        //             false,
+        //             false,
+        //             1,
+        //             Constants.CLIMBER.SLOT0_CONFIGS));
+        // climberLeft.setPID(
+        //     Constants.CLIMBER.SLOT0_CONFIGS); // init tunables in the parent roller system
+
+        // climberRight =
+        //     new RollerSystem(
+        //         "ClimberRight",
+        //         new RollerSystemIOTalonFX(
+        //             41,
+        //             "DRIVEbus",
+        //             40,
+        //             false,
+        //             0,
+        //             false,
+        //             false,
+        //             1,
+        //             Constants.CLIMBER.SLOT0_CONFIGS));
+        // climberRight.setPID(
+        //     Constants.CLIMBER.SLOT0_CONFIGS); // init tunables in the parent roller system
+
         intakeShooter =
             new RollerSystem(
                 "IntakeShooter",
@@ -194,6 +226,14 @@ public class RobotContainer {
         // (Use same number of dummy implementations as the real robot)
         // no sim for limelight????  use blank
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+
+        // climberLeft =
+        //     new RollerSystem(
+        //         "ClimberLeft", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+        // climberRight =
+        //     new RollerSystem(
+        //         "ClimberRight", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+
         intakeShooter =
             new RollerSystem(
                 "IntakeShooter", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
@@ -222,6 +262,10 @@ public class RobotContainer {
                 new ModuleIO() {});
         // (Use same number of dummy implementations as the real robot)
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+
+        // climberLeft = new RollerSystem("ClimberLeft", new RollerSystemIO() {});
+        // climberRight = new RollerSystem("ClimberRight", new RollerSystemIO() {});
+
         intakeShooter = new RollerSystem("IntakeShooter", new RollerSystemIO() {});
         wrist = new RollerSystem("Wrist", new RollerSystemIO() {});
         elevator = new RollerSystem("Elevator", new RollerSystemIO() {});
