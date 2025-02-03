@@ -40,6 +40,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   private final StatusSignal<Current> supplyCurrent;
   private final StatusSignal<Current> torqueCurrent;
   private final StatusSignal<Temperature> tempCelsius;
+  private final StatusSignal<Double> closedLoopError;
 
   // Single shot for voltage mode, robot loop will call continuously
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true).withUpdateFreqHz(0);
@@ -99,6 +100,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
     supplyCurrent = talon.getSupplyCurrent();
     torqueCurrent = talon.getTorqueCurrent();
     tempCelsius = talon.getDeviceTemp();
+    closedLoopError = talon.getClosedLoopError();
 
     tryUntilOk(
         5,
@@ -128,6 +130,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
     inputs.tempCelsius = tempCelsius.getValueAsDouble();
+    inputs.closedLoopError = closedLoopError.getValueAsDouble();
   }
 
   @Override

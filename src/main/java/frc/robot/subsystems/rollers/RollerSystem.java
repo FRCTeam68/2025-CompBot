@@ -11,6 +11,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
@@ -35,6 +36,9 @@ public class RollerSystem extends SubsystemBase {
   private LoggedTunableNumber rollerMMA;
   private LoggedTunableNumber rollerMMJ;
 
+  private LoggedTunableNumber setpointBand;
+  private boolean atSetpoint;
+
   public RollerSystem(String name, RollerSystemIO io) {
     this.name = name;
     this.io = io;
@@ -49,6 +53,9 @@ public class RollerSystem extends SubsystemBase {
     rollerMMV = new LoggedTunableNumber("Roller/" + name + "/MMV");
     rollerMMA = new LoggedTunableNumber("Roller/" + name + "/MMA");
     rollerMMJ = new LoggedTunableNumber("Roller/" + name + "/MMJ");
+
+    setpointBand = new LoggedTunableNumber("Roller/" + name + "/setpointBand");
+    atSetpoint = false;
 
     disconnected = new Alert(name + " motor disconnected!", Alert.AlertType.kWarning);
     stateTimer.start();
@@ -86,6 +93,8 @@ public class RollerSystem extends SubsystemBase {
         io.setMotionMagic(newMMconfig);
       }
     }
+
+    atSetpoint = Math.abs(inputs.closedLoopError) < setpointBand.get();
   }
 
   // must call this once and only once in robotcontainer after each RollerSystem is created
@@ -107,6 +116,11 @@ public class RollerSystem extends SubsystemBase {
     io.setMotionMagic(newconfig);
   }
 
+  public void setAtSetpointBand(double band) {
+    setpointBand.initDefault(band);
+    atSetpoint = false;
+  }
+
   @AutoLogOutput
   public void setVolts(double inputVolts) {
     // return startEnd(() -> io.runVolts(inputVolts), () -> io.stop());
@@ -122,6 +136,12 @@ public class RollerSystem extends SubsystemBase {
   }
 
   @AutoLogOutput
+  public Command setSpeedCmd(double speed) {
+    // in rotations per second
+    return this.runOnce(() -> io.setSpeed(speed));
+  }
+
+  @AutoLogOutput
   public void setPosition(double position) {
     // in rotations
     io.setPosition(position);
@@ -134,5 +154,9 @@ public class RollerSystem extends SubsystemBase {
 
   public double getPosition() {
     return inputs.positionRotations;
+  }
+
+  public boolean getAtSetpoint() {
+    return atSetpoint;
   }
 }
