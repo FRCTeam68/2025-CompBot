@@ -34,6 +34,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.*;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.LaserCanSystem;
+import frc.robot.subsystems.LightsSubsystem;
+import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -59,18 +61,17 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
-  //   private final RollerSystem climberLeft;
-  //   private final RollerSystem climberRight;
+  //   private final RollerSystem climber;
   private final RollerSystem intakeShooter;
+  private final LaserCanSystem intakeCoralSensor;
   private final RollerSystem wrist;
   private final RollerSystem elevator;
   private final RollerSystem elevatorFollower;
-  private final LaserCanSystem intakeCoralSensor;
+  private final LightsSubsystem lightsSubsystem;
 
   // Controller
   private final CommandXboxController m_xboxController = new CommandXboxController(0);
-
-  CommandPS4Controller m_ps4Controller = new CommandPS4Controller(1);
+  private final CommandPS4Controller m_ps4Controller = new CommandPS4Controller(1);
 
   DigitalInput m_noteSensor2 = new DigitalInput(0);
   Trigger m_NoteSensorTrigger2 = new Trigger(m_noteSensor2::get);
@@ -95,12 +96,12 @@ public class RobotContainer {
                 new VisionIOLimelight(camera0Name, drive::getRotation),
                 new VisionIOLimelight(camera1Name, drive::getRotation));
 
-        // climberLeft =
+        // climber =
         //     new RollerSystem(
-        //         "ClimberLeft",
+        //         "Climber",
         //         new RollerSystemIOTalonFX(
-        //             40,
-        //             "DRIVEbus",
+        //             Constants.CLIMBER.CANID,
+        //             Constants.CLIMBER.CANBUS,
         //             40,
         //             false,
         //             0,
@@ -108,24 +109,10 @@ public class RobotContainer {
         //             false,
         //             1,
         //             Constants.CLIMBER.SLOT0_CONFIGS));
-        // climberLeft.setPID(
-        //     Constants.CLIMBER.SLOT0_CONFIGS); // init tunables in the parent roller system
-
-        // climberRight =
-        //     new RollerSystem(
-        //         "ClimberRight",
-        //         new RollerSystemIOTalonFX(
-        //             41,
-        //             "DRIVEbus",
-        //             40,
-        //             false,
-        //             0,
-        //             false,
-        //             false,
-        //             1,
-        //             Constants.CLIMBER.SLOT0_CONFIGS));
-        // climberRight.setPID(
-        //     Constants.CLIMBER.SLOT0_CONFIGS); // init tunables in the parent roller system
+        // climber.setPID(Constants.CLIMBER.SLOT0_CONFIGS); // init tunables in the parent roller
+        // system
+        // climber.setMotionMagic(Constants.CLIMBER.MOTIONMAGIC_CONFIGS);
+        // climber.setAtSetpointBand(.3);
 
         intakeShooter =
             new RollerSystem(
@@ -144,7 +131,11 @@ public class RobotContainer {
         intakeShooter.setMotionMagic(Constants.INTAKE_SHOOTER.MOTIONMAGIC_CONFIGS);
         intakeShooter.setAtSetpointBand(.3);
 
-        intakeCoralSensor = new LaserCanSystem("intakeCoral", 37, 30);
+        intakeCoralSensor =
+            new LaserCanSystem(
+                "intakeCoral",
+                Constants.INTAKE_CORAL_SENSOR.CANID,
+                Constants.INTAKE_CORAL_SENSOR.THRESHOLD);
 
         wrist =
             new RollerSystem(
@@ -206,6 +197,7 @@ public class RobotContainer {
         // climber.setMotionMagic(Constants.CLIMBER.MOTIONMAGIC_CONFIGS);
         // climber.setAtSetpointBand(.3);
 
+        lightsSubsystem = new LightsSubsystem();
         break;
 
       case SIM:
@@ -240,6 +232,9 @@ public class RobotContainer {
         // climber =
         //     new RollerSystem(
         //         "Climber", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+
+        // TBD, this needs an actual simulated sensor.....
+        lightsSubsystem = new LightsSubsystem();
         break;
 
       default:
@@ -263,6 +258,8 @@ public class RobotContainer {
         elevatorFollower = new RollerSystem("ElevatorFollower", new RollerSystemIO() {});
         // climber = new RollerSystem("Climber", new RollerSystemIO() {});
 
+        // TBD, this needs an actual simulated sensor.....
+        lightsSubsystem = new LightsSubsystem();
         break;
     }
 
@@ -295,6 +292,13 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+
+    LEDSegment.Do1to4.setBandAnimation(LightsSubsystem.blue, 2);
+    LEDSegment.Do5to8.setColor(LightsSubsystem.orange);
+    LEDSegment.side1.setColor(LightsSubsystem.white);
+    LEDSegment.side1target.setColor(LightsSubsystem.white);
+    LEDSegment.side1heading.setColor(LightsSubsystem.white);
+    LEDSegment.side1distance.setColor(LightsSubsystem.white);
   }
 
   /**
@@ -390,16 +394,23 @@ public class RobotContainer {
         .onTrue(
             intakeShooter
                 .setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED)
+                .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5))
                 .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece()))
                 .withTimeout(5)
+                .finallyDo(() -> LEDSegment.side1target.setColor(LightsSubsystem.blue))
+                .handleInterrupt(() -> LEDSegment.side1target.setColor(LightsSubsystem.white))
                 .andThen(intakeShooter.setSpeedCmd(0)));
     m_xboxController
         .rightTrigger()
         .onTrue(
             intakeShooter
                 .setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED)
+                .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.red))
                 .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece() == false))
                 .withTimeout(2)
+                .finallyDo(() -> LEDSegment.side1target.setColor(LightsSubsystem.white))
+                .handleInterrupt(
+                    () -> LEDSegment.side1target.setFadeAnimation(LightsSubsystem.red, 0.5))
                 .andThen(intakeShooter.setSpeedCmd(0)));
     // m_xboxController.leftBumper().onTrue(Commands.runOnce(() ->
     // m_NoteSubSystem.setAction(ActionRequest.SPIT_NOTE2)));

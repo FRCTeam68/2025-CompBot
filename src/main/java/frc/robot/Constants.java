@@ -67,6 +67,13 @@ public final class Constants {
             .withMotionMagicJerk(400);
   }
 
+  public static final class INTAKE_CORAL_SENSOR {
+    // LaserCAN distance sensor
+    public static final int CANID = 37;
+    public static final String CANBUS = "rio";
+    public static final double THRESHOLD = 30; // mm
+  }
+
   public static final class WRIST {
     public static final int CANID = 31; // old shooterSubSystem right, top
     public static final String CANBUS = "rio";
@@ -111,8 +118,7 @@ public final class Constants {
   }
 
   public static final class CLIMBER {
-    public static final int LEFT_CANID = 40;
-    public static final int RIGHT_CANID = 41;
+    public static final int CANID = 40;
     public static final String CANBUS = "DRIVEbus";
     public static final double MAX_HEIGHT = 132; // 100 rotates is about 9in
     public static final Slot0Configs SLOT0_CONFIGS =
