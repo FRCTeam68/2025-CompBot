@@ -71,7 +71,7 @@ public final class Constants {
     // LaserCAN distance sensor
     public static final int CANID = 37;
     public static final String CANBUS = "rio";
-    public static final double THRESHOLD = 30; // mm
+    public static final double THRESHOLD = 50; // mm
   }
 
   public static final class WRIST {

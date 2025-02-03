@@ -50,11 +50,12 @@ public class LaserCanSystem extends SubsystemBase {
     LaserCan.Measurement measurement = lc.getMeasurement();
     if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
       distance_mm = measurement.distance_mm;
-    } else {
-      measurementAlert.set(true);
-      // You can still use distance_mm in here, if you're ok tolerating a clamped value or an
-      // unreliable measurement.
     }
+    // else {
+    //   measurementAlert.set(true);
+    //   // You can still use distance_mm in here, if you're ok tolerating a clamped value or an
+    //   // unreliable measurement.
+    // }
 
     Logger.recordOutput("LaserCan/" + name + "distance_mm", distance_mm);
   }
@@ -64,6 +65,6 @@ public class LaserCanSystem extends SubsystemBase {
   }
 
   public boolean havePiece() {
-    return distance_mm < threshold.get();
+    return (distance_mm > 0 && distance_mm < 50);
   }
 }

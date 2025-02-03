@@ -299,6 +299,8 @@ public class RobotContainer {
     LEDSegment.side1target.setColor(LightsSubsystem.white);
     LEDSegment.side1heading.setColor(LightsSubsystem.white);
     LEDSegment.side1distance.setColor(LightsSubsystem.white);
+
+    SmartDashboard.putBoolean("laserCanTrip", false);
   }
 
   /**
@@ -311,7 +313,6 @@ public class RobotContainer {
 
     Trigger m_LaserCanTrigger = new Trigger(intakeCoralSensor::havePiece);
     m_LaserCanTrigger
-        .debounce(.1)
         .onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("laserCanTrip", true)))
         .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("laserCanTrip", false)));
 
@@ -397,8 +398,8 @@ public class RobotContainer {
                 .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5))
                 .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece()))
                 .withTimeout(5)
-                .finallyDo(() -> LEDSegment.side1target.setColor(LightsSubsystem.blue))
-                .handleInterrupt(() -> LEDSegment.side1target.setColor(LightsSubsystem.white))
+                .finallyDo(() -> LEDSegment.side1.setColor(LightsSubsystem.blue))
+                .handleInterrupt(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
                 .andThen(intakeShooter.setSpeedCmd(0)));
     m_xboxController
         .rightTrigger()
@@ -408,9 +409,8 @@ public class RobotContainer {
                 .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.red))
                 .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece() == false))
                 .withTimeout(2)
-                .finallyDo(() -> LEDSegment.side1target.setColor(LightsSubsystem.white))
-                .handleInterrupt(
-                    () -> LEDSegment.side1target.setFadeAnimation(LightsSubsystem.red, 0.5))
+                .finallyDo(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
+                .handleInterrupt(() -> LEDSegment.side1.setFadeAnimation(LightsSubsystem.red, 0.5))
                 .andThen(intakeShooter.setSpeedCmd(0)));
     // m_xboxController.leftBumper().onTrue(Commands.runOnce(() ->
     // m_NoteSubSystem.setAction(ActionRequest.SPIT_NOTE2)));
@@ -426,8 +426,10 @@ public class RobotContainer {
         .triangle()
         .onTrue(
             Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L4))
+                .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5))
                 .andThen(new WaitUntilCommand(() -> wrist.getAtSetpoint()))
-                .withTimeout(2)
+                .withTimeout(5)
+                .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
                 .andThen(Commands.runOnce(() -> SmartDashboard.putString("Goal", "L4"))));
     // .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L4))));
 
@@ -435,8 +437,10 @@ public class RobotContainer {
         .circle()
         .onTrue(
             Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L3))
+                .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5))
                 .andThen(new WaitUntilCommand(() -> wrist.getAtSetpoint()))
-                .withTimeout(2)
+                .withTimeout(5)
+                .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
                 .andThen(Commands.runOnce(() -> SmartDashboard.putString("Goal", "L3"))));
     // .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L3))));
 
@@ -444,8 +448,10 @@ public class RobotContainer {
         .square()
         .onTrue(
             Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L2))
+                .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5))
                 .andThen(new WaitUntilCommand(() -> wrist.getAtSetpoint()))
-                .withTimeout(2)
+                .withTimeout(5)
+                .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
                 .andThen(Commands.runOnce(() -> SmartDashboard.putString("Goal", "L2"))));
     // .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L2))));
 
@@ -453,8 +459,10 @@ public class RobotContainer {
         .cross()
         .onTrue(
             Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L1))
+                .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5))
                 .andThen(new WaitUntilCommand(() -> wrist.getAtSetpoint()))
-                .withTimeout(2)
+                .withTimeout(5)
+                .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
                 .andThen(Commands.runOnce(() -> SmartDashboard.putString("Goal", "L1"))));
     // .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L1))));
 
@@ -482,6 +490,7 @@ public class RobotContainer {
             Commands.runOnce(
                 () ->
                     elevator.setPosition(elevator.getPosition() + Constants.ELEVATOR.BUMP_VALUE)));
+    // on 2024 bot, positive is intake side up, shooter side looks to be going down
     m_ps4Controller
         .povDown()
         .onTrue(
