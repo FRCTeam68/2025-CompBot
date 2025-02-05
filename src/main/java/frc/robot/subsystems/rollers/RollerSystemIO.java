@@ -23,6 +23,7 @@ public interface RollerSystemIO {
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;
     public double tempCelsius = 0.0;
+    public double closedLoopError = 0.0;
   }
 
   default void updateInputs(RollerSystemIOInputs inputs) {}

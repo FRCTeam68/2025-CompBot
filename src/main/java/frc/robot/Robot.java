@@ -14,6 +14,8 @@
 package frc.robot;
 
 import au.grapplerobotics.CanBridge;
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.CANBus.CANBusStatus;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
@@ -37,6 +39,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   public static RobotContainer robotContainer;
+  private CANBus rioBus;
+  private CANBus CANivoreBus;
 
   public Robot() {
     // Record metadata
@@ -103,6 +107,9 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
+
+    rioBus = new CANBus("rio");
+    CANivoreBus = new CANBus("DRIVEbus");
   }
 
   /** This function is called periodically during all modes. */
@@ -120,6 +127,18 @@ public class Robot extends LoggedRobot {
 
     // Return to normal thread priority
     Threads.setCurrentThreadPriority(false, 10);
+
+    CANBusStatus canInfo = rioBus.getStatus();
+    Logger.recordOutput("CANBUS/DRIVEbus/Util", canInfo.BusUtilization);
+    Logger.recordOutput("CANBUS/DRIVEbus/Status", canInfo.Status.getName());
+    if (!canInfo.Status.isOK())
+      Logger.recordOutput("CANBUS/DRIVEbus/Desc", canInfo.Status.getDescription());
+
+    CANBusStatus canInfo2 = CANivoreBus.getStatus();
+    Logger.recordOutput("CANBUS/rio/Util", canInfo2.BusUtilization);
+    Logger.recordOutput("CANBUS/rio/Status", canInfo2.Status.getName());
+    if (!canInfo2.Status.isOK())
+      Logger.recordOutput("CANBUS/rio/Desc", canInfo2.Status.getDescription());
   }
 
   /** This function is called once when the robot is disabled. */
