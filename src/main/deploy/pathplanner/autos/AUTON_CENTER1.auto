@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Center_H-L4"
+            "pathName": "Center-H-L4"
           }
         },
         {
@@ -61,7 +61,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Net-AlgaeIJ"
+            "pathName": "C1_Net-AlgaeIJ"
           }
         }
       ]

@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "I-L4_Coral"
+            "pathName": "L1_I-Coral"
           }
         },
         {
@@ -32,6 +32,36 @@
           "type": "path",
           "data": {
             "pathName": "Coral_K-L4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "L1_K-Source"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "L1_Source-L"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
           }
         }
       ]
