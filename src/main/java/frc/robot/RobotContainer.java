@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -395,22 +396,24 @@ public class RobotContainer {
         .onTrue(
             intakeShooter
                 .setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED)
-                .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5))
-                .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece()))
-                .withTimeout(5)
-                .finallyDo(() -> LEDSegment.side1.setColor(LightsSubsystem.blue))
-                .handleInterrupt(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
-                .andThen(intakeShooter.setSpeedCmd(0)));
+                .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5)));
+    // .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece()))
+    // .withTimeout(5)
+    // .andThen(new WaitCommand(2))
+    // .finallyDo(() -> LEDSegment.side1.setColor(LightsSubsystem.blue))
+    // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
+    // .andThen(intakeShooter.setSpeedCmd(0)));
     m_xboxController
         .rightTrigger()
         .onTrue(
             intakeShooter
                 .setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED)
                 .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.red))
-                .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece() == false))
-                .withTimeout(2)
-                .finallyDo(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
-                .handleInterrupt(() -> LEDSegment.side1.setFadeAnimation(LightsSubsystem.red, 0.5))
+                // .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece() == false))
+                .andThen(new WaitCommand(2))
+                .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.purple))
+                // .handleInterrupt(() -> LEDSegment.side1.setFadeAnimation(LightsSubsystem.red,
+                // 0.5))
                 .andThen(intakeShooter.setSpeedCmd(0)));
     // m_xboxController.leftBumper().onTrue(Commands.runOnce(() ->
     // m_NoteSubSystem.setAction(ActionRequest.SPIT_NOTE2)));
@@ -420,7 +423,8 @@ public class RobotContainer {
         .start()
         .onTrue(
             Commands.runOnce(() -> intakeShooter.setSpeed(0))
-                .andThen(Commands.runOnce(() -> wrist.setPosition(0))));
+                .andThen(Commands.runOnce(() -> wrist.setPosition(0)))
+                .andThen(Commands.runOnce(() -> elevator.setPosition(0))));
 
     m_ps4Controller
         .triangle()
