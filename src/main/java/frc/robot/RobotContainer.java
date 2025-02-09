@@ -431,7 +431,7 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L4))
                 .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5))
-                .andThen(new WaitUntilCommand(() -> wrist.getAtSetpoint()))
+                .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
                 .withTimeout(5)
                 .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
                 .andThen(Commands.runOnce(() -> SmartDashboard.putString("Goal", "L4"))));
@@ -442,7 +442,7 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L3))
                 .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5))
-                .andThen(new WaitUntilCommand(() -> wrist.getAtSetpoint()))
+                .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
                 .withTimeout(5)
                 .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
                 .andThen(Commands.runOnce(() -> SmartDashboard.putString("Goal", "L3"))));
@@ -453,7 +453,7 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L2))
                 .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5))
-                .andThen(new WaitUntilCommand(() -> wrist.getAtSetpoint()))
+                .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
                 .withTimeout(5)
                 .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
                 .andThen(Commands.runOnce(() -> SmartDashboard.putString("Goal", "L2"))));
@@ -464,7 +464,7 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L1))
                 .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5))
-                .andThen(new WaitUntilCommand(() -> wrist.getAtSetpoint()))
+                .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
                 .withTimeout(5)
                 .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
                 .andThen(Commands.runOnce(() -> SmartDashboard.putString("Goal", "L1"))));
