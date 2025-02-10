@@ -20,20 +20,19 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.*;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.ElevatorWristSubSystem;
 import frc.robot.subsystems.LaserCanSystem;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.LightsSubsystem.LEDSegment;
@@ -65,17 +64,12 @@ public class RobotContainer {
   //   private final RollerSystem climber;
   private final RollerSystem intakeShooter;
   private final LaserCanSystem intakeCoralSensor;
-  private final RollerSystem wrist;
-  private final RollerSystem elevator;
-  private final RollerSystem elevatorFollower;
+  private final ElevatorWristSubSystem elevatorWrist;
   private final LightsSubsystem lightsSubsystem;
 
   // Controller
   private final CommandXboxController m_xboxController = new CommandXboxController(0);
   private final CommandPS4Controller m_ps4Controller = new CommandPS4Controller(1);
-
-  DigitalInput m_noteSensor2 = new DigitalInput(0);
-  Trigger m_NoteSensorTrigger2 = new Trigger(m_noteSensor2::get);
 
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -96,24 +90,6 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 new VisionIOLimelight(camera0Name, drive::getRotation),
                 new VisionIOLimelight(camera1Name, drive::getRotation));
-
-        // climber =
-        //     new RollerSystem(
-        //         "Climber",
-        //         new RollerSystemIOTalonFX(
-        //             Constants.CLIMBER.CANID,
-        //             Constants.CLIMBER.CANBUS,
-        //             40,
-        //             false,
-        //             0,
-        //             false,
-        //             false,
-        //             1,
-        //             Constants.CLIMBER.SLOT0_CONFIGS));
-        // climber.setPID(Constants.CLIMBER.SLOT0_CONFIGS); // init tunables in the parent roller
-        // system
-        // climber.setMotionMagic(Constants.CLIMBER.MOTIONMAGIC_CONFIGS);
-        // climber.setAtSetpointBand(.3);
 
         intakeShooter =
             new RollerSystem(
@@ -138,48 +114,7 @@ public class RobotContainer {
                 Constants.INTAKE_CORAL_SENSOR.CANID,
                 Constants.INTAKE_CORAL_SENSOR.THRESHOLD);
 
-        wrist =
-            new RollerSystem(
-                "Wrist",
-                new RollerSystemIOTalonFX(
-                    Constants.WRIST.CANID, Constants.WRIST.CANBUS, 40, false, 0, false, false, 1));
-        // init tunables in the parent roller system
-        wrist.setPID(Constants.WRIST.SLOT0_CONFIGS);
-        wrist.setMotionMagic(Constants.WRIST.MOTIONMAGIC_CONFIGS);
-        wrist.setAtSetpointBand(.3);
-
-        elevator =
-            new RollerSystem(
-                "Elevator",
-                new RollerSystemIOTalonFX(
-                    Constants.ELEVATOR.LEFT_CANID,
-                    Constants.ELEVATOR.CANBUS,
-                    40,
-                    false,
-                    0,
-                    false,
-                    false,
-                    1));
-        // init tunables in the parent roller system
-        elevator.setPID(Constants.ELEVATOR.SLOT0_CONFIGS);
-        elevator.setMotionMagic(Constants.ELEVATOR.MOTIONMAGIC_CONFIGS);
-        elevator.setAtSetpointBand(.3);
-        elevatorFollower =
-            new RollerSystem(
-                "ElevatorFollower",
-                new RollerSystemIOTalonFX(
-                    Constants.ELEVATOR.RIGHT_CANID,
-                    Constants.ELEVATOR.CANBUS,
-                    40,
-                    true,
-                    Constants.ELEVATOR.LEFT_CANID,
-                    true,
-                    false,
-                    1));
-        // init tunables in the parent roller system
-        elevatorFollower.setPID(Constants.ELEVATOR.SLOT0_CONFIGS);
-        elevatorFollower.setMotionMagic(Constants.ELEVATOR.MOTIONMAGIC_CONFIGS);
-        elevatorFollower.setAtSetpointBand(.3);
+        elevatorWrist = new ElevatorWristSubSystem();
 
         // climber =
         //     new RollerSystem(
@@ -224,12 +159,9 @@ public class RobotContainer {
         // TBD, this needs an actual simulated sensor.....
         intakeCoralSensor = new LaserCanSystem("intakeCoral", 37, 30);
 
-        wrist = new RollerSystem("Wrist", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
-        elevator =
-            new RollerSystem("Elevator", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
-        elevatorFollower =
-            new RollerSystem(
-                "ElevatorFollower", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+        // TBD, this needs an actual simulated sensor.....
+        elevatorWrist = new ElevatorWristSubSystem();
+
         // climber =
         //     new RollerSystem(
         //         "Climber", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
@@ -250,13 +182,12 @@ public class RobotContainer {
         // (Use same number of dummy implementations as the real robot)
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
-        // climber = new RollerSystem("Climber", new RollerSystemIO() {});
-
         intakeShooter = new RollerSystem("IntakeShooter", new RollerSystemIO() {});
         intakeCoralSensor = new LaserCanSystem("intakeCoral", 37, 30); // TBD, need better dummy
-        wrist = new RollerSystem("Wrist", new RollerSystemIO() {});
-        elevator = new RollerSystem("Elevator", new RollerSystemIO() {});
-        elevatorFollower = new RollerSystem("ElevatorFollower", new RollerSystemIO() {});
+
+        // TBD, this needs an actual simulated sensor.....
+        elevatorWrist = new ElevatorWristSubSystem();
+
         // climber = new RollerSystem("Climber", new RollerSystemIO() {});
 
         // TBD, this needs an actual simulated sensor.....
@@ -302,6 +233,7 @@ public class RobotContainer {
     LEDSegment.side1distance.setColor(LightsSubsystem.white);
 
     SmartDashboard.putBoolean("laserCanTrip", false);
+    SmartDashboard.putString("atPosition", "--");
   }
 
   /**
@@ -419,98 +351,67 @@ public class RobotContainer {
     // m_NoteSubSystem.setAction(ActionRequest.SPIT_NOTE2)));
     // m_xboxController.rightBumper().onTrue(Commands.runOnce(() ->
     // m_NoteSubSystem.setAction(ActionRequest.SHOOT_SPINUP)));
-    m_xboxController
-        .start()
-        .onTrue(
-            Commands.runOnce(() -> intakeShooter.setSpeed(0))
-                .andThen(Commands.runOnce(() -> wrist.setPosition(0)))
-                .andThen(Commands.runOnce(() -> elevator.setPosition(0))));
+    m_xboxController.start().onTrue(Commands.runOnce(() -> intakeShooter.setSpeed(0)));
 
     m_ps4Controller
         .triangle()
         .onTrue(
-            Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L4))
-                .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5))
-                .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
-                .withTimeout(5)
-                .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
-                .andThen(Commands.runOnce(() -> SmartDashboard.putString("Goal", "L4"))));
-    // .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L4))));
+            elevatorWrist
+                .setPositionCmd(Constants.ELEVATOR.L4, Constants.WRIST.L4)
+                .andThen(() -> SmartDashboard.putString("atPosition", "L4")));
 
     m_ps4Controller
         .circle()
         .onTrue(
-            Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L3))
-                .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5))
-                .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
-                .withTimeout(5)
-                .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
-                .andThen(Commands.runOnce(() -> SmartDashboard.putString("Goal", "L3"))));
-    // .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L3))));
+            elevatorWrist
+                .setPositionCmd(Constants.ELEVATOR.L3, Constants.WRIST.L3)
+                .andThen(() -> SmartDashboard.putString("atPosition", "L3")));
 
     m_ps4Controller
         .square()
         .onTrue(
-            Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L2))
-                .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5))
-                .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
-                .withTimeout(5)
-                .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
-                .andThen(Commands.runOnce(() -> SmartDashboard.putString("Goal", "L2"))));
-    // .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L2))));
+            elevatorWrist
+                .setPositionCmd(Constants.ELEVATOR.L2, Constants.WRIST.L2)
+                .andThen(() -> SmartDashboard.putString("atPosition", "L2")));
 
     m_ps4Controller
         .cross()
         .onTrue(
-            Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.L1))
-                .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5))
-                .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
-                .withTimeout(5)
-                .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
-                .andThen(Commands.runOnce(() -> SmartDashboard.putString("Goal", "L1"))));
-    // .andThen(Commands.runOnce(() -> elevator.setPosition(Constants.ELEVATOR.L1))));
+            elevatorWrist
+                .setPositionCmd(Constants.ELEVATOR.L1, Constants.WRIST.L1)
+                .andThen(() -> SmartDashboard.putString("atPosition", "L1")));
 
     // m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.FEEDSTATION_SPIN)));
     // m_ps4Controller.L2().onTrue(Commands.runOnce(() ->
-    // m_NoteSubSystem.setAction(ActionRequest.DISLODGE_WITH_SHOOTER)));
-    m_ps4Controller.R1().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.A2)));
-    m_ps4Controller.R2().onTrue(Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.A1)));
+
+    m_ps4Controller
+        .R1()
+        .onTrue(
+            elevatorWrist
+                .setPositionCmd(Constants.ELEVATOR.A2, Constants.WRIST.A2)
+                .andThen(() -> SmartDashboard.putString("atPosition", "A2")));
+    m_ps4Controller
+        .R2()
+        .onTrue(
+            elevatorWrist
+                .setPositionCmd(Constants.ELEVATOR.A1, Constants.WRIST.A1)
+                .andThen(() -> SmartDashboard.putString("atPosition", "A1")));
 
     // m_ps4Controller.touchpad().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.STOP)));
     // m_ps4Controller.options().onTrue(Commands.runOnce(() ->
-    // m_NoteSubSystem.setHaveNote1(false)));
 
-    // m_ps4Controller.povLeft()
-    //     .onTrue(Commands.runOnce(() ->
-    //                 intakeShooter.setSpeed(
-    //                     intakeShooter.getSpeed() - Constants.INTAKE_SHOOTER.BUMP_VALUE)));
-    // m_ps4Controller.povRight()
-    //     .onTrue(Commands.runOnce(() ->
-    //                 intakeShooter.setSpeed(
-    //                     intakeShooter.getSpeed() + Constants.INTAKE_SHOOTER.BUMP_VALUE)));
     m_ps4Controller
         .povUp()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    elevator.setPosition(elevator.getPosition() + Constants.ELEVATOR.BUMP_VALUE)));
-    // on 2024 bot, positive is intake side up, shooter side looks to be going down
+        .onTrue(elevatorWrist.BumpElevatorPosition(Constants.ELEVATOR.BUMP_VALUE));
     m_ps4Controller
         .povDown()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    elevator.setPosition(elevator.getPosition() - Constants.ELEVATOR.BUMP_VALUE)));
+        .onTrue(elevatorWrist.BumpElevatorPosition(-Constants.ELEVATOR.BUMP_VALUE));
     m_ps4Controller
         .povLeft()
-        .onTrue(
-            Commands.runOnce(
-                () -> wrist.setPosition(wrist.getPosition() + Constants.WRIST.BUMP_VALUE)));
+        .onTrue(elevatorWrist.BumpWristPosition(Constants.ELEVATOR.BUMP_VALUE));
     m_ps4Controller
         .povRight()
-        .onTrue(
-            Commands.runOnce(
-                () -> wrist.setPosition(wrist.getPosition() - Constants.WRIST.BUMP_VALUE)));
+        .onTrue(elevatorWrist.BumpWristPosition(-Constants.ELEVATOR.BUMP_VALUE));
 
     // //Left Joystick Y
     // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake1Speed((-Constants.INTAKE.BUMP_VALUE))));
@@ -529,9 +430,6 @@ public class RobotContainer {
     // climber.setDefaultCommand(
     //     Commands.run(() -> climber.setVolts(m_ps4Controller.getLeftY() * 12), climber));
 
-    m_NoteSensorTrigger2
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("NoteSensor2", true)))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("NoteSensor2", false)));
   }
 
   /**

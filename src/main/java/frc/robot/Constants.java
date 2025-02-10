@@ -78,13 +78,15 @@ public final class Constants {
     public static final int CANID = 31; // old shooterSubSystem right, top
     public static final String CANBUS = "rio";
     public static final double MIN_POSITION = 0;
-    public static final double MAX_POSITION = 10;
+    public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 10;
+    public static final double MAX_POSITION_AT_ELEVATOR_MIN = 135;
+    public static final double MAX_POSITION_AT_P1 = 200;
     public static final double L4 = 22;
     public static final double L3 = 15;
     public static final double L2 = 15;
     public static final double L1 = 5;
     public static final double A2 = 20;
-    public static final double A1 = 20;
+    public static final double A1 = 10;
     public static final double BUMP_VALUE = .5; // rotations
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(1).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
@@ -100,13 +102,15 @@ public final class Constants {
     public static final int RIGHT_CANID = 33;
     public static final String CANBUS = "rio";
     public static final double MIN_POSITION = 0;
-    public static final double MAX_POSITION = 10;
-    public static final double L4 = 4;
-    public static final double L3 = 3;
-    public static final double L2 = 2;
-    public static final double L1 = 1;
-    public static final double A2 = -2;
-    public static final double A1 = -3;
+    public static final double MIN_POSITION_AT_P1 = 5;
+    public static final double MAX_POSITION = 25;
+    public static final double MAX_POSITION_WRIST_NOT_CLEAR = 5;
+    public static final double L4 = 15;
+    public static final double L3 = 10;
+    public static final double L2 = 5;
+    public static final double L1 = 0;
+    public static final double A2 = 8;
+    public static final double A1 = 3;
     public static final double BUMP_VALUE = .5; // rotations
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(4.8).withKI(0).withKD(0).withKS(0.25).withKV(0.1).withKA(0);
