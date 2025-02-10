@@ -114,68 +114,6 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     }
   }
 
-  // public void periodic() {
-  //   double elevatorNow = elevator.getPosition();
-  //   double wristNow = wrist.getPosition();
-
-  //   //need to protect wrist limits
-  //   if (elevatorNow <= Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR){
-  //     if (wristNow > Constants.WRIST.MAX_POSITION){
-  //       wrist.setPosition(Constants.WRIST.MAX_POSITION);
-  //       System.out.println("********** max wrist angle: " + Constants.WRIST.MAX_POSITION +
-  //                            ", for elevator height less than: "+
-  // Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR);
-  //     }
-  //     if (wristNow < Constants.WRIST.MIN_POSITION){
-  //       wrist.setPosition(Constants.WRIST.MIN_POSITION);
-  //       System.out.println("********** min wrist angle: " + Constants.WRIST.MIN_POSITION);
-  //     }
-  //   }
-  //   else {  //elevator above ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR
-  //     if (wristNow <= Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR){
-  //       wrist.setPosition(Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR);
-  //       System.out.println("********** min wrist angle: " +
-  // Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR +
-  //                            ", when elevator height above: "+
-  // Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR);
-  //     }
-  //     if (wristNow > Constants.WRIST.MAX_POSITION){
-  //       wrist.setPosition(Constants.WRIST.MAX_POSITION);
-  //       System.out.println("********** max wrist angle: " + Constants.WRIST.MAX_POSITION);
-  //     }
-  //   }
-
-  //   //need to protect elevator limits
-  //   if (wristNow <= Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR){
-  //     if (elevatorNow > Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR){
-  //       // stop the elevator here
-  //       elevator.setPosition(Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR);
-  //       System.out.println("********** max elevator height: " +
-  // Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR +
-  //                             ", for wrist angle less than: "+
-  // Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR);
-  //     }
-  //     if (elevatorNow < Constants.ELEVATOR.MIN_POSITION){
-  //       //stop the elevator at minimum
-  //       elevator.setPosition(Constants.ELEVATOR.MIN_POSITION);
-  //       System.out.println("********** min elevator angle: " + Constants.ELEVATOR.MIN_POSITION);
-  //     }
-  //   }
-  //   else {  //wrist past WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR
-  //     if (elevatorNow <= Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR){
-  //       elevator.setPosition(Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR);
-  //        System.out.println("********** min elevator height: " +
-  // Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR +
-  //                             ", when wrist angle above: "+
-  // Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR);
-  //     }
-  //     if (elevatorNow > Constants.ELEVATOR.MAX_POSITION){
-  //       elevator.setPosition(Constants.ELEVATOR.MAX_POSITION);
-  //       System.out.println("********** max elevator height: " + Constants.ELEVATOR.MAX_POSITION);
-  //     }
-  //   }
-
-  // }
 
   @AutoLogOutput
   public Command setPositionCmd(double e_goal, double w_goal) {

@@ -408,10 +408,10 @@ public class RobotContainer {
         .onTrue(elevatorWrist.BumpElevatorPosition(-Constants.ELEVATOR.BUMP_VALUE));
     m_ps4Controller
         .povLeft()
-        .onTrue(elevatorWrist.BumpWristPosition(Constants.ELEVATOR.BUMP_VALUE));
+        .onTrue(elevatorWrist.BumpWristPosition(Constants.WRIST.BUMP_VALUE));
     m_ps4Controller
         .povRight()
-        .onTrue(elevatorWrist.BumpWristPosition(-Constants.ELEVATOR.BUMP_VALUE));
+        .onTrue(elevatorWrist.BumpWristPosition(-Constants.WRIST.BUMP_VALUE));
 
     // //Left Joystick Y
     // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake1Speed((-Constants.INTAKE.BUMP_VALUE))));
