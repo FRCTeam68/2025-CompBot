@@ -79,17 +79,17 @@ public final class Constants {
     public static final String CANBUS = "rio";
     public static final double MIN_POSITION = 0;
     public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 10;
-    public static final double MAX_POSITION_AT_ELEVATOR_MIN = 135;
-    public static final double MAX_POSITION_AT_P1 = 200;
+    public static final double MAX_POSITION_AT_ELEVATOR_MIN = 60;
+    public static final double MAX_POSITION_AT_P1 = 70;
     public static final double L4 = 22;
     public static final double L3 = 15;
     public static final double L2 = 15;
-    public static final double L1 = 5;
-    public static final double A2 = 20;
-    public static final double A1 = 10;
+    public static final double L1 = 0;
+    public static final double A2 = 50;
+    public static final double A1 = 50;
     public static final double BUMP_VALUE = .5; // rotations
     public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(1).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
+        new Slot0Configs().withKP(6).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
             .withMotionMagicCruiseVelocity(20)
@@ -104,7 +104,7 @@ public final class Constants {
     public static final double MIN_POSITION = 0;
     public static final double MIN_POSITION_AT_P1 = 5;
     public static final double MAX_POSITION = 25;
-    public static final double MAX_POSITION_WRIST_NOT_CLEAR = 5;
+    public static final double MAX_POSITION_WRIST_NOT_CLEAR = 7;
     public static final double L4 = 15;
     public static final double L3 = 10;
     public static final double L2 = 5;

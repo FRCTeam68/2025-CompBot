@@ -149,15 +149,14 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   }
 
   @Override
-  public void setZero() {
-    setVolts(0);
-    // m_angleLeftMotor.setControl(m_brake);
-    setPosition(0);
+  public void stop() {
+    talon.setControl(neutralOut);
   }
 
   @Override
-  public void stop() {
-    talon.setControl(neutralOut);
+  public void zero() {
+    setVolts(0);
+    talon.setPosition(0);
   }
 
   @Override

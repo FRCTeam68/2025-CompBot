@@ -159,4 +159,12 @@ public class RollerSystem extends SubsystemBase {
   public boolean atPosition() {
     return Math.abs(setpoint - getPosition()) < setpointBand.getAsDouble();
   }
+
+  public void stop() {
+    io.stop();
+  }
+
+  public void zero() {
+    io.zero();
+  }
 }

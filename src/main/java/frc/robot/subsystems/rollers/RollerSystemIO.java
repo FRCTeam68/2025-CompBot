@@ -37,10 +37,10 @@ public interface RollerSystemIO {
   /* Run rollers at position */
   default void setPosition(double rotations) {}
 
-  default void setZero() {}
-
   /* Stop rollers */
   default void stop() {}
+
+  default void zero() {}
 
   /** Set P, I, and D gains for closed loop control on drive motor. */
   public default void setPID(Slot0Configs newconfig) {}
