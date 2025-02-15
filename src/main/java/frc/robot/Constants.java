@@ -87,6 +87,9 @@ public final class Constants {
     public static final double L1 = 0;
     public static final double A2 = 50;
     public static final double A1 = 50;
+    public static final double P1 = 65;
+    public static final double PRENET = 13;
+    public static final double SHOOTNET = 10;
     public static final double BUMP_VALUE = .5; // rotations
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(6).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
@@ -111,6 +114,9 @@ public final class Constants {
     public static final double L1 = 0;
     public static final double A2 = 8;
     public static final double A1 = 3;
+    public static final double P1 = 6;
+    public static final double PRENET = 20;
+    public static final double SHOOTNET = 24;
     public static final double BUMP_VALUE = .5; // rotations
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(4.8).withKI(0).withKD(0).withKS(0.25).withKV(0.1).withKA(0);

@@ -394,8 +394,19 @@ public class RobotContainer {
                 .setPositionCmd(Constants.ELEVATOR.L1, Constants.WRIST.L1)
                 .andThen(() -> SmartDashboard.putString("atPosition", "L1")));
 
-    // m_ps4Controller.L1().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.FEEDSTATION_SPIN)));
-    // m_ps4Controller.L2().onTrue(Commands.runOnce(() ->
+    m_ps4Controller
+        .L1()
+        .onTrue(
+            elevatorWrist
+                .setPositionCmd(Constants.ELEVATOR.PRENET, Constants.WRIST.PRENET)
+                .andThen(() -> SmartDashboard.putString("atPosition", "PRENET")));
+
+    m_ps4Controller
+        .L2()
+        .onTrue(
+            elevatorWrist
+                .setPositionCmd(Constants.ELEVATOR.P1, Constants.WRIST.P1)
+                .andThen(() -> SmartDashboard.putString("atPosition", "P1")));
 
     m_ps4Controller
         .R1()

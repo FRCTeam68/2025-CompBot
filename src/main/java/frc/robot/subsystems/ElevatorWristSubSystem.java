@@ -82,55 +82,6 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     elevator.zero();
   }
 
-  public void periodic() {
-    double elevatorNow = elevator.getPosition();
-    double wristNow = wrist.getPosition();
-
-    // stop wrist if beyond limits
-    if (wristNow < Constants.WRIST.MIN_POSITION - 0.25) {
-      wrist.stop();
-      // wrist.setPosition(Constants.WRIST.MIN_POSITION);
-      System.out.println("********** min wrist angle: " + Constants.WRIST.MIN_POSITION);
-    } else if (wristNow > Constants.WRIST.MAX_POSITION_AT_P1) {
-      wrist.stop();
-      // wrist.setPosition(Constants.WRIST.MAX_POSITION_AT_P1);
-      System.out.println("********** max wrist angle: " + Constants.WRIST.MAX_POSITION_AT_P1);
-    } else if (wristNow < Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR
-        && elevatorNow > Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR) {
-      // stop the elevator
-      wrist.stop();
-      elevator.stop();
-      // wrist.setPosition(Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR);
-      // elevator.setPosition(Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR);
-      System.out.println(
-          "********** wrist angle cannot be less than: "
-              + Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR
-              + ", when elevator above height: "
-              + Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR);
-    }
-
-    // stop elevator if beyond limits
-    if (elevatorNow < Constants.ELEVATOR.MIN_POSITION - 0.25) {
-      // stop the elevator at minimum
-      elevator.stop();
-      // elevator.setPosition(Constants.ELEVATOR.MIN_POSITION);
-      System.out.println("********** min elevator height: " + Constants.ELEVATOR.MIN_POSITION);
-    } else if (elevatorNow > Constants.ELEVATOR.MAX_POSITION) {
-      elevator.stop();
-      // elevator.setPosition(Constants.ELEVATOR.MAX_POSITION);
-      System.out.println("********** max elevator height: " + Constants.ELEVATOR.MAX_POSITION);
-    } else if (wristNow > Constants.WRIST.MAX_POSITION_AT_P1
-        && elevatorNow < Constants.ELEVATOR.MIN_POSITION_AT_P1) {
-      elevator.stop();
-      // elevator.setPosition(Constants.ELEVATOR.MIN_POSITION_AT_P1);
-      System.out.println(
-          "********** min elelvator height angle: "
-              + Constants.ELEVATOR.MIN_POSITION_AT_P1
-              + ", when wrist at angle: "
-              + Constants.WRIST.MAX_POSITION_AT_P1);
-    }
-  }
-
   @AutoLogOutput
   public Command setPositionCmd(double e_goal, double w_goal) {
     // return runOnce(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.green, .5))
