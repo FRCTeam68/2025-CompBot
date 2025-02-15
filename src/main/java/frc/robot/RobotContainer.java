@@ -28,11 +28,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.*;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorWristSubSystem;
-// import frc.robot.subsystems.LightsSubsystem;
+import frc.robot.subsystems.LaserCanSystem;
+import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -60,9 +62,10 @@ public class RobotContainer {
   private final Vision vision;
   //   private final RollerSystem climber;
   private final RollerSystem intakeShooter;
-  //   private final LaserCanSystem intakeCoralSensor;
+  private final LaserCanSystem intakeCoralSensor;
   private final ElevatorWristSubSystem elevatorWrist;
-  //   private final LightsSubsystem lightsSubsystem;
+  private final LaserCanSystem ElevatorSensor;
+  private final LightsSubsystem lightsSubsystem;
 
   // Controller
   private final CommandXboxController m_xboxController = new CommandXboxController(0);
@@ -105,13 +108,18 @@ public class RobotContainer {
         intakeShooter.setMotionMagic(Constants.INTAKE_SHOOTER.MOTIONMAGIC_CONFIGS);
         intakeShooter.setAtSetpointBand(.3);
 
-        // intakeCoralSensor =
-        //     new LaserCanSystem(
-        //         "intakeCoral",
-        //         Constants.INTAKE_CORAL_SENSOR.CANID,
-        //         Constants.INTAKE_CORAL_SENSOR.THRESHOLD);
+        intakeCoralSensor =
+            new LaserCanSystem(
+                "intakeCoral",
+                Constants.INTAKE_CORAL_SENSOR.CANID,
+                Constants.INTAKE_CORAL_SENSOR.THRESHOLD);
 
         elevatorWrist = new ElevatorWristSubSystem();
+        ElevatorSensor =
+            new LaserCanSystem(
+                "ElevatorHeight",
+                Constants.ELVATOR_SENSOR.CANID,
+                Constants.ELVATOR_SENSOR.THRESHOLD);
 
         // climber =
         //     new RollerSystem(
@@ -130,7 +138,7 @@ public class RobotContainer {
         // climber.setMotionMagic(Constants.CLIMBER.MOTIONMAGIC_CONFIGS);
         // climber.setAtSetpointBand(.3);
 
-        // lightsSubsystem = new LightsSubsystem();
+        lightsSubsystem = new LightsSubsystem();
         break;
 
       case SIM:
@@ -154,17 +162,21 @@ public class RobotContainer {
             new RollerSystem(
                 "IntakeShooter", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
         // TBD, this needs an actual simulated sensor.....
-        // intakeCoralSensor = new LaserCanSystem("intakeCoral", 37, 30);
+        intakeCoralSensor = new LaserCanSystem("intakeCoral", 37, 30);
 
         // TBD, this needs an actual simulated sensor.....
         elevatorWrist = new ElevatorWristSubSystem();
-
+        ElevatorSensor =
+            new LaserCanSystem(
+                "ElevatorHeight",
+                Constants.ELVATOR_SENSOR.CANID,
+                Constants.ELVATOR_SENSOR.THRESHOLD);
         // climber =
         //     new RollerSystem(
         //         "Climber", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
 
         // TBD, this needs an actual simulated sensor.....
-        // lightsSubsystem = new LightsSubsystem();
+        lightsSubsystem = new LightsSubsystem();
         break;
 
       default:
@@ -180,15 +192,20 @@ public class RobotContainer {
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
         intakeShooter = new RollerSystem("IntakeShooter", new RollerSystemIO() {});
-        // intakeCoralSensor = new LaserCanSystem("intakeCoral", 37, 30); // TBD, need better dummy
+        intakeCoralSensor = new LaserCanSystem("intakeCoral", 37, 30); // TBD, need better dummy
 
         // TBD, this needs an actual simulated sensor.....
         elevatorWrist = new ElevatorWristSubSystem();
+        ElevatorSensor =
+            new LaserCanSystem(
+                "ElevatorHeight",
+                Constants.ELVATOR_SENSOR.CANID,
+                Constants.ELVATOR_SENSOR.THRESHOLD);
 
         // climber = new RollerSystem("Climber", new RollerSystemIO() {});
 
         // TBD, this needs an actual simulated sensor.....
-        // lightsSubsystem = new LightsSubsystem();
+        lightsSubsystem = new LightsSubsystem();
         break;
     }
 
@@ -229,7 +246,8 @@ public class RobotContainer {
     // LEDSegment.side1heading.setColor(LightsSubsystem.white);
     // LEDSegment.side1distance.setColor(LightsSubsystem.white);
 
-    // SmartDashboard.putBoolean("laserCanTrip", false);
+    SmartDashboard.putBoolean("laserCanTrip", false);
+    SmartDashboard.putNumber("ElevatorHieght", 0);
     SmartDashboard.putString("atPosition", "--");
   }
 
@@ -241,10 +259,10 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    // Trigger m_LaserCanTrigger = new Trigger(intakeCoralSensor::havePiece);
-    // m_LaserCanTrigger
-    //     .onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("laserCanTrip", true)))
-    //     .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("laserCanTrip", false)));
+    Trigger m_LaserCanTrigger = new Trigger(intakeCoralSensor::havePiece);
+    m_LaserCanTrigger
+        .onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("laserCanTrip", true)))
+        .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("laserCanTrip", false)));
 
     // Default command, normal field-relative drive
     drive.setDefaultCommand(

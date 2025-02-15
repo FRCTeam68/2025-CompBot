@@ -71,7 +71,7 @@ public final class Constants {
     // LaserCAN distance sensor
     public static final int CANID = 37;
     public static final String CANBUS = "rio";
-    public static final double THRESHOLD = 50; // mm
+    public static final double THRESHOLD = 20; // mm
   }
 
   public static final class WRIST {
@@ -119,6 +119,13 @@ public final class Constants {
             .withMotionMagicCruiseVelocity(20)
             .withMotionMagicAcceleration(40)
             .withMotionMagicJerk(400);
+  }
+
+  public static final class ELVATOR_SENSOR {
+    // LaserCAN distance sensor
+    public static final int CANID = 47;
+    public static final String CANBUS = "rio";
+    public static final double THRESHOLD = 50; // mm
   }
 
   public static final class CLIMBER {
