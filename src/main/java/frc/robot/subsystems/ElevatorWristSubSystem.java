@@ -32,7 +32,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
         new RollerSystem(
             "Wrist",
             new RollerSystemIOTalonFX(
-                Constants.WRIST.CANID, Constants.WRIST.CANBUS, 40, false, 0, false, true, 1));
+                Constants.WRIST.CANID, Constants.WRIST.CANBUS, 40, false, 0, false, false, 1));
     // init tunables in the parent roller system
     wrist.setPID(Constants.WRIST.SLOT0_CONFIGS);
     wrist.setMotionMagic(Constants.WRIST.MOTIONMAGIC_CONFIGS);
@@ -64,7 +64,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 true,
                 Constants.ELEVATOR.LEFT_CANID,
                 true,
-                true,
+                false,
                 1));
     // init tunables in the parent roller system
     elevatorFollower.setPID(Constants.ELEVATOR.SLOT0_CONFIGS);
