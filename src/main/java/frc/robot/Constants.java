@@ -55,8 +55,11 @@ public final class Constants {
     public static final String CANBUS = "rio";
     public static final double MAX_SPEED = 100; // rps
     public static final double CORAL_INTAKE_SPEED = 30;
-    public static final double CORAL_SHOOT_SPEED = -20;
+    public static final double CORAL_SHOOT_SPEED = 20;
     public static final double CORAL_SHOOT_TIMEOUT = 2;
+    public static final double ALGAE_INTAKE_SPEED = 30;
+    public static final double ALGAE_SHOOT_SPEED = -40;
+    public static final double ALGAE_SHOOT_TIMEOUT = 2;
     public static final double BUMP_VALUE = 1; // rotations
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(.2).withKI(0).withKD(0).withKS(0).withKV(0.13).withKA(0);
@@ -76,20 +79,21 @@ public final class Constants {
 
   public static final class WRIST {
     public static final int CANID = 31; // old shooterSubSystem right, top
+    public static final int CANCODER_CANID = 36;
     public static final String CANBUS = "rio";
     public static final double MIN_POSITION = 0;
-    public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 10;
-    public static final double MAX_POSITION_AT_ELEVATOR_MIN = 60;
-    public static final double MAX_POSITION_AT_P1 = 70;
-    public static final double L4 = 22;
-    public static final double L3 = 15;
-    public static final double L2 = 15;
+    public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 15;
+    public static final double MAX_POSITION_AT_ELEVATOR_MIN = 28;
+    public static final double MAX_POSITION_AT_P1 = 34;
+    public static final double L4 = 4.5;
+    public static final double L3 = 4.5;
+    public static final double L2 = 4.5;
     public static final double L1 = 0;
-    public static final double A2 = 50;
-    public static final double A1 = 50;
-    public static final double P1 = 65;
-    public static final double PRENET = 13;
-    public static final double SHOOTNET = 10;
+    public static final double A2 = 27.5;
+    public static final double A1 = 27.5;
+    public static final double P1 = 34;
+    public static final double PRENET = 21;
+    public static final double SHOOTNET = 6;
     public static final double BUMP_VALUE = .5; // rotations
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(6).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
@@ -105,18 +109,18 @@ public final class Constants {
     public static final int RIGHT_CANID = 33;
     public static final String CANBUS = "rio";
     public static final double MIN_POSITION = 0;
-    public static final double MIN_POSITION_AT_P1 = 5;
-    public static final double MAX_POSITION = 25;
-    public static final double MAX_POSITION_WRIST_NOT_CLEAR = 7;
-    public static final double L4 = 15;
-    public static final double L3 = 10;
-    public static final double L2 = 5;
+    public static final double MIN_POSITION_AT_P1 = 3.4;
+    public static final double MAX_POSITION = 26.5;
+    public static final double MAX_POSITION_WRIST_NOT_CLEAR = 1.5;
+    public static final double L4 = 22;
+    public static final double L3 = 11.4;
+    public static final double L2 = 4;
     public static final double L1 = 0;
-    public static final double A2 = 8;
-    public static final double A1 = 3;
-    public static final double P1 = 6;
+    public static final double A2 = 13.5;
+    public static final double A1 = 7;
+    public static final double P1 = 3.4;
     public static final double PRENET = 20;
-    public static final double SHOOTNET = 24;
+    public static final double SHOOTNET = 26;
     public static final double BUMP_VALUE = .5; // rotations
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(4.8).withKI(0).withKD(0).withKS(0.25).withKV(0.1).withKA(0);
@@ -127,8 +131,8 @@ public final class Constants {
             .withMotionMagicJerk(400);
   }
 
-  public static final class ELVATOR_SENSOR {
-    // LaserCAN distance sensor
+  public static final class ELEVATOR_SENSOR {
+    // distance sensor
     public static final int CANID = 47;
     public static final String CANBUS = "rio";
     public static final double THRESHOLD = 50; // mm
@@ -136,8 +140,8 @@ public final class Constants {
 
   public static final class CLIMBER {
     public static final int CANID = 40;
-    public static final String CANBUS = "DRIVEbus";
-    public static final double MAX_HEIGHT = 132; // 100 rotates is about 9in
+    public static final String CANBUS = "rio";
+    public static final double MAX_HEIGHT = 100;
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(.1).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =

@@ -36,7 +36,7 @@ public class LaserCanSystem extends SubsystemBase {
     // GrappleHook
     try {
       lc.setRangingMode(LaserCan.RangingMode.SHORT);
-      lc.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 16, 16));
+      // lc.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 16, 16));
       lc.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_33MS);
     } catch (ConfigurationFailedException e) {
       connectionAlert.set(true);
@@ -57,7 +57,7 @@ public class LaserCanSystem extends SubsystemBase {
     //   // unreliable measurement.
     // }
 
-    Logger.recordOutput("LaserCan/" + name + "distance_mm", distance_mm);
+    Logger.recordOutput("LaserCan/" + name + "/distance_mm", distance_mm);
   }
 
   public double getDistance_mm() {

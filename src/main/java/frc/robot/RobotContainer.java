@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -60,11 +61,10 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
-  //   private final RollerSystem climber;
+  private final RollerSystem climber;
   private final RollerSystem intakeShooter;
   private final LaserCanSystem intakeCoralSensor;
   private final ElevatorWristSubSystem elevatorWrist;
-  private final LaserCanSystem ElevatorSensor;
   private final LightsSubsystem lightsSubsystem;
 
   // Controller
@@ -115,28 +115,23 @@ public class RobotContainer {
                 Constants.INTAKE_CORAL_SENSOR.THRESHOLD);
 
         elevatorWrist = new ElevatorWristSubSystem();
-        ElevatorSensor =
-            new LaserCanSystem(
-                "ElevatorHeight",
-                Constants.ELVATOR_SENSOR.CANID,
-                Constants.ELVATOR_SENSOR.THRESHOLD);
 
-        // climber =
-        //     new RollerSystem(
-        //         "Climber",
-        //         new RollerSystemIOTalonFX(
-        //             Constants.CLIMBER.LEFT_CANID,
-        //             Constants.CLIMBER.CANBUS,
-        //             40,
-        //             false,
-        //             0,
-        //             false,
-        //             false,
-        //             1));
-        // // init tunables in the parent roller system
-        // climber.setPID(Constants.CLIMBER.SLOT0_CONFIGS);
-        // climber.setMotionMagic(Constants.CLIMBER.MOTIONMAGIC_CONFIGS);
-        // climber.setAtSetpointBand(.3);
+        climber =
+            new RollerSystem(
+                "Climber",
+                new RollerSystemIOTalonFX(
+                    Constants.CLIMBER.CANID,
+                    Constants.CLIMBER.CANBUS,
+                    40,
+                    false,
+                    0,
+                    false,
+                    false,
+                    1));
+        // init tunables in the parent roller system
+        climber.setPID(Constants.CLIMBER.SLOT0_CONFIGS);
+        climber.setMotionMagic(Constants.CLIMBER.MOTIONMAGIC_CONFIGS);
+        climber.setAtSetpointBand(.3);
 
         lightsSubsystem = new LightsSubsystem();
         break;
@@ -154,26 +149,21 @@ public class RobotContainer {
         // no sim for limelight????  use blank
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
-        // climber =
-        //     new RollerSystem(
-        //         "Climber", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
-
         intakeShooter =
             new RollerSystem(
                 "IntakeShooter", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
         // TBD, this needs an actual simulated sensor.....
-        intakeCoralSensor = new LaserCanSystem("intakeCoral", 37, 30);
+        intakeCoralSensor =
+            new LaserCanSystem(
+                "intakeCoral",
+                Constants.INTAKE_CORAL_SENSOR.CANID,
+                Constants.INTAKE_CORAL_SENSOR.THRESHOLD);
 
         // TBD, this needs an actual simulated sensor.....
         elevatorWrist = new ElevatorWristSubSystem();
-        ElevatorSensor =
-            new LaserCanSystem(
-                "ElevatorHeight",
-                Constants.ELVATOR_SENSOR.CANID,
-                Constants.ELVATOR_SENSOR.THRESHOLD);
-        // climber =
-        //     new RollerSystem(
-        //         "Climber", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+
+        climber =
+            new RollerSystem("Climber", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
 
         // TBD, this needs an actual simulated sensor.....
         lightsSubsystem = new LightsSubsystem();
@@ -196,13 +186,8 @@ public class RobotContainer {
 
         // TBD, this needs an actual simulated sensor.....
         elevatorWrist = new ElevatorWristSubSystem();
-        ElevatorSensor =
-            new LaserCanSystem(
-                "ElevatorHeight",
-                Constants.ELVATOR_SENSOR.CANID,
-                Constants.ELVATOR_SENSOR.THRESHOLD);
 
-        // climber = new RollerSystem("Climber", new RollerSystemIO() {});
+        climber = new RollerSystem("Climber", new RollerSystemIO() {});
 
         // TBD, this needs an actual simulated sensor.....
         lightsSubsystem = new LightsSubsystem();
@@ -247,7 +232,6 @@ public class RobotContainer {
     // LEDSegment.side1distance.setColor(LightsSubsystem.white);
 
     SmartDashboard.putBoolean("laserCanTrip", false);
-    SmartDashboard.putNumber("ElevatorHieght", 0);
     SmartDashboard.putString("atPosition", "--");
   }
 
@@ -340,19 +324,47 @@ public class RobotContainer {
 
     m_xboxController
         .leftTrigger()
-        .onTrue(intakeShooter.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED));
-    // .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5)));
-    // .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece()))
-    // .withTimeout(5)
-    // .andThen(new WaitCommand(2))
-    // .finallyDo(() -> LEDSegment.side1.setColor(LightsSubsystem.blue))
-    // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
-    // .andThen(intakeShooter.setSpeedCmd(0)));
+        .onTrue(
+            intakeShooter
+                .setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED)
+                // .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5)));
+                .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece()))
+                // .withTimeout(5)
+                // .andThen(new WaitCommand(2))
+                // .finallyDo(() -> LEDSegment.side1.setColor(LightsSubsystem.blue))
+                // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
+                .andThen(intakeShooter.setSpeedCmd(0)));
     m_xboxController
         .rightTrigger()
         .onTrue(
             intakeShooter
                 .setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED)
+                // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.red))
+                .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece() == false))
+                .andThen(new WaitCommand(2))
+                // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.purple))
+                // .handleInterrupt(() -> LEDSegment.side1.setFadeAnimation(LightsSubsystem.red,
+                // 0.5))
+                .andThen(intakeShooter.setSpeedCmd(0)));
+
+    m_xboxController
+        .leftBumper()
+        .onTrue(
+            intakeShooter
+                .setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_INTAKE_SPEED)
+                // .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5)));
+                // .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece()))   NEED WAY TO
+                // USE TORQUE AMPS TO STOP
+                // .withTimeout(5)
+                .andThen(new WaitCommand(2))
+                // .finallyDo(() -> LEDSegment.side1.setColor(LightsSubsystem.blue))
+                // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
+                .andThen(intakeShooter.setSpeedCmd(0)));
+    m_xboxController
+        .rightBumper()
+        .onTrue(
+            intakeShooter
+                .setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_SPEED)
                 // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.red))
                 // .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece() == false))
                 .andThen(new WaitCommand(2))
@@ -360,9 +372,10 @@ public class RobotContainer {
                 // .handleInterrupt(() -> LEDSegment.side1.setFadeAnimation(LightsSubsystem.red,
                 // 0.5))
                 .andThen(intakeShooter.setSpeedCmd(0)));
-    // m_xboxController.leftBumper().onTrue(Commands.runOnce(() ->
+    //
+
     // m_NoteSubSystem.setAction(ActionRequest.SPIT_NOTE2)));
-    // m_xboxController.rightBumper().onTrue(Commands.runOnce(() ->
+
     // m_NoteSubSystem.setAction(ActionRequest.SHOOT_SPINUP)));
     m_xboxController.start().onTrue(Commands.runOnce(() -> intakeShooter.setSpeed(0)));
 
@@ -422,7 +435,11 @@ public class RobotContainer {
                 .andThen(() -> SmartDashboard.putString("atPosition", "A1")));
 
     // m_ps4Controller.touchpad().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.STOP)));
-    m_ps4Controller.options().onTrue(Commands.runOnce(() -> elevatorWrist.zero()));
+    m_ps4Controller
+        .options()
+        .onTrue(
+            Commands.runOnce(() -> elevatorWrist.zero())
+                .andThen(() -> System.out.println("zero elevator and wrist")));
 
     m_ps4Controller
         .povUp()
@@ -447,9 +464,8 @@ public class RobotContainer {
     //             .andThen(() -> m_Climber.setPitMode(m_climbActive))
     //             .andThen(() -> SmartDashboard.putBoolean("ClimberPitMode", m_climbActive)));
 
-    // climber.setDefaultCommand(
-    //     Commands.run(() -> climber.setVolts(m_ps4Controller.getLeftY() * 12), climber));
-
+    climber.setDefaultCommand(
+        Commands.run(() -> climber.setVolts(m_ps4Controller.getLeftY() * 12), climber));
   }
 
   /**

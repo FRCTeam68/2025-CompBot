@@ -7,7 +7,14 @@
 
 package frc.robot.subsystems;
 
+import static frc.robot.util.PhoenixUtil.tryUntilOk;
+
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -23,8 +30,12 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   private final RollerSystem wrist;
   private final RollerSystem elevator;
   private final RollerSystem elevatorFollower;
+  private final LaserCanSystem ElevatorSensor;
+  private final CANcoder wristCANcoder;
 
   @Getter @AutoLogOutput private double setpoint = 0.0;
+  @Getter @AutoLogOutput private double elevatorHeight = 0.0;
+  @Getter @AutoLogOutput private double wristAngle = 0.0;
 
   public ElevatorWristSubSystem() {
 
@@ -32,11 +43,17 @@ public class ElevatorWristSubSystem extends SubsystemBase {
         new RollerSystem(
             "Wrist",
             new RollerSystemIOTalonFX(
-                Constants.WRIST.CANID, Constants.WRIST.CANBUS, 40, false, 0, false, false, 1));
+                Constants.WRIST.CANID, Constants.WRIST.CANBUS, 80, true, 0, false, true, 1));
     // init tunables in the parent roller system
     wrist.setPID(Constants.WRIST.SLOT0_CONFIGS);
     wrist.setMotionMagic(Constants.WRIST.MOTIONMAGIC_CONFIGS);
     wrist.setAtSetpointBand(.3);
+
+    wristCANcoder = new CANcoder(Constants.WRIST.CANCODER_CANID, Constants.WRIST.CANBUS);
+    var cancoderConfig = new CANcoderConfiguration();
+    // cancoderConfig.MagnetSensor.MagnetOffset = offset.getRotations();
+    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+    tryUntilOk(5, () -> wristCANcoder.getConfigurator().apply(cancoderConfig));
 
     elevator =
         new RollerSystem(
@@ -44,11 +61,11 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             new RollerSystemIOTalonFX(
                 Constants.ELEVATOR.LEFT_CANID,
                 Constants.ELEVATOR.CANBUS,
-                40,
-                false,
+                80,
+                true,
                 0,
                 false,
-                false,
+                true,
                 1));
     // init tunables in the parent roller system
     elevator.setPID(Constants.ELEVATOR.SLOT0_CONFIGS);
@@ -60,16 +77,22 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             new RollerSystemIOTalonFX(
                 Constants.ELEVATOR.RIGHT_CANID,
                 Constants.ELEVATOR.CANBUS,
-                40,
-                true,
+                80,
+                false,
                 Constants.ELEVATOR.LEFT_CANID,
                 true,
-                false,
+                true,
                 1));
     // init tunables in the parent roller system
     elevatorFollower.setPID(Constants.ELEVATOR.SLOT0_CONFIGS);
     elevatorFollower.setMotionMagic(Constants.ELEVATOR.MOTIONMAGIC_CONFIGS);
     elevatorFollower.setAtSetpointBand(.3);
+
+    ElevatorSensor =
+        new LaserCanSystem(
+            "ElevatorHeight", Constants.ELEVATOR_SENSOR.CANID, Constants.ELEVATOR_SENSOR.THRESHOLD);
+
+    SmartDashboard.putNumber("ElevatorHieght", 0);
 
     wrist.setPosition(0);
     elevator.setPosition(0);
@@ -80,6 +103,61 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   public void zero() {
     wrist.zero();
     elevator.zero();
+    elevatorFollower.zero();
+  }
+
+  public void periodic() {
+    elevatorHeight = ElevatorSensor.getDistance_mm();
+    SmartDashboard.putNumber("ElevatorHieght", elevatorHeight);
+    wristAngle = wristCANcoder.getPosition().getValueAsDouble();
+    SmartDashboard.putNumber("WristAngle", wristAngle);
+
+    // double elevatorNow = elevator.getPosition();
+    // double wristNow = wrist.getPosition();
+
+    // // stop wrist if beyond limits
+    // if (wristNow < Constants.WRIST.MIN_POSITION - 0.2) {
+    //   wrist.stop();
+    //   // wrist.setPosition(Constants.WRIST.MIN_POSITION);
+    //   System.out.println("********** min wrist angle: " + Constants.WRIST.MIN_POSITION);
+    // } else if (wristNow > Constants.WRIST.MAX_POSITION_AT_P1) {
+    //   wrist.stop();
+    //   // wrist.setPosition(Constants.WRIST.MAX_POSITION_AT_P1);
+    //   System.out.println("********** max wrist angle: " + Constants.WRIST.MAX_POSITION_AT_P1);
+    // } else if (wristNow < Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR
+    //     && elevatorNow > Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR) {
+    //   // stop the elevator
+    //   wrist.stop();
+    //   elevator.stop();
+    //   // wrist.setPosition(Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR);
+    //   // elevator.setPosition(Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR);
+    //   System.out.println(
+    //       "********** wrist angle cannot be less than: "
+    //           + Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR
+    //           + ", when elevator above height: "
+    //           + Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR);
+    // }
+
+    // // stop elevator if beyond limits
+    // if (elevatorNow < Constants.ELEVATOR.MIN_POSITION - 0.25) {
+    //   // stop the elevator at minimum
+    //   elevator.stop();
+    //   // elevator.setPosition(Constants.ELEVATOR.MIN_POSITION);
+    //   System.out.println("********** min elevator height: " + Constants.ELEVATOR.MIN_POSITION);
+    // } else if (elevatorNow > Constants.ELEVATOR.MAX_POSITION) {
+    //   elevator.stop();
+    //   // elevator.setPosition(Constants.ELEVATOR.MAX_POSITION);
+    //   System.out.println("********** max elevator height: " + Constants.ELEVATOR.MAX_POSITION);
+    // } else if (wristNow > Constants.WRIST.MAX_POSITION_AT_P1
+    //     && elevatorNow < Constants.ELEVATOR.MIN_POSITION_AT_P1) {
+    //   elevator.stop();
+    //   // elevator.setPosition(Constants.ELEVATOR.MIN_POSITION_AT_P1);
+    //   System.out.println(
+    //       "********** min elelvator height angle: "
+    //           + Constants.ELEVATOR.MIN_POSITION_AT_P1
+    //           + ", when wrist at angle: "
+    //           + Constants.WRIST.MAX_POSITION_AT_P1);
+    // }
   }
 
   @AutoLogOutput
@@ -111,10 +189,26 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   }
 
   public Command BumpElevatorPosition(double bumpValue) {
-    return runOnce(() -> elevator.setPosition(elevator.getPosition() + bumpValue));
+    // double elevatorNow = elevator.getPosition();
+    return new ConditionalCommand(
+        runOnce(() -> elevator.setPosition(elevator.getPosition() + bumpValue)),
+        Commands.none(),
+        () -> {
+          double elevatorNow = elevator.getPosition();
+          return elevatorNow + bumpValue > Constants.ELEVATOR.MIN_POSITION - 0.2
+              && elevatorNow + bumpValue < Constants.ELEVATOR.MAX_POSITION;
+        });
   }
 
   public Command BumpWristPosition(double bumpValue) {
-    return runOnce(() -> wrist.setPosition(wrist.getPosition() + bumpValue));
+    // double elevatorNow = elevator.getPosition();
+    return new ConditionalCommand(
+        runOnce(() -> wrist.setPosition(wrist.getPosition() + bumpValue)),
+        Commands.none(),
+        () -> {
+          double wristNow = wrist.getPosition();
+          return wristNow + bumpValue > Constants.WRIST.MIN_POSITION - 0.2
+              && wristNow + bumpValue < Constants.WRIST.MAX_POSITION_AT_P1;
+        });
   }
 }
