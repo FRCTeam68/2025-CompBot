@@ -48,6 +48,8 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     wrist.setPID(Constants.WRIST.SLOT0_CONFIGS);
     wrist.setMotionMagic(Constants.WRIST.MOTIONMAGIC_CONFIGS);
     wrist.setAtSetpointBand(.3);
+    wrist.setPieceCurrentThreshold(
+        40); // does not have a piece but might want to use to detect overrun limits?
 
     wristCANcoder = new CANcoder(Constants.WRIST.CANCODER_CANID, Constants.WRIST.CANBUS);
     var cancoderConfig = new CANcoderConfiguration();
@@ -71,6 +73,8 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     elevator.setPID(Constants.ELEVATOR.SLOT0_CONFIGS);
     elevator.setMotionMagic(Constants.ELEVATOR.MOTIONMAGIC_CONFIGS);
     elevator.setAtSetpointBand(.3);
+    elevator.setPieceCurrentThreshold(
+        40); // does not have a piece but might want to use to detect overrun limits?
     elevatorFollower =
         new RollerSystem(
             "ElevatorFollower",
@@ -87,6 +91,8 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     elevatorFollower.setPID(Constants.ELEVATOR.SLOT0_CONFIGS);
     elevatorFollower.setMotionMagic(Constants.ELEVATOR.MOTIONMAGIC_CONFIGS);
     elevatorFollower.setAtSetpointBand(.3);
+    elevatorFollower.setPieceCurrentThreshold(
+        40); // does not have a piece but might want to use to detect overrun limits?
 
     ElevatorSensor =
         new LaserCanSystem(

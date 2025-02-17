@@ -25,7 +25,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -107,6 +106,7 @@ public class RobotContainer {
         intakeShooter.setPID(Constants.INTAKE_SHOOTER.SLOT0_CONFIGS);
         intakeShooter.setMotionMagic(Constants.INTAKE_SHOOTER.MOTIONMAGIC_CONFIGS);
         intakeShooter.setAtSetpointBand(.3);
+        intakeShooter.setPieceCurrentThreshold(40);
 
         intakeCoralSensor =
             new LaserCanSystem(
@@ -132,6 +132,8 @@ public class RobotContainer {
         climber.setPID(Constants.CLIMBER.SLOT0_CONFIGS);
         climber.setMotionMagic(Constants.CLIMBER.MOTIONMAGIC_CONFIGS);
         climber.setAtSetpointBand(.3);
+        climber.setPieceCurrentThreshold(
+            40); // does not have a piece but might want to use to detect overrun limits?
 
         lightsSubsystem = new LightsSubsystem();
         break;
@@ -195,12 +197,12 @@ public class RobotContainer {
     }
 
     NamedCommands.registerCommand(
-        "shoot",
-        Commands.runOnce(() -> intakeShooter.setSpeed(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED)));
+        "shoot", ManipulatorCommands.shootCoral(intakeShooter, intakeCoralSensor));
     NamedCommands.registerCommand(
-        "intake",
-        Commands.runOnce(
-            () -> intakeShooter.setSpeed(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED)));
+        "intake", ManipulatorCommands.intakeCoral(intakeShooter, intakeCoralSensor));
+    NamedCommands.registerCommand("shootAlgae", ManipulatorCommands.shootAlgaeP1(intakeShooter));
+    NamedCommands.registerCommand(
+        "intakeAlgae", ManipulatorCommands.intakeAlgaeA1A2(intakeShooter));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -313,54 +315,15 @@ public class RobotContainer {
 
     m_xboxController
         .leftTrigger()
-        .onTrue(
-            intakeShooter
-                .setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED)
-                // .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5)));
-                .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece()))
-                // .withTimeout(5)
-                // .andThen(new WaitCommand(2))
-                // .finallyDo(() -> LEDSegment.side1.setColor(LightsSubsystem.blue))
-                // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
-                .andThen(intakeShooter.setSpeedCmd(0)));
-    m_xboxController
-        .rightTrigger()
-        .onTrue(
-            intakeShooter
-                .setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED)
-                // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.red))
-                .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece() == false))
-                .andThen(new WaitCommand(2))
-                // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.purple))
-                // .handleInterrupt(() -> LEDSegment.side1.setFadeAnimation(LightsSubsystem.red,
-                // 0.5))
-                .andThen(intakeShooter.setSpeedCmd(0)));
+        .onTrue(ManipulatorCommands.intakeCoral(intakeShooter, intakeCoralSensor));
 
     m_xboxController
-        .leftBumper()
-        .onTrue(
-            intakeShooter
-                .setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_INTAKE_SPEED)
-                // .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5)));
-                // .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece()))   NEED WAY TO
-                // USE TORQUE AMPS TO STOP
-                // .withTimeout(5)
-                .andThen(new WaitCommand(2))
-                // .finallyDo(() -> LEDSegment.side1.setColor(LightsSubsystem.blue))
-                // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
-                .andThen(intakeShooter.setSpeedCmd(0)));
-    m_xboxController
-        .rightBumper()
-        .onTrue(
-            intakeShooter
-                .setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_SPEED)
-                // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.red))
-                // .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece() == false))
-                .andThen(new WaitCommand(2))
-                // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.purple))
-                // .handleInterrupt(() -> LEDSegment.side1.setFadeAnimation(LightsSubsystem.red,
-                // 0.5))
-                .andThen(intakeShooter.setSpeedCmd(0)));
+        .rightTrigger()
+        .onTrue(ManipulatorCommands.shootCoral(intakeShooter, intakeCoralSensor));
+
+    m_xboxController.leftBumper().onTrue(ManipulatorCommands.intakeAlgaeA1A2(intakeShooter));
+
+    m_xboxController.rightBumper().onTrue(ManipulatorCommands.shootAlgaeP1(intakeShooter));
 
     m_xboxController.start().onTrue(Commands.runOnce(() -> intakeShooter.setSpeed(0)));
 

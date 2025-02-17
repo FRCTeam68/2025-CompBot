@@ -9,6 +9,7 @@ package frc.robot.subsystems.rollers;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,6 +39,10 @@ public class RollerSystem extends SubsystemBase {
   private LoggedTunableNumber rollerMMJ;
 
   private LoggedTunableNumber setpointBand;
+  private LoggedTunableNumber pieceIntakeCurrentThresh;
+
+  private Debouncer pieceDebouncer = new Debouncer(0.1);
+  @AutoLogOutput private boolean hasPiece = false;
 
   @Getter @AutoLogOutput private double setpoint = 0.0;
 
@@ -57,6 +62,9 @@ public class RollerSystem extends SubsystemBase {
     rollerMMJ = new LoggedTunableNumber("Roller/" + name + "/MMJ");
 
     setpointBand = new LoggedTunableNumber("Roller/" + name + "/setpointBand");
+
+    pieceIntakeCurrentThresh =
+        new LoggedTunableNumber("Roller/" + name + "/PieceIntakeCurrentThreshold");
 
     disconnected = new Alert(name + " motor disconnected!", Alert.AlertType.kWarning);
     stateTimer.start();
@@ -94,6 +102,15 @@ public class RollerSystem extends SubsystemBase {
         io.setMotionMagic(newMMconfig);
       }
     }
+
+    // Check something causing higher current
+    hasPiece =
+        pieceDebouncer.calculate(
+            Math.abs(inputs.torqueCurrentAmps) >= pieceIntakeCurrentThresh.get());
+  }
+
+  public boolean hasPiece() {
+    return hasPiece;
   }
 
   // must call this once and only once in robotcontainer after each RollerSystem is created
@@ -113,6 +130,10 @@ public class RollerSystem extends SubsystemBase {
     rollerMMA.initDefault(newconfig.MotionMagicAcceleration);
     rollerMMJ.initDefault(newconfig.MotionMagicJerk);
     io.setMotionMagic(newconfig);
+  }
+
+  public void setPieceCurrentThreshold(double threshold) {
+    pieceIntakeCurrentThresh.initDefault(threshold);
   }
 
   public void setAtSetpointBand(double band) {
