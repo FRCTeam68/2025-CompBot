@@ -233,6 +233,7 @@ public class RobotContainer {
 
     SmartDashboard.putBoolean("laserCanTrip", false);
     SmartDashboard.putString("atPosition", "--");
+    SmartDashboard.putBoolean("CLIMB", false);
   }
 
   /**
@@ -310,18 +311,6 @@ public class RobotContainer {
         .back()
         .onTrue(Commands.runOnce(() -> drive.setPose(new Pose2d()), drive).ignoringDisable(true));
 
-    // m_xboxController
-    //     .y()
-    //     .onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.SPEAKER_PODIUM)));
-    // m_xboxController.b().onTrue(Commands.runOnce(() -> m_NoteSubSystem.setTarget(Target.AMP)));
-    // m_xboxController.x().onTrue(Commands.runOnce(()->m_NoteSubSystem.setTarget(Target.TRAP)));
-    // m_xboxController.a().onTrue(Commands.runOnce(() ->
-    // m_NoteSubSystem.setTarget(Target.SPEAKER)));
-
-    // for trial
-    // m_xboxController.a().onTrue(new SetTargetCustomCmd(m_NoteSubSystem, Constants.ANGLE.SPEAKER,
-    // Constants.SHOOTER.SPEAKER_SHOOT_SPEED));
-
     m_xboxController
         .leftTrigger()
         .onTrue(
@@ -372,11 +361,7 @@ public class RobotContainer {
                 // .handleInterrupt(() -> LEDSegment.side1.setFadeAnimation(LightsSubsystem.red,
                 // 0.5))
                 .andThen(intakeShooter.setSpeedCmd(0)));
-    //
 
-    // m_NoteSubSystem.setAction(ActionRequest.SPIT_NOTE2)));
-
-    // m_NoteSubSystem.setAction(ActionRequest.SHOOT_SPINUP)));
     m_xboxController.start().onTrue(Commands.runOnce(() -> intakeShooter.setSpeed(0)));
 
     m_ps4Controller
@@ -464,6 +449,13 @@ public class RobotContainer {
     //             .andThen(() -> m_Climber.setPitMode(m_climbActive))
     //             .andThen(() -> SmartDashboard.putBoolean("ClimberPitMode", m_climbActive)));
 
+    m_ps4Controller
+        .touchpad()
+        .onTrue(
+            Commands.runOnce(() -> climber.setPosition(Constants.CLIMBER.GOAL))
+                .andThen(() -> SmartDashboard.putBoolean("CLIMB", true))
+                .andThen(new WaitUntilCommand(() -> climber.atPosition()))
+                .andThen(() -> System.out.println("climb completed")));
     climber.setDefaultCommand(
         Commands.run(() -> climber.setVolts(m_ps4Controller.getLeftY() * 12), climber));
   }

@@ -65,6 +65,8 @@ public class LaserCanSystem extends SubsystemBase {
   }
 
   public boolean havePiece() {
-    return (distance_mm > 0 && distance_mm < 50);
+    // coral sensor is measuring 0 because it is really close.
+    // but definately measures nothing when no coral is there (i.e.)
+    return (distance_mm >= 0 && distance_mm < 50);
   }
 }

@@ -141,6 +141,7 @@ public final class Constants {
   public static final class CLIMBER {
     public static final int CANID = 40;
     public static final String CANBUS = "rio";
+    public static final double GOAL = 20;
     public static final double MAX_HEIGHT = 100;
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(.1).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
