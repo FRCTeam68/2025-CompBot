@@ -36,6 +36,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorWristSubSystem;
 import frc.robot.subsystems.LaserCanSystem;
 import frc.robot.subsystems.LightsSubsystem;
+import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -234,6 +235,11 @@ public class RobotContainer {
     SmartDashboard.putBoolean("laserCanTrip", false);
     SmartDashboard.putString("atPosition", "--");
     SmartDashboard.putBoolean("CLIMB", false);
+
+    LEDSegment.all.setRainbowAnimation(4);
+    // LEDSegment.leftside.setColor(LightsSubsystem.red);
+    // LEDSegment.middle.setFadeAnimation(LightsSubsystem.orange, 1);
+    // LEDSegment.rightside.setRainbowAnimation(4);
   }
 
   /**
@@ -316,8 +322,8 @@ public class RobotContainer {
         .onTrue(
             intakeShooter
                 .setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED)
-                // .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5)));
-                .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece()))
+                .andThen(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4))
+                // .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece()))
                 // .withTimeout(5)
                 // .andThen(new WaitCommand(2))
                 // .finallyDo(() -> LEDSegment.side1.setColor(LightsSubsystem.blue))
@@ -328,12 +334,10 @@ public class RobotContainer {
         .onTrue(
             intakeShooter
                 .setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED)
-                // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.red))
-                .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece() == false))
+                .andThen(() -> LEDSegment.all.setColor(LightsSubsystem.red))
+                // .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece() == false))
                 .andThen(new WaitCommand(2))
-                // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.purple))
-                // .handleInterrupt(() -> LEDSegment.side1.setFadeAnimation(LightsSubsystem.red,
-                // 0.5))
+                .andThen(() -> LEDSegment.all.setColor(LightsSubsystem.orange))
                 .andThen(intakeShooter.setSpeedCmd(0)));
 
     m_xboxController
@@ -341,25 +345,22 @@ public class RobotContainer {
         .onTrue(
             intakeShooter
                 .setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_INTAKE_SPEED)
-                // .andThen(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5)));
+                .andThen(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4))
                 // .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece()))   NEED WAY TO
                 // USE TORQUE AMPS TO STOP
                 // .withTimeout(5)
                 .andThen(new WaitCommand(2))
-                // .finallyDo(() -> LEDSegment.side1.setColor(LightsSubsystem.blue))
-                // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.white))
+                .andThen(() -> LEDSegment.all.setColor(LightsSubsystem.orange))
                 .andThen(intakeShooter.setSpeedCmd(0)));
     m_xboxController
         .rightBumper()
         .onTrue(
             intakeShooter
                 .setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_SPEED)
-                // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.red))
+                .andThen(() -> LEDSegment.all.setColor(LightsSubsystem.red))
                 // .andThen(new WaitUntilCommand(() -> intakeCoralSensor.havePiece() == false))
                 .andThen(new WaitCommand(2))
-                // .andThen(() -> LEDSegment.side1.setColor(LightsSubsystem.purple))
-                // .handleInterrupt(() -> LEDSegment.side1.setFadeAnimation(LightsSubsystem.red,
-                // 0.5))
+                .andThen(() -> LEDSegment.all.setColor(LightsSubsystem.orange))
                 .andThen(intakeShooter.setSpeedCmd(0)));
 
     m_xboxController.start().onTrue(Commands.runOnce(() -> intakeShooter.setSpeed(0)));

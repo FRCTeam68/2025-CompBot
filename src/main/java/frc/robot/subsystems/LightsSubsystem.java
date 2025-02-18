@@ -41,7 +41,7 @@ public class LightsSubsystem extends SubsystemBase {
   public LightsSubsystem() {
     candle.configFactoryDefault();
     candle.configVBatOutput(VBatOutputMode.On);
-    candle.configLEDType(LEDStripType.RGB);
+    candle.configLEDType(LEDStripType.GRB);
     candle.clearAnimation(0);
     candle.clearAnimation(1);
     candle.clearAnimation(2);
@@ -116,11 +116,14 @@ public class LightsSubsystem extends SubsystemBase {
     // side3(22, 4, 6),
     // side4(29, 4, 7);
 
-    // there are 4 segments of 7, so 28 LEDs
-    side1(8, 25, 2),
-    side1target(33, 1, 3),
-    side1distance(34, 1, 4),
-    side1heading(35, 1, -1);
+    // there is 1 long strand:  36 + 18 + 36, so 90 LEDs total
+    leftside(8, 37, 1),
+    middle(45, 18, 2),
+    rightside(63, 36, 3),
+    all(8, 92, 4);
+    // side1target(33, 1, 3),
+    // side1distance(34, 1, 4),
+    // side1heading(35, 1, -1);
     // side2(36, 28, 5);
 
     public final int startIndex;
