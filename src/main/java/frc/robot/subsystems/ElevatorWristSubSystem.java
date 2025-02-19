@@ -30,7 +30,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   private final RollerSystem wrist;
   private final RollerSystem elevator;
   private final RollerSystem elevatorFollower;
-  private final RangeSensorSystem ElevatorSensor;
+  private final RangeSensorSubSystem ElevatorSensor;
   private final CANcoder wristCANcoder;
 
   @Getter @AutoLogOutput private double setpoint = 0.0;
@@ -95,8 +95,11 @@ public class ElevatorWristSubSystem extends SubsystemBase {
         40); // does not have a piece but might want to use to detect overrun limits?
 
     ElevatorSensor =
-        new RangeSensorSystem(
-            "ElevatorHeight", Constants.ELEVATOR_SENSOR.CANID, Constants.ELEVATOR_SENSOR.THRESHOLD);
+        new RangeSensorSubSystem(
+            "ElevatorHeight",
+            Constants.ELEVATOR_SENSOR.CANID,
+            Constants.ELEVATOR_SENSOR.CANBUS,
+            Constants.ELEVATOR_SENSOR.THRESHOLD);
 
     SmartDashboard.putNumber("ElevatorHieght", 0);
 
