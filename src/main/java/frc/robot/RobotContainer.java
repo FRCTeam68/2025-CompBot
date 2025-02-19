@@ -33,9 +33,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.*;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorWristSubSystem;
-import frc.robot.subsystems.LaserCanSystem;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.LightsSubsystem.LEDSegment;
+import frc.robot.subsystems.RangeSensorSystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -63,7 +63,7 @@ public class RobotContainer {
   private final Vision vision;
   private final RollerSystem climber;
   private final RollerSystem intakeShooter;
-  private final LaserCanSystem intakeCoralSensor;
+  private final RangeSensorSystem intakeCoralSensor;
   private final ElevatorWristSubSystem elevatorWrist;
   private final LightsSubsystem lightsSubsystem;
 
@@ -110,7 +110,7 @@ public class RobotContainer {
         intakeShooter.setPieceCurrentThreshold(40);
 
         intakeCoralSensor =
-            new LaserCanSystem(
+            new RangeSensorSystem(
                 "intakeCoral",
                 Constants.INTAKE_CORAL_SENSOR.CANID,
                 Constants.INTAKE_CORAL_SENSOR.THRESHOLD);
@@ -157,7 +157,7 @@ public class RobotContainer {
                 "IntakeShooter", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
         // TBD, this needs an actual simulated sensor.....
         intakeCoralSensor =
-            new LaserCanSystem(
+            new RangeSensorSystem(
                 "intakeCoral",
                 Constants.INTAKE_CORAL_SENSOR.CANID,
                 Constants.INTAKE_CORAL_SENSOR.THRESHOLD);
@@ -185,7 +185,11 @@ public class RobotContainer {
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
         intakeShooter = new RollerSystem("IntakeShooter", new RollerSystemIO() {});
-        intakeCoralSensor = new LaserCanSystem("intakeCoral", 37, 30); // TBD, need better dummy
+        intakeCoralSensor =
+            new RangeSensorSystem(
+                "intakeCoral",
+                Constants.INTAKE_CORAL_SENSOR.CANID,
+                Constants.INTAKE_CORAL_SENSOR.THRESHOLD); // TBD, need better dummy
 
         // TBD, this needs an actual simulated sensor.....
         elevatorWrist = new ElevatorWristSubSystem();

@@ -16,16 +16,16 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
-import frc.robot.subsystems.LaserCanSystem;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.LightsSubsystem.LEDSegment;
+import frc.robot.subsystems.RangeSensorSystem;
 import frc.robot.subsystems.rollers.RollerSystem;
 
 public class ManipulatorCommands {
 
   private ManipulatorCommands() {}
 
-  public static Command intakeCoral(RollerSystem intake, LaserCanSystem intake_sensor) {
+  public static Command intakeCoral(RollerSystem intake, RangeSensorSystem intake_sensor) {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, .5)),
         intake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
@@ -34,7 +34,7 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue)));
   }
 
-  public static Command shootCoral(RollerSystem shooter, LaserCanSystem intake_sensor) {
+  public static Command shootCoral(RollerSystem shooter, RangeSensorSystem intake_sensor) {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
         shooter.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
