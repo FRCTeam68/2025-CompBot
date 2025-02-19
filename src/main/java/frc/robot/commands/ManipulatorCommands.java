@@ -27,40 +27,40 @@ public class ManipulatorCommands {
 
   public static Command intakeCoral(RollerSystem intake, LaserCanSystem intake_sensor) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5)),
+        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, .5)),
         intake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
         Commands.waitUntil(() -> intake_sensor.havePiece()),
         Commands.runOnce(() -> intake.setSpeedCmd(0)),
-        Commands.runOnce(() -> LEDSegment.side1.setColor(LightsSubsystem.blue)));
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue)));
   }
 
   public static Command shootCoral(RollerSystem shooter, LaserCanSystem intake_sensor) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.side1.setColor(LightsSubsystem.red)),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
         shooter.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
         Commands.waitUntil(() -> intake_sensor.havePiece() == false),
         Commands.waitSeconds(2),
         Commands.runOnce(() -> shooter.setSpeedCmd(0)),
-        Commands.runOnce(() -> LEDSegment.side1.setColor(LightsSubsystem.orange)));
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
   }
 
   public static Command intakeAlgaeA1A2(RollerSystem intake) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.blue, .5)),
+        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, .5)),
         intake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_INTAKE_SPEED),
         Commands.waitUntil(() -> intake.hasPiece()),
         // change control of intake from velocity to position to hold the algae (instead of using
         // stop)
         Commands.runOnce(() -> intake.setPosition(intake.getPosition())),
-        Commands.runOnce(() -> LEDSegment.side1.setColor(LightsSubsystem.blue)));
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue)));
   }
 
   public static Command shootAlgaeP1(RollerSystem shooter) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.side1.setColor(LightsSubsystem.red)),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
         shooter.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_SPEED),
         Commands.waitSeconds(2),
         Commands.runOnce(() -> shooter.setSpeedCmd(0)),
-        Commands.runOnce(() -> LEDSegment.side1.setColor(LightsSubsystem.orange)));
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
   }
 }

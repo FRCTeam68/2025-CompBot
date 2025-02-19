@@ -35,6 +35,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorWristSubSystem;
 import frc.robot.subsystems.LaserCanSystem;
 import frc.robot.subsystems.LightsSubsystem;
+import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -236,6 +237,11 @@ public class RobotContainer {
     SmartDashboard.putBoolean("laserCanTrip", false);
     SmartDashboard.putString("atPosition", "--");
     SmartDashboard.putBoolean("CLIMB", false);
+
+    LEDSegment.all.setRainbowAnimation(4);
+    // LEDSegment.leftside.setColor(LightsSubsystem.red);
+    // LEDSegment.middle.setFadeAnimation(LightsSubsystem.orange, 1);
+    // LEDSegment.rightside.setRainbowAnimation(4);
   }
 
   /**
