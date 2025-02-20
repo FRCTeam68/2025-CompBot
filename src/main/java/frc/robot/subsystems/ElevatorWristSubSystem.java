@@ -67,7 +67,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 false,
                 0,
                 false,
-                true,
+                false,
                 1));
     // init tunables in the parent roller system
     elevator.setPID(Constants.ELEVATOR.SLOT0_CONFIGS);
@@ -82,14 +82,14 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 Constants.ELEVATOR.LEFT_CANID,
                 Constants.ELEVATOR.CANBUS,
                 80,
-                true,
+                false,
                 Constants.ELEVATOR.RIGHT_CANID,
                 true,
-                true,
+                false,
                 1));
     // init tunables in the parent roller system
-    elevatorFollower.setPID(Constants.ELEVATOR.SLOT0_CONFIGS);
-    elevatorFollower.setMotionMagic(Constants.ELEVATOR.MOTIONMAGIC_CONFIGS);
+    // elevatorFollower.setPID(Constants.ELEVATOR.SLOT0_CONFIGS_FOLLOWER);
+    // elevatorFollower.setMotionMagic(Constants.ELEVATOR.MOTIONMAGIC_CONFIGS_FOLLOWER);
     elevatorFollower.setAtSetpointBand(.3);
     elevatorFollower.setPieceCurrentThreshold(
         40); // does not have a piece but might want to use to detect overrun limits?
@@ -193,6 +193,12 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     // .andThen(runOnce(() -> LEDSegment.side1.setColor(LightsSubsystem.green)));
   }
 
+  @AutoLogOutput
+  public Command shootAlgaeAtNetCmd(double e_goal, double w_goal) {
+    return Commands.sequence(
+        runOnce(() -> elevator.setPosition(e_goal)), runOnce(() -> wrist.setPosition(w_goal)));
+  }
+
   public boolean atPosition() {
     return elevator.atPosition() && wrist.atPosition();
   }
@@ -216,8 +222,11 @@ public class ElevatorWristSubSystem extends SubsystemBase {
         Commands.none(),
         () -> {
           double wristNow = wrist.getPosition();
-          return wristNow + bumpValue > Constants.WRIST.MIN_POSITION - 0.2
-              && wristNow + bumpValue < Constants.WRIST.MAX_POSITION_AT_P1;
+          double elevatorNow = elevator.getPosition();
+          return (wristNow + bumpValue > Constants.WRIST.MIN_POSITION - 0.2
+                  && wristNow + bumpValue < Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN)
+              || (elevatorNow >= Constants.ELEVATOR.MIN_POSITION_AT_P1 - 0.2
+                  && wristNow + bumpValue < Constants.WRIST.MAX_POSITION_AT_P1);
         });
   }
 }

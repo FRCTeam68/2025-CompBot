@@ -13,9 +13,11 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
+import frc.robot.subsystems.ElevatorWristSubSystem;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.RangeSensorSubSystem;
@@ -25,9 +27,9 @@ public class ManipulatorCommands {
 
   private ManipulatorCommands() {}
 
-  public static Command intakeCoral(RollerSystem intake, RangeSensorSubSystem intake_sensor) {
+  public static Command intakeCoralCmd(RollerSystem intake, RangeSensorSubSystem intake_sensor) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, .5)),
+        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4)),
         intake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
         Commands.waitUntil(() -> intake_sensor.havePiece()),
         // Commands.waitSeconds(.5),
@@ -37,7 +39,7 @@ public class ManipulatorCommands {
 
   // new WaitUntilCommand(() -> intake_sensor.havePiece())
 
-  public static Command shootCoral(RollerSystem shooter, RangeSensorSubSystem intake_sensor) {
+  public static Command shootCoralCmd(RollerSystem shooter, RangeSensorSubSystem intake_sensor) {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
         shooter.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
@@ -47,9 +49,9 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
   }
 
-  public static Command intakeAlgaeA1A2(RollerSystem intake) {
+  public static Command intakeAlgaeA1A2Cmd(RollerSystem intake) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, .5)),
+        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4)),
         intake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_INTAKE_SPEED),
         Commands.waitUntil(() -> intake.hasPiece()),
         // change control of intake from velocity to position to hold the algae (instead of using
@@ -58,12 +60,107 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue)));
   }
 
-  public static Command shootAlgaeP1(RollerSystem shooter) {
+  public static Command shootAlgaeP1Cmd(RollerSystem shooter) {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
         shooter.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_SPEED),
         Commands.waitSeconds(2),
         shooter.setSpeedCmd(0),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+  }
+
+  public static Command CoralL4Cmd(ElevatorWristSubSystem myElevatorWrist) {
+    return Commands.sequence(
+        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        myElevatorWrist.setPositionCmd(Constants.ELEVATOR.L4, Constants.WRIST.L4),
+        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L4")),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+  }
+
+  public static Command CoralL3Cmd(ElevatorWristSubSystem myElevatorWrist) {
+    return Commands.sequence(
+        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        myElevatorWrist.setPositionCmd(Constants.ELEVATOR.L3, Constants.WRIST.L3),
+        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L3")),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+  }
+
+  public static Command CoralL2Cmd(ElevatorWristSubSystem myElevatorWrist) {
+    return Commands.sequence(
+        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        myElevatorWrist.setPositionCmd(Constants.ELEVATOR.L2, Constants.WRIST.L2),
+        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L2")),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+  }
+
+  public static Command CoralL1Cmd(ElevatorWristSubSystem myElevatorWrist) {
+    return Commands.sequence(
+        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        myElevatorWrist.setPositionCmd(Constants.ELEVATOR.L1, Constants.WRIST.L1),
+        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L1")),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+  }
+
+  public static Command AlgaeToPreNetCmd(ElevatorWristSubSystem myElevatorWrist) {
+    return Commands.sequence(
+        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        myElevatorWrist.setPositionCmd(Constants.ELEVATOR.PRENET, Constants.WRIST.PRENET),
+        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "PRENET")),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+  }
+
+  public static Command ShootAlgaeToNetCmd(
+      ElevatorWristSubSystem myElevatorWrist, RollerSystem myShooter) {
+    return Commands.sequence(
+        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.red, 4)),
+        myElevatorWrist.shootAlgaeAtNetCmd(Constants.ELEVATOR.SHOOTNET, Constants.WRIST.SHOOTNET),
+        myShooter.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_SPEED),
+        Commands.waitSeconds(2),
+        myShooter.setSpeedCmd(0),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+  }
+
+  public static Command AlgaeToP1(ElevatorWristSubSystem myElevatorWrist) {
+    return Commands.sequence(
+        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        myElevatorWrist.setPositionCmd(Constants.ELEVATOR.P1, Constants.WRIST.P1),
+        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "P1")),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+  }
+
+  public static Command AlgaeAtA2(ElevatorWristSubSystem myElevatorWrist) {
+    return Commands.sequence(
+        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        myElevatorWrist.setPositionCmd(Constants.ELEVATOR.A2, Constants.WRIST.A2),
+        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "A2")),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+  }
+
+  public static Command AlgaeAtA1(ElevatorWristSubSystem myElevatorWrist) {
+    return Commands.sequence(
+        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        myElevatorWrist.setPositionCmd(Constants.ELEVATOR.A1, Constants.WRIST.A1),
+        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "A1")),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+  }
+
+  public static Command DeployClimberCmd(RollerSystem myClimber) {
+    return Commands.sequence(
+        Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.red, 4)),
+        Commands.runOnce(() -> SmartDashboard.putString("CLIMB", "deploying")),
+        Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.GOAL)),
+        Commands.waitUntil(() -> myClimber.atPosition()),
+        Commands.runOnce(() -> SmartDashboard.putString("CLIMB", "DEPLOYED")),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)));
+  }
+
+  public static Command RetractClimberCmd(RollerSystem myClimber) {
+    return Commands.sequence(
+        Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.white, 4)),
+        Commands.runOnce(() -> SmartDashboard.putString("CLIMB", "climbing")),
+        Commands.runOnce(() -> myClimber.setPosition(0)),
+        Commands.waitUntil(() -> myClimber.atPosition()),
+        Commands.runOnce(() -> SmartDashboard.putString("CLIMB", "CLIMBED")),
+        Commands.runOnce(() -> LEDSegment.all.setRainbowAnimation(4)));
   }
 }

@@ -64,20 +64,6 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
     this.reduction = reduction;
     talon = new TalonFX(id, bus);
 
-    // comment out, just use defaults from creation of new config?????
-    // config.MotionMagic.MotionMagicCruiseVelocity =
-    //     20; // 80; //106; // 5 rotations per second cruise
-    // config.MotionMagic.MotionMagicAcceleration =
-    //     40; // 100; // Take approximately 0.5 seconds to reach max vel
-    // config.MotionMagic.MotionMagicJerk = 400; // 700;
-
-    // config.Slot0.kP = .1;
-    // config.Slot0.kI = 0;
-    // config.Slot0.kD = 0;
-    // config.Slot0.kS = 0;
-    // config.Slot0.kV = 0;
-    // config.Slot0.kV = 0;
-
     config.Voltage.PeakForwardVoltage = 12;
     config.Voltage.PeakReverseVoltage = -12;
 
@@ -90,10 +76,6 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
     config.TorqueCurrent.PeakReverseTorqueCurrent = -currentLimitAmps;
     tryUntilOk(5, () -> talon.getConfigurator().apply(config));
 
-    if (followerID != 0) {
-      talon.setControl(new Follower(followerID, followOpposite));
-    }
-
     position = talon.getPosition();
     velocity = talon.getVelocity();
     appliedVoltage = talon.getMotorVoltage();
@@ -102,18 +84,20 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
     tempCelsius = talon.getDeviceTemp();
     closedLoopError = talon.getClosedLoopError();
 
-    tryUntilOk(
-        5,
-        () ->
-            BaseStatusSignal.setUpdateFrequencyForAll(
-                50.0,
-                position,
-                velocity,
-                appliedVoltage,
-                supplyCurrent,
-                torqueCurrent,
-                tempCelsius));
-    tryUntilOk(5, () -> talon.optimizeBusUtilization(0, 1.0));
+    if (followerID != 0) {
+      // this is a follower motor.  Assign its lead motor
+      // also, do not optimize other signals to be off.
+      talon.setControl(new Follower(followerID, followOpposite));
+      System.out.println("****** follower motor on elevator setup ******");
+    } else {
+      tryUntilOk(
+          5,
+          () ->
+              BaseStatusSignal.setUpdateFrequencyForAll(
+                  50.0, velocity, appliedVoltage, supplyCurrent, tempCelsius));
+      tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(1000, position, torqueCurrent));
+      tryUntilOk(5, () -> talon.optimizeBusUtilization(0, 1.0));
+    }
   }
 
   @Override

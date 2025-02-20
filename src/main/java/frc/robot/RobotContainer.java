@@ -25,7 +25,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -72,6 +71,8 @@ public class RobotContainer {
   private final CommandPS4Controller m_ps4Controller = new CommandPS4Controller(1);
 
   private final LoggedDashboardChooser<Command> autoChooser;
+
+  private boolean m_pitModeActive = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -205,12 +206,24 @@ public class RobotContainer {
     }
 
     NamedCommands.registerCommand(
-        "shoot", ManipulatorCommands.shootCoral(intakeShooter, intakeCoralSensor));
+        "shoot", ManipulatorCommands.shootCoralCmd(intakeShooter, intakeCoralSensor));
     NamedCommands.registerCommand(
-        "intake", ManipulatorCommands.intakeCoral(intakeShooter, intakeCoralSensor));
-    NamedCommands.registerCommand("shootAlgaeP1", ManipulatorCommands.shootAlgaeP1(intakeShooter));
+        "intake", ManipulatorCommands.intakeCoralCmd(intakeShooter, intakeCoralSensor));
     NamedCommands.registerCommand(
-        "intakeAlgae", ManipulatorCommands.intakeAlgaeA1A2(intakeShooter));
+        "shootAlgaeAtP1", ManipulatorCommands.shootAlgaeP1Cmd(intakeShooter));
+    NamedCommands.registerCommand(
+        "intakeAlgae", ManipulatorCommands.intakeAlgaeA1A2Cmd(intakeShooter));
+    NamedCommands.registerCommand("coralToL4", ManipulatorCommands.CoralL4Cmd(elevatorWrist));
+    NamedCommands.registerCommand("coralToL3", ManipulatorCommands.CoralL3Cmd(elevatorWrist));
+    NamedCommands.registerCommand("coralToL2", ManipulatorCommands.CoralL2Cmd(elevatorWrist));
+    NamedCommands.registerCommand("coralToL1", ManipulatorCommands.CoralL1Cmd(elevatorWrist));
+    NamedCommands.registerCommand("AlgaeAtA2", ManipulatorCommands.AlgaeAtA2(elevatorWrist));
+    NamedCommands.registerCommand("AlgaeAtA1", ManipulatorCommands.AlgaeAtA1(elevatorWrist));
+    NamedCommands.registerCommand("AlgaeToP1", ManipulatorCommands.AlgaeToP1(elevatorWrist));
+    NamedCommands.registerCommand(
+        "AlgaeToPreNet", ManipulatorCommands.AlgaeToPreNetCmd(elevatorWrist));
+    NamedCommands.registerCommand(
+        "shootAlgaeAtNet", ManipulatorCommands.ShootAlgaeToNetCmd(elevatorWrist, intakeShooter));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -328,74 +341,33 @@ public class RobotContainer {
 
     m_xboxController
         .leftTrigger()
-        .onTrue(ManipulatorCommands.intakeCoral(intakeShooter, intakeCoralSensor));
+        .onTrue(ManipulatorCommands.intakeCoralCmd(intakeShooter, intakeCoralSensor));
 
     m_xboxController
         .rightTrigger()
-        .onTrue(ManipulatorCommands.shootCoral(intakeShooter, intakeCoralSensor));
+        .onTrue(ManipulatorCommands.shootCoralCmd(intakeShooter, intakeCoralSensor));
 
-    m_xboxController.leftBumper().onTrue(ManipulatorCommands.intakeAlgaeA1A2(intakeShooter));
+    m_xboxController.leftBumper().onTrue(ManipulatorCommands.intakeAlgaeA1A2Cmd(intakeShooter));
 
-    m_xboxController.rightBumper().onTrue(ManipulatorCommands.shootAlgaeP1(intakeShooter));
+    m_xboxController.rightBumper().onTrue(ManipulatorCommands.shootAlgaeP1Cmd(intakeShooter));
 
     m_xboxController.start().onTrue(Commands.runOnce(() -> intakeShooter.setSpeed(0)));
 
-    m_ps4Controller
-        .triangle()
-        .onTrue(
-            elevatorWrist
-                .setPositionCmd(Constants.ELEVATOR.L4, Constants.WRIST.L4)
-                .andThen(() -> SmartDashboard.putString("atPosition", "L4")));
+    m_ps4Controller.triangle().onTrue(ManipulatorCommands.CoralL4Cmd(elevatorWrist));
 
-    m_ps4Controller
-        .circle()
-        .onTrue(
-            elevatorWrist
-                .setPositionCmd(Constants.ELEVATOR.L3, Constants.WRIST.L3)
-                .andThen(() -> SmartDashboard.putString("atPosition", "L3")));
+    m_ps4Controller.circle().onTrue(ManipulatorCommands.CoralL3Cmd(elevatorWrist));
 
-    m_ps4Controller
-        .square()
-        .onTrue(
-            elevatorWrist
-                .setPositionCmd(Constants.ELEVATOR.L2, Constants.WRIST.L2)
-                .andThen(() -> SmartDashboard.putString("atPosition", "L2")));
+    m_ps4Controller.square().onTrue(ManipulatorCommands.CoralL2Cmd(elevatorWrist));
 
-    m_ps4Controller
-        .cross()
-        .onTrue(
-            elevatorWrist
-                .setPositionCmd(Constants.ELEVATOR.L1, Constants.WRIST.L1)
-                .andThen(() -> SmartDashboard.putString("atPosition", "L1")));
+    m_ps4Controller.cross().onTrue(ManipulatorCommands.CoralL1Cmd(elevatorWrist));
 
-    m_ps4Controller
-        .L1()
-        .onTrue(
-            elevatorWrist
-                .setPositionCmd(Constants.ELEVATOR.PRENET, Constants.WRIST.PRENET)
-                .andThen(() -> SmartDashboard.putString("atPosition", "PRENET")));
+    m_ps4Controller.L1().onTrue(ManipulatorCommands.AlgaeToPreNetCmd(elevatorWrist));
 
-    m_ps4Controller
-        .L2()
-        .onTrue(
-            elevatorWrist
-                .setPositionCmd(Constants.ELEVATOR.P1, Constants.WRIST.P1)
-                .andThen(() -> SmartDashboard.putString("atPosition", "P1")));
+    m_ps4Controller.L2().onTrue(ManipulatorCommands.AlgaeToP1(elevatorWrist));
 
-    m_ps4Controller
-        .R1()
-        .onTrue(
-            elevatorWrist
-                .setPositionCmd(Constants.ELEVATOR.A2, Constants.WRIST.A2)
-                .andThen(() -> SmartDashboard.putString("atPosition", "A2")));
-    m_ps4Controller
-        .R2()
-        .onTrue(
-            elevatorWrist
-                .setPositionCmd(Constants.ELEVATOR.A1, Constants.WRIST.A1)
-                .andThen(() -> SmartDashboard.putString("atPosition", "A1")));
+    m_ps4Controller.R1().onTrue(ManipulatorCommands.AlgaeAtA2(elevatorWrist));
+    m_ps4Controller.R2().onTrue(ManipulatorCommands.AlgaeAtA1(elevatorWrist));
 
-    // m_ps4Controller.touchpad().onTrue(Commands.runOnce(()->m_NoteSubSystem.setAction(ActionRequest.STOP)));
     m_ps4Controller
         .options()
         .onTrue(
@@ -405,10 +377,13 @@ public class RobotContainer {
     m_ps4Controller
         .povUp()
         .onTrue(elevatorWrist.BumpElevatorPosition(Constants.ELEVATOR.BUMP_VALUE));
+
     m_ps4Controller
         .povDown()
         .onTrue(elevatorWrist.BumpElevatorPosition(-Constants.ELEVATOR.BUMP_VALUE));
+
     m_ps4Controller.povLeft().onTrue(elevatorWrist.BumpWristPosition(Constants.WRIST.BUMP_VALUE));
+
     m_ps4Controller.povRight().onTrue(elevatorWrist.BumpWristPosition(-Constants.WRIST.BUMP_VALUE));
 
     // //Left Joystick Y
@@ -420,20 +395,23 @@ public class RobotContainer {
 
     // m_ps4Controller.share().onTrue(Commands.runOnce(() -> m_NoteSubSystem.resetSetpoints()));
 
-    // m_ps4Controller.PS().onTrue(
-    //         Commands.runOnce(() -> m_climbActive = !m_climbActive)
-    //             .andThen(() -> m_Climber.setPitMode(m_climbActive))
-    //             .andThen(() -> SmartDashboard.putBoolean("ClimberPitMode", m_climbActive)));
-
     m_ps4Controller
-        .touchpad()
+        .PS()
         .onTrue(
-            Commands.runOnce(() -> climber.setPosition(Constants.CLIMBER.GOAL))
-                .andThen(() -> SmartDashboard.putBoolean("CLIMB", true))
-                .andThen(new WaitUntilCommand(() -> climber.atPosition()))
-                .andThen(() -> System.out.println("climb completed")));
+            Commands.runOnce(() -> m_pitModeActive = !m_pitModeActive)
+                .andThen(() -> SmartDashboard.putBoolean("PitModeActive", m_pitModeActive)));
+
+    // //Right Joystick Y
+    m_ps4Controller.axisGreaterThan(5, 0.7).onTrue(ManipulatorCommands.DeployClimberCmd(climber));
+
+    m_ps4Controller.axisLessThan(5, -0.7).onTrue(ManipulatorCommands.RetractClimberCmd(climber));
+
+    // //Left Joystick Y
+    // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(
+    // m_ps4Controller.axisLessThan(1,-0.7).whileTrue(
     climber.setDefaultCommand(
-        Commands.run(() -> climber.setVolts(m_ps4Controller.getLeftY() * 12), climber));
+        Commands.run(() -> climber.setVolts(m_ps4Controller.getLeftY() * 12), climber)
+            .unless(() -> m_pitModeActive));
   }
 
   /**
