@@ -61,10 +61,10 @@ public class ElevatorWristSubSystem extends SubsystemBase {
         new RollerSystem(
             "Elevator",
             new RollerSystemIOTalonFX(
-                Constants.ELEVATOR.LEFT_CANID,
+                Constants.ELEVATOR.RIGHT_CANID,
                 Constants.ELEVATOR.CANBUS,
                 80,
-                true,
+                false,
                 0,
                 false,
                 true,
@@ -79,11 +79,11 @@ public class ElevatorWristSubSystem extends SubsystemBase {
         new RollerSystem(
             "ElevatorFollower",
             new RollerSystemIOTalonFX(
-                Constants.ELEVATOR.RIGHT_CANID,
+                Constants.ELEVATOR.LEFT_CANID,
                 Constants.ELEVATOR.CANBUS,
                 80,
-                false,
-                Constants.ELEVATOR.LEFT_CANID,
+                true,
+                Constants.ELEVATOR.RIGHT_CANID,
                 true,
                 true,
                 1));

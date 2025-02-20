@@ -30,9 +30,12 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, .5)),
         intake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
         Commands.waitUntil(() -> intake_sensor.havePiece()),
-        Commands.runOnce(() -> intake.setSpeedCmd(0)),
+        // Commands.waitSeconds(.5),
+        intake.setSpeedCmd(0),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue)));
   }
+
+  // new WaitUntilCommand(() -> intake_sensor.havePiece())
 
   public static Command shootCoral(RollerSystem shooter, RangeSensorSubSystem intake_sensor) {
     return Commands.sequence(
@@ -40,7 +43,7 @@ public class ManipulatorCommands {
         shooter.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
         Commands.waitUntil(() -> intake_sensor.havePiece() == false),
         Commands.waitSeconds(2),
-        Commands.runOnce(() -> shooter.setSpeedCmd(0)),
+        shooter.setSpeedCmd(0),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
   }
 
@@ -60,7 +63,7 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
         shooter.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_SPEED),
         Commands.waitSeconds(2),
-        Commands.runOnce(() -> shooter.setSpeedCmd(0)),
+        shooter.setSpeedCmd(0),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
   }
 }

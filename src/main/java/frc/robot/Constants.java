@@ -54,11 +54,11 @@ public final class Constants {
     // public static final int RIGHT_CANID = 31;
     public static final String CANBUS = "rio";
     public static final double MAX_SPEED = 100; // rps
-    public static final double CORAL_INTAKE_SPEED = 30;
-    public static final double CORAL_SHOOT_SPEED = 20;
+    public static final double CORAL_INTAKE_SPEED = 40;
+    public static final double CORAL_SHOOT_SPEED = 40;
     public static final double CORAL_SHOOT_TIMEOUT = 2;
-    public static final double ALGAE_INTAKE_SPEED = 30;
-    public static final double ALGAE_SHOOT_SPEED = -40;
+    public static final double ALGAE_INTAKE_SPEED = -40;
+    public static final double ALGAE_SHOOT_SPEED = 20;
     public static final double ALGAE_SHOOT_TIMEOUT = 2;
     public static final double BUMP_VALUE = 1; // rotations
     public static final Slot0Configs SLOT0_CONFIGS =

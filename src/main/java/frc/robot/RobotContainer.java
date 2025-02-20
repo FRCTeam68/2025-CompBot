@@ -208,7 +208,7 @@ public class RobotContainer {
         "shoot", ManipulatorCommands.shootCoral(intakeShooter, intakeCoralSensor));
     NamedCommands.registerCommand(
         "intake", ManipulatorCommands.intakeCoral(intakeShooter, intakeCoralSensor));
-    NamedCommands.registerCommand("shootAlgae", ManipulatorCommands.shootAlgaeP1(intakeShooter));
+    NamedCommands.registerCommand("shootAlgaeP1", ManipulatorCommands.shootAlgaeP1(intakeShooter));
     NamedCommands.registerCommand(
         "intakeAlgae", ManipulatorCommands.intakeAlgaeA1A2(intakeShooter));
 
