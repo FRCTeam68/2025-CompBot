@@ -164,26 +164,33 @@ public class ElevatorWristSubSystem extends SubsystemBase {
 
   @AutoLogOutput
   public Command setPositionCmd(double e_goal, double w_goal) {
-    // return runOnce(() -> LEDSegment.side1.setBandAnimation(LightsSubsystem.green, .5))
-    //     .andThen(
-    return new ConditionalCommand( // true, wrist first, then elevator
-        runOnce(() -> wrist.setPosition(w_goal))
-            .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
-            .andThen(runOnce(() -> elevator.setPosition(e_goal)))
-            .andThen(new WaitUntilCommand(() -> elevator.atPosition())),
+    return Commands.sequence(
+        new ConditionalCommand( // true, wrist first, then elevator
+            runOnce(() -> wrist.setPosition(Constants.WRIST.CRADLE))
+                .andThen(new WaitUntilCommand(() -> wrist.atPosition())),
+            Commands.none(),
+            () -> {
+              // if wrist is at P1 position, rotate to cradle position first
+              // first  (then in next command it will do elevator, then wrist again)
+              return wrist.getPosition() > Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN;
+            }),
+        new ConditionalCommand( // true, wrist first, then elevator
+            runOnce(() -> wrist.setPosition(w_goal))
+                .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
+                .andThen(runOnce(() -> elevator.setPosition(e_goal)))
+                .andThen(new WaitUntilCommand(() -> elevator.atPosition())),
 
-        // false, elevator first, then wrist
-        runOnce(() -> elevator.setPosition(e_goal))
-            .andThen(new WaitUntilCommand(() -> elevator.atPosition()))
-            .andThen(runOnce(() -> wrist.setPosition(w_goal)))
-            .andThen(new WaitUntilCommand(() -> wrist.atPosition())),
-        () -> {
-          // if goal is to go up or going and not going to processor position, do wrist
-          // first
-          return e_goal >= elevator.getPosition()
-              || w_goal <= Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN;
-        });
-    // .andThen(runOnce(() -> LEDSegment.side1.setColor(LightsSubsystem.green)));
+            // false, elevator first, then wrist
+            runOnce(() -> elevator.setPosition(e_goal))
+                .andThen(new WaitUntilCommand(() -> elevator.atPosition()))
+                .andThen(runOnce(() -> wrist.setPosition(w_goal)))
+                .andThen(new WaitUntilCommand(() -> wrist.atPosition())),
+            () -> {
+              // if goal is to go up or going and not going to processor position, do wrist
+              // first
+              return e_goal >= elevator.getPosition()
+                  || w_goal <= Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN;
+            }));
   }
 
   @AutoLogOutput

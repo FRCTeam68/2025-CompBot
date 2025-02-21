@@ -89,6 +89,7 @@ public final class Constants {
     public static final double L3 = 4.5;
     public static final double L2 = 4.5;
     public static final double L1 = 0;
+    public static final double CRADLE = 15;
     public static final double A2 = 27.5;
     public static final double A1 = 27.5;
     public static final double P1 = 34;
