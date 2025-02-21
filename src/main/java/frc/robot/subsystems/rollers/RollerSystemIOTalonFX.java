@@ -40,7 +40,6 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   private final StatusSignal<Current> supplyCurrent;
   private final StatusSignal<Current> torqueCurrent;
   private final StatusSignal<Temperature> tempCelsius;
-  private final StatusSignal<Double> closedLoopError;
 
   // Single shot for voltage mode, robot loop will call continuously
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true).withUpdateFreqHz(0);
@@ -64,17 +63,24 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
     this.reduction = reduction;
     talon = new TalonFX(id, bus);
 
-    config.Voltage.PeakForwardVoltage = 12;
-    config.Voltage.PeakReverseVoltage = -12;
+    if (followerID != 0) {
+      // this is a follower motor.  Assign its lead motor
+      // also, do not need to set config.
+      talon.setControl(new Follower(followerID, followOpposite));
+      System.out.println("****** follower motor on elevator setup ******");
+    } else {
+      config.Voltage.PeakForwardVoltage = 12;
+      config.Voltage.PeakReverseVoltage = -12;
 
-    config.MotorOutput.Inverted =
-        invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-    config.MotorOutput.NeutralMode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
-    config.CurrentLimits.SupplyCurrentLimit = currentLimitAmps;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.TorqueCurrent.PeakForwardTorqueCurrent = currentLimitAmps;
-    config.TorqueCurrent.PeakReverseTorqueCurrent = -currentLimitAmps;
-    tryUntilOk(5, () -> talon.getConfigurator().apply(config));
+      config.MotorOutput.Inverted =
+          invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+      config.MotorOutput.NeutralMode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
+      config.CurrentLimits.SupplyCurrentLimit = currentLimitAmps;
+      config.CurrentLimits.SupplyCurrentLimitEnable = true;
+      config.TorqueCurrent.PeakForwardTorqueCurrent = currentLimitAmps;
+      config.TorqueCurrent.PeakReverseTorqueCurrent = -currentLimitAmps;
+      tryUntilOk(5, () -> talon.getConfigurator().apply(config));
+    }
 
     position = talon.getPosition();
     velocity = talon.getVelocity();
@@ -82,22 +88,19 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
     supplyCurrent = talon.getSupplyCurrent();
     torqueCurrent = talon.getTorqueCurrent();
     tempCelsius = talon.getDeviceTemp();
-    closedLoopError = talon.getClosedLoopError();
 
-    if (followerID != 0) {
-      // this is a follower motor.  Assign its lead motor
-      // also, do not optimize other signals to be off.
-      talon.setControl(new Follower(followerID, followOpposite));
-      System.out.println("****** follower motor on elevator setup ******");
-    } else {
-      tryUntilOk(
-          5,
-          () ->
-              BaseStatusSignal.setUpdateFrequencyForAll(
-                  50.0, velocity, appliedVoltage, supplyCurrent, tempCelsius));
-      tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(1000, position, torqueCurrent));
-      tryUntilOk(5, () -> talon.optimizeBusUtilization(0, 1.0));
-    }
+    tryUntilOk(
+        5,
+        () ->
+            BaseStatusSignal.setUpdateFrequencyForAll(
+                50.0,
+                position,
+                velocity,
+                appliedVoltage,
+                supplyCurrent,
+                torqueCurrent,
+                tempCelsius));
+    tryUntilOk(5, () -> talon.optimizeBusUtilization(0, 1.0));
   }
 
   @Override
@@ -114,7 +117,6 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
     inputs.tempCelsius = tempCelsius.getValueAsDouble();
-    inputs.closedLoopError = closedLoopError.getValueAsDouble();
   }
 
   @Override
