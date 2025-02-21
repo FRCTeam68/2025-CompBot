@@ -148,7 +148,7 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.red, 4)),
         Commands.runOnce(() -> SmartDashboard.putString("CLIMB", "deploying")),
-        Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.GOAL)),
+        Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.GOAL), myClimber),
         Commands.waitUntil(() -> myClimber.atPosition()),
         Commands.runOnce(() -> SmartDashboard.putString("CLIMB", "DEPLOYED")),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)));
@@ -158,7 +158,7 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.white, 4)),
         Commands.runOnce(() -> SmartDashboard.putString("CLIMB", "climbing")),
-        Commands.runOnce(() -> myClimber.setPosition(0)),
+        Commands.runOnce(() -> myClimber.setPosition(0), myClimber),
         Commands.waitUntil(() -> myClimber.atPosition()),
         Commands.runOnce(() -> SmartDashboard.putString("CLIMB", "CLIMBED")),
         Commands.runOnce(() -> LEDSegment.all.setRainbowAnimation(4)));

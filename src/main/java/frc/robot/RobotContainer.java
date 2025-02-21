@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.PS4Controller.Axis;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -402,13 +403,14 @@ public class RobotContainer {
                 .andThen(() -> SmartDashboard.putBoolean("PitModeActive", m_pitModeActive)));
 
     // //Right Joystick Y
-    // m_ps4Controller.axisGreaterThan(5,
-    // 0.7).onTrue(ManipulatorCommands.DeployClimberCmd(climber));
-
-    // m_ps4Controller.axisLessThan(5, -0.7).onTrue(ManipulatorCommands.RetractClimberCmd(climber));
-    m_xboxController.leftBumper().onTrue(ManipulatorCommands.DeployClimberCmd(climber));
-
-    m_xboxController.rightBumper().onTrue(ManipulatorCommands.RetractClimberCmd(climber));
+    m_ps4Controller
+        .axisGreaterThan(Axis.kRightY.value, 0.7)
+        .onTrue(ManipulatorCommands.DeployClimberCmd(climber));
+    m_ps4Controller
+        .axisLessThan(Axis.kRightY.value, -0.7)
+        .onTrue(ManipulatorCommands.RetractClimberCmd(climber));
+    // m_xboxController.leftBumper().onTrue(ManipulatorCommands.DeployClimberCmd(climber));
+    // m_xboxController.rightBumper().onTrue(ManipulatorCommands.RetractClimberCmd(climber));
 
     // //Left Joystick Y
     // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(
