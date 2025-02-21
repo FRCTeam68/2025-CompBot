@@ -67,7 +67,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 false,
                 0,
                 false,
-                false,
+                true,
                 1));
     // init tunables in the parent roller system
     elevator.setPID(Constants.ELEVATOR.SLOT0_CONFIGS);
@@ -87,12 +87,6 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 true,
                 false,
                 1));
-    // init tunables in the parent roller system
-    // elevatorFollower.setPID(Constants.ELEVATOR.SLOT0_CONFIGS_FOLLOWER);
-    // elevatorFollower.setMotionMagic(Constants.ELEVATOR.MOTIONMAGIC_CONFIGS_FOLLOWER);
-    elevatorFollower.setAtSetpointBand(.3);
-    elevatorFollower.setPieceCurrentThreshold(
-        40); // does not have a piece but might want to use to detect overrun limits?
 
     ElevatorSensor =
         new RangeSensorSubSystem(
@@ -112,7 +106,6 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   public void zero() {
     wrist.zero();
     elevator.zero();
-    elevatorFollower.zero();
   }
 
   public void periodic() {

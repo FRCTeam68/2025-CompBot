@@ -129,14 +129,6 @@ public final class Constants {
             .withMotionMagicCruiseVelocity(20)
             .withMotionMagicAcceleration(40)
             .withMotionMagicJerk(400);
-
-    // public static final Slot0Configs SLOT0_CONFIGS_FOLLOWER =
-    //     new Slot0Configs().withKP(55).withKI(0).withKD(0).withKS(0.25).withKV(0).withKA(0);
-    // public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS_FOLLOWER =
-    //     new MotionMagicConfigs()
-    //         .withMotionMagicCruiseVelocity(80)
-    //         .withMotionMagicAcceleration(100)
-    //         .withMotionMagicJerk(0);
   }
 
   public static final class ELEVATOR_SENSOR {
