@@ -402,16 +402,19 @@ public class RobotContainer {
                 .andThen(() -> SmartDashboard.putBoolean("PitModeActive", m_pitModeActive)));
 
     // //Right Joystick Y
-    m_ps4Controller.axisGreaterThan(5, 0.7).onTrue(ManipulatorCommands.DeployClimberCmd(climber));
+    // m_ps4Controller.axisGreaterThan(5,
+    // 0.7).onTrue(ManipulatorCommands.DeployClimberCmd(climber));
 
-    m_ps4Controller.axisLessThan(5, -0.7).onTrue(ManipulatorCommands.RetractClimberCmd(climber));
+    // m_ps4Controller.axisLessThan(5, -0.7).onTrue(ManipulatorCommands.RetractClimberCmd(climber));
+    m_xboxController.leftBumper().onTrue(ManipulatorCommands.DeployClimberCmd(climber));
+
+    m_xboxController.rightBumper().onTrue(ManipulatorCommands.RetractClimberCmd(climber));
 
     // //Left Joystick Y
     // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(
     // m_ps4Controller.axisLessThan(1,-0.7).whileTrue(
     climber.setDefaultCommand(
-        Commands.run(() -> climber.setVolts(m_ps4Controller.getLeftY() * 12), climber)
-            .unless(() -> m_pitModeActive));
+        Commands.run(() -> climber.setVolts(m_ps4Controller.getLeftY() * 12), climber));
   }
 
   /**
