@@ -172,9 +172,16 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 .andThen(new WaitUntilCommand(() -> wrist.atPosition())),
             Commands.none(),
             () -> {
-              // if wrist is at P1 position, rotate to cradle position first
-              // first  (then in next command it will do elevator, then wrist again)
-              return wrist.getPosition() > Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN;
+              // if wrist is at P1 position   OR
+              // elevator nearly at 0 and
+              // elevator goal is to go past 1 and
+              // wrist past L1-L4 positions,  then
+              // --> rotate to cradle position first
+              // (then in next command it will do elevator, then wrist again)
+              return wrist.getPosition() > Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN
+                  || (elevator.getPosition() < Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR
+                      && e_goal > Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR
+                      && w_goal > Constants.WRIST.L2);
             }),
         new ConditionalCommand( // true, wrist first, then elevator
             runOnce(() -> wrist.setPosition(w_goal))
@@ -190,8 +197,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             () -> {
               // if goal is to go up and wrist goal will not hit bumper, do wrist first
               // or
-              return (e_goal >= elevator.getPosition()
-                      && w_goal < Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN)
+              return (e_goal >= elevator.getPosition() && w_goal <= Constants.WRIST.L2)
                   || (w_goal <= Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN
                       && w_goal > Constants.WRIST.L2);
             }));
@@ -290,5 +296,16 @@ public class ElevatorWristSubSystem extends SubsystemBase {
 
   private static class StaticCharacterizationState {
     public double characterizationOutput = 0.0;
+  }
+
+  public void stop() {
+    elevator.stop();
+    wrist.stop();
+  }
+
+  public Command haltCmd() {
+    return Commands.sequence(
+        runOnce(() -> wrist.setPosition(wrist.getPosition())),
+        runOnce(() -> elevator.setPosition(elevator.getPosition())));
   }
 }

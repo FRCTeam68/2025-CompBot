@@ -258,7 +258,7 @@ public class RobotContainer {
     SmartDashboard.putString("atPosition", "--");
     SmartDashboard.putBoolean("CLIMB", false);
 
-    LEDSegment.all.setRainbowAnimation(4);
+    LEDSegment.all.setRainbowAnimation(2);
   }
 
   /**
@@ -348,7 +348,9 @@ public class RobotContainer {
 
     m_xboxController.rightBumper().onTrue(ManipulatorCommands.shootAlgaeP1Cmd(intakeShooter));
 
-    m_xboxController.start().onTrue(Commands.runOnce(() -> intakeShooter.setSpeed(0)));
+    m_xboxController
+        .start()
+        .onTrue(Commands.runOnce(() -> intakeShooter.setSpeed(0)).andThen(elevatorWrist.haltCmd()));
 
     m_ps4Controller.triangle().onTrue(ManipulatorCommands.CoralL4Cmd(elevatorWrist));
 
@@ -449,7 +451,8 @@ public class RobotContainer {
     public double characterizationOutput = 0.0;
   }
 
-  //   public void StopSubSystems() {
-  //     m_NoteSubSystem.setAction(ActionRequest.STOP_ALL);
-  //   }
+  public void StopSubSystems() {
+    elevatorWrist.stop();
+    intakeShooter.stop();
+  }
 }

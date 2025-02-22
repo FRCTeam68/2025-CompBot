@@ -85,9 +85,9 @@ public final class Constants {
     public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 15;
     public static final double MAX_POSITION_AT_ELEVATOR_MIN = 26;
     public static final double MAX_POSITION_AT_P1 = 34;
-    public static final double L4 = 3.9;
-    public static final double L3 = 3.9;
-    public static final double L2 = 3.9;
+    public static final double L4 = 3.9; // all 3 of these must be the same value
+    public static final double L3 = 3.9; //
+    public static final double L2 = 3.9; //
     public static final double L1 = 1.5;
     public static final double CRADLE = 15;
     public static final double A2 = 27.5;
@@ -113,7 +113,7 @@ public final class Constants {
     public static final double MIN_POSITION = 0;
     public static final double MIN_POSITION_AT_P1 = 3.4;
     public static final double MAX_POSITION = 26.5;
-    public static final double MAX_POSITION_WRIST_NOT_CLEAR = 1.5;
+    public static final double MAX_POSITION_WRIST_NOT_CLEAR = 1;
     public static final double L4 = 23.5;
     public static final double L3 = 12;
     public static final double L2 = 4.5;
