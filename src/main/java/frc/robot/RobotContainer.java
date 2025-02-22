@@ -219,13 +219,13 @@ public class RobotContainer {
     NamedCommands.registerCommand("coralToL4", ManipulatorCommands.CoralL4Cmd(elevatorWrist));
     NamedCommands.registerCommand("coralToL3", ManipulatorCommands.CoralL3Cmd(elevatorWrist));
     NamedCommands.registerCommand("coralToL2", ManipulatorCommands.CoralL2Cmd(elevatorWrist));
-    NamedCommands.registerCommand("ToIntakeCoral", ManipulatorCommands.CoralL1Cmd(elevatorWrist));
+    NamedCommands.registerCommand("toIntakeCoral", ManipulatorCommands.CoralL1Cmd(elevatorWrist));
     NamedCommands.registerCommand("coralToL1", ManipulatorCommands.CoralL1Cmd(elevatorWrist));
-    NamedCommands.registerCommand("AlgaeFromA2", ManipulatorCommands.AlgaeAtA2(elevatorWrist));
-    NamedCommands.registerCommand("AlgaeFromA1", ManipulatorCommands.AlgaeAtA1(elevatorWrist));
-    NamedCommands.registerCommand("AlgaeToP1", ManipulatorCommands.AlgaeToP1(elevatorWrist));
+    NamedCommands.registerCommand("algaeFromA2", ManipulatorCommands.AlgaeAtA2(elevatorWrist));
+    NamedCommands.registerCommand("algaeFromA1", ManipulatorCommands.AlgaeAtA1(elevatorWrist));
+    NamedCommands.registerCommand("algaeToP1", ManipulatorCommands.AlgaeToP1(elevatorWrist));
     NamedCommands.registerCommand(
-        "AlgaeToPreNet", ManipulatorCommands.AlgaeToPreNetCmd(elevatorWrist));
+        "algaeToPreNet", ManipulatorCommands.AlgaeToPreNetCmd(elevatorWrist));
     NamedCommands.registerCommand(
         "shootAlgaeAtNet", ManipulatorCommands.ShootAlgaeToNetCmd(elevatorWrist, intakeShooter));
 

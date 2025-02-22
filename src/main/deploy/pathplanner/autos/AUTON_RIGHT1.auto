@@ -11,15 +11,21 @@
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 2.0
+            "name": "coralToL4"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "shootCoral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "toIntakeCoral"
           }
         },
         {
@@ -29,15 +35,9 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "intake"
+            "name": "intakeCoral"
           }
         },
         {
@@ -47,15 +47,21 @@
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 2.0
+            "name": "coralToL4"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "shootCoral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "toIntakeCoral"
           }
         },
         {
@@ -65,15 +71,9 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "intake"
+            "name": "intakeCoral"
           }
         },
         {
@@ -83,15 +83,21 @@
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 2.0
+            "name": "coralToL4"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "shootCoral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "toIntakeCoral"
           }
         },
         {
@@ -101,9 +107,9 @@
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 2.0
+            "name": "intakeCoral"
           }
         }
       ]
