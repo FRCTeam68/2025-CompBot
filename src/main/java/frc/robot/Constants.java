@@ -83,12 +83,12 @@ public final class Constants {
     public static final String CANBUS = "rio";
     public static final double MIN_POSITION = 0;
     public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 15;
-    public static final double MAX_POSITION_AT_ELEVATOR_MIN = 28;
+    public static final double MAX_POSITION_AT_ELEVATOR_MIN = 26;
     public static final double MAX_POSITION_AT_P1 = 34;
-    public static final double L4 = 4.5;
-    public static final double L3 = 4.5;
-    public static final double L2 = 4.5;
-    public static final double L1 = 0;
+    public static final double L4 = 3.9;
+    public static final double L3 = 3.9;
+    public static final double L2 = 3.9;
+    public static final double L1 = 1.5;
     public static final double CRADLE = 15;
     public static final double A2 = 27.5;
     public static final double A1 = 27.5;
@@ -113,18 +113,18 @@ public final class Constants {
     public static final double MIN_POSITION_AT_P1 = 3.4;
     public static final double MAX_POSITION = 26.5;
     public static final double MAX_POSITION_WRIST_NOT_CLEAR = 1.5;
-    public static final double L4 = 22;
-    public static final double L3 = 11.4;
-    public static final double L2 = 4;
+    public static final double L4 = 23.5;
+    public static final double L3 = 12;
+    public static final double L2 = 4.5;
     public static final double L1 = 0;
     public static final double A2 = 13.5;
-    public static final double A1 = 7;
+    public static final double A1 = 8;
     public static final double P1 = 3.4;
     public static final double PRENET = 20;
     public static final double SHOOTNET = 26;
     public static final double BUMP_VALUE = .5; // rotations
     public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(4.8).withKI(0).withKD(0).withKS(0.25).withKV(0.1).withKA(0);
+        new Slot0Configs().withKP(4.8).withKI(0).withKD(0).withKS(0.5).withKV(0.2).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
             .withMotionMagicCruiseVelocity(20)
@@ -145,12 +145,12 @@ public final class Constants {
     public static final double GOAL = 220;
     public static final double MAX_HEIGHT = 300;
     public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(.1).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
+        new Slot0Configs().withKP(10).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(20)
-            .withMotionMagicAcceleration(40)
-            .withMotionMagicJerk(400);
+            .withMotionMagicCruiseVelocity(200)
+            .withMotionMagicAcceleration(400)
+            .withMotionMagicJerk(2000);
   }
 
   public static final class RED_TAGS {

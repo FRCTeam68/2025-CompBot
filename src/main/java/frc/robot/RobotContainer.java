@@ -127,10 +127,10 @@ public class RobotContainer {
                     Constants.CLIMBER.CANID,
                     Constants.CLIMBER.CANBUS,
                     40,
-                    false,
+                    true,
                     0,
                     false,
-                    false,
+                    true,
                     1));
         // init tunables in the parent roller system
         climber.setPID(Constants.CLIMBER.SLOT0_CONFIGS);
@@ -405,12 +405,10 @@ public class RobotContainer {
     // //Right Joystick Y
     m_ps4Controller
         .axisGreaterThan(Axis.kRightY.value, 0.7)
-        .onTrue(ManipulatorCommands.DeployClimberCmd(climber));
+        .onTrue(ManipulatorCommands.RetractClimberCmd(climber));
     m_ps4Controller
         .axisLessThan(Axis.kRightY.value, -0.7)
-        .onTrue(ManipulatorCommands.RetractClimberCmd(climber));
-    // m_xboxController.leftBumper().onTrue(ManipulatorCommands.DeployClimberCmd(climber));
-    // m_xboxController.rightBumper().onTrue(ManipulatorCommands.RetractClimberCmd(climber));
+        .onTrue(ManipulatorCommands.DeployClimberCmd(climber));
 
     // //Left Joystick Y
     // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(

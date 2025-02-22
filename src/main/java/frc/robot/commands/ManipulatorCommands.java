@@ -32,7 +32,7 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4)),
         intake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
         Commands.waitUntil(() -> intake_sensor.havePiece()),
-        Commands.waitSeconds(.5),
+        Commands.waitSeconds(.1),
         intake.setSpeedCmd(0),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue)));
   }

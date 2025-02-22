@@ -85,7 +85,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 false,
                 Constants.ELEVATOR.RIGHT_CANID,
                 true,
-                false,
+                true,
                 1));
 
     ElevatorSensor =
@@ -189,9 +189,18 @@ public class ElevatorWristSubSystem extends SubsystemBase {
               // if goal is to go up or going and not going to processor position, do wrist
               // first
               return e_goal >= elevator.getPosition()
-                  || w_goal <= Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN;
+                  || (w_goal <= Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN
+                      && w_goal > Constants.WRIST.L2);
             }));
   }
+
+  // // go to safe position everytime
+  // runOnce(() -> wrist.setPosition(Constants.WRIST.CRADLE)),
+  // new WaitUntilCommand(() -> wrist.atPosition()),
+  // runOnce(() -> elevator.setPosition(e_goal)),
+  // new WaitUntilCommand(() -> elevator.atPosition()),
+  // runOnce(() -> wrist.setPosition(w_goal)),
+  // new WaitUntilCommand(() -> wrist.atPosition()));
 
   @AutoLogOutput
   public Command shootAlgaeAtNetCmd(double e_goal, double w_goal) {
