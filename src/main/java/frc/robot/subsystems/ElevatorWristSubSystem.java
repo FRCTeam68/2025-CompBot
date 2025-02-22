@@ -54,7 +54,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     wristCANcoder = new CANcoder(Constants.WRIST.CANCODER_CANID, Constants.WRIST.CANBUS);
     var cancoderConfig = new CANcoderConfiguration();
     // cancoderConfig.MagnetSensor.MagnetOffset = offset.getRotations();
-    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     tryUntilOk(5, () -> wristCANcoder.getConfigurator().apply(cancoderConfig));
 
     elevator =
