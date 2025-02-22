@@ -250,18 +250,18 @@ public class RobotContainer {
     // autoChooser.addOption("Elevator static", elevatorWrist.staticElevatorCharacterization(2.0));
     // autoChooser.addOption("Wrist static", elevatorWrist.staticWristCharacterization(2.0));
     // autoChooser.addOption("Climber static", staticClimberCharacterization(2.0));
-    autoChooser.addOption(
-        "Elevator SysId (Quasistatic Forward)",
-        elevatorWrist.sysIdQuasistaticElevator(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Elevator SysId (Quasistatic Reverse)",
-        elevatorWrist.sysIdQuasistaticElevator(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Elevator SysId (Dynamic Forward)",
-        elevatorWrist.sysIdDynamicElevator(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Elevator SysId (Dynamic Reverse)",
-        elevatorWrist.sysIdDynamicElevator(SysIdRoutine.Direction.kReverse));
+    // autoChooser.addOption(
+    //     "Elevator SysId (Quasistatic Forward)",
+    //     elevatorWrist.sysIdQuasistaticElevator(SysIdRoutine.Direction.kForward));
+    // autoChooser.addOption(
+    //     "Elevator SysId (Quasistatic Reverse)",
+    //     elevatorWrist.sysIdQuasistaticElevator(SysIdRoutine.Direction.kReverse));
+    // autoChooser.addOption(
+    //     "Elevator SysId (Dynamic Forward)",
+    //     elevatorWrist.sysIdDynamicElevator(SysIdRoutine.Direction.kForward));
+    // autoChooser.addOption(
+    //     "Elevator SysId (Dynamic Reverse)",
+    //     elevatorWrist.sysIdDynamicElevator(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -304,17 +304,17 @@ public class RobotContainer {
                 () -> -m_xboxController.getLeftX(),
                 () -> new Rotation2d()));
 
-    m_xboxController
-        .y()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -m_xboxController.getLeftY(),
-                () -> -m_xboxController.getLeftX(),
-                () -> new Rotation2d(vision.getTargetX(0).getRadians())));
+    // m_xboxController
+    //     .y()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> -m_xboxController.getLeftY(),
+    //             () -> -m_xboxController.getLeftX(),
+    //             () -> new Rotation2d(vision.getTargetX(0).getRadians())));
 
-    // Switch to X pattern when X button is pressed
-    m_xboxController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    // // Switch to X pattern when X button is pressed
+    // m_xboxController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Reset gyro to 0° when B button is pressed
     m_xboxController
@@ -361,6 +361,23 @@ public class RobotContainer {
     m_xboxController.rightBumper().onTrue(ManipulatorCommands.shootAlgaeP1Cmd(intakeShooter));
 
     m_xboxController.start().onTrue(Commands.runOnce(() -> intakeShooter.setSpeed(0)));
+
+    m_xboxController
+        .back()
+        .and(m_xboxController.y())
+        .whileTrue(elevatorWrist.sysIdDynamicElevator(SysIdRoutine.Direction.kForward));
+    m_xboxController
+        .back()
+        .and(m_xboxController.x())
+        .whileTrue(elevatorWrist.sysIdDynamicElevator(SysIdRoutine.Direction.kReverse));
+    m_xboxController
+        .start()
+        .and(m_xboxController.y())
+        .whileTrue(elevatorWrist.sysIdQuasistaticElevator(SysIdRoutine.Direction.kForward));
+    m_xboxController
+        .start()
+        .and(m_xboxController.x())
+        .whileTrue(elevatorWrist.sysIdDynamicElevator(SysIdRoutine.Direction.kReverse));
 
     m_ps4Controller.triangle().onTrue(ManipulatorCommands.CoralL4Cmd(elevatorWrist));
 
