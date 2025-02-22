@@ -188,9 +188,10 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 .andThen(runOnce(() -> wrist.setPosition(w_goal)))
                 .andThen(new WaitUntilCommand(() -> wrist.atPosition())),
             () -> {
-              // if goal is to go up or going and not going to processor position, do wrist
-              // first
-              return e_goal >= elevator.getPosition()
+              // if goal is to go up and wrist goal will not hit bumper, do wrist first
+              // or
+              return (e_goal >= elevator.getPosition()
+                      && w_goal < Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN)
                   || (w_goal <= Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN
                       && w_goal > Constants.WRIST.L2);
             }));

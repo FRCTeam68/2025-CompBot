@@ -219,6 +219,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("coralToL4", ManipulatorCommands.CoralL4Cmd(elevatorWrist));
     NamedCommands.registerCommand("coralToL3", ManipulatorCommands.CoralL3Cmd(elevatorWrist));
     NamedCommands.registerCommand("coralToL2", ManipulatorCommands.CoralL2Cmd(elevatorWrist));
+    NamedCommands.registerCommand("ToIntakeCoral", ManipulatorCommands.CoralL1Cmd(elevatorWrist));
     NamedCommands.registerCommand("coralToL1", ManipulatorCommands.CoralL1Cmd(elevatorWrist));
     NamedCommands.registerCommand("AlgaeFromA2", ManipulatorCommands.AlgaeAtA2(elevatorWrist));
     NamedCommands.registerCommand("AlgaeFromA1", ManipulatorCommands.AlgaeAtA1(elevatorWrist));
@@ -253,21 +254,11 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
-    // LEDSegment.Do1to4.setBandAnimation(LightsSubsystem.blue, 2);
-    // LEDSegment.Do5to8.setColor(LightsSubsystem.orange);
-    // LEDSegment.side1.setColor(LightsSubsystem.white);
-    // LEDSegment.side1target.setColor(LightsSubsystem.white);
-    // LEDSegment.side1heading.setColor(LightsSubsystem.white);
-    // LEDSegment.side1distance.setColor(LightsSubsystem.white);
-
-    SmartDashboard.putBoolean("laserCanTrip", false);
+    SmartDashboard.putBoolean("HaveCoral", false);
     SmartDashboard.putString("atPosition", "--");
     SmartDashboard.putBoolean("CLIMB", false);
 
     LEDSegment.all.setRainbowAnimation(4);
-    // LEDSegment.leftside.setColor(LightsSubsystem.red);
-    // LEDSegment.middle.setFadeAnimation(LightsSubsystem.orange, 1);
-    // LEDSegment.rightside.setRainbowAnimation(4);
   }
 
   /**
@@ -371,8 +362,8 @@ public class RobotContainer {
 
     m_ps4Controller.L2().onTrue(ManipulatorCommands.AlgaeToP1(elevatorWrist));
 
-    m_ps4Controller.R1().onTrue(ManipulatorCommands.AlgaeAtA2(elevatorWrist));
-    m_ps4Controller.R2().onTrue(ManipulatorCommands.AlgaeAtA1(elevatorWrist));
+    m_ps4Controller.R1().onTrue(ManipulatorCommands.AlgaeAtA1(elevatorWrist));
+    m_ps4Controller.R2().onTrue(ManipulatorCommands.AlgaeAtA2(elevatorWrist));
 
     m_ps4Controller
         .options()
@@ -419,7 +410,7 @@ public class RobotContainer {
     // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(
     // m_ps4Controller.axisLessThan(1,-0.7).whileTrue(
     climber.setDefaultCommand(
-        Commands.run(() -> climber.setVolts(m_ps4Controller.getLeftY() * 12), climber));
+        Commands.run(() -> climber.setVolts(-m_ps4Controller.getLeftY() * 12), climber));
   }
 
   /**
