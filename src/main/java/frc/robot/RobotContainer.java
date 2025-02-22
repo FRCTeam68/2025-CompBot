@@ -247,9 +247,21 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption("Elevator static", elevatorWrist.staticElevatorCharacterization(2.0));
-    autoChooser.addOption("Wrist static", elevatorWrist.staticWristCharacterization(2.0));
-    autoChooser.addOption("Climber static", staticClimberCharacterization(2.0));
+    // autoChooser.addOption("Elevator static", elevatorWrist.staticElevatorCharacterization(2.0));
+    // autoChooser.addOption("Wrist static", elevatorWrist.staticWristCharacterization(2.0));
+    // autoChooser.addOption("Climber static", staticClimberCharacterization(2.0));
+    autoChooser.addOption(
+        "Elevator SysId (Quasistatic Forward)",
+        elevatorWrist.sysIdQuasistaticElevator(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Elevator SysId (Quasistatic Reverse)",
+        elevatorWrist.sysIdQuasistaticElevator(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Elevator SysId (Dynamic Forward)",
+        elevatorWrist.sysIdDynamicElevator(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Elevator SysId (Dynamic Reverse)",
+        elevatorWrist.sysIdDynamicElevator(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
     configureButtonBindings();

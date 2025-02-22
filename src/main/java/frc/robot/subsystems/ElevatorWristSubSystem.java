@@ -7,18 +7,19 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 // import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.rollers.RollerSystem;
@@ -34,6 +35,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   private final RollerSystem elevatorFollower;
   private final RangeSensorSubSystem ElevatorSensor;
   private final CANcoder wristCANcoder;
+  private final SysIdRoutine sysIdElevator;
 
   @Getter @AutoLogOutput private double setpoint = 0.0;
   @Getter @AutoLogOutput private double elevatorHeight = 0.0;
@@ -96,6 +98,17 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             Constants.ELEVATOR_SENSOR.CANID,
             Constants.ELEVATOR_SENSOR.CANBUS,
             Constants.ELEVATOR_SENSOR.THRESHOLD);
+
+    // Configure SysId for elevator
+    sysIdElevator =
+        new SysIdRoutine(
+            new SysIdRoutine.Config(
+                null,
+                null,
+                null,
+                (state) -> Logger.recordOutput("Elevator/SysIdState", state.toString())),
+            new SysIdRoutine.Mechanism(
+                (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
 
     SmartDashboard.putNumber("ElevatorHieght", 0);
 
@@ -242,53 +255,73 @@ public class ElevatorWristSubSystem extends SubsystemBase {
         });
   }
 
-  public Command staticElevatorCharacterization(double outputRampRate) {
-    final StaticCharacterizationState state = new StaticCharacterizationState();
-    Timer timer = new Timer();
-    return Commands.startRun(
-            () -> {
-              // stopProfile = true;
-              timer.restart();
-            },
-            () -> {
-              state.characterizationOutput = outputRampRate * timer.get();
-              elevator.setVolts(state.characterizationOutput);
-              Logger.recordOutput(
-                  "Elevator/StaticCharacterizationOutput", state.characterizationOutput);
-            })
-        .until(() -> elevator.getPosition() >= Constants.ELEVATOR.MAX_POSITION - 1)
-        .finallyDo(
-            () -> {
-              // stopProfile = false;
-              timer.stop();
-              Logger.recordOutput("Elevator/CharacterizationOutput", state.characterizationOutput);
-            });
+  // public Command staticElevatorCharacterization(double outputRampRate) {
+  //   final StaticCharacterizationState state = new StaticCharacterizationState();
+  //   Timer timer = new Timer();
+  //   return Commands.startRun(
+  //           () -> {
+  //             // stopProfile = true;
+  //             timer.restart();
+  //           },
+  //           () -> {
+  //             state.characterizationOutput = outputRampRate * timer.get();
+  //             elevator.setVolts(state.characterizationOutput);
+  //             Logger.recordOutput(
+  //                 "Elevator/StaticCharacterizationOutput", state.characterizationOutput);
+  //           })
+  //       .until(() -> elevator.getPosition() >= Constants.ELEVATOR.MAX_POSITION - 1)
+  //       .finallyDo(
+  //           () -> {
+  //             // stopProfile = false;
+  //             timer.stop();
+  //             Logger.recordOutput("Elevator/CharacterizationOutput",
+  // state.characterizationOutput);
+  //           });
+  // }
+
+  // public Command staticWristCharacterization(double outputRampRate) {
+  //   final StaticCharacterizationState state = new StaticCharacterizationState();
+  //   Timer timer = new Timer();
+  //   return Commands.startRun(
+  //           () -> {
+  //             // stopProfile = true;
+  //             timer.restart();
+  //           },
+  //           () -> {
+  //             state.characterizationOutput = outputRampRate * timer.get();
+  //             elevator.setVolts(state.characterizationOutput);
+  //             Logger.recordOutput(
+  //                 "Wrist/StaticCharacterizationOutput", state.characterizationOutput);
+  //           })
+  //       .until(() -> elevator.getPosition() >= Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN)
+  //       .finallyDo(
+  //           () -> {
+  //             // stopProfile = false;
+  //             timer.stop();
+  //             Logger.recordOutput("Wrist/CharacterizationOutput", state.characterizationOutput);
+  //           });
+  // }
+
+  /** Returns a command to run a quasistatic test in the specified direction. */
+  public Command sysIdQuasistaticElevator(SysIdRoutine.Direction direction) {
+    return run(() -> elevator.runCharacterization(0.0))
+        .withTimeout(1.0)
+        .andThen(sysIdElevator.quasistatic(direction));
   }
 
-  public Command staticWristCharacterization(double outputRampRate) {
-    final StaticCharacterizationState state = new StaticCharacterizationState();
-    Timer timer = new Timer();
-    return Commands.startRun(
-            () -> {
-              // stopProfile = true;
-              timer.restart();
-            },
-            () -> {
-              state.characterizationOutput = outputRampRate * timer.get();
-              elevator.setVolts(state.characterizationOutput);
-              Logger.recordOutput(
-                  "Wrist/StaticCharacterizationOutput", state.characterizationOutput);
-            })
-        .until(() -> elevator.getPosition() >= Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN)
-        .finallyDo(
-            () -> {
-              // stopProfile = false;
-              timer.stop();
-              Logger.recordOutput("Wrist/CharacterizationOutput", state.characterizationOutput);
-            });
+  /** Returns a command to run a dynamic test in the specified direction. */
+  public Command sysIdDynamicElevator(SysIdRoutine.Direction direction) {
+    return run(() -> elevator.runCharacterization(0.0))
+        .withTimeout(1.0)
+        .andThen(sysIdElevator.dynamic(direction));
   }
 
-  private static class StaticCharacterizationState {
-    public double characterizationOutput = 0.0;
+  /** Runs the drive in a straight line with the specified drive output. */
+  public void runCharacterization(double output) {
+    elevator.runCharacterization(output);
   }
+
+  // private static class StaticCharacterizationState {
+  //   public double characterizationOutput = 0.0;
+  // }
 }

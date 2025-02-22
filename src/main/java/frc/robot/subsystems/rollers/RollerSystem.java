@@ -140,6 +140,11 @@ public class RollerSystem extends SubsystemBase {
     setpointBand.initDefault(band);
   }
 
+  /** Runs the module with the specified output while controlling to zero degrees. */
+  public void runCharacterization(double output) {
+    io.setVolts(output);
+  }
+
   @AutoLogOutput
   public void setVolts(double inputVolts) {
     io.setVolts(inputVolts);
