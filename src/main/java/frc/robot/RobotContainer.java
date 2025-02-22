@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS4Controller.Axis;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -49,6 +50,7 @@ import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -244,6 +246,9 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption("Elevator static", elevatorWrist.staticElevatorCharacterization(2.0));
+    autoChooser.addOption("Wrist static", elevatorWrist.staticWristCharacterization(2.0));
+    autoChooser.addOption("Climber static", staticClimberCharacterization(2.0));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -424,6 +429,33 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  public Command staticClimberCharacterization(double outputRampRate) {
+    final StaticCharacterizationState state = new StaticCharacterizationState();
+    Timer timer = new Timer();
+    return Commands.startRun(
+            () -> {
+              // stopProfile = true;
+              timer.restart();
+            },
+            () -> {
+              state.characterizationOutput = outputRampRate * timer.get();
+              climber.setVolts(state.characterizationOutput);
+              Logger.recordOutput(
+                  "Climber/StaticCharacterizationOutput", state.characterizationOutput);
+            })
+        .until(() -> climber.getPosition() >= Constants.CLIMBER.GOAL)
+        .finallyDo(
+            () -> {
+              // stopProfile = false;
+              timer.stop();
+              Logger.recordOutput("Climber/CharacterizationOutput", state.characterizationOutput);
+            });
+  }
+
+  private static class StaticCharacterizationState {
+    public double characterizationOutput = 0.0;
   }
 
   //   public void StopSubSystems() {

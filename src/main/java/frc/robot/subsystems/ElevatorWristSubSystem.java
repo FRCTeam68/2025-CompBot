@@ -12,6 +12,7 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -24,6 +25,7 @@ import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 public class ElevatorWristSubSystem extends SubsystemBase {
 
@@ -237,5 +239,55 @@ public class ElevatorWristSubSystem extends SubsystemBase {
               || (elevatorNow >= Constants.ELEVATOR.MIN_POSITION_AT_P1 - 0.2
                   && wristNow + bumpValue < Constants.WRIST.MAX_POSITION_AT_P1);
         });
+  }
+
+  public Command staticElevatorCharacterization(double outputRampRate) {
+    final StaticCharacterizationState state = new StaticCharacterizationState();
+    Timer timer = new Timer();
+    return Commands.startRun(
+            () -> {
+              // stopProfile = true;
+              timer.restart();
+            },
+            () -> {
+              state.characterizationOutput = outputRampRate * timer.get();
+              elevator.setVolts(state.characterizationOutput);
+              Logger.recordOutput(
+                  "Elevator/StaticCharacterizationOutput", state.characterizationOutput);
+            })
+        .until(() -> elevator.getPosition() >= Constants.ELEVATOR.MAX_POSITION - 1)
+        .finallyDo(
+            () -> {
+              // stopProfile = false;
+              timer.stop();
+              Logger.recordOutput("Elevator/CharacterizationOutput", state.characterizationOutput);
+            });
+  }
+
+  public Command staticWristCharacterization(double outputRampRate) {
+    final StaticCharacterizationState state = new StaticCharacterizationState();
+    Timer timer = new Timer();
+    return Commands.startRun(
+            () -> {
+              // stopProfile = true;
+              timer.restart();
+            },
+            () -> {
+              state.characterizationOutput = outputRampRate * timer.get();
+              elevator.setVolts(state.characterizationOutput);
+              Logger.recordOutput(
+                  "Wrist/StaticCharacterizationOutput", state.characterizationOutput);
+            })
+        .until(() -> elevator.getPosition() >= Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN)
+        .finallyDo(
+            () -> {
+              // stopProfile = false;
+              timer.stop();
+              Logger.recordOutput("Wrist/CharacterizationOutput", state.characterizationOutput);
+            });
+  }
+
+  private static class StaticCharacterizationState {
+    public double characterizationOutput = 0.0;
   }
 }

@@ -96,7 +96,7 @@ public final class Constants {
     public static final double PRENET = 21;
     public static final double SHOOTNET = 6;
     public static final double BUMP_VALUE = .5; // rotations
-    public static final double CANCODER_OFFSET = 0.22; 
+    public static final double CANCODER_OFFSET = 0.22;
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(6).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
@@ -144,7 +144,7 @@ public final class Constants {
     public static final int CANID = 40;
     public static final String CANBUS = "rio";
     public static final double GOAL = 220;
-    public static final double MAX_HEIGHT = 300;
+    public static final double MAX_HEIGHT = 250;
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(10).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
