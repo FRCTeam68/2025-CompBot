@@ -105,7 +105,7 @@ public class RobotContainer {
                     false,
                     0,
                     false,
-                    false,
+                    true,
                     1));
         // init tunables in the parent roller system
         intakeShooter.setPID(Constants.INTAKE_SHOOTER.SLOT0_CONFIGS);

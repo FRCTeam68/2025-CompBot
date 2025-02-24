@@ -56,7 +56,8 @@ public class ManipulatorCommands {
         Commands.waitUntil(() -> intake.hasPiece()),
         // change control of intake from velocity to position to hold the algae (instead of using
         // stop)
-        Commands.runOnce(() -> intake.setPosition(intake.getPosition())),
+        // Commands.runOnce(() -> intake.setPosition(intake.getPosition())),
+        Commands.runOnce(() -> intake.stop()),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue)));
   }
 
