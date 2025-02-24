@@ -135,6 +135,11 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   }
 
   @Override
+  public void setPosition(double rotations, double feedback) {
+    talon.setControl(mmvPosition.withPosition(rotations).withFeedForward(feedback));
+  }
+
+  @Override
   public void stop() {
     talon.setControl(neutralOut);
   }
