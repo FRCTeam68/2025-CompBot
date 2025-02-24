@@ -44,7 +44,7 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
         shooter.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
         Commands.waitUntil(() -> intake_sensor.havePiece() == false),
-        Commands.waitSeconds(2),
+        Commands.waitSeconds(1),
         shooter.setSpeedCmd(0),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
   }
