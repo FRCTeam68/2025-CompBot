@@ -13,8 +13,13 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -37,6 +42,23 @@ public final class Constants {
 
     /** Replaying from a log file. */
     REPLAY
+  }
+
+  public static boolean disableHAL = false;
+
+  public static void disableHAL() {
+    disableHAL = true;
+  }
+
+  public static class AutonStartPositions {
+    // Measured from the center of the ice cream
+    public static final double separation = Units.inchesToMeters(72.0);
+    public static final Pose2d right =
+        new Pose2d(Meters.of(7.26), Meters.of(2.65), new Rotation2d(180));
+    public static final Pose2d middle =
+        new Pose2d(right.getMeasureX(), Meters.of(4.16), right.getRotation());
+    public static final Pose2d left =
+        new Pose2d(right.getMeasureX(), Meters.of(5.60), right.getRotation());
   }
 
   public static final class LED {

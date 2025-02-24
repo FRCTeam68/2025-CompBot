@@ -50,6 +50,7 @@ import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.util.AllianceFlipUtil;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -61,7 +62,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private final Drive drive;
+  private static Drive drive;
   private final Vision vision;
   private final RollerSystem climber;
   private final RollerSystem intakeShooter;
@@ -69,11 +70,14 @@ public class RobotContainer {
   private final ElevatorWristSubSystem elevatorWrist;
   private final LightsSubsystem lightsSubsystem;
 
+  public String selectedAutonName;
+
   // Controller
   private final CommandXboxController m_xboxController = new CommandXboxController(0);
   private final CommandPS4Controller m_ps4Controller = new CommandPS4Controller(1);
 
-  private final LoggedDashboardChooser<Command> autoChooser;
+  private static LoggedDashboardChooser<Command> autoChooser;
+  private static String m_autonName;
 
   private boolean m_pitModeActive = false;
 
@@ -367,11 +371,7 @@ public class RobotContainer {
     m_ps4Controller.R1().onTrue(ManipulatorCommands.AlgaeAtA1(elevatorWrist));
     m_ps4Controller.R2().onTrue(ManipulatorCommands.AlgaeAtA2(elevatorWrist));
 
-    m_ps4Controller
-        .options()
-        .onTrue(
-            Commands.runOnce(() -> elevatorWrist.zero())
-                .andThen(() -> System.out.println("zero elevator and wrist")));
+    m_ps4Controller.options().onTrue(Commands.runOnce(() -> putAutonPoseToDashboard()));
 
     m_ps4Controller
         .povUp()
@@ -422,6 +422,33 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  public static void putAutonPoseToDashboard() {
+    Pose2d curPose = AllianceFlipUtil.apply(drive.getPose());
+    double autonY = 0;
+
+    SmartDashboard.putNumber("auton_X:", curPose.getX());
+    SmartDashboard.putNumber("auton_Y:", curPose.getY());
+    SmartDashboard.putNumber("auton_ROT:", curPose.getRotation().getDegrees());
+
+    m_autonName = autoChooser.get().getName();
+
+    if (m_autonName.contains("LEFT")) {
+      autonY = Constants.AutonStartPositions.left.getY();
+    } else if (m_autonName.contains("MIDDLE")) {
+      autonY = Constants.AutonStartPositions.middle.getY();
+    } else if (m_autonName.contains("RIGHT")) {
+      autonY = Constants.AutonStartPositions.right.getY();
+    }
+
+    SmartDashboard.putNumber(
+        "auton_offset_X:", curPose.getX() - Constants.AutonStartPositions.right.getX());
+    SmartDashboard.putNumber("auton_offset_Y:", curPose.getY());
+    SmartDashboard.putNumber(
+        "auton_offset_ROT:",
+        Math.abs(curPose.getRotation().getDegrees())
+            - Constants.AutonStartPositions.right.getRotation().getDegrees());
   }
 
   public Command staticClimberCharacterization(double outputRampRate) {
