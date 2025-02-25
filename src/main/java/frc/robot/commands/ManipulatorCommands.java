@@ -61,6 +61,16 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue)));
   }
 
+  // public static Command shootAlgaeCmd( RollerSystem elevator, RollerSystem shooter) {
+  //   return new ConditionalCommand(
+  //         ShootAlgaeToNetCmd(shooter),
+  //         shootAlgaeP1Cmd(shooter),
+  //         () -> {
+  //           // elevator greater than 11.5, we are shooting at net, not processor
+  //           return elevator.getPosition() > Constants.ELEVATOR.MIN_POSITION_BLOCK4;
+  //         })
+  // }
+
   public static Command shootAlgaeP1Cmd(RollerSystem shooter) {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
@@ -114,8 +124,11 @@ public class ManipulatorCommands {
       ElevatorWristSubSystem myElevatorWrist, RollerSystem myShooter) {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.red, 4)),
-        myElevatorWrist.shootAlgaeAtNetCmd(Constants.ELEVATOR.SHOOTNET, Constants.WRIST.SHOOTNET),
-        myShooter.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_SPEED),
+        myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.SHOOTNET, false),
+        Commands.waitSeconds(.5),
+        myElevatorWrist.setPositionWristCmd(Constants.WRIST.SHOOTNET, false),
+        Commands.waitSeconds(.1),
+        myShooter.setSpeedCmd(60),
         Commands.waitSeconds(2),
         myShooter.setSpeedCmd(0),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));

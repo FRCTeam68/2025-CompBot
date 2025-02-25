@@ -352,6 +352,10 @@ public class RobotContainer {
 
     m_xboxController.rightBumper().onTrue(ManipulatorCommands.shootAlgaeP1Cmd(intakeShooter));
 
+    m_ps4Controller
+        .touchpad()
+        .onTrue(ManipulatorCommands.ShootAlgaeToNetCmd(elevatorWrist, intakeShooter));
+
     m_xboxController
         .start()
         .onTrue(Commands.runOnce(() -> intakeShooter.setSpeed(0)).andThen(elevatorWrist.haltCmd()));
@@ -436,7 +440,7 @@ public class RobotContainer {
 
     if (m_autonName.contains("LEFT")) {
       autonY = Constants.AutonStartPositions.left.getY();
-    } else if (m_autonName.contains("MIDDLE")) {
+    } else if (m_autonName.contains("CENTER")) {
       autonY = Constants.AutonStartPositions.middle.getY();
     } else if (m_autonName.contains("RIGHT")) {
       autonY = Constants.AutonStartPositions.right.getY();
@@ -444,7 +448,7 @@ public class RobotContainer {
 
     SmartDashboard.putNumber(
         "auton_offset_X:", curPose.getX() - Constants.AutonStartPositions.right.getX());
-    SmartDashboard.putNumber("auton_offset_Y:", curPose.getY());
+    SmartDashboard.putNumber("auton_offset_Y:", curPose.getY() - autonY);
     SmartDashboard.putNumber(
         "auton_offset_ROT:",
         Math.abs(curPose.getRotation().getDegrees())

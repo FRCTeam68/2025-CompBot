@@ -167,21 +167,35 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   @AutoLogOutput
   public Command setPositionCmd(double e_goal, double w_goal) {
     return Commands.sequence(
+        new ConditionalCommand(
+            runOnce(() -> elevator.setPosition(Constants.ELEVATOR.SAFE_IN_BLOCK4))
+                .andThen(new WaitUntilCommand(() -> elevator.atPosition())),
+            Commands.none(),
+            () -> {
+              // if wrist between 3.8 and 4 and above 21 (you are at L4),
+              // go down to safe position to do wrist next
+              return wrist.getPosition() > Constants.WRIST.MIN_SLOT1_TO_ELEVATE
+                  && wrist.getPosition() < Constants.WRIST.MAX_SLOT1_TO_ELEVATE
+                  && elevator.getPosition() > Constants.ELEVATOR.MAX_POSITION_BLOCK4;
+            }),
         new ConditionalCommand( // true, wrist first, then elevator
             runOnce(() -> wrist.setPosition(Constants.WRIST.CRADLE))
                 .andThen(new WaitUntilCommand(() -> wrist.atPosition())),
             Commands.none(),
             () -> {
-              // if wrist is at P1 position   OR
-              // elevator nearly at 0 and
-              // elevator goal is to go past 1 and
-              // wrist past L1-L4 positions,  then
+              // if wrist is at P1, A1, A2 position and
+              //    wrist goal is less than cradle (15)
+              // OR
+              // if elevator nearly at 0 and
+              //    elevator goal is to go past 1 and
+              //   wrist past L2-L4 positions (slot1),  then
               // --> rotate to cradle position first
               // (then in next command it will do elevator, then wrist again)
-              return wrist.getPosition() > Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN
-                  || (elevator.getPosition() < Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR
-                      && e_goal > Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR
-                      && w_goal > Constants.WRIST.L2);
+              return (wrist.getPosition() > Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN
+                      && w_goal < Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR)
+                  || (elevator.getPosition() < Constants.ELEVATOR.MAX_POSITION_BLOCK0
+                      && e_goal > Constants.ELEVATOR.MAX_POSITION_BLOCK0
+                      && w_goal > Constants.WRIST.MAX_SLOT1_TO_ELEVATE);
             }),
         new ConditionalCommand( // true, wrist first, then elevator
             runOnce(() -> wrist.setPosition(w_goal))
@@ -195,11 +209,23 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 .andThen(runOnce(() -> wrist.setPosition(w_goal)))
                 .andThen(new WaitUntilCommand(() -> wrist.atPosition())),
             () -> {
-              // if goal is to go up and wrist goal will not hit bumper, do wrist first
+              // if goal is to go up and going up slot1,
               // or
-              return (e_goal >= elevator.getPosition() && w_goal <= Constants.WRIST.L2)
+              // if 4 < wrist goal < 26 (e.g. PRENET)
+              // or
+              // if wrist goal > 14.5 (going to P1. A1, A2, PRENET OR SHOOTNET)
+              // and if elevator currently between 3.4 and 5.1 (e.g. L2)
+              //     or
+              //     if elevator curruntly between 10.5 and 21 (e.g L3)
+              return (e_goal >= elevator.getPosition()
+                      && w_goal <= Constants.WRIST.MAX_SLOT1_TO_ELEVATE)
                   || (w_goal <= Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN
-                      && w_goal > Constants.WRIST.L2);
+                      && w_goal > Constants.WRIST.MAX_SLOT1_TO_ELEVATE)
+                  || (w_goal > Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN
+                      && ((elevator.getPosition() < Constants.ELEVATOR.MAX_POSITION_BLOCK2
+                              && elevator.getPosition() > Constants.ELEVATOR.MIN_POSITION_AT_P1)
+                          || (elevator.getPosition() < Constants.ELEVATOR.MAX_POSITION_BLOCK4
+                              && elevator.getPosition() > Constants.ELEVATOR.MIN_POSITION_BLOCK4)));
             }));
   }
 
@@ -210,6 +236,30 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   // new WaitUntilCommand(() -> elevator.atPosition()),
   // runOnce(() -> wrist.setPosition(w_goal)),
   // new WaitUntilCommand(() -> wrist.atPosition()));
+
+  // no checks.  you better know what you are doing !
+  public Command setPositionElevatorCmd(double e_goal, boolean waitForIt) {
+    return Commands.sequence(
+        runOnce(() -> elevator.setPosition(e_goal)),
+        new ConditionalCommand(
+            new WaitUntilCommand(() -> elevator.atPosition()),
+            Commands.none(),
+            () -> {
+              return waitForIt;
+            }));
+  }
+
+  // no checks.  you better know what you are doing !
+  public Command setPositionWristCmd(double w_goal, boolean waitForIt) {
+    return Commands.sequence(
+        runOnce(() -> wrist.setPosition(w_goal)),
+        new ConditionalCommand(
+            new WaitUntilCommand(() -> wrist.atPosition()),
+            Commands.none(),
+            () -> {
+              return waitForIt;
+            }));
+  }
 
   @AutoLogOutput
   public Command shootAlgaeAtNetCmd(double e_goal, double w_goal) {

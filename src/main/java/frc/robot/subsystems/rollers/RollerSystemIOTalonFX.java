@@ -66,6 +66,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
     if (followerID != 0) {
       // this is a follower motor.  Assign its lead motor
       // also, do not need to set config.
+      talon.setPosition(0);
       talon.setControl(new Follower(followerID, followOpposite));
       System.out.println("****** follower motor on elevator setup ******");
     } else {
