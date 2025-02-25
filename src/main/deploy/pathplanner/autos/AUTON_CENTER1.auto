@@ -13,55 +13,49 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "H-AlgaeGH"
+            "name": "coralToL4"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Intake"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
+            "name": "shootCoral"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "AlgaeGH-Net"
+            "pathName": "H-AlgaeA1IntakePosition"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shoot"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
+            "name": "algeaFromA1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "C1_Net-AlgaeIJ"
+            "pathName": "AlgaeA1IntakePosition-A1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "intakeAlgae"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A1-Processer"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootAlgae"
           }
         }
       ]
