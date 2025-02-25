@@ -13,8 +13,13 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -37,6 +42,23 @@ public final class Constants {
 
     /** Replaying from a log file. */
     REPLAY
+  }
+
+  public static boolean disableHAL = false;
+
+  public static void disableHAL() {
+    disableHAL = true;
+  }
+
+  public static class AutonStartPositions {
+    // Measured from the center of the ice cream
+    public static final double separation = Units.inchesToMeters(72.0);
+    public static final Pose2d right =
+        new Pose2d(Meters.of(7.26), Meters.of(2.65), new Rotation2d(180));
+    public static final Pose2d middle =
+        new Pose2d(right.getMeasureX(), Meters.of(4.16), right.getRotation());
+    public static final Pose2d left =
+        new Pose2d(right.getMeasureX(), Meters.of(5.60), right.getRotation());
   }
 
   public static final class LED {
@@ -82,19 +104,21 @@ public final class Constants {
     public static final int CANCODER_CANID = 36;
     public static final String CANBUS = "rio";
     public static final double MIN_POSITION = 0;
-    public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 15;
-    public static final double MAX_POSITION_AT_ELEVATOR_MIN = 26;
+    public static final double MIN_SLOT1_TO_ELEVATE = 3.8;
+    public static final double MAX_SLOT1_TO_ELEVATE = 4.0;
+    public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 14.5; // min slot2
+    public static final double MAX_POSITION_AT_ELEVATOR_MIN = 26; // max slot2
     public static final double MAX_POSITION_AT_P1 = 34;
-    public static final double L4 = 3.9; // all 3 of these must be the same value
-    public static final double L3 = 3.9; //
-    public static final double L2 = 3.9; //
     public static final double L1 = 1.5;
+    public static final double L2 = 3.9; //
+    public static final double L3 = 3.9; //
+    public static final double L4 = 3.9; // all 3 of these must be the same value
     public static final double CRADLE = 15;
+    public static final double SHOOTNET = 15;
+    public static final double PRENET = 21;
     public static final double A2 = 27.5;
     public static final double A1 = 27.5;
-    public static final double P1 = 34;
-    public static final double PRENET = 21;
-    public static final double SHOOTNET = 6;
+    public static final double P1 = 33;
     public static final double BUMP_VALUE = .5; // rotations
     public static final double CANCODER_OFFSET = 0.22;
     public static final Slot0Configs SLOT0_CONFIGS =
@@ -110,19 +134,24 @@ public final class Constants {
     public static final int LEFT_CANID = 32;
     public static final int RIGHT_CANID = 33;
     public static final String CANBUS = "rio";
-    public static final double MIN_POSITION = 0;
-    public static final double MIN_POSITION_AT_P1 = 3.4;
-    public static final double MAX_POSITION = 26.5;
-    public static final double MAX_POSITION_WRIST_NOT_CLEAR = 1;
+    public static final double MAX_POSITION = 27; // 26.5; // MAX_BLOCK6
+    public static final double MAX_POSITION_BLOCK5 = 24; // ????
+    public static final double MAX_POSITION_BLOCK4 = 21; // ????
+    public static final double SAFE_IN_BLOCK4 = 14.5;
+    public static final double MIN_POSITION_BLOCK4 = 10.5; // ????
+    public static final double MAX_POSITION_BLOCK2 = 5.1; // ????
+    public static final double MIN_POSITION_AT_P1 = 3.4; // MIN_BLOCK2
+    public static final double MAX_POSITION_BLOCK0 = 1;
+    public static final double MIN_POSITION = 0; // /MIN_BLOCK0
+    public static final double SHOOTNET = 26.5;
     public static final double L4 = 23.5;
-    public static final double L3 = 12;
-    public static final double L2 = 4.5;
-    public static final double L1 = 0;
-    public static final double A2 = 13.5;
-    public static final double A1 = 8;
-    public static final double P1 = 3.4;
     public static final double PRENET = 20;
-    public static final double SHOOTNET = 26;
+    public static final double A2 = 14.5;
+    public static final double L3 = 12;
+    public static final double A1 = 9;
+    public static final double L2 = 4.5;
+    public static final double P1 = 3.4;
+    public static final double L1 = 0;
     public static final double BUMP_VALUE = .5; // rotations
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(4.8).withKI(0).withKD(0).withKS(0.5).withKV(0.2).withKA(0);

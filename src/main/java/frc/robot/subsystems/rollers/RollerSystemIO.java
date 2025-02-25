@@ -36,6 +36,9 @@ public interface RollerSystemIO {
   /* Run rollers at position */
   default void setPosition(double rotations) {}
 
+  /* Run rollers at position with feedforward */
+  default void setPosition(double rotations, double feedforward) {}
+
   /* Stop rollers */
   default void stop() {}
 

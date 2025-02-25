@@ -38,11 +38,15 @@ public class RollerSystem extends SubsystemBase {
   private LoggedTunableNumber rollerMMA;
   private LoggedTunableNumber rollerMMJ;
 
+  private LoggedTunableNumber rollerFF;
+
   private LoggedTunableNumber setpointBand;
   private LoggedTunableNumber pieceIntakeCurrentThresh;
 
   private Debouncer pieceDebouncer = new Debouncer(0.1);
   @AutoLogOutput private boolean hasPiece = false;
+
+  private double feedforward;
 
   @Getter @AutoLogOutput private double setpoint = 0.0;
 
@@ -60,6 +64,9 @@ public class RollerSystem extends SubsystemBase {
     rollerMMV = new LoggedTunableNumber("Roller/" + name + "/MMV");
     rollerMMA = new LoggedTunableNumber("Roller/" + name + "/MMA");
     rollerMMJ = new LoggedTunableNumber("Roller/" + name + "/MMJ");
+
+    rollerFF = new LoggedTunableNumber("Roller/" + name + "/FF", 0);
+    feedforward = 0;
 
     setpointBand = new LoggedTunableNumber("Roller/" + name + "/setpointBand");
 
@@ -100,6 +107,9 @@ public class RollerSystem extends SubsystemBase {
         newMMconfig.MotionMagicAcceleration = rollerMMA.get();
         newMMconfig.MotionMagicJerk = rollerMMJ.get();
         io.setMotionMagic(newMMconfig);
+      }
+      if (rollerFF.hasChanged(hashCode())) {
+        feedforward = rollerFF.get();
       }
     }
 
@@ -142,7 +152,9 @@ public class RollerSystem extends SubsystemBase {
 
   @AutoLogOutput
   public void setVolts(double inputVolts) {
+    setpoint = inputVolts;
     io.setVolts(inputVolts);
+    Logger.recordOutput("Roller/" + name + "/setpointVolts", setpoint);
   }
 
   @AutoLogOutput
@@ -150,19 +162,21 @@ public class RollerSystem extends SubsystemBase {
     // in rotations per second
     setpoint = speed;
     io.setSpeed(speed);
+    Logger.recordOutput("Roller/" + name + "/setpointSpeed", setpoint);
   }
 
   @AutoLogOutput
   public Command setSpeedCmd(double speed) {
     // in rotations per second
-    return this.runOnce(() -> io.setSpeed(speed));
+    return this.runOnce(() -> setSpeed(speed));
   }
 
   @AutoLogOutput
   public void setPosition(double position) {
     // in rotations
     setpoint = position;
-    io.setPosition(position);
+    io.setPosition(position, feedforward);
+    Logger.recordOutput("Roller/" + name + "/setpointPosition", setpoint);
   }
 
   public double getSpeed() {
