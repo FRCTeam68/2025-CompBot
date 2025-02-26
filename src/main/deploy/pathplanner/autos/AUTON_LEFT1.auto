@@ -13,7 +13,19 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "coralToL4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootCoral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "toIntakeCoral"
           }
         },
         {
@@ -25,7 +37,7 @@
         {
           "type": "named",
           "data": {
-            "name": "intake"
+            "name": "intakeCoral"
           }
         },
         {
@@ -37,7 +49,19 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "coralToL4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootCoral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "toIntakeCoral"
           }
         },
         {
@@ -49,7 +73,7 @@
         {
           "type": "named",
           "data": {
-            "name": "intake"
+            "name": "intakeCoral"
           }
         },
         {
@@ -61,7 +85,13 @@
         {
           "type": "named",
           "data": {
-            "name": "shoot"
+            "name": "coralToL4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootCoral"
           }
         }
       ]
