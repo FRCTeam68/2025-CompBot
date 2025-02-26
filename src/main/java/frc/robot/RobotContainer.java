@@ -69,7 +69,8 @@ public class RobotContainer {
   private final RangeSensorSubSystem intakeCoralSensor;
   private final ElevatorWristSubSystem elevatorWrist;
   private final LightsSubsystem lightsSubsystem;
-  private final ManipulatorCommands manipulatorCmds;
+  private ManipulatorCommands manipulatorCmds;
+  private ClimberCommands climberCmds;
 
   public String selectedAutonName;
 
@@ -148,7 +149,6 @@ public class RobotContainer {
 
         lightsSubsystem = new LightsSubsystem();
 
-        manipulatorCmds = new ManipulatorCommands (elevatorWrist,intakeShooter, intakeCoralSensor)
         break;
 
       case SIM:
@@ -215,26 +215,19 @@ public class RobotContainer {
         break;
     }
 
-    NamedCommands.registerCommand(
-        "shootCoral", ManipulatorCommands.shootCoralCmd(intakeShooter, intakeCoralSensor));
-    NamedCommands.registerCommand(
-        "intakeCoral", ManipulatorCommands.intakeCoralCmd(intakeShooter, intakeCoralSensor));
-    NamedCommands.registerCommand(
-        "shootAlgaeAtP1", ManipulatorCommands.shootAlgaeP1Cmd(intakeShooter));
-    NamedCommands.registerCommand(
-        "intakeAlgae", ManipulatorCommands.intakeAlgaeA1A2Cmd(intakeShooter));
-    NamedCommands.registerCommand("coralToL4", ManipulatorCommands.CoralL4Cmd(elevatorWrist));
-    NamedCommands.registerCommand("coralToL3", ManipulatorCommands.CoralL3Cmd(elevatorWrist));
-    NamedCommands.registerCommand("coralToL2", ManipulatorCommands.CoralL2Cmd(elevatorWrist));
-    NamedCommands.registerCommand("toIntakeCoral", ManipulatorCommands.CoralL1Cmd(elevatorWrist));
-    NamedCommands.registerCommand("coralToL1", ManipulatorCommands.CoralL1Cmd(elevatorWrist));
-    NamedCommands.registerCommand("algaeFromA2", ManipulatorCommands.AlgaeAtA2(elevatorWrist));
-    NamedCommands.registerCommand("algaeFromA1", ManipulatorCommands.AlgaeAtA1(elevatorWrist));
-    NamedCommands.registerCommand("algaeToP1", ManipulatorCommands.AlgaeToP1(elevatorWrist));
-    NamedCommands.registerCommand(
-        "algaeToPreNet", ManipulatorCommands.AlgaeToPreNetCmd(elevatorWrist));
-    NamedCommands.registerCommand(
-        "shootAlgaeAtNet", ManipulatorCommands.ShootAlgaeToNetCmd(elevatorWrist, intakeShooter));
+    manipulatorCmds = new ManipulatorCommands(elevatorWrist, intakeShooter, intakeCoralSensor);
+    climberCmds = new ClimberCommands(climber);
+
+    NamedCommands.registerCommand("Shoot_And_Return_Home", manipulatorCmds.shootCmd(false));
+    NamedCommands.registerCommand("RunIntake", manipulatorCmds.intakeCmd());
+    NamedCommands.registerCommand("MoveToL4", manipulatorCmds.IntakeToL4Cmd());
+    NamedCommands.registerCommand("MoveToL3", manipulatorCmds.IntakeToL3Cmd());
+    NamedCommands.registerCommand("MoveToL2", manipulatorCmds.IntakeToL2Cmd());
+    NamedCommands.registerCommand("MoveToL1", manipulatorCmds.IntakeToL1Cmd());
+    NamedCommands.registerCommand("MoveToA2", manipulatorCmds.IntakeToA2());
+    NamedCommands.registerCommand("MoveToA1", manipulatorCmds.IntakeToA1());
+    NamedCommands.registerCommand("MoveToP1", manipulatorCmds.GoToP1Cmd());
+    NamedCommands.registerCommand("MoveToPreNet", manipulatorCmds.GoToPreNetCmd());
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -343,40 +336,34 @@ public class RobotContainer {
         .back()
         .onTrue(Commands.runOnce(() -> drive.setPose(new Pose2d()), drive).ignoringDisable(true));
 
-    m_xboxController
-        .leftTrigger()
-        .onTrue(ManipulatorCommands.intakeCoralCmd(intakeShooter, intakeCoralSensor));
+    m_xboxController.leftTrigger().onTrue(manipulatorCmds.intakeCmd());
 
-    m_xboxController
-        .rightTrigger()
-        .onTrue(ManipulatorCommands.shootCoralCmd(intakeShooter, intakeCoralSensor));
+    m_xboxController.rightTrigger().onTrue(manipulatorCmds.shootCmd(false));
 
-    m_xboxController.leftBumper().onTrue(ManipulatorCommands.intakeAlgaeA1A2Cmd(intakeShooter));
+    // m_xboxController.leftBumper().onTrue(
 
-    m_xboxController.rightBumper().onTrue(ManipulatorCommands.shootAlgaeP1Cmd(intakeShooter));
+    // m_xboxController.rightBumper().onTrue(
 
-    m_ps4Controller
-        .touchpad()
-        .onTrue(ManipulatorCommands.ShootAlgaeToNetCmd(elevatorWrist, intakeShooter));
+    // m_ps4Controller.touchpad().onTrue(
 
     m_xboxController
         .start()
         .onTrue(Commands.runOnce(() -> intakeShooter.setSpeed(0)).andThen(elevatorWrist.haltCmd()));
 
-    m_ps4Controller.triangle().onTrue(ManipulatorCommands.CoralL4Cmd(elevatorWrist));
+    m_ps4Controller.triangle().onTrue(manipulatorCmds.IntakeToL4Cmd());
 
-    m_ps4Controller.circle().onTrue(ManipulatorCommands.CoralL3Cmd(elevatorWrist));
+    m_ps4Controller.circle().onTrue(manipulatorCmds.IntakeToL3Cmd());
 
-    m_ps4Controller.square().onTrue(ManipulatorCommands.CoralL2Cmd(elevatorWrist));
+    m_ps4Controller.square().onTrue(manipulatorCmds.IntakeToL2Cmd());
 
-    m_ps4Controller.cross().onTrue(ManipulatorCommands.CoralL1Cmd(elevatorWrist));
+    m_ps4Controller.cross().onTrue(manipulatorCmds.IntakeToL1Cmd());
 
-    m_ps4Controller.L1().onTrue(ManipulatorCommands.AlgaeToPreNetCmd(elevatorWrist));
+    m_ps4Controller.L1().onTrue(manipulatorCmds.GoToPreNetCmd());
 
-    m_ps4Controller.L2().onTrue(ManipulatorCommands.AlgaeToP1(elevatorWrist));
+    m_ps4Controller.L2().onTrue(manipulatorCmds.GoToP1Cmd());
 
-    m_ps4Controller.R1().onTrue(ManipulatorCommands.AlgaeAtA1(elevatorWrist));
-    m_ps4Controller.R2().onTrue(ManipulatorCommands.AlgaeAtA2(elevatorWrist));
+    m_ps4Controller.R1().onTrue(manipulatorCmds.IntakeToA1());
+    m_ps4Controller.R2().onTrue(manipulatorCmds.IntakeToA2());
 
     m_ps4Controller.options().onTrue(Commands.runOnce(() -> putAutonPoseToDashboard()));
 
@@ -410,10 +397,8 @@ public class RobotContainer {
     // //Right Joystick Y
     m_ps4Controller
         .axisGreaterThan(Axis.kRightY.value, 0.7)
-        .onTrue(ManipulatorCommands.RetractClimberCmd(climber));
-    m_ps4Controller
-        .axisLessThan(Axis.kRightY.value, -0.7)
-        .onTrue(ManipulatorCommands.DeployClimberCmd(climber));
+        .onTrue(climberCmds.RetractClimberCmd());
+    m_ps4Controller.axisLessThan(Axis.kRightY.value, -0.7).onTrue(climberCmds.DeployClimberCmd());
 
     // //Left Joystick Y
     // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(

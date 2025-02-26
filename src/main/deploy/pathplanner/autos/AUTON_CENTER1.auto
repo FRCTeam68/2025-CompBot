@@ -13,13 +13,13 @@
         {
           "type": "named",
           "data": {
-            "name": "coralToL4"
+            "name": "MoveToL4"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shootCoral"
+            "name": "Shoot_And_Move_To_IntakeCoral"
           }
         },
         {
@@ -31,7 +31,7 @@
         {
           "type": "named",
           "data": {
-            "name": "algaeFromA1"
+            "name": "MoveToA1"
           }
         },
         {
@@ -43,7 +43,7 @@
         {
           "type": "named",
           "data": {
-            "name": "intakeAlgae"
+            "name": "RunIntake"
           }
         },
         {
@@ -55,7 +55,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shootAlgae"
+            "name": "Shoot_And_Return_Home"
           }
         }
       ]

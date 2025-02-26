@@ -13,19 +13,13 @@
         {
           "type": "named",
           "data": {
-            "name": "coralToL4"
+            "name": "MoveToL4"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shootCoral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "toIntakeCoral"
+            "name": "Shoot_And_Return_Home"
           }
         },
         {
@@ -37,7 +31,7 @@
         {
           "type": "named",
           "data": {
-            "name": "intakeCoral"
+            "name": "RunIntake"
           }
         },
         {
@@ -49,19 +43,13 @@
         {
           "type": "named",
           "data": {
-            "name": "coralToL4"
+            "name": "MoveToL4"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shootCoral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "toIntakeCoral"
+            "name": "Shoot_And_Return_Home"
           }
         },
         {
@@ -73,7 +61,7 @@
         {
           "type": "named",
           "data": {
-            "name": "intakeCoral"
+            "name": "RunIntake"
           }
         },
         {
@@ -85,19 +73,13 @@
         {
           "type": "named",
           "data": {
-            "name": "coralToL4"
+            "name": "MoveToL4"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "shootCoral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "toIntakeCoral"
+            "name": "Shoot_And_Return_Home"
           }
         },
         {
@@ -109,7 +91,7 @@
         {
           "type": "named",
           "data": {
-            "name": "intakeCoral"
+            "name": "RunIntake"
           }
         }
       ]
