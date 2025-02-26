@@ -57,6 +57,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     var cancoderConfig = new CANcoderConfiguration();
     // cancoderConfig.MagnetSensor.MagnetOffset = offset.getRotations();
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+    cancoderConfig.MagnetSensor.MagnetOffset = Constants.WRIST.CANCODER_OFFSET;
     tryUntilOk(5, () -> wristCANcoder.getConfigurator().apply(cancoderConfig));
 
     elevator =
@@ -97,8 +98,6 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             Constants.ELEVATOR_SENSOR.CANBUS,
             Constants.ELEVATOR_SENSOR.THRESHOLD);
 
-    SmartDashboard.putNumber("ElevatorHieght", 0);
-
     wrist.setPosition(0);
     elevator.setPosition(0);
 
@@ -113,8 +112,11 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   public void periodic() {
     elevatorHeight = ElevatorSensor.getDistance_mm();
     SmartDashboard.putNumber("ElevatorHieght", elevatorHeight);
+    SmartDashboard.putBoolean("Elevator at Zero", elevatorHeight < 96);
+
     wristAngle = wristCANcoder.getPosition().getValueAsDouble();
     SmartDashboard.putNumber("WristAngle", wristAngle);
+    SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
 
     // double elevatorNow = elevator.getPosition();
     // double wristNow = wrist.getPosition();
@@ -226,7 +228,10 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                               && elevator.getPosition() > Constants.ELEVATOR.MIN_POSITION_AT_P1)
                           || (elevator.getPosition() < Constants.ELEVATOR.MAX_POSITION_BLOCK4
                               && elevator.getPosition() > Constants.ELEVATOR.MIN_POSITION_BLOCK4)));
-            }));
+            }),
+        // see if brake mode stops the squealing and elevator stays put.
+        // what current does the pull?
+        runOnce(() -> elevator.setVolts(0)));
   }
 
   // // go to safe position everytime

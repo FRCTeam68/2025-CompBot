@@ -110,6 +110,7 @@ public class RollerSystem extends SubsystemBase {
       }
       if (rollerFF.hasChanged(hashCode())) {
         feedforward = rollerFF.get();
+        System.out.println("\tFF changed to: " + feedforward);
       }
     }
 
