@@ -13,10 +13,15 @@
 
 package frc.robot.commands;
 
+import java.lang.module.ModuleDescriptor.Requires;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
+import frc.robot.commands.ManipulatorCommands.LOCATIONS;
 import frc.robot.subsystems.ElevatorWristSubSystem;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.LightsSubsystem.LEDSegment;
@@ -25,137 +30,227 @@ import frc.robot.subsystems.rollers.RollerSystem;
 
 public class ManipulatorCommands {
 
-  private ManipulatorCommands() {}
+  public enum LOCATIONS {
+    INTAKE,
+    L1,
+    L2,
+    L3,
+    L4,
+    L4PRIME,
+    A1,
+    A2,
+    P1,
+    PRENET,
+    SHOOTNET,
+    TRANSITIONING
+  }
 
-  public static Command intakeCoralCmd(RollerSystem intake, RangeSensorSubSystem intake_sensor) {
+  public static LOCATIONS location;
+  public static double shootSpeed;
+
+  private ManipulatorCommands(ElevatorWristSubSystem myElevatorWrist, RollerSystem intake, RangeSensorSubSystem intake_sensor) {
+
+    location = LOCATIONS.INTAKE;
+    shootSpeed = Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED;
+  }
+
+  public static Command intakeCmd(RollerSystem intake, RangeSensorSubSystem intake_sensor) {
+    return Commands.sequence(
+        new ConditionalCommand(
+          intakeCoralCmd(intake, intake_sensor),
+          Commands.none(),
+          () -> {
+            return location == LOCATIONS.INTAKE;
+          }),
+
+        new ConditionalCommand(
+          intakeAlgaeCmd(intake),
+          Commands.none(),
+          () -> {
+            return location == LOCATIONS.A1 ||
+                  location == LOCATIONS.A2  ||
+                  location == LOCATIONS.P1;
+          }));
+  }
+
+  private static Command intakeCoralCmd(RollerSystem intake, RangeSensorSubSystem intake_sensor) {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4)),
         intake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
         Commands.waitUntil(() -> intake_sensor.havePiece()),
         Commands.waitSeconds(.1),
         intake.setSpeedCmd(0),
+        Commands.runOnce(() -> location =LOCATIONS.INTAKE),
+        Commands.runOnce(() -> shootSpeed = 0),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue)));
   }
 
-  // new WaitUntilCommand(() -> intake_sensor.havePiece())
-
-  public static Command shootCoralCmd(RollerSystem shooter, RangeSensorSubSystem intake_sensor) {
-    return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
-        shooter.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
-        Commands.waitUntil(() -> intake_sensor.havePiece() == false),
-        Commands.waitSeconds(1),
-        shooter.setSpeedCmd(0),
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
-  }
-
-  public static Command intakeAlgaeA1A2Cmd(RollerSystem intake) {
+  private static Command intakeAlgaeCmd(RollerSystem intake) {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4)),
         intake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_INTAKE_SPEED),
         Commands.waitUntil(() -> intake.hasPiece()),
-        // change control of intake from velocity to position to hold the algae (instead of using
-        // stop)
-        // Commands.runOnce(() -> intake.setPosition(intake.getPosition())),
         Commands.runOnce(() -> intake.stop()),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue)));
   }
 
-  // public static Command shootAlgaeCmd( RollerSystem elevator, RollerSystem shooter) {
-  //   return new ConditionalCommand(
-  //         ShootAlgaeToNetCmd(shooter),
-  //         shootAlgaeP1Cmd(shooter),
-  //         () -> {
-  //           // elevator greater than 11.5, we are shooting at net, not processor
-  //           return elevator.getPosition() > Constants.ELEVATOR.MIN_POSITION_BLOCK4;
-  //         })
-  // }
-
-  public static Command shootAlgaeP1Cmd(RollerSystem shooter) {
+  public static Command shootCmd(RollerSystem intakeshooter, RangeSensorSubSystem intake_sensor, ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
-        shooter.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_SPEED),
-        Commands.waitSeconds(2),
-        shooter.setSpeedCmd(0),
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
-  }
+        new ConditionalCommand(
+          ShootAlgaeToNetCmd(myElevatorWrist, intakeshooter),
+          Commands.none(),
+          () -> {
+            return location == LOCATIONS.PRENET;
+          }),
 
-  public static Command CoralL4Cmd(ElevatorWristSubSystem myElevatorWrist) {
-    return Commands.sequence(
+        // shoot according to saved shooter speed
+        intakeshooter.setSpeedCmd(shootSpeed),
+        Commands.waitUntil(() -> intake_sensor.havePiece() == false),
+        Commands.waitSeconds(1),
+        intakeshooter.setSpeedCmd(0),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)),
+
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
-        myElevatorWrist.setPositionCmd(Constants.ELEVATOR.L4, Constants.WRIST.L4),
-        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L4")),
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
-  }
-
-  public static Command CoralL3Cmd(ElevatorWristSubSystem myElevatorWrist) {
-    return Commands.sequence(
+        new ConditionalCommand(
+            myElevatorWrist.setPositionWristCmd(Constants.WRIST.CRADLE, true),
+            Commands.none(),
+            () -> {
+              // if location is any of these, then need to move wrist to intermediate position first
+              return location == LOCATIONS.P1 ||
+                    location == LOCATIONS.A1 ||
+                    location == LOCATIONS.A2 ||
+                    location == LOCATIONS.L4PRIME;
+            }),
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
-        myElevatorWrist.setPositionCmd(Constants.ELEVATOR.L3, Constants.WRIST.L3),
-        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L3")),
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+        myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.INTAKE, true),
+        myElevatorWrist.setPositionWristCmd(Constants.WRIST.INTAKE, true),
+
+        intakeCoralCmd(intakeshooter, intake_sensor)
+        );
   }
 
-  public static Command CoralL2Cmd(ElevatorWristSubSystem myElevatorWrist) {
+  private static Command ShootAlgaeToNetCmd(ElevatorWristSubSystem myElevatorWrist, RollerSystem myShooter) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
-        myElevatorWrist.setPositionCmd(Constants.ELEVATOR.L2, Constants.WRIST.L2),
-        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L2")),
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
-  }
-
-  public static Command CoralL1Cmd(ElevatorWristSubSystem myElevatorWrist) {
-    return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
-        myElevatorWrist.setPositionCmd(Constants.ELEVATOR.L1, Constants.WRIST.L1),
-        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L1")),
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
-  }
-
-  public static Command AlgaeToPreNetCmd(ElevatorWristSubSystem myElevatorWrist) {
-    return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
-        myElevatorWrist.setPositionCmd(Constants.ELEVATOR.PRENET, Constants.WRIST.PRENET),
-        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "PRENET")),
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
-  }
-
-  public static Command ShootAlgaeToNetCmd(
-      ElevatorWristSubSystem myElevatorWrist, RollerSystem myShooter) {
-    return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.red, 4)),
+        // Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.red, 4)),
         myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.SHOOTNET, false),
         Commands.waitSeconds(.5),
         myElevatorWrist.setPositionWristCmd(Constants.WRIST.SHOOTNET, false),
         Commands.waitSeconds(.1),
         myShooter.setSpeedCmd(60),
         Commands.waitSeconds(2),
-        myShooter.setSpeedCmd(0),
+        myShooter.setSpeedCmd(0)
+        // Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange))
+        );
+  }
+
+  public static Command IntakeToL4primeCmd(ElevatorWristSubSystem myElevatorWrist) {
+    return Commands.sequence(
+        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        myElevatorWrist.setPositionWristCmd(Constants.WRIST.SHOOTNET, true),
+        myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.L4PRIME, true),
+        myElevatorWrist.setPositionWristCmd(Constants.WRIST.L4PRIME, true),
+        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L4PRIME")),
+        Commands.runOnce(() -> location =LOCATIONS.L4PRIME),
+        Commands.runOnce(() -> shootSpeed = Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
   }
 
-  public static Command AlgaeToP1(ElevatorWristSubSystem myElevatorWrist) {
+  public static Command IntakeToL4Cmd(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
-        myElevatorWrist.setPositionCmd(Constants.ELEVATOR.P1, Constants.WRIST.P1),
-        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "P1")),
+        myElevatorWrist.setPositionWristCmd(Constants.WRIST.L4, true),
+        myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.L4, true),
+        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L4")),
+        Commands.runOnce(() -> location =LOCATIONS.L4),
+        Commands.runOnce(() -> shootSpeed = Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
   }
 
-  public static Command AlgaeAtA2(ElevatorWristSubSystem myElevatorWrist) {
+  public static Command IntakeToL3Cmd(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
-        myElevatorWrist.setPositionCmd(Constants.ELEVATOR.A2, Constants.WRIST.A2),
-        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "A2")),
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+      Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+      myElevatorWrist.setPositionWristCmd(Constants.WRIST.L3, true),
+      myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.L3, true),
+      Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L3")),
+      Commands.runOnce(() -> location =LOCATIONS.L3),
+      Commands.runOnce(() -> shootSpeed = Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
+      Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
   }
 
-  public static Command AlgaeAtA1(ElevatorWristSubSystem myElevatorWrist) {
+  public static Command IntakeToL2Cmd(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
-        myElevatorWrist.setPositionCmd(Constants.ELEVATOR.A1, Constants.WRIST.A1),
-        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "A1")),
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+      Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+      myElevatorWrist.setPositionWristCmd(Constants.WRIST.L2, true),
+      myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.L2, true),
+      Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L2")),
+      Commands.runOnce(() -> location =LOCATIONS.L2),
+      Commands.runOnce(() -> shootSpeed = Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
+      Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+  }
+
+  public static Command IntakeToL1Cmd(ElevatorWristSubSystem myElevatorWrist) {
+    return Commands.sequence(
+      Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+      myElevatorWrist.setPositionWristCmd(Constants.WRIST.L1, true),
+      myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.L1, true),
+      Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L1")),
+      Commands.runOnce(() -> location =LOCATIONS.L1),
+      Commands.runOnce(() -> shootSpeed = Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
+      Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+  }
+
+  public static Command IntakeToA2(ElevatorWristSubSystem myElevatorWrist) {
+    return Commands.sequence(
+      Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+      myElevatorWrist.setPositionWristCmd(Constants.WRIST.CRADLE, true),
+      myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.A2, true),
+      myElevatorWrist.setPositionWristCmd(Constants.WRIST.A2, true),
+      Commands.runOnce(() -> SmartDashboard.putString("atPosition", "A2")),
+      Commands.runOnce(() -> location =LOCATIONS.A2),
+      Commands.runOnce(() -> shootSpeed = Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
+      Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+  }
+
+  public static Command IntakeToA1(ElevatorWristSubSystem myElevatorWrist) {
+    return Commands.sequence(
+      Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+      myElevatorWrist.setPositionWristCmd(Constants.WRIST.CRADLE, true),
+      myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.A1, true),
+      myElevatorWrist.setPositionWristCmd(Constants.WRIST.A1, true),
+      Commands.runOnce(() -> SmartDashboard.putString("atPosition", "A1")),
+      Commands.runOnce(() -> location =LOCATIONS.A1),
+      Commands.runOnce(() -> shootSpeed = Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
+      Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+  }
+
+  private static Command GoToP1Cmd(ElevatorWristSubSystem myElevatorWrist) {
+    return Commands.sequence(
+      Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+      new ConditionalCommand(
+        myElevatorWrist.setPositionWristCmd(Constants.WRIST.CRADLE, true),
+          Commands.none(),
+          () -> {
+            return location == LOCATIONS.INTAKE;
+          }),
+      
+      myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.P1, true),
+      myElevatorWrist.setPositionWristCmd(Constants.WRIST.P1, true),
+      Commands.runOnce(() -> SmartDashboard.putString("atPosition", "P1")),
+      Commands.runOnce(() -> location =LOCATIONS.P1),
+      Commands.runOnce(() -> shootSpeed = Constants.INTAKE_SHOOTER.ALGAE_SHOOT_SPEED),
+      Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
+  }
+
+  public static Command GoToPreNetCmd(ElevatorWristSubSystem myElevatorWrist) {
+    return Commands.sequence(
+      Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+      myElevatorWrist.setPositionWristCmd(Constants.WRIST.PRENET, true),
+      myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.PRENET, true),
+      Commands.runOnce(() -> SmartDashboard.putString("atPosition", "PRENET")),
+      Commands.runOnce(() -> location =LOCATIONS.PRENET),
+      Commands.runOnce(() -> shootSpeed = Constants.INTAKE_SHOOTER.ALGAE_SHOOT_SPEED),
+      Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
   }
 
   public static Command DeployClimberCmd(RollerSystem myClimber) {

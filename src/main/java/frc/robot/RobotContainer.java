@@ -69,6 +69,7 @@ public class RobotContainer {
   private final RangeSensorSubSystem intakeCoralSensor;
   private final ElevatorWristSubSystem elevatorWrist;
   private final LightsSubsystem lightsSubsystem;
+  private final ManipulatorCommands manipulatorCmds;
 
   public String selectedAutonName;
 
@@ -146,6 +147,8 @@ public class RobotContainer {
             40); // does not have a piece but might want to use to detect overrun limits?
 
         lightsSubsystem = new LightsSubsystem();
+
+        manipulatorCmds = new ManipulatorCommands (elevatorWrist,intakeShooter, intakeCoralSensor)
         break;
 
       case SIM:

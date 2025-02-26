@@ -109,10 +109,12 @@ public final class Constants {
     public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 14.5; // min slot2
     public static final double MAX_POSITION_AT_ELEVATOR_MIN = 26; // max slot2
     public static final double MAX_POSITION_AT_P1 = 34;
+    public static final double INTAKE = 1.5;
     public static final double L1 = 1.5;
     public static final double L2 = 3.9; //
     public static final double L3 = 3.9; //
     public static final double L4 = 3.9; // all 3 of these must be the same value
+    public static final double L4PRIME = 13.5;
     public static final double CRADLE = 15;
     public static final double SHOOTNET = 15;
     public static final double PRENET = 21;
@@ -144,6 +146,7 @@ public final class Constants {
     public static final double MAX_POSITION_BLOCK0 = 1;
     public static final double MIN_POSITION = 0; // /MIN_BLOCK0
     public static final double SHOOTNET = 26.5;
+    public static final double L4PRIME = 26.5;
     public static final double L4 = 23.5;
     public static final double PRENET = 20;
     public static final double A2 = 14.5;
@@ -152,6 +155,7 @@ public final class Constants {
     public static final double L2 = 4.5;
     public static final double P1 = 3.4;
     public static final double L1 = 0;
+    public static final double INTAKE = 0;
     public static final double BUMP_VALUE = .5; // rotations
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(4.8).withKI(0).withKD(0).withKS(0.5).withKV(0.2).withKA(0);
