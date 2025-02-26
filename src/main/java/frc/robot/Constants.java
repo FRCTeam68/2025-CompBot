@@ -77,6 +77,9 @@ public final class Constants {
     public static final String CANBUS = "rio";
     public static final double MAX_SPEED = 100; // rps
     public static final double CORAL_INTAKE_SPEED = 30;
+    public static final double COREL_INTAKE_INDEX_SPEED =
+        1; // speed to advance coral to find back edge
+    public static final double COREL_INTAKE_INDEX_REVERSE = 1.5; // revolutions to reverse
     public static final double CORAL_SHOOT_SPEED = 40;
     public static final double CORAL_SHOOT_TIMEOUT = 2;
     public static final double ALGAE_INTAKE_SPEED = -40;
@@ -153,7 +156,7 @@ public final class Constants {
     public static final double L3 = 12;
     public static final double A1 = 9;
     public static final double L2 = 4.5;
-    public static final double P1 = 3.4;
+    public static final double P1 = 3.5;
     public static final double L1 = 0;
     public static final double INTAKE = 0;
     public static final double BUMP_VALUE = .5; // rotations

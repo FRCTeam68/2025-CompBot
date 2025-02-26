@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.*;
+import frc.robot.commands.ManipulatorCommands.LOCATIONS;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorWristSubSystem;
 import frc.robot.subsystems.LightsSubsystem;
@@ -348,7 +349,13 @@ public class RobotContainer {
 
     m_xboxController
         .start()
-        .onTrue(Commands.runOnce(() -> intakeShooter.setSpeed(0)).andThen(elevatorWrist.haltCmd()));
+        .onTrue(
+            Commands.runOnce(() -> intakeShooter.setSpeed(0))
+                .andThen(elevatorWrist.haltCmd())
+                // this may be called when elevatorWrist is doing something it should not.
+                // mark it as transitioning and then intakeCmd will transition it back to Intake
+                // position
+                .andThen(() -> manipulatorCmds.location = LOCATIONS.TRANSITIONING));
 
     m_ps4Controller.triangle().onTrue(manipulatorCmds.IntakeToL4Cmd());
 
@@ -404,7 +411,11 @@ public class RobotContainer {
     // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(
     // m_ps4Controller.axisLessThan(1,-0.7).whileTrue(
     climber.setDefaultCommand(
-        Commands.run(() -> climber.setVolts(-m_ps4Controller.getLeftY() * 12), climber));
+        Commands.run(() -> climber.setVolts(-m_ps4Controller.getLeftY() * 12), climber)
+            .unless(
+                () -> {
+                  return Math.abs(m_ps4Controller.getLeftY()) < .05;
+                }));
   }
 
   /**

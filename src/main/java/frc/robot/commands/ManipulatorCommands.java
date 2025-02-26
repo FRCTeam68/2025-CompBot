@@ -64,18 +64,25 @@ public class ManipulatorCommands {
   public Command intakeCmd() {
     return Commands.sequence(
         new ConditionalCommand(
+            // already at intake, so just spin it up and wait for it
             intakeCoralCmd(),
-            Commands.none(),
+            new ConditionalCommand(
+                // we are at known location of algae for spin up and wait for algae
+                intakeAlgaeCmd(),
+
+                // we are at unknown location.  try to return to intake
+                // could reach this state if elevator/wrist has to be stopped manually.
+                returnToIntakeFromUnknownCmd(),
+
+                // second check if we are at algae intake position, if so intake algae
+                () -> {
+                  return location == LOCATIONS.A1
+                      || location == LOCATIONS.A2
+                      || location == LOCATIONS.P1;
+                }),
             () -> {
+              // first check if we are at intake already, if so just intake coral
               return location == LOCATIONS.INTAKE;
-            }),
-        new ConditionalCommand(
-            intakeAlgaeCmd(),
-            Commands.none(),
-            () -> {
-              return location == LOCATIONS.A1
-                  || location == LOCATIONS.A2
-                  || location == LOCATIONS.P1;
             }));
   }
 
@@ -86,6 +93,16 @@ public class ManipulatorCommands {
         Commands.waitUntil(() -> myIntakeSensor.havePiece()),
         Commands.waitSeconds(.1),
         myIntakeShooter.setSpeedCmd(0),
+
+        // index to have it flush to front
+        myIntakeShooter.setSpeedCmd(Constants.INTAKE_SHOOTER.COREL_INTAKE_INDEX_SPEED),
+        Commands.waitUntil(() -> !myIntakeSensor.havePiece()),
+        myIntakeShooter.setSpeedCmd(0),
+        Commands.runOnce(
+            () ->
+                myIntakeShooter.setPosition(
+                    myIntakeShooter.getPosition()
+                        - Constants.INTAKE_SHOOTER.COREL_INTAKE_INDEX_REVERSE)),
         Commands.runOnce(() -> location = LOCATIONS.INTAKE),
         Commands.runOnce(() -> shootSpeed = 0),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue)));
@@ -130,6 +147,10 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
         myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.INTAKE, true),
         myElevatorWrist.setPositionWristCmd(Constants.WRIST.INTAKE, true),
+        Commands.runOnce(() -> SmartDashboard.putString("atPosition", "INTAKE")),
+        Commands.runOnce(() -> location = LOCATIONS.INTAKE),
+        Commands.runOnce(() -> shootSpeed = 0),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)),
         intakeCoralCmd().unless(() -> do_not_start_intake));
   }
 
@@ -150,6 +171,8 @@ public class ManipulatorCommands {
   public Command IntakeToL4primeCmd() {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        Commands.runOnce(() -> location = LOCATIONS.TRANSITIONING),
+        Commands.runOnce(() -> shootSpeed = 0),
         myElevatorWrist.setPositionWristCmd(Constants.WRIST.SHOOTNET, true),
         myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.L4PRIME, true),
         myElevatorWrist.setPositionWristCmd(Constants.WRIST.L4PRIME, true),
@@ -162,6 +185,8 @@ public class ManipulatorCommands {
   public Command IntakeToL4Cmd() {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        Commands.runOnce(() -> location = LOCATIONS.TRANSITIONING),
+        Commands.runOnce(() -> shootSpeed = 0),
         myElevatorWrist.setPositionWristCmd(Constants.WRIST.L4, true),
         myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.L4, true),
         Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L4")),
@@ -173,6 +198,8 @@ public class ManipulatorCommands {
   public Command IntakeToL3Cmd() {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        Commands.runOnce(() -> location = LOCATIONS.TRANSITIONING),
+        Commands.runOnce(() -> shootSpeed = 0),
         myElevatorWrist.setPositionWristCmd(Constants.WRIST.L3, true),
         myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.L3, true),
         Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L3")),
@@ -184,6 +211,8 @@ public class ManipulatorCommands {
   public Command IntakeToL2Cmd() {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        Commands.runOnce(() -> location = LOCATIONS.TRANSITIONING),
+        Commands.runOnce(() -> shootSpeed = 0),
         myElevatorWrist.setPositionWristCmd(Constants.WRIST.L2, true),
         myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.L2, true),
         Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L2")),
@@ -195,6 +224,8 @@ public class ManipulatorCommands {
   public Command IntakeToL1Cmd() {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        Commands.runOnce(() -> location = LOCATIONS.TRANSITIONING),
+        Commands.runOnce(() -> shootSpeed = 0),
         myElevatorWrist.setPositionWristCmd(Constants.WRIST.L1, true),
         myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.L1, true),
         Commands.runOnce(() -> SmartDashboard.putString("atPosition", "L1")),
@@ -206,6 +237,8 @@ public class ManipulatorCommands {
   public Command IntakeToA2() {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        Commands.runOnce(() -> location = LOCATIONS.TRANSITIONING),
+        Commands.runOnce(() -> shootSpeed = 0),
         myElevatorWrist.setPositionWristCmd(Constants.WRIST.CRADLE, true),
         myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.A2, true),
         myElevatorWrist.setPositionWristCmd(Constants.WRIST.A2, true),
@@ -218,6 +251,8 @@ public class ManipulatorCommands {
   public Command IntakeToA1() {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        Commands.runOnce(() -> location = LOCATIONS.TRANSITIONING),
+        Commands.runOnce(() -> shootSpeed = 0),
         myElevatorWrist.setPositionWristCmd(Constants.WRIST.CRADLE, true),
         myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.A1, true),
         myElevatorWrist.setPositionWristCmd(Constants.WRIST.A1, true),
@@ -230,6 +265,8 @@ public class ManipulatorCommands {
   public Command GoToP1Cmd() {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        Commands.runOnce(() -> location = LOCATIONS.TRANSITIONING),
+        Commands.runOnce(() -> shootSpeed = 0),
         new ConditionalCommand(
             myElevatorWrist.setPositionWristCmd(Constants.WRIST.CRADLE, true),
             Commands.none(),
@@ -247,6 +284,8 @@ public class ManipulatorCommands {
   public Command GoToPreNetCmd() {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+        Commands.runOnce(() -> location = LOCATIONS.TRANSITIONING),
+        Commands.runOnce(() -> shootSpeed = 0),
         myElevatorWrist.setPositionWristCmd(Constants.WRIST.PRENET, true),
         myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.PRENET, true),
         Commands.runOnce(() -> SmartDashboard.putString("atPosition", "PRENET")),
@@ -255,23 +294,55 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
   }
 
-  public Command DeployClimberCmd(RollerSystem myClimber) {
+  public Command returnToIntakeFromUnknownCmd() {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.red, 4)),
-        Commands.runOnce(() -> SmartDashboard.putString("CLIMB", "deploying")),
-        Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.GOAL), myClimber),
-        Commands.waitUntil(() -> myClimber.atPosition()),
-        Commands.runOnce(() -> SmartDashboard.putString("CLIMB", "DEPLOYED")),
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)));
-  }
+        Commands.runOnce(() -> location = LOCATIONS.TRANSITIONING),
+        Commands.runOnce(() -> shootSpeed = 0),
+        new ConditionalCommand(
+            // wrist then elevator
+            Commands.sequence(
+                Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+                myElevatorWrist.setPositionWristCmd(Constants.WRIST.INTAKE, true),
+                myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.INTAKE, true),
+                Commands.runOnce(() -> SmartDashboard.putString("atPosition", "INTAKE")),
+                Commands.runOnce(() -> location = LOCATIONS.INTAKE),
+                Commands.runOnce(() -> shootSpeed = 0),
+                Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange))),
 
-  public Command RetractClimberCmd(RollerSystem myClimber) {
-    return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.white, 4)),
-        Commands.runOnce(() -> SmartDashboard.putString("CLIMB", "climbing")),
-        Commands.runOnce(() -> myClimber.setPosition(0), myClimber),
-        Commands.waitUntil(() -> myClimber.atPosition()),
-        Commands.runOnce(() -> SmartDashboard.putString("CLIMB", "CLIMBED")),
-        Commands.runOnce(() -> LEDSegment.all.setRainbowAnimation(4)));
+            new ConditionalCommand(
+                // wrist to safe position, then elevator, then wrist
+                Commands.sequence(
+                    Commands.runOnce(
+                        () -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+                    myElevatorWrist.setPositionWristCmd(Constants.WRIST.CRADLE, true),
+                    myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.INTAKE, true),
+                    myElevatorWrist.setPositionWristCmd(Constants.WRIST.INTAKE, true),
+                    Commands.runOnce(() -> SmartDashboard.putString("atPosition", "INTAKE")),
+                    Commands.runOnce(() -> location = LOCATIONS.INTAKE),
+                    Commands.runOnce(() -> shootSpeed = 0),
+                    Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange))),
+
+                // should not reach this if in valid block
+                Commands.runOnce(() -> System.out.println("\tunrecognized area.  cannot return to Intake")),
+
+                () -> {
+                  switch (myElevatorWrist.findMyBlockNumber()) {
+                    case 47, 45, 42, 35, 29, 27, 26, 23, 17:
+                      //  second, if 3 moves, wrist to safe, then elevator, then wrist
+                      return true;
+                    default:
+                      return false;
+                  }
+                }),
+                
+            () -> {
+              switch (myElevatorWrist.findMyBlockNumber()) {
+                case 46, 41, 34, 31, 28, 25, 22, 19, 16, 15, 14, 13, 10, 9, 8, 7, 4, 3, 2, 1, 0:
+                  // first, if simple 2 moves: wrist then elevator
+                  return true;
+                default:
+                  return false;
+              }
+            }));
   }
 }

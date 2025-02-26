@@ -267,15 +267,76 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             }));
   }
 
-  // @AutoLogOutput
-  // public Command shootAlgaeAtNetCmd(double e_goal, double w_goal) {
-  //   return Commands.sequence(
-  //       runOnce(() -> elevator.setPosition(e_goal)), runOnce(() -> wrist.setPosition(w_goal)));
-  // }
+  public final class BlockThresholds {
+    public static final int NUM_ROWS = 8;
+    public static final int NUM_SLOTS = 6;
+    public static final double EROW0_MIN = 0;
+    public static final double EROW0_MAX = 1;
+    public static final double EROW1_MAX = 3.4;
+    public static final double EROW2_MAX = 7.3;
+    public static final double EROW3_MAX = 11.2;
+    public static final double EROW4_MAX = 17.1;
+    public static final double EROW5_MAX = 24;
+    public static final double EROW6_MAX = 25.3;
+    public static final double EROW7_MAX = 27;
+    public static final double WSLOT0_MIN = 0;
+    public static final double WSLOT0_MAX = 3.8;
+    public static final double WSLOT1_MAX = 4.0;
+    public static final double WSLOT2_MAX = 13;
+    public static final double WSLOT3_MAX = 14.5;
+    public static final double WSLOT4_MAX = 26;
+    public static final double WSLOT5_MAX = 34;
+  }
 
-  // public boolean atPosition() {
-  //   return elevator.atPosition() && wrist.atPosition();
-  // }
+  public int findMyBlockNumber() {
+    int row = -1;
+    int slot = -1;
+
+    double e_now = elevator.getPosition();
+    double w_now = wrist.getPosition();
+
+    if (e_now < BlockThresholds.EROW0_MIN) {
+      // error
+    } else if (e_now < BlockThresholds.EROW0_MAX) {
+      row = 0;
+    } else if (e_now < BlockThresholds.EROW1_MAX) {
+      row = 1;
+    } else if (e_now < BlockThresholds.EROW2_MAX) {
+      row = 2;
+    } else if (e_now < BlockThresholds.EROW3_MAX) {
+      row = 3;
+    } else if (e_now < BlockThresholds.EROW4_MAX) {
+      row = 4;
+    } else if (e_now < BlockThresholds.EROW5_MAX) {
+      row = 5;
+    } else if (e_now < BlockThresholds.EROW6_MAX) {
+      row = 6;
+    } else if (e_now < BlockThresholds.EROW7_MAX) {
+      row = 7;
+    } else {
+      // error
+    }
+
+    if (w_now < BlockThresholds.WSLOT0_MIN) {
+      // error
+    } else if (e_now < BlockThresholds.WSLOT0_MAX) {
+      slot = 0;
+    } else if (e_now < BlockThresholds.WSLOT1_MAX) {
+      slot = 1;
+    } else if (e_now < BlockThresholds.WSLOT2_MAX) {
+      slot = 2;
+    } else if (e_now < BlockThresholds.WSLOT3_MAX) {
+      slot = 3;
+    } else if (e_now < BlockThresholds.WSLOT4_MAX) {
+      slot = 4;
+    } else if (e_now < BlockThresholds.WSLOT5_MAX) {
+      slot = 5;
+    } else {
+      // error
+    }
+
+    return slot * BlockThresholds.NUM_SLOTS + row;
+  }
 
   public Command BumpElevatorPosition(double bumpValue) {
     // double elevatorNow = elevator.getPosition();
