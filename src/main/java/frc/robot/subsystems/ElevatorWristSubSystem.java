@@ -98,7 +98,9 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             Constants.ELEVATOR_SENSOR.CANBUS,
             Constants.ELEVATOR_SENSOR.THRESHOLD);
 
-    wrist.setPosition(0);
+    // this should account for wrist not starting in zero position
+    wrist.setPosition(
+        wristCANcoder.getPosition().getValueAsDouble() * Constants.WRIST.CANCODER_FACTOR);
     elevator.setPosition(0);
 
     zero();
