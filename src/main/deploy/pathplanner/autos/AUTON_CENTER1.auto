@@ -5,15 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Center-H-L4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "coralToL4"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Center-H-L4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "coralToL4"
+                }
+              }
+            ]
           }
         },
         {
@@ -23,15 +30,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "H-AlgaeA1IntakePosition"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "algaeFromA1"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "H-AlgaeA1IntakePosition"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "algaeFromA1"
+                }
+              }
+            ]
           }
         },
         {

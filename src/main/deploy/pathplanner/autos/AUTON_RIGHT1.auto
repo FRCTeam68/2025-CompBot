@@ -5,51 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "R1_Right-E"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "coralToL4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shootCoral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "toIntakeCoral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "R1_E-Source"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "intakeCoral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "R1_Source-C"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "coralToL4"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "R1_Right-E"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "coralToL4"
+                }
+              }
+            ]
           }
         },
         {
@@ -59,33 +30,54 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "toIntakeCoral"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "R1_E-Source"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "toIntakeCoral"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intakeCoral"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": " R1_C-Source"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "intakeCoral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "R1_Source-D"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "coralToL4"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "R1_Source-C"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "coralToL4"
+                }
+              }
+            ]
           }
         },
         {
@@ -95,21 +87,92 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "toIntakeCoral"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": " R1_C-Source"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "toIntakeCoral"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intakeCoral"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "R1_D-Source"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "R1_Source-D"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "coralToL4"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "intakeCoral"
+            "name": "shootCoral"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "R1_D-Source"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "toIntakeCoral"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intakeCoral"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
