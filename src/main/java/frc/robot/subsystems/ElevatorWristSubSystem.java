@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
-// import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
 import lombok.Getter;
@@ -119,53 +118,6 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     wristAngle = wristCANcoder.getPosition().getValueAsDouble();
     SmartDashboard.putNumber("WristAngle", wristAngle);
     SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
-
-    // double elevatorNow = elevator.getPosition();
-    // double wristNow = wrist.getPosition();
-
-    // // stop wrist if beyond limits
-    // if (wristNow < Constants.WRIST.MIN_POSITION - 0.2) {
-    //   wrist.stop();
-    //   // wrist.setPosition(Constants.WRIST.MIN_POSITION);
-    //   System.out.println("********** min wrist angle: " + Constants.WRIST.MIN_POSITION);
-    // } else if (wristNow > Constants.WRIST.MAX_POSITION_AT_P1) {
-    //   wrist.stop();
-    //   // wrist.setPosition(Constants.WRIST.MAX_POSITION_AT_P1);
-    //   System.out.println("********** max wrist angle: " + Constants.WRIST.MAX_POSITION_AT_P1);
-    // } else if (wristNow < Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR
-    //     && elevatorNow > Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR) {
-    //   // stop the elevator
-    //   wrist.stop();
-    //   elevator.stop();
-    //   // wrist.setPosition(Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR);
-    //   // elevator.setPosition(Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR);
-    //   System.out.println(
-    //       "********** wrist angle cannot be less than: "
-    //           + Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR
-    //           + ", when elevator above height: "
-    //           + Constants.ELEVATOR.MAX_POSITION_WRIST_NOT_CLEAR);
-    // }
-
-    // // stop elevator if beyond limits
-    // if (elevatorNow < Constants.ELEVATOR.MIN_POSITION - 0.25) {
-    //   // stop the elevator at minimum
-    //   elevator.stop();
-    //   // elevator.setPosition(Constants.ELEVATOR.MIN_POSITION);
-    //   System.out.println("********** min elevator height: " + Constants.ELEVATOR.MIN_POSITION);
-    // } else if (elevatorNow > Constants.ELEVATOR.MAX_POSITION) {
-    //   elevator.stop();
-    //   // elevator.setPosition(Constants.ELEVATOR.MAX_POSITION);
-    //   System.out.println("********** max elevator height: " + Constants.ELEVATOR.MAX_POSITION);
-    // } else if (wristNow > Constants.WRIST.MAX_POSITION_AT_P1
-    //     && elevatorNow < Constants.ELEVATOR.MIN_POSITION_AT_P1) {
-    //   elevator.stop();
-    //   // elevator.setPosition(Constants.ELEVATOR.MIN_POSITION_AT_P1);
-    //   System.out.println(
-    //       "********** min elelvator height angle: "
-    //           + Constants.ELEVATOR.MIN_POSITION_AT_P1
-    //           + ", when wrist at angle: "
-    //           + Constants.WRIST.MAX_POSITION_AT_P1);
-    // }
   }
 
   @AutoLogOutput
@@ -177,10 +129,15 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             Commands.none(),
             () -> {
               // if wrist between 3.8 and 4 and above 21 (you are at L4),
-              // go down to safe position to do wrist next
-              return wrist.getPosition() > Constants.WRIST.MIN_SLOT1_TO_ELEVATE
-                  && wrist.getPosition() < Constants.WRIST.MAX_SLOT1_TO_ELEVATE
-                  && elevator.getPosition() > Constants.ELEVATOR.MAX_POSITION_BLOCK4;
+              // or
+              // if elevator in block3 and wrist > slot3 (you are at A1),
+              // go up to safe position to do wrist next
+              return (wrist.getPosition() > Constants.WRIST.MIN_SLOT1_TO_ELEVATE &&
+                      wrist.getPosition() < Constants.WRIST.MAX_SLOT1_TO_ELEVATE &&
+                      elevator.getPosition() > Constants.ELEVATOR.MAX_POSITION_BLOCK4)
+                  || (elevator.getPosition() > Constants.ELEVATOR.MAX_POSITION_BLOCK2 &&
+                      elevator.getPosition() < Constants.ELEVATOR.MIN_POSITION_BLOCK4 &&
+                      wrist.getPosition() > Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR);
             }),
         new ConditionalCommand( // true, wrist first, then elevator
             runOnce(() -> wrist.setPosition(Constants.WRIST.CRADLE))
@@ -231,18 +188,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                           || (elevator.getPosition() < Constants.ELEVATOR.MAX_POSITION_BLOCK4
                               && elevator.getPosition() > Constants.ELEVATOR.MIN_POSITION_BLOCK4)));
             }));
-    // see if brake mode stops the squealing and elevator stays put.
-    // what current does the pull?
-    // runOnce(() -> elevator.setVolts(0)));
   }
-
-  // // go to safe position everytime
-  // runOnce(() -> wrist.setPosition(Constants.WRIST.CRADLE)),
-  // new WaitUntilCommand(() -> wrist.atPosition()),
-  // runOnce(() -> elevator.setPosition(e_goal)),
-  // new WaitUntilCommand(() -> elevator.atPosition()),
-  // runOnce(() -> wrist.setPosition(w_goal)),
-  // new WaitUntilCommand(() -> wrist.atPosition()));
 
   // no checks.  you better know what you are doing !
   public Command setPositionElevatorCmd(double e_goal, boolean waitForIt) {

@@ -186,13 +186,13 @@ public final class Constants {
             .withMotionMagicJerk(2000);
   }
 
-  public static final class RED_TAGS {
-    public static final int[] stage = {11, 12, 13};
-  }
+  // public static final class RED_TAGS {
+  //   public static final int[] stage = {11, 12, 13};
+  // }
 
-  public static final class BLUE_TAGS {
-    public static final int[] stage = {14, 15, 16};
-  }
+  // public static final class BLUE_TAGS {
+  //   public static final int[] stage = {14, 15, 16};
+  // }
 
   public static final class LightsConstants {
     public static final int CANDLE_PORT = 60;
