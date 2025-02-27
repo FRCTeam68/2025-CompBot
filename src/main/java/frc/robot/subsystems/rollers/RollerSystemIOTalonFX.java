@@ -78,6 +78,10 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
       config.MotorOutput.NeutralMode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
       config.CurrentLimits.SupplyCurrentLimit = currentLimitAmps;
       config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+      config.CurrentLimits.StatorCurrentLimit = currentLimitAmps;
+      config.CurrentLimits.StatorCurrentLimitEnable = true;
+
       config.TorqueCurrent.PeakForwardTorqueCurrent = currentLimitAmps;
       config.TorqueCurrent.PeakReverseTorqueCurrent = -currentLimitAmps;
       tryUntilOk(5, () -> talon.getConfigurator().apply(config));

@@ -34,6 +34,16 @@ public class ManipulatorCommands {
         Commands.waitUntil(() -> intake_sensor.havePiece()),
         Commands.waitSeconds(.1),
         intake.setSpeedCmd(0),
+        Commands.waitSeconds(.1),
+        // index to have it flush to front
+        intake.setSpeedCmd(Constants.INTAKE_SHOOTER.COREL_INTAKE_INDEX_SPEED),
+        Commands.waitUntil(() -> intake_sensor.havePiece() == false),
+        intake.setSpeedCmd(0),
+        Commands.waitSeconds(.1),
+        Commands.runOnce(
+            () ->
+                intake.setPosition(
+                    intake.getPosition() - Constants.INTAKE_SHOOTER.COREL_INTAKE_INDEX_REVERSE)),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue)));
   }
 

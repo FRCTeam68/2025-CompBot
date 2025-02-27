@@ -132,7 +132,7 @@ public class RobotContainer {
                 new RollerSystemIOTalonFX(
                     Constants.CLIMBER.CANID,
                     Constants.CLIMBER.CANBUS,
-                    40,
+                    80,
                     true,
                     0,
                     false,
@@ -144,6 +144,7 @@ public class RobotContainer {
         climber.setAtSetpointBand(.3);
         climber.setPieceCurrentThreshold(
             40); // does not have a piece but might want to use to detect overrun limits?
+        climber.zero();
 
         lightsSubsystem = new LightsSubsystem();
         break;
@@ -396,7 +397,8 @@ public class RobotContainer {
     // m_ps4Controller.axisGreaterThan(5,0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake2Speed((-Constants.INTAKE.BUMP_VALUE))));
     // m_ps4Controller.axisLessThan(5,-0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake2Speed((Constants.INTAKE.BUMP_VALUE))));
 
-    // m_ps4Controller.share().onTrue(Commands.runOnce(() -> m_NoteSubSystem.resetSetpoints()));
+    // use incase you notice red light on dashboard.
+    // m_ps4Controller.share().onTrue(Commands.runOnce(() -> elevatorWrist.zero()));
 
     m_ps4Controller
         .PS()
@@ -415,8 +417,15 @@ public class RobotContainer {
     // //Left Joystick Y
     // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(
     // m_ps4Controller.axisLessThan(1,-0.7).whileTrue(
+
+    // climber.setDefaultCommand(
+    //     Commands.run(() -> climber.setVolts(-m_ps4Controller.getLeftY() * 12), climber));
     climber.setDefaultCommand(
-        Commands.run(() -> climber.setVolts(-m_ps4Controller.getLeftY() * 12), climber));
+        Commands.run(() -> climber.setVolts(-m_ps4Controller.getLeftY() * 12), climber)
+            .unless(
+                () -> {
+                  return Math.abs(m_ps4Controller.getLeftY()) < .05;
+                }));
   }
 
   /**

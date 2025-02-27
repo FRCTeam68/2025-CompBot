@@ -228,10 +228,10 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                               && elevator.getPosition() > Constants.ELEVATOR.MIN_POSITION_AT_P1)
                           || (elevator.getPosition() < Constants.ELEVATOR.MAX_POSITION_BLOCK4
                               && elevator.getPosition() > Constants.ELEVATOR.MIN_POSITION_BLOCK4)));
-            }),
-        // see if brake mode stops the squealing and elevator stays put.
-        // what current does the pull?
-        runOnce(() -> elevator.setVolts(0)));
+            }));
+    // see if brake mode stops the squealing and elevator stays put.
+    // what current does the pull?
+    // runOnce(() -> elevator.setVolts(0)));
   }
 
   // // go to safe position everytime

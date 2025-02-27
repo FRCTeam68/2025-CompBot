@@ -77,6 +77,8 @@ public final class Constants {
     public static final String CANBUS = "rio";
     public static final double MAX_SPEED = 100; // rps
     public static final double CORAL_INTAKE_SPEED = 30;
+    public static final double COREL_INTAKE_INDEX_SPEED = 3; // speed to find back edge
+    public static final double COREL_INTAKE_INDEX_REVERSE = 3; // revolutions to reverse
     public static final double CORAL_SHOOT_SPEED = 40;
     public static final double CORAL_SHOOT_TIMEOUT = 2;
     public static final double ALGAE_INTAKE_SPEED = -40;
@@ -172,8 +174,8 @@ public final class Constants {
   public static final class CLIMBER {
     public static final int CANID = 40;
     public static final String CANBUS = "rio";
-    public static final double GOAL = 220;
-    public static final double MAX_HEIGHT = 250;
+    public static final double GOAL = 39;
+    public static final double MAX_HEIGHT = 45;
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(10).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =

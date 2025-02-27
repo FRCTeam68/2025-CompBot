@@ -35,27 +35,60 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "AlgaeA1IntakePosition-A1"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "AlgaeA1IntakePosition-A1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intakeAlgae"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "A1-Processer"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 1.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "algaeToP1"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "intakeAlgae"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "A1-Processer"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shootAlgae"
+            "name": "shootAlgaeAtP1"
           }
         }
       ]
