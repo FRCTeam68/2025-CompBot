@@ -98,9 +98,9 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             Constants.ELEVATOR_SENSOR.THRESHOLD);
 
     // this should account for wrist not starting in zero position
-    wrist.setPosition(
-        wristCANcoder.getPosition().getValueAsDouble() * Constants.WRIST.CANCODER_FACTOR);
-    elevator.setPosition(0);
+    // wrist.setPosition(
+    //     wristCANcoder.getPosition().getValueAsDouble() * Constants.WRIST.CANCODER_FACTOR);
+    // elevator.setPosition(0);
 
     zero();
   }
@@ -130,14 +130,16 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             () -> {
               // if wrist between 3.8 and 4 and above 21 (you are at L4),
               // or
-              // if elevator in block3 and wrist > slot3 (you are at A1),
+              // if elevator goal above current goal (A1 going to L3, L4 or PRENET)
+              // elevator in block3 and wrist > slot3 (you are at A1),
               // go up to safe position to do wrist next
-              return (wrist.getPosition() > Constants.WRIST.MIN_SLOT1_TO_ELEVATE &&
-                      wrist.getPosition() < Constants.WRIST.MAX_SLOT1_TO_ELEVATE &&
-                      elevator.getPosition() > Constants.ELEVATOR.MAX_POSITION_BLOCK4)
-                  || (elevator.getPosition() > Constants.ELEVATOR.MAX_POSITION_BLOCK2 &&
-                      elevator.getPosition() < Constants.ELEVATOR.MIN_POSITION_BLOCK4 &&
-                      wrist.getPosition() > Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR);
+              return (wrist.getPosition() > Constants.WRIST.MIN_SLOT1_TO_ELEVATE
+                      && wrist.getPosition() < Constants.WRIST.MAX_SLOT1_TO_ELEVATE
+                      && elevator.getPosition() > Constants.ELEVATOR.MAX_POSITION_BLOCK4)
+                  || (elevator.getPosition() < e_goal
+                      && elevator.getPosition() > Constants.ELEVATOR.MAX_POSITION_BLOCK2
+                      && elevator.getPosition() < Constants.ELEVATOR.MIN_POSITION_BLOCK4
+                      && wrist.getPosition() > Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR);
             }),
         new ConditionalCommand( // true, wrist first, then elevator
             runOnce(() -> wrist.setPosition(Constants.WRIST.CRADLE))

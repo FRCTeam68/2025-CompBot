@@ -53,9 +53,9 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
         shooter.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
-        Commands.waitUntil(() -> intake_sensor.havePiece() == false),
-        Commands.waitSeconds(1),
-        shooter.setSpeedCmd(0),
+        // Commands.waitUntil(() -> intake_sensor.havePiece() == false),
+        Commands.waitSeconds(0.2),
+        // shooter.setSpeedCmd(0),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
   }
 
@@ -85,7 +85,7 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
         shooter.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_SPEED),
-        Commands.waitSeconds(2),
+        Commands.waitSeconds(.5),
         shooter.setSpeedCmd(0),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
   }
