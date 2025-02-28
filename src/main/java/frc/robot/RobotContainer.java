@@ -18,7 +18,6 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS4Controller.Axis;
@@ -287,38 +286,38 @@ public class RobotContainer {
             () -> -m_xboxController.getLeftX(),
             () -> -m_xboxController.getRightX()));
 
-    // Lock to 0° when A button is held
-    m_xboxController
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -m_xboxController.getLeftY(),
-                () -> -m_xboxController.getLeftX(),
-                () -> new Rotation2d()));
+    // // Lock to 0° when A button is held
+    // m_xboxController
+    //     .a()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> -m_xboxController.getLeftY(),
+    //             () -> -m_xboxController.getLeftX(),
+    //             () -> new Rotation2d()));
 
-    m_xboxController
-        .y()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -m_xboxController.getLeftY(),
-                () -> -m_xboxController.getLeftX(),
-                () -> new Rotation2d(vision.getTargetX(0).getRadians())));
+    // m_xboxController
+    //     .y()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> -m_xboxController.getLeftY(),
+    //             () -> -m_xboxController.getLeftX(),
+    //             () -> new Rotation2d(vision.getTargetX(0).getRadians())));
 
-    // Switch to X pattern when X button is pressed
-    m_xboxController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    // // Switch to X pattern when X button is pressed
+    // m_xboxController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // Reset gyro to 0° when B button is pressed
-    m_xboxController
-        .b()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-                    drive)
-                .ignoringDisable(true));
+    // // Reset gyro to 0° when B button is pressed
+    // m_xboxController
+    //     .b()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //                 () ->
+    //                     drive.setPose(
+    //                         new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+    //                 drive)
+    //             .ignoringDisable(true));
 
     // Auto aim command example
     // @SuppressWarnings("resource")
@@ -336,6 +335,9 @@ public class RobotContainer {
     //                 aimController.calculate(vision.getTargetX(0).getRadians()));
     //             },
     //             drive));
+
+    // same as on PS4 cross
+    m_xboxController.a().onTrue(ManipulatorCommands.CoralL1Cmd(elevatorWrist));
 
     m_xboxController
         .back()
