@@ -203,4 +203,8 @@ public class RollerSystem extends SubsystemBase {
   public void zero() {
     io.zero();
   }
+
+  public void zero(double setpoint) {
+    io.zero(setpoint);
+  }
 }

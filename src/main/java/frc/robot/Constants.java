@@ -123,7 +123,8 @@ public final class Constants {
     public static final double P1 = 33;
     public static final double BUMP_VALUE = .5; // rotations
     public static final double CANCODER_OFFSET = 0.064453125;
-    public static final double CANCODER_FACTOR = 1.4634 / 0.02197;
+    public static final double CANCODER_FACTOR = 30.1567 / 0.4653;
+    // 1.4234 / 0.02197; // 1.4634 / 0.02197;
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(6).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =

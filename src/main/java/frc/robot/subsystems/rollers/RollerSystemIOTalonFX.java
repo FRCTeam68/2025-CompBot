@@ -156,6 +156,12 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   }
 
   @Override
+  public void zero(double setpoint) {
+    setVolts(0);
+    talon.setPosition(setpoint);
+  }
+
+  @Override
   public void setPID(Slot0Configs newconfig) {
     config.Slot0.kP = newconfig.kP;
     config.Slot0.kI = newconfig.kI;

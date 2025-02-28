@@ -44,6 +44,8 @@ public interface RollerSystemIO {
 
   default void zero() {}
 
+  default void zero(double setpoint) {}
+
   /** Set P, I, and D gains for closed loop control on drive motor. */
   public default void setPID(Slot0Configs newconfig) {}
 
