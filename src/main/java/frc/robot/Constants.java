@@ -181,9 +181,9 @@ public final class Constants {
         new Slot0Configs().withKP(10).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(200)
-            .withMotionMagicAcceleration(400)
-            .withMotionMagicJerk(2000);
+            .withMotionMagicCruiseVelocity(50)
+            .withMotionMagicAcceleration(100)
+            .withMotionMagicJerk(500);
   }
 
   // public static final class RED_TAGS {
