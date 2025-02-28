@@ -5,51 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Start_Left_I-L4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "coralToL4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shootCoral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "toIntakeCoral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "L1_I-Coral"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "intakeCoral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Coral_K-L4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "coralToL4"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Start_Left_I-L4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "coralToL4"
+                }
+              }
+            ]
           }
         },
         {
@@ -59,33 +30,111 @@
           }
         },
         {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "L1_I-Coral"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "toIntakeCoral"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intakeCoral"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Coral_K-L4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "coralToL4"
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "toIntakeCoral"
+            "name": "shootCoral"
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "L1_K-Source"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "L1_K-Source"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "toIntakeCoral"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intakeCoral"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "intakeCoral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "L1_Source-L"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "coralToL4"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "L1_Source-L"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "coralToL4"
+                }
+              }
+            ]
           }
         },
         {
