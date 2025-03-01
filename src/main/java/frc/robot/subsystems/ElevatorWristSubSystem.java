@@ -102,6 +102,10 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     //     wristCANcoder.getPosition().getValueAsDouble() * Constants.WRIST.CANCODER_FACTOR);
     // elevator.setPosition(0);
 
+    wristAngle = wristCANcoder.getPosition().getValueAsDouble();
+    SmartDashboard.putNumber("WristAngle", wristAngle);
+    SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
+
     zero();
   }
 
@@ -117,7 +121,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
 
     wristAngle = wristCANcoder.getPosition().getValueAsDouble();
     SmartDashboard.putNumber("WristAngle", wristAngle);
-    SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
+    // SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
   }
 
   @AutoLogOutput

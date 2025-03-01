@@ -339,9 +339,10 @@ public class RobotContainer {
     // same as on PS4 cross
     m_xboxController.a().onTrue(ManipulatorCommands.CoralL1Cmd(elevatorWrist));
 
-    m_xboxController
-        .back()
-        .onTrue(Commands.runOnce(() -> drive.setPose(new Pose2d()), drive).ignoringDisable(true));
+    // m_xboxController
+    //     .back()
+    //     .onTrue(Commands.runOnce(() -> drive.setPose(new Pose2d()),
+    // drive).ignoringDisable(true));
 
     m_xboxController
         .leftTrigger()
@@ -355,9 +356,9 @@ public class RobotContainer {
 
     m_xboxController.rightBumper().onTrue(ManipulatorCommands.shootAlgaeP1Cmd(intakeShooter));
 
-    m_ps4Controller
-        .touchpad()
-        .onTrue(ManipulatorCommands.ShootAlgaeToNetCmd(elevatorWrist, intakeShooter));
+    // m_ps4Controller
+    //     .touchpad()
+    //     .onTrue(ManipulatorCommands.ShootAlgaeToNetCmd(elevatorWrist, intakeShooter));
 
     m_xboxController
         .start()
@@ -371,8 +372,9 @@ public class RobotContainer {
 
     m_ps4Controller.cross().onTrue(ManipulatorCommands.CoralL1Cmd(elevatorWrist));
 
-    m_ps4Controller.L1().onTrue(ManipulatorCommands.AlgaeToPreNetCmd(elevatorWrist));
+    // m_ps4Controller.L1().onTrue(ManipulatorCommands.AlgaeToPreNetCmd(elevatorWrist));
 
+    m_ps4Controller.L1().onTrue(ManipulatorCommands.AlgaeToP1(elevatorWrist));
     m_ps4Controller.L2().onTrue(ManipulatorCommands.AlgaeToP1(elevatorWrist));
 
     m_ps4Controller.R1().onTrue(ManipulatorCommands.AlgaeAtA1(elevatorWrist));
@@ -402,11 +404,11 @@ public class RobotContainer {
     // use incase you notice red light on dashboard.
     // m_ps4Controller.share().onTrue(Commands.runOnce(() -> elevatorWrist.zero()));
 
-    m_ps4Controller
-        .PS()
-        .onTrue(
-            Commands.runOnce(() -> m_pitModeActive = !m_pitModeActive)
-                .andThen(() -> SmartDashboard.putBoolean("PitModeActive", m_pitModeActive)));
+    // m_ps4Controller
+    //     .PS()
+    //     .onTrue(
+    //         Commands.runOnce(() -> m_pitModeActive = !m_pitModeActive)
+    //             .andThen(() -> SmartDashboard.putBoolean("PitModeActive", m_pitModeActive)));
 
     // //Right Joystick Y
     m_ps4Controller
