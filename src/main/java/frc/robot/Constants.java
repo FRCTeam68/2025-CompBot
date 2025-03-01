@@ -149,7 +149,7 @@ public final class Constants {
     public static final double SHOOTNET = 26.5;
     public static final double L4 = 23.5;
     public static final double PRENET = 20;
-    public static final double A2 = 14.5;
+    public static final double A2 = 15.5;
     public static final double L3 = 12;
     public static final double A1 = 9;
     public static final double L2 = 4.5;
