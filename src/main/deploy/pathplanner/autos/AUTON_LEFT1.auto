@@ -19,6 +19,12 @@
                 "data": {
                   "name": "coralToL4"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "indexCoral"
+                }
               }
             ]
           }
@@ -76,6 +82,12 @@
                 "data": {
                   "name": "coralToL4"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "indexCoral"
+                }
               }
             ]
           }
@@ -132,6 +144,12 @@
                 "type": "named",
                 "data": {
                   "name": "coralToL4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "indexCoral"
                 }
               }
             ]

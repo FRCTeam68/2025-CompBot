@@ -217,6 +217,8 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "intakeCoral", ManipulatorCommands.intakeCoralCmd(intakeShooter, intakeCoralSensor));
     NamedCommands.registerCommand(
+        "indexCoral", ManipulatorCommands.indexCoralCmd(intakeShooter, intakeCoralSensor));
+    NamedCommands.registerCommand(
         "shootAlgaeAtP1", ManipulatorCommands.shootAlgaeP1Cmd(intakeShooter));
     NamedCommands.registerCommand(
         "intakeAlgae", ManipulatorCommands.intakeAlgaeA1A2Cmd(intakeShooter));
@@ -347,7 +349,7 @@ public class RobotContainer {
 
     m_xboxController
         .leftTrigger()
-        .onTrue(ManipulatorCommands.intakeCoralCmd(intakeShooter, intakeCoralSensor));
+        .onTrue(ManipulatorCommands.intakeIndexCoralCmd(intakeShooter, intakeCoralSensor));
 
     m_xboxController
         .rightTrigger()
