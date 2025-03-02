@@ -126,12 +126,12 @@ public final class Constants {
     public static final double CANCODER_OFFSET = 0.064453125;
     public static final double CANCODER_FACTOR = 1.4634 / 0.02197;
     public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(6).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
+        new Slot0Configs().withKP(40).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(20)
-            .withMotionMagicAcceleration(40)
-            .withMotionMagicJerk(400);
+            .withMotionMagicCruiseVelocity(60)
+            .withMotionMagicAcceleration(240)
+            .withMotionMagicJerk(10000);
   }
 
   public static final class ELEVATOR { // old AngleSubSystem
@@ -158,11 +158,11 @@ public final class Constants {
     public static final double L1 = 0;
     public static final double BUMP_VALUE = .5; // rotations
     public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(4.8).withKI(0).withKD(0).withKS(0.5).withKV(0.2).withKA(0);
+        new Slot0Configs().withKP(10).withKI(0).withKD(0).withKS(0.5).withKV(0.2).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(20)
-            .withMotionMagicAcceleration(40)
+            .withMotionMagicCruiseVelocity(40)
+            .withMotionMagicAcceleration(120)
             .withMotionMagicJerk(400);
   }
 
