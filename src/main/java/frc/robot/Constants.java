@@ -79,7 +79,7 @@ public final class Constants {
     public static final double CORAL_INTAKE_SPEED = 30;
     public static final double COREL_INTAKE_INDEX_SPEED = 3; // speed to find back edge
     public static final double COREL_INTAKE_INDEX_REVERSE = 4; // revolutions to reverse
-    public static final double CORAL_SHOOT_SPEED = 40;
+    public static final double CORAL_SHOOT_SPEED = 30; // 40
     public static final double CORAL_SHOOT_TIMEOUT = 2;
     public static final double ALGAE_INTAKE_SPEED = -40;
     public static final double ALGAE_HOLD_SPEED = -5;
