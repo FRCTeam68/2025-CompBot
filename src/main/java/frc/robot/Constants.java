@@ -108,24 +108,25 @@ public final class Constants {
     public static final String CANBUS = "rio";
     public static final double MIN_POSITION = 0;
     public static final double MIN_SLOT1_TO_ELEVATE = 4.0; // 3.8;
+    public static final double SLOT1_TO_ELEVATE = 4.2; // packaged position to lift elevator
     public static final double MAX_SLOT1_TO_ELEVATE = 4.3; // 4.0;
     public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 14.5; // min slot2
     public static final double MAX_POSITION_AT_ELEVATOR_MIN = 26; // max slot2
     public static final double MAX_POSITION_AT_P1 = 34;
-    public static final double L1 = 1.5;
+    public static final double MAX_POSITION = 34;
+    public static final double INTAKE = 1.5;
+    public static final double L1 = 27.5;
     public static final double L2 = 4.2; // 3.9; //
     public static final double L3 = 4.2; // 3.9; //
     public static final double L4 = 4.2; // 3.9; // all 3 of these must be the same value
-    public static final double CRADLE = 15;
-    public static final double SHOOTNET = 15;
-    public static final double PRENET = 21;
+    public static final double CRADLE = 12;
+    public static final double SHOOTNET = 10;
+    public static final double PRENET = 15;
     public static final double A2 = 27.5;
     public static final double A1 = 27.5;
     public static final double P1 = 33;
     public static final double BUMP_VALUE = .5; // rotations
-    public static final double SAFE = 14.36;
-    public static final double CORAL_LIFT = 4.2;
-    public static final double ERROR = 0.1;
+    public static final double SAFE = 14.5; // minimum position to move full elevator travel
     public static final double CANCODER_OFFSET = 0.064453125;
     public static final double CANCODER_FACTOR = 1.4634 / 0.02197;
     public static final Slot0Configs SLOT0_CONFIGS =
@@ -150,20 +151,24 @@ public final class Constants {
     public static final double MIN_POSITION_AT_P1 = 3.4; // MIN_BLOCK2
     public static final double MAX_POSITION_BLOCK0 = 1;
     public static final double MIN_POSITION = 0; // /MIN_BLOCK0
-    public static final double SHOOTNET = 26.5;
+    public static final double SHOOTNET = 27;
     public static final double L4 = 23.5;
-    public static final double PRENET = 20;
+    public static final double PRENET = 24;
     public static final double A2 = 15.5;
     public static final double L3 = 12;
     public static final double A1 = 9;
     public static final double L2 = 4.5;
     public static final double P1 = 3.4;
-    public static final double L1 = 0;
+    public static final double L1 = 8;
+    public static final double INTAKE = 0;
     public static final double BUMP_VALUE = .5; // rotations
+    // sequencing contants
     public static final double MAX_LOW_SAFE = .85;
     public static final double MIN_MID_SAFE = 11.78;
     public static final double MAX_MID_SAFE = 17.02;
     public static final double MIN_HIGH_SAFE = 22.64;
+    public static final double MAX_LOW_WRIST_MOVE_FROM_SAFE = 3; // height to start wrist move if wrist is in safe position
+    //
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(10).withKI(0).withKD(0).withKS(0.5).withKV(0.2).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
@@ -185,6 +190,7 @@ public final class Constants {
     public static final String CANBUS = "rio";
     public static final double GOAL = 102; // 52;
     public static final double MAX_HEIGHT = 60;
+    public static final double ZEROING_CURRENT_LIMIT = 10; // current limit when zeroing
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(10).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =

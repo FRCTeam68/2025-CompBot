@@ -78,6 +78,7 @@ public class RobotContainer {
   private static LoggedDashboardChooser<Command> autoChooser;
   private static String m_autonName;
 
+  private boolean algaeCradleFlag = false;
   private boolean m_pitModeActive = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -231,7 +232,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("algaeFromA1", ManipulatorCommands.AlgaeAtA1(elevatorWrist));
     NamedCommands.registerCommand("algaeToP1", ManipulatorCommands.AlgaeToP1(elevatorWrist));
     NamedCommands.registerCommand(
-        "algaeToPreNet", ManipulatorCommands.AlgaeToPreNetCmd(elevatorWrist));
+        "algaeToeNet", ManipulatorCommands.AlgaeToNetCmd(elevatorWrist));
     NamedCommands.registerCommand(
         "shootAlgaeAtNet", ManipulatorCommands.ShootAlgaeToNetCmd(elevatorWrist, intakeShooter));
 
@@ -375,14 +376,14 @@ public class RobotContainer {
 
     m_ps4Controller.cross().onTrue(ManipulatorCommands.CoralL1Cmd(elevatorWrist));
 
-    // m_ps4Controller.L1().onTrue(ManipulatorCommands.AlgaeToPreNetCmd(elevatorWrist));
+    if (algaeCradleFlag == false) {
+        m_ps4Controller.L1().whileTrue(ManipulatorCommands.AlgaeToP1(elevatorWrist));
+        m_ps4Controller.L2().whileTrue(ManipulatorCommands.AlgaeToNetCmd(elevatorWrist));
 
-    m_ps4Controller.L1().onTrue(ManipulatorCommands.AlgaeToP1(elevatorWrist));
-    m_ps4Controller.L2().onTrue(ManipulatorCommands.AlgaeToP1(elevatorWrist));
-
-    m_ps4Controller.R1().onTrue(ManipulatorCommands.AlgaeAtA1(elevatorWrist));
-    m_ps4Controller.R2().onTrue(ManipulatorCommands.AlgaeAtA2(elevatorWrist));
-
+        m_ps4Controller.R1().whileTrue(ManipulatorCommands.AlgaeAtA1(elevatorWrist));
+        m_ps4Controller.R2().whileTrue(ManipulatorCommands.AlgaeAtA2(elevatorWrist));
+    }
+    
     m_ps4Controller.options().onTrue(Commands.runOnce(() -> putAutonPoseToDashboard()));
 
     m_ps4Controller
@@ -405,15 +406,13 @@ public class RobotContainer {
     // m_ps4Controller.axisLessThan(5,-0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake2Speed((Constants.INTAKE.BUMP_VALUE))));
 
     // use incase you notice red light on dashboard.
-    // m_ps4Controller.share().onTrue(Commands.runOnce(() -> elevatorWrist.zero()));
+    m_ps4Controller.share().onTrue(ManipulatorCommands.ZeroClimberCmd(climber));
 
-    // m_ps4Controller
-    //     .PS()
-    //     .onTrue(
-    //         Commands.runOnce(() -> m_pitModeActive = !m_pitModeActive)
-    //             .andThen(() -> SmartDashboard.putBoolean("PitModeActive", m_pitModeActive)));
+    m_ps4Controller.PS().onTrue(ManipulatorCommands.TestElevatorWristSequencing(elevatorWrist));
 
-    // //Right Joystick Y
+    m_ps4Controller.touchpad().onTrue(ManipulatorCommands.TestMoveToElevatorWristZero(elevatorWrist));
+
+    //Right Joystick Y
     m_ps4Controller
         .axisGreaterThan(Axis.kRightY.value, 0.7)
         .onTrue(ManipulatorCommands.RetractClimberCmd(climber));
@@ -421,9 +420,12 @@ public class RobotContainer {
         .axisLessThan(Axis.kRightY.value, -0.7)
         .onTrue(ManipulatorCommands.DeployClimberCmd(climber));
 
-    // //Left Joystick Y
-    // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(
-    // m_ps4Controller.axisLessThan(1,-0.7).whileTrue(
+    //Left Joystick Y
+    m_ps4Controller
+        .axisLessThan(Axis.kLeftY.value, -0.7)
+        .onTrue(ManipulatorCommands.AlgaeCradle(elevatorWrist))
+        .onTrue(Commands.runOnce(() -> algaeCradleFlag = true))
+        .onFalse(Commands.runOnce(() -> algaeCradleFlag = false));
 
     // climber.setDefaultCommand(
     //     Commands.run(() -> climber.setVolts(-m_ps4Controller.getLeftY() * 12), climber));
