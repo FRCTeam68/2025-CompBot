@@ -196,6 +196,154 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             }));
   }
 
+  public Command setPositionCmdTest(double e_goal, double w_goal) {
+    return runOnce(() -> wrist.setPosition(w_goal))
+        .andThen(runOnce(() -> elevator.setPosition(e_goal)))
+        .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
+        .andThen(new WaitUntilCommand(() -> elevator.atPosition()));
+  }
+
+  public Command setPositionCmdAlgae(double e_goal, double w_goal) {
+    // if wrist is greater than safe pose
+    if (wrist.getPosition() >= (Constants.WRIST.SAFE)) {
+      // wrist and elevator simultaneously
+      return runOnce(() -> wrist.setPosition(w_goal))
+          .andThen(runOnce(() -> elevator.setPosition(e_goal)))
+          .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
+          .andThen(new WaitUntilCommand(() -> elevator.atPosition()));
+      // if elevator is less than low safe limit
+      // or
+      // if elevator is between mid safe limits
+      // or
+      // if elevator is greater than high safe limit
+    } else if (elevator.getPosition() <= Constants.ELEVATOR.MAX_LOW_SAFE
+        || (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE
+            && elevator.getPosition() <= Constants.ELEVATOR.MAX_MID_SAFE)
+        || elevator.getPosition() >= Constants.ELEVATOR.MIN_HIGH_SAFE) {
+      // wrist first then elevator
+      return runOnce(() -> wrist.setPosition(w_goal))
+          .andThen(new WaitUntilCommand(() -> wrist.getPosition() >= Constants.WRIST.SAFE))
+          .andThen(runOnce(() -> elevator.setPosition(e_goal)))
+          .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
+          .andThen(new WaitUntilCommand(() -> elevator.atPosition()));
+      // if wrist is near coral loft position
+    } else if (wrist.getPosition() >= (Constants.WRIST.CORAL_LIFT - Constants.WRIST.ERROR)
+        && wrist.getPosition() <= (Constants.WRIST.CORAL_LIFT + Constants.WRIST.ERROR)) {
+      return new ConditionalCommand( // choose which elevator safe position to use
+          // use mid safe position
+          runOnce(() -> wrist.setPosition(Constants.WRIST.CORAL_LIFT))
+              .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
+              .andThen(
+                  runOnce(
+                      () ->
+                          elevator.setPosition(
+                              Constants.ELEVATOR.MAX_MID_SAFE
+                                  - Constants.ELEVATOR.MIN_MID_SAFE
+                                  + Constants.ELEVATOR.MIN_MID_SAFE)))
+              .andThen(
+                  new WaitUntilCommand(
+                      () ->
+                          (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE
+                              && elevator.getPosition() <= Constants.ELEVATOR.MAX_MID_SAFE)))
+              .andThen(runOnce(() -> wrist.setPosition(w_goal)))
+              .andThen(new WaitUntilCommand(() -> wrist.getPosition() >= Constants.WRIST.SAFE))
+              .andThen(runOnce(() -> elevator.setPosition(e_goal)))
+              .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
+              .andThen(new WaitUntilCommand(() -> elevator.atPosition())),
+          // use low safe position
+          runOnce(() -> wrist.setPosition(Constants.WRIST.CORAL_LIFT))
+              .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
+              .andThen(runOnce(() -> elevator.setPosition(Constants.ELEVATOR.MIN_POSITION)))
+              .andThen(
+                  new WaitUntilCommand(
+                      () -> elevator.getPosition() <= Constants.ELEVATOR.MAX_LOW_SAFE))
+              .andThen(runOnce(() -> wrist.setPosition(w_goal)))
+              .andThen(new WaitUntilCommand(() -> wrist.getPosition() >= Constants.WRIST.SAFE))
+              .andThen(runOnce(() -> elevator.setPosition(e_goal)))
+              .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
+              .andThen(new WaitUntilCommand(() -> elevator.atPosition())),
+          () -> {
+            // if elevator position is greater than elevator mid safe pose
+            // or
+            // if elevator goal is greater than or equal to A1 pose
+            return (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE
+                || e_goal >= Constants.ELEVATOR.A1);
+          });
+    } else {
+      // call SetPositionCmdSafe
+      return Commands.none(); // REMOVE ME WHEN SAFE COMMAND IS CREATED
+    }
+  }
+
+  public Command setPositionCmdCoral(double e_goal, double w_goal) {
+    // if wrist is near coral loft position
+    if (wrist.getPosition() >= (Constants.WRIST.CORAL_LIFT - Constants.WRIST.ERROR)
+        && wrist.getPosition() <= (Constants.WRIST.CORAL_LIFT + Constants.WRIST.ERROR)) {
+      // wrist and elevator simultaneously
+      return runOnce(() -> wrist.setPosition(w_goal))
+          .andThen(runOnce(() -> elevator.setPosition(e_goal)))
+          .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
+          .andThen(new WaitUntilCommand(() -> elevator.atPosition()));
+      // if elevator is less than low safe limit
+      // or
+      // if elevator is between mid safe limits
+      // or
+      // if elevator is greater than high safe limit
+    } else if (elevator.getPosition() <= Constants.ELEVATOR.MAX_LOW_SAFE
+        || (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE
+            && elevator.getPosition() <= Constants.ELEVATOR.MAX_MID_SAFE)
+        || elevator.getPosition() >= Constants.ELEVATOR.MIN_HIGH_SAFE) {
+      // wrist first then elevator
+      return runOnce(() -> wrist.setPosition(w_goal))
+          .andThen(
+              new WaitUntilCommand(
+                  () -> wrist.getPosition() >= Constants.WRIST.CORAL_LIFT - Constants.WRIST.ERROR))
+          .andThen(runOnce(() -> elevator.setPosition(e_goal)))
+          .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
+          .andThen(new WaitUntilCommand(() -> elevator.atPosition()));
+    } else if (wrist.getPosition() >= (Constants.WRIST.SAFE)) {
+      return new ConditionalCommand( // choose which elevator safe position to use
+          // use mid safe position
+          runOnce(() -> wrist.setPosition(Constants.WRIST.SAFE))
+              .andThen(
+                  runOnce(
+                      () ->
+                          elevator.setPosition(
+                              Constants.ELEVATOR.MAX_MID_SAFE
+                                  - Constants.ELEVATOR.MIN_MID_SAFE
+                                  + Constants.ELEVATOR.MIN_MID_SAFE)))
+              .andThen(
+                  new WaitUntilCommand(
+                      () ->
+                          (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE
+                              && elevator.getPosition() <= Constants.ELEVATOR.MAX_MID_SAFE)))
+              .andThen(runOnce(() -> wrist.setPosition(w_goal)))
+              .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
+              .andThen(runOnce(() -> elevator.setPosition(e_goal)))
+              .andThen(new WaitUntilCommand(() -> elevator.atPosition())),
+          // use low safe position
+          runOnce(() -> wrist.setPosition(Constants.WRIST.SAFE))
+              .andThen(runOnce(() -> elevator.setPosition(Constants.ELEVATOR.MIN_POSITION)))
+              .andThen(
+                  new WaitUntilCommand(
+                      () -> elevator.getPosition() <= Constants.ELEVATOR.MAX_LOW_SAFE))
+              .andThen(runOnce(() -> wrist.setPosition(w_goal)))
+              .andThen(new WaitUntilCommand(() -> wrist.atPosition()))
+              .andThen(runOnce(() -> elevator.setPosition(e_goal)))
+              .andThen(new WaitUntilCommand(() -> elevator.atPosition())),
+          () -> {
+            // if elevator position is greater than elevator mid safe pose
+            // or
+            // if elevator goal is greater than or equal to A1 pose
+            return (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE
+                || e_goal >= Constants.ELEVATOR.A1);
+          });
+    } else {
+      // call SetPositionCmdSafe
+      return Commands.none(); // REMOVE ME WHEN SAFE COMMAND IS CREATED
+    }
+  }
+
   // no checks.  you better know what you are doing !
   public Command setPositionElevatorCmd(double e_goal, boolean waitForIt) {
     return Commands.sequence(

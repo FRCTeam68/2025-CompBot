@@ -123,14 +123,17 @@ public final class Constants {
     public static final double A1 = 27.5;
     public static final double P1 = 33;
     public static final double BUMP_VALUE = .5; // rotations
+    public static final double SAFE = 14.36;
+    public static final double CORAL_LIFT = 4.2;
+    public static final double ERROR = 0.1;
     public static final double CANCODER_OFFSET = 0.064453125;
     public static final double CANCODER_FACTOR = 1.4634 / 0.02197;
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(40).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(60)
-            .withMotionMagicAcceleration(240)
+            .withMotionMagicCruiseVelocity(60) // 60  5
+            .withMotionMagicAcceleration(240) // 240  15
             .withMotionMagicJerk(10000);
   }
 
@@ -157,12 +160,16 @@ public final class Constants {
     public static final double P1 = 3.4;
     public static final double L1 = 0;
     public static final double BUMP_VALUE = .5; // rotations
+    public static final double MAX_LOW_SAFE = .85;
+    public static final double MIN_MID_SAFE = 11.78;
+    public static final double MAX_MID_SAFE = 17.02;
+    public static final double MIN_HIGH_SAFE = 22.64;
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(10).withKI(0).withKD(0).withKS(0.5).withKV(0.2).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(40)
-            .withMotionMagicAcceleration(120)
+            .withMotionMagicCruiseVelocity(40) // 40  5
+            .withMotionMagicAcceleration(120) // 120  60
             .withMotionMagicJerk(400);
   }
 
