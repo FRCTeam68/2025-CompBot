@@ -206,6 +206,18 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   }
 
   public Command setPositionCmdNew(double e_goal, double w_goal) {
+    ///// MOVE AWAY FROM SHOOTNET POSITION /////
+    // if current elevator is above minimum high safe position
+    // and
+    // if current wrist position is less then safe position
+    if (elevator.getPosition() >= Constants.ELEVATOR.MIN_HIGH_SAFE
+        && wrist.getPosition() < Constants.WRIST.SAFE) {
+      return Commands.sequence(
+        
+      );
+        }
+
+
     ///// MOVE FROM MIN ELEVATOR OR BETWEEN SIMILAR WRIST POSITIONS //////
     // if elevator is near zero
     // or
