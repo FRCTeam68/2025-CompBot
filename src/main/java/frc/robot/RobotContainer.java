@@ -213,27 +213,32 @@ public class RobotContainer {
         break;
     }
 
-    NamedCommands.registerCommand(
-        "shootCoral", ManipulatorCommands.shootCoralCmd(intakeShooter, intakeCoralSensor));
-    NamedCommands.registerCommand(
-        "intakeCoral", ManipulatorCommands.intakeCoralCmd(intakeShooter, intakeCoralSensor));
-    NamedCommands.registerCommand(
-        "indexCoral", ManipulatorCommands.indexCoralCmd(intakeShooter, intakeCoralSensor));
-    NamedCommands.registerCommand(
-        "shootAlgaeAtP1", ManipulatorCommands.shootAlgaeP1Cmd(intakeShooter));
-    NamedCommands.registerCommand(
-        "intakeAlgae", ManipulatorCommands.intakeAlgaeA1A2Cmd(intakeShooter));
+    // NamedCommands.registerCommand(
+    //   "shootCoral", ManipulatorCommands.shootCoralCmd(intakeShooter, intakeCoralSensor));
+    // NamedCommands.registerCommand(
+    //    "intakeCoral",
+    //    ManipulatorCommands.intakeCoralCmd(intakeShooter, intakeCoralSensor, elevatorWrist));
+    // NamedCommands.registerCommand(
+    //    "indexCoral", ManipulatorCommands.indexCoralCmd(intakeShooter, intakeCoralSensor));
+    // NamedCommands.registerCommand(
+    //    "shootAlgaeAtP1", ManipulatorCommands.shootAlgaeP1Cmd(intakeShooter));
+    // NamedCommands.registerCommand(
+    //    "intakeAlgae", ManipulatorCommands.intakeAlgaeA1A2Cmd(intakeShooter));
     NamedCommands.registerCommand("coralToL4", ManipulatorCommands.CoralL4Cmd(elevatorWrist));
     NamedCommands.registerCommand("coralToL3", ManipulatorCommands.CoralL3Cmd(elevatorWrist));
     NamedCommands.registerCommand("coralToL2", ManipulatorCommands.CoralL2Cmd(elevatorWrist));
     NamedCommands.registerCommand("toIntakeCoral", ManipulatorCommands.CoralL1Cmd(elevatorWrist));
     NamedCommands.registerCommand("coralToL1", ManipulatorCommands.CoralL1Cmd(elevatorWrist));
-    NamedCommands.registerCommand("algaeFromA2", ManipulatorCommands.AlgaeAtA2(elevatorWrist));
-    NamedCommands.registerCommand("algaeFromA1", ManipulatorCommands.AlgaeAtA1(elevatorWrist));
-    NamedCommands.registerCommand("algaeToP1", ManipulatorCommands.AlgaeToP1(elevatorWrist));
-    NamedCommands.registerCommand("algaeToeNet", ManipulatorCommands.AlgaeToNetCmd(elevatorWrist));
     NamedCommands.registerCommand(
-        "shootAlgaeAtNet", ManipulatorCommands.ShootAlgaeToNetCmd(elevatorWrist, intakeShooter));
+        "algaeFromA2", ManipulatorCommands.AlgaeAtA2(elevatorWrist, algaeCradleFlag));
+    NamedCommands.registerCommand(
+        "algaeFromA1", ManipulatorCommands.AlgaeAtA1(elevatorWrist, algaeCradleFlag));
+    NamedCommands.registerCommand(
+        "algaeToP1", ManipulatorCommands.AlgaeToP1(elevatorWrist, algaeCradleFlag));
+    NamedCommands.registerCommand(
+        "algaeToeNet", ManipulatorCommands.AlgaeToNetCmd(elevatorWrist, algaeCradleFlag));
+    // NamedCommands.registerCommand(
+    //    "shootAlgaeAtNet", ManipulatorCommands.ShootAlgaeToNetCmd(elevatorWrist, intakeShooter));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -349,15 +354,17 @@ public class RobotContainer {
 
     m_xboxController
         .leftTrigger()
-        .onTrue(ManipulatorCommands.intakeIndexCoralCmd(intakeShooter, intakeCoralSensor));
+        .onTrue(ManipulatorCommands.intakeCmd(intakeShooter, intakeCoralSensor, elevatorWrist));
 
     m_xboxController
         .rightTrigger()
-        .onTrue(ManipulatorCommands.shootCoralCmd(intakeShooter, intakeCoralSensor));
+        .onTrue(ManipulatorCommands.shootCmd(intakeShooter, elevatorWrist));
 
-    m_xboxController.leftBumper().onTrue(ManipulatorCommands.intakeAlgaeA1A2Cmd(intakeShooter));
+    // m_xboxController.leftBumper().onTrue(ManipulatorCommands.intakeCmd(intakeShooter,
+    // intakeCoralSensor, elevatorWrist));
 
-    m_xboxController.rightBumper().onTrue(ManipulatorCommands.shootAlgaeP1Cmd(intakeShooter));
+    // m_xboxController.rightBumper().onTrue(ManipulatorCommands.shootCmd(intakeShooter,
+    // elevatorWrist));
 
     // m_ps4Controller
     //     .touchpad()
@@ -373,15 +380,15 @@ public class RobotContainer {
 
     m_ps4Controller.square().onTrue(ManipulatorCommands.CoralL2Cmd(elevatorWrist));
 
-    m_ps4Controller.cross().onTrue(ManipulatorCommands.TestMoveToIntake(elevatorWrist));
+    m_ps4Controller.cross().onTrue(ManipulatorCommands.CoralIntakePositionCmd(elevatorWrist));
 
-    if (algaeCradleFlag == false) {
-      m_ps4Controller.L1().whileTrue(ManipulatorCommands.AlgaeToP1(elevatorWrist));
-      m_ps4Controller.L2().whileTrue(ManipulatorCommands.AlgaeToNetCmd(elevatorWrist));
+    m_ps4Controller.L1().whileTrue(ManipulatorCommands.AlgaeToP1(elevatorWrist, algaeCradleFlag));
+    m_ps4Controller
+        .L2()
+        .whileTrue(ManipulatorCommands.AlgaeToNetCmd(elevatorWrist, algaeCradleFlag));
 
-      m_ps4Controller.R1().whileTrue(ManipulatorCommands.AlgaeAtA1(elevatorWrist));
-      m_ps4Controller.R2().whileTrue(ManipulatorCommands.AlgaeAtA2(elevatorWrist));
-    }
+    m_ps4Controller.R1().whileTrue(ManipulatorCommands.AlgaeAtA1(elevatorWrist, algaeCradleFlag));
+    m_ps4Controller.R2().whileTrue(ManipulatorCommands.AlgaeAtA2(elevatorWrist, algaeCradleFlag));
 
     m_ps4Controller.options().onTrue(Commands.runOnce(() -> putAutonPoseToDashboard()));
 
@@ -409,9 +416,7 @@ public class RobotContainer {
 
     m_ps4Controller.PS().onTrue(ManipulatorCommands.TestElevatorWristSequencing(elevatorWrist));
 
-    m_ps4Controller
-        .touchpad()
-        .onTrue(ManipulatorCommands.TestMoveToElevatorWristZero(elevatorWrist));
+    m_ps4Controller.touchpad().onTrue(ManipulatorCommands.MoveToElevatorWristZero(elevatorWrist));
 
     // Right Joystick Y
     m_ps4Controller

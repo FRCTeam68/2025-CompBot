@@ -116,8 +116,8 @@ public final class Constants {
     public static final double MAX_POSITION = 34;
     public static final double INTAKE = 1.5;
     public static final double L1 = 27.5;
-    public static final double L2 = 4.2; // 3.9; //
-    public static final double L3 = 4.2; // 3.9; //
+    public static final double L2 = 4.2; // 3.9; // DO NOT MODIFY WITHOUT CHANGING
+    public static final double L3 = 4.2; // 3.9; // SEQUENCING LOGIC
     public static final double L4 = 4.2; // 3.9; // all 3 of these must be the same value
     public static final double CRADLE = 12;
     public static final double SHOOTNET = 10;
@@ -127,6 +127,7 @@ public final class Constants {
     public static final double P1 = 33;
     public static final double BUMP_VALUE = .5; // rotations
     public static final double SAFE = 14.5; // minimum position to move full elevator travel
+    public static final double ERROR = 0.5;
     public static final double CANCODER_OFFSET = 0.064453125;
     public static final double CANCODER_FACTOR = 1.4634 / 0.02197;
     public static final Slot0Configs SLOT0_CONFIGS =
@@ -191,6 +192,7 @@ public final class Constants {
     public static final String CANBUS = "rio";
     public static final double GOAL = 102; // 52;
     public static final double MAX_HEIGHT = 60;
+    public static final double ZEROING_SPEED = 5; // speed when zeroing
     public static final double ZEROING_CURRENT_LIMIT = 10; // current limit when zeroing
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(10).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);

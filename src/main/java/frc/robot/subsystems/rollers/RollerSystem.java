@@ -188,6 +188,10 @@ public class RollerSystem extends SubsystemBase {
     return inputs.positionRotations;
   }
 
+  public double getSupplyCurrent() {
+    return inputs.supplyCurrentAmps;
+  }
+
   public boolean atSpeed() {
     return Math.abs(setpoint - getSpeed()) < setpointBand.getAsDouble();
   }
