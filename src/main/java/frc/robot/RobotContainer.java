@@ -231,8 +231,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("algaeFromA2", ManipulatorCommands.AlgaeAtA2(elevatorWrist));
     NamedCommands.registerCommand("algaeFromA1", ManipulatorCommands.AlgaeAtA1(elevatorWrist));
     NamedCommands.registerCommand("algaeToP1", ManipulatorCommands.AlgaeToP1(elevatorWrist));
-    NamedCommands.registerCommand(
-        "algaeToeNet", ManipulatorCommands.AlgaeToNetCmd(elevatorWrist));
+    NamedCommands.registerCommand("algaeToeNet", ManipulatorCommands.AlgaeToNetCmd(elevatorWrist));
     NamedCommands.registerCommand(
         "shootAlgaeAtNet", ManipulatorCommands.ShootAlgaeToNetCmd(elevatorWrist, intakeShooter));
 
@@ -374,16 +373,16 @@ public class RobotContainer {
 
     m_ps4Controller.square().onTrue(ManipulatorCommands.CoralL2Cmd(elevatorWrist));
 
-    m_ps4Controller.cross().onTrue(ManipulatorCommands.CoralL1Cmd(elevatorWrist));
+    m_ps4Controller.cross().onTrue(ManipulatorCommands.TestMoveToIntake(elevatorWrist));
 
     if (algaeCradleFlag == false) {
-        m_ps4Controller.L1().whileTrue(ManipulatorCommands.AlgaeToP1(elevatorWrist));
-        m_ps4Controller.L2().whileTrue(ManipulatorCommands.AlgaeToNetCmd(elevatorWrist));
+      m_ps4Controller.L1().whileTrue(ManipulatorCommands.AlgaeToP1(elevatorWrist));
+      m_ps4Controller.L2().whileTrue(ManipulatorCommands.AlgaeToNetCmd(elevatorWrist));
 
-        m_ps4Controller.R1().whileTrue(ManipulatorCommands.AlgaeAtA1(elevatorWrist));
-        m_ps4Controller.R2().whileTrue(ManipulatorCommands.AlgaeAtA2(elevatorWrist));
+      m_ps4Controller.R1().whileTrue(ManipulatorCommands.AlgaeAtA1(elevatorWrist));
+      m_ps4Controller.R2().whileTrue(ManipulatorCommands.AlgaeAtA2(elevatorWrist));
     }
-    
+
     m_ps4Controller.options().onTrue(Commands.runOnce(() -> putAutonPoseToDashboard()));
 
     m_ps4Controller
@@ -410,9 +409,11 @@ public class RobotContainer {
 
     m_ps4Controller.PS().onTrue(ManipulatorCommands.TestElevatorWristSequencing(elevatorWrist));
 
-    m_ps4Controller.touchpad().onTrue(ManipulatorCommands.TestMoveToElevatorWristZero(elevatorWrist));
+    m_ps4Controller
+        .touchpad()
+        .onTrue(ManipulatorCommands.TestMoveToElevatorWristZero(elevatorWrist));
 
-    //Right Joystick Y
+    // Right Joystick Y
     m_ps4Controller
         .axisGreaterThan(Axis.kRightY.value, 0.7)
         .onTrue(ManipulatorCommands.RetractClimberCmd(climber));
@@ -420,21 +421,23 @@ public class RobotContainer {
         .axisLessThan(Axis.kRightY.value, -0.7)
         .onTrue(ManipulatorCommands.DeployClimberCmd(climber));
 
-    //Left Joystick Y
+    // Left Joystick Y
     m_ps4Controller
-        .axisLessThan(Axis.kLeftY.value, -0.7)
-        .onTrue(ManipulatorCommands.AlgaeCradle(elevatorWrist))
+        .axisGreaterThan(Axis.kLeftY.value, 0.7)
+        .onTrue(ManipulatorCommands.RetractClimberCmd(climber))
         .onTrue(Commands.runOnce(() -> algaeCradleFlag = true))
         .onFalse(Commands.runOnce(() -> algaeCradleFlag = false));
 
     // climber.setDefaultCommand(
     //     Commands.run(() -> climber.setVolts(-m_ps4Controller.getLeftY() * 12), climber));
-    climber.setDefaultCommand(
-        Commands.run(() -> climber.setVolts(-m_ps4Controller.getLeftY() * 12), climber)
-            .unless(
-                () -> {
-                  return Math.abs(m_ps4Controller.getLeftY()) < .05;
-                }));
+    /*
+        climber.setDefaultCommand(
+            Commands.run(() -> climber.setVolts(-m_ps4Controller.getLeftY() * 12), climber)
+                .unless(
+                    () -> {
+                      return Math.abs(m_ps4Controller.getLeftY()) < .05;
+                    }));
+    */
   }
 
   /**

@@ -77,8 +77,8 @@ public final class Constants {
     public static final String CANBUS = "rio";
     public static final double MAX_SPEED = 100; // rps
     public static final double CORAL_INTAKE_SPEED = 30;
-    public static final double COREL_INTAKE_INDEX_SPEED = 3; // speed to find back edge
-    public static final double COREL_INTAKE_INDEX_REVERSE = 4; // revolutions to reverse
+    public static final double CORAL_INTAKE_INDEX_SPEED = 3; // speed to find back edge
+    public static final double CORAL_INTAKE_INDEX_REVERSE = 4; // revolutions to reverse
     public static final double CORAL_SHOOT_SPEED = 30; // 40
     public static final double CORAL_SHOOT_TIMEOUT = 2;
     public static final double ALGAE_INTAKE_SPEED = -40;
@@ -107,7 +107,7 @@ public final class Constants {
     public static final int CANCODER_CANID = 36;
     public static final String CANBUS = "rio";
     public static final double MIN_POSITION = 0;
-    public static final double MIN_SLOT1_TO_ELEVATE = 4.0; // 3.8;
+    public static final double MIN_SLOT1_TO_ELEVATE = 4.2; // 3.8;
     public static final double SLOT1_TO_ELEVATE = 4.2; // packaged position to lift elevator
     public static final double MAX_SLOT1_TO_ELEVATE = 4.3; // 4.0;
     public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 14.5; // min slot2
@@ -133,8 +133,8 @@ public final class Constants {
         new Slot0Configs().withKP(40).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(60) // 60  5
-            .withMotionMagicAcceleration(240) // 240  15
+            .withMotionMagicCruiseVelocity(5) // 60  5
+            .withMotionMagicAcceleration(10) // 240  15
             .withMotionMagicJerk(10000);
   }
 
@@ -167,14 +167,15 @@ public final class Constants {
     public static final double MIN_MID_SAFE = 11.78;
     public static final double MAX_MID_SAFE = 17.02;
     public static final double MIN_HIGH_SAFE = 22.64;
-    public static final double MAX_LOW_WRIST_MOVE_FROM_SAFE = 3; // height to start wrist move if wrist is in safe position
+    public static final double MAX_LOW_WRIST_MOVE_FROM_SAFE =
+        3; // height to start wrist move if wrist is in safe position
     //
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(10).withKI(0).withKD(0).withKS(0.5).withKV(0.2).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(40) // 40  5
-            .withMotionMagicAcceleration(120) // 120  60
+            .withMotionMagicCruiseVelocity(5) // 40  5
+            .withMotionMagicAcceleration(10) // 120  60
             .withMotionMagicJerk(400);
   }
 

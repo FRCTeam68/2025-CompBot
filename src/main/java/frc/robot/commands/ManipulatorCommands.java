@@ -34,10 +34,11 @@ public class ManipulatorCommands {
             () -> Logger.recordOutput("Manipulator/IntakeShooter/State", "IntakeCoral")),
         intake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
         Commands.waitUntil(() -> intake_sensor.havePiece()),
-        Commands.waitSeconds(.1),
-        intake.setSpeedCmd(0),
-        Commands.waitSeconds(.1),
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue)));
+        Commands.waitSeconds(.05),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue)),
+        intake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED),
+        Commands.waitUntil(() -> intake_sensor.havePiece() == false),
+        intake.setSpeedCmd(0));
   }
 
   public static Command indexCoralCmd(RollerSystem intake, RangeSensorSubSystem intake_sensor) {
@@ -45,14 +46,14 @@ public class ManipulatorCommands {
         // index to have it flush to front
         Commands.runOnce(
             () -> Logger.recordOutput("Manipulator/IntakeShooter/State", "IndexCoral")),
-        intake.setSpeedCmd(Constants.INTAKE_SHOOTER.COREL_INTAKE_INDEX_SPEED),
+        intake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED),
         Commands.waitUntil(() -> intake_sensor.havePiece() == false),
         intake.setSpeedCmd(0),
         Commands.waitSeconds(.1),
         Commands.runOnce(
             () ->
                 intake.setPosition(
-                    intake.getPosition() - Constants.INTAKE_SHOOTER.COREL_INTAKE_INDEX_REVERSE)));
+                    intake.getPosition() - Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_REVERSE)));
   }
 
   public static Command intakeIndexCoralCmd(
@@ -222,7 +223,8 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.red, 4)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "ZEROING CLIMBER")),
         Commands.runOnce(() -> myClimber.setSpeedCmd(5)),
-        //Commands.waitUntil(() -> myClimber.getSupplyVoltage() > Constants.CLIMBER.ZEROING_CURRENT_LIMIT), // FIXME how to monitor supply current
+        // Commands.waitUntil(() -> myClimber.getSupplyVoltage() >
+        // Constants.CLIMBER.ZEROING_CURRENT_LIMIT), // FIXME how to monitor supply current
         Commands.runOnce(() -> myClimber.setSpeedCmd(0)),
         Commands.runOnce(() -> myClimber.zero()));
   }
@@ -230,13 +232,14 @@ public class ManipulatorCommands {
   public static Command TestMoveToIntake(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "INTAKE")),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.INTAKE, Constants.WRIST.INTAKE));
+        myElevatorWrist.setPositionTest(Constants.ELEVATOR.INTAKE, Constants.WRIST.INTAKE));
   }
 
   public static Command TestMoveToElevatorWristZero(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "ZERO")),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.MIN_POSITION));
+        myElevatorWrist.setPositionCmdNew(
+            Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.MIN_POSITION));
   }
 
   public static Command TestElevatorWristSequencing(ElevatorWristSubSystem myElevatorWrist) {
@@ -338,6 +341,7 @@ public class ManipulatorCommands {
         AlgaeAtA2(myElevatorWrist),
         // return to zero
         Commands.waitSeconds(0.3),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.MIN_POSITION));
+        myElevatorWrist.setPositionCmdNew(
+            Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.MIN_POSITION));
   }
 }
