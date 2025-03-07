@@ -362,6 +362,11 @@ public class RobotContainer {
     // m_ps4Controller
     //     .touchpad()
     //     .onTrue(ManipulatorCommands.ShootAlgaeToNetCmd(elevatorWrist, intakeShooter));
+    m_ps4Controller
+        .touchpad()
+        .onTrue(ManipulatorCommands.TestMoveToElevatorWristZero(elevatorWrist));
+
+    m_ps4Controller.PS().onTrue(ManipulatorCommands.TestMe(elevatorWrist));
 
     m_xboxController
         .start()

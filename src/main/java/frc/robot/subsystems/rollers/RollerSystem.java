@@ -155,7 +155,7 @@ public class RollerSystem extends SubsystemBase {
   public void setVolts(double inputVolts) {
     setpoint = inputVolts;
     io.setVolts(inputVolts);
-    Logger.recordOutput("Roller/" + name + "/setpointVolts", setpoint);
+    Logger.recordOutput("RollerData/" + name + "/setpointVolts", setpoint);
   }
 
   @AutoLogOutput
@@ -163,7 +163,7 @@ public class RollerSystem extends SubsystemBase {
     // in rotations per second
     setpoint = speed;
     io.setSpeed(speed);
-    Logger.recordOutput("Roller/" + name + "/setpointSpeed", setpoint);
+    Logger.recordOutput("RollerData/" + name + "/setpointSpeed", setpoint);
   }
 
   @AutoLogOutput
@@ -177,7 +177,8 @@ public class RollerSystem extends SubsystemBase {
     // in rotations
     setpoint = position;
     io.setPosition(position, feedforward);
-    Logger.recordOutput("Roller/" + name + "/setpointPosition", setpoint);
+    Logger.recordOutput("RollerData/" + name + "/setpointPosition", setpoint);
+    Logger.recordOutput("RollerData/" + name + "/feedforward", feedforward);
   }
 
   public double getSpeed() {
