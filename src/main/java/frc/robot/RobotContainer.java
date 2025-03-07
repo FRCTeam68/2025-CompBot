@@ -359,9 +359,10 @@ public class RobotContainer {
 
     m_xboxController.rightBumper().onTrue(ManipulatorCommands.shootAlgaeP1Cmd(intakeShooter));
 
-    // m_ps4Controller
-    //     .touchpad()
-    //     .onTrue(ManipulatorCommands.ShootAlgaeToNetCmd(elevatorWrist, intakeShooter));
+    m_ps4Controller
+        .share()
+        .onTrue(ManipulatorCommands.ShootAlgaeToNetCmd(elevatorWrist, intakeShooter));
+
     m_ps4Controller
         .touchpad()
         .onTrue(ManipulatorCommands.TestMoveToElevatorWristZero(elevatorWrist));
@@ -380,9 +381,8 @@ public class RobotContainer {
 
     m_ps4Controller.cross().onTrue(ManipulatorCommands.CoralL1Cmd(elevatorWrist));
 
-    // m_ps4Controller.L1().onTrue(ManipulatorCommands.AlgaeToPreNetCmd(elevatorWrist));
+    m_ps4Controller.L1().onTrue(ManipulatorCommands.AlgaeToPreNetCmd(elevatorWrist));
 
-    m_ps4Controller.L1().onTrue(ManipulatorCommands.AlgaeToP1(elevatorWrist));
     m_ps4Controller.L2().onTrue(ManipulatorCommands.AlgaeToP1(elevatorWrist));
 
     m_ps4Controller.R1().onTrue(ManipulatorCommands.AlgaeAtA1(elevatorWrist));
@@ -408,9 +408,6 @@ public class RobotContainer {
     // //Right Joystick Y
     // m_ps4Controller.axisGreaterThan(5,0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake2Speed((-Constants.INTAKE.BUMP_VALUE))));
     // m_ps4Controller.axisLessThan(5,-0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake2Speed((Constants.INTAKE.BUMP_VALUE))));
-
-    // use incase you notice red light on dashboard.
-    // m_ps4Controller.share().onTrue(Commands.runOnce(() -> elevatorWrist.zero()));
 
     // m_ps4Controller
     //     .PS()

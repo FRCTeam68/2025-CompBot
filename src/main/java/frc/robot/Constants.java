@@ -118,7 +118,7 @@ public final class Constants {
     public static final double L4 = 4.2; // 3.9; // all 3 of these must be the same value
     public static final double CRADLE = 15;
     public static final double SHOOTNET = 15;
-    public static final double PRENET = 21;
+    public static final double PRENET = 27;
     public static final double A2 = 27.5;
     public static final double A1 = 27.5;
     public static final double P1 = 33;
@@ -149,7 +149,7 @@ public final class Constants {
     public static final double MIN_POSITION = 0; // /MIN_BLOCK0
     public static final double SHOOTNET = 26.5;
     public static final double L4 = 23.5;
-    public static final double PRENET = 20;
+    public static final double PRENET = 26.6;
     public static final double A2 = 15.5;
     public static final double L3 = 12;
     public static final double A1 = 9;
