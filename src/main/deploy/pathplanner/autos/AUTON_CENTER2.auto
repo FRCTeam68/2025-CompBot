@@ -74,7 +74,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "A1-Processer"
+                  "pathName": "C2_AlgaeGH-Net"
                 }
               },
               {
@@ -90,7 +90,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "algaeToP1"
+                        "name": "algaeToPreNet"
                       }
                     }
                   ]
@@ -102,7 +102,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shootAlgaeAtP1"
+            "name": "shootAlgaeAtNet"
           }
         },
         {
@@ -112,7 +112,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "C1_Processor-EFalgae"
+                  "pathName": "C2_Net-AlgaeIJ"
                 }
               },
               {
@@ -125,9 +125,29 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "intakeAlgae"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "C2_AlgaeIJ-Intake"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intakeAlgae"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
@@ -137,7 +157,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "C1_EFalgae-Processor"
+                  "pathName": "C2_Intake-Net"
                 }
               },
               {
@@ -147,13 +167,13 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.6
+                        "waitTime": 0.5
                       }
                     },
                     {
                       "type": "named",
                       "data": {
-                        "name": "algaeToP1"
+                        "name": "algaeToPreNet"
                       }
                     }
                   ]
@@ -165,7 +185,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shootAlgaeAtP1"
+            "name": "shootAlgaeAtNet"
           }
         }
       ]
