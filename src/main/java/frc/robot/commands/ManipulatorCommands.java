@@ -15,12 +15,14 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.ElevatorWristSubSystem;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.RangeSensorSubSystem;
 import frc.robot.subsystems.rollers.RollerSystem;
+import java.util.Set;
 import org.littletonrobotics.junction.Logger;
 
 public class ManipulatorCommands {
@@ -205,5 +207,32 @@ public class ManipulatorCommands {
         Commands.waitUntil(() -> myClimber.atPosition()),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "CLIMBED")),
         Commands.runOnce(() -> LEDSegment.all.setRainbowAnimation(4)));
+  }
+
+  // use to return wrist to zero before re-deploy or reboot robot
+  // will only run if elevator is near 0 and wrist can safely rotate to 0
+  public static Command TestMoveToElevatorWristZero(ElevatorWristSubSystem myElevatorWrist) {
+    return Commands.sequence(
+            Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "ZERO")),
+            myElevatorWrist.setPositionCmd(
+                Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.MIN_POSITION))
+        .unless(
+            () ->
+                myElevatorWrist.getElevator().getPosition()
+                    > Constants.ELEVATOR.MAX_POSITION_BLOCK0);
+  }
+
+  public static Command TestMe(ElevatorWristSubSystem myElevatorWrist) {
+    return new DeferredCommand(
+        () -> {
+          Command myCommand =
+              Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "TestMe"));
+          if (2 > 1) {
+            myCommand =
+                Commands.runOnce(() -> Logger.recordOutput("Manipulator/state2", "TestMe2"));
+          }
+          return myCommand;
+        },
+        Set.of(myElevatorWrist));
   }
 }

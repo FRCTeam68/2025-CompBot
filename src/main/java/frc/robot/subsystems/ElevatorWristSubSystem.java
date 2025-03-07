@@ -124,6 +124,14 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     // SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
   }
 
+  public RollerSystem getElevator() {
+    return elevator;
+  }
+
+  public RollerSystem getWrist() {
+    return wrist;
+  }
+
   @AutoLogOutput
   public Command setPositionCmd(double e_goal, double w_goal) {
     return Commands.sequence(
