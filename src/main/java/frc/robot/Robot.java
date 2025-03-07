@@ -19,6 +19,10 @@ import com.ctre.phoenix6.CANBus.CANBusStatus;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -110,6 +114,21 @@ public class Robot extends LoggedRobot {
 
     rioBus = new CANBus("rio");
     CANivoreBus = new CANBus("DRIVEbus");
+
+    // initialize robot poses
+    System.out.println("init");
+    Logger.recordOutput(
+        "RobotPose/Elevator Stage 1", new Pose3d[] {new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0))});
+    Logger.recordOutput(
+        "RobotPose/Elevator Stage 2", new Pose3d[] {new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0))});
+    Logger.recordOutput(
+        "RobotPose/Wrist", new Pose3d[] {new Pose3d(0.28575, 0, 0.411, new Rotation3d(0, 0, 0))});
+    Logger.recordOutput(
+        "RobotPose/Climber",
+        new Pose3d[] {new Pose3d(-0.2921, 0, 0.4398003396, new Rotation3d(0, 0, 0))});
+    Logger.recordOutput("RobotPose/Zero2d", new Pose2d[] {new Pose2d(0, 0, new Rotation2d(0, 0))});
+    Logger.recordOutput(
+        "RobotPose/Zero3d", new Pose3d[] {new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0))});
   }
 
   /** This function is called periodically during all modes. */

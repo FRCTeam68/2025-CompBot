@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -72,7 +73,8 @@ public class RobotContainer {
   public String selectedAutonName;
 
   // Controller
-  private final CommandXboxController m_xboxController = new CommandXboxController(0);
+  private final CommandGenericHID m_genericController = new CommandGenericHID(0);
+  private final CommandXboxController m_xboxController = new CommandXboxController(2);
   private final CommandPS4Controller m_ps4Controller = new CommandPS4Controller(1);
 
   private static LoggedDashboardChooser<Command> autoChooser;
@@ -285,14 +287,24 @@ public class RobotContainer {
     m_LaserCanTrigger
         .onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("laserCanTrip", true)))
         .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("laserCanTrip", false)));
+    /*
+        // Default command, normal field-relative drive
+        drive.setDefaultCommand(
+            DriveCommands.joystickDrive(
+                drive,
+                () -> -m_xboxController.getLeftY(),
+                () -> -m_xboxController.getLeftX(),
+                () -> -m_xboxController.getRightX()));
 
-    // Default command, normal field-relative drive
+    */
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -m_xboxController.getLeftY(),
-            () -> -m_xboxController.getLeftX(),
-            () -> -m_xboxController.getRightX()));
+            () -> -m_genericController.getRawAxis(1),
+            () -> -m_genericController.getRawAxis(0),
+            () -> -m_genericController.getRawAxis(4)));
+    m_genericController.button(0).onTrue(ManipulatorCommands.CoralIntakePositionCmd(elevatorWrist));
+    m_genericController.button(2).onTrue(ManipulatorCommands.CoralL2Cmd(elevatorWrist));
 
     // // Lock to 0° when A button is held
     // m_xboxController
