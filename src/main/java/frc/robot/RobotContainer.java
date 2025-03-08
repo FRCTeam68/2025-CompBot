@@ -412,9 +412,11 @@ public class RobotContainer {
     // use incase you notice red light on dashboard.
     m_ps4Controller.share().onTrue(ManipulatorCommands.ZeroClimberCmd(climber));
 
-    m_ps4Controller.PS().onTrue(ManipulatorCommands.TestElevatorWristSequencing(elevatorWrist));
+    m_ps4Controller.options().onTrue(ManipulatorCommands.TestElevatorWristSequencing(elevatorWrist));
 
-    m_ps4Controller.touchpad().onTrue(ManipulatorCommands.MoveToElevatorWristZero(elevatorWrist));
+    m_ps4Controller.PS().onTrue(ManipulatorCommands.CoralL1Cmd(elevatorWrist));
+
+    m_ps4Controller.touchpad().onTrue(ManipulatorCommands.ElevatorWristZeroCmd(elevatorWrist));
 
     // Right Joystick Y
     m_ps4Controller
@@ -427,7 +429,7 @@ public class RobotContainer {
     // Left Joystick Y
     m_ps4Controller
         .axisGreaterThan(Axis.kLeftY.value, 0.7)
-        .onTrue(ManipulatorCommands.RetractClimberCmd(climber))
+        .onTrue(ManipulatorCommands.AlgaeCradle(elevatorWrist))
         .onTrue(Commands.runOnce(() -> algaeCradleFlag = true))
         .onFalse(Commands.runOnce(() -> algaeCradleFlag = false));
 

@@ -15,12 +15,15 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+import lombok.Getter;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -76,15 +79,21 @@ public final class Constants {
     // public static final int RIGHT_CANID = 31;
     public static final String CANBUS = "rio";
     public static final double MAX_SPEED = 100; // rps
+    // coral
     public static final double CORAL_INTAKE_SPEED = 30;
-    public static final double CORAL_INTAKE_INDEX_SPEED = 3; // speed to find back edge
-    public static final double CORAL_INTAKE_INDEX_REVERSE = 4; // revolutions to reverse
+    public static final double CORAL_INTAKE_INDEX_SPEED = 7; // speed to find back edge
+    public static final double CORAL_INTAKE_INDEX_REVERSE = 3; // revolutions to reverse
     public static final double CORAL_SHOOT_SPEED = 30; // 40
-    public static final double CORAL_SHOOT_TIMEOUT = 2;
+    public static final double CORAL_L1_SHOOT_SPEED = -10; // 40
+    public static final double CORAL_SHOOT_TIMEOUT = 1;
+    // algae
     public static final double ALGAE_INTAKE_SPEED = -40;
     public static final double ALGAE_HOLD_SPEED = -5;
     public static final double ALGAE_SHOOT_SPEED = 20;
-    public static final double ALGAE_SHOOT_TIMEOUT = 2;
+    public static final double ALGAE_NET_SHOOT_SPEED = 80;
+    public static final double ALGAE_NET_SHOOT_DELAY = .1;
+    public static final double ALGAE_SHOOT_TIMEOUT = 1;
+    //
     public static final double BUMP_VALUE = 1; // rotations
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(.2).withKI(0).withKD(0).withKS(0).withKV(0.13).withKA(0);
@@ -106,6 +115,7 @@ public final class Constants {
     public static final int CANID = 31; // old shooterSubSystem right, top
     public static final int CANCODER_CANID = 36;
     public static final String CANBUS = "rio";
+    public static String POSITION_SCORING_ELEMENT = "NULL";
     public static final double MIN_POSITION = 0;
     public static final double MIN_SLOT1_TO_ELEVATE = 4.1; // 3.8;
     public static final double SLOT1_TO_ELEVATE = 4.2; // packaged position to lift elevator
@@ -116,6 +126,7 @@ public final class Constants {
     public static final double MAX_POSITION = 34;
     public static final double INTAKE = 1.5;
     public static final double L1 = 27.5;
+    public static double L1_OFFSET = 0;
     public static final double L2 = 4.2; // 3.9; // DO NOT MODIFY WITHOUT CHANGING
     public static final double L3 = 4.2; // 3.9; // SEQUENCING LOGIC
     public static final double L4 = 4.2; // 3.9; // all 3 of these must be the same value
@@ -161,13 +172,14 @@ public final class Constants {
     public static final double L2 = 4.5;
     public static final double P1 = 3.4;
     public static final double L1 = 8;
+    public static double L1_OFFSET = 0;
     public static final double INTAKE = 0;
     public static final double BUMP_VALUE = .5; // rotations
     // sequencing contants
-    public static final double MAX_LOW_SAFE = .85;
+    public static final double MAX_LOW_SAFE = 1;
     public static final double MIN_MID_SAFE = 11.78;
     public static final double MAX_MID_SAFE = 17.02;
-    public static final double MIN_HIGH_SAFE = 22.64;
+    public static final double MIN_HIGH_SAFE = 24;
     public static final double MAX_LOW_WRIST_MOVE_FROM_SAFE =
         3; // height to start wrist move if wrist is in safe position
     //

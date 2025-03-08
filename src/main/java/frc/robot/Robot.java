@@ -116,7 +116,6 @@ public class Robot extends LoggedRobot {
     CANivoreBus = new CANBus("DRIVEbus");
 
     // initialize robot poses
-    System.out.println("init");
     Logger.recordOutput(
         "RobotPose/Elevator Stage 1", new Pose3d[] {new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0))});
     Logger.recordOutput(
@@ -126,9 +125,10 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput(
         "RobotPose/Climber",
         new Pose3d[] {new Pose3d(-0.2921, 0, 0.4398003396, new Rotation3d(0, 0, 0))});
-    Logger.recordOutput("RobotPose/Zero2d", new Pose2d[] {new Pose2d(0, 0, new Rotation2d(0, 0))});
-    Logger.recordOutput(
-        "RobotPose/Zero3d", new Pose3d[] {new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0))});
+    // use for robot model setup in AdvantageScope
+    //Logger.recordOutput("RobotPose/Zero2d", new Pose2d[] {new Pose2d(0, 0, new Rotation2d(0, 0))});
+    //Logger.recordOutput(
+    //    "RobotPose/Zero3d", new Pose3d[] {new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0))});
   }
 
   /** This function is called periodically during all modes. */
