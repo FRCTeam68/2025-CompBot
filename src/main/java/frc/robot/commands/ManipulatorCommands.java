@@ -16,14 +16,12 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.ElevatorWristSubSystem;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.RangeSensorSubSystem;
 import frc.robot.subsystems.rollers.RollerSystem;
-import java.util.Set;
 import java.util.Set;
 import org.littletonrobotics.junction.Logger;
 

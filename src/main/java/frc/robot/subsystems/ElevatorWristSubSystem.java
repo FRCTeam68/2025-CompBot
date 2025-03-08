@@ -452,13 +452,13 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             }));
   }
 
-  public double getElevatorHeight() {
-    return elevatorHeight;
-  }
+  // public double getElevatorHeight() {
+  //   return elevatorHeight;
+  // }
 
-  public double getWristAngle() {
-    return wristAngle;
-  }
+  // public double getWristAngle() {
+  //   return wristAngle;
+  // }
 
   public boolean atPosition() {
     return elevator.atPosition() && wrist.atPosition();
