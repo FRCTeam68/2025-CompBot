@@ -470,7 +470,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   public boolean atPosition() {
     return elevator.atPosition() && wrist.atPosition();
   }
-
+/* //FIXME
   public Command BumpElevatorPosition(double bumpValue) {
     // initialization
     e_bump_goal = elevator.getPosition() + bumpValue;
@@ -506,7 +506,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     // set position
     return runOnce(() -> wrist.setPosition(w_bump_goal));
   }
-
+*/
   public Command staticElevatorCharacterization(double outputRampRate) {
     final StaticCharacterizationState state = new StaticCharacterizationState();
     Timer timer = new Timer();

@@ -231,10 +231,14 @@ public class RobotContainer {
         "algaeToP1", ManipulatorCommands.AlgaeToP1(elevatorWrist, algaeCradleFlag));
     NamedCommands.registerCommand(
         "algaeToeNet", ManipulatorCommands.AlgaeToNetCmd(elevatorWrist, algaeCradleFlag));
-
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
+    autoChooser.addOption(
+        "Functional Test",
+        ManipulatorCommands.FunctionalTest(
+            intakeShooter, intakeCoralSensor, elevatorWrist, climber));
+    autoChooser.addOption(
+        "Elevator Sequencing Test", ManipulatorCommands.TestElevatorWristSequencing(elevatorWrist));
     // Set up SysId routines
     if (Constants.tuningMode) {
       autoChooser.addOption(
@@ -377,7 +381,7 @@ public class RobotContainer {
     m_ps4Controller.R2().onTrue(ManipulatorCommands.AlgaeAtA2(elevatorWrist, algaeCradleFlag));
 
     m_ps4Controller.options().onTrue(Commands.runOnce(() -> putAutonPoseToDashboard()));
-
+/*
     m_ps4Controller
         .povUp()
         .onTrue(elevatorWrist.BumpElevatorPosition(Constants.ELEVATOR.BUMP_VALUE));
@@ -389,7 +393,7 @@ public class RobotContainer {
     m_ps4Controller.povLeft().onTrue(elevatorWrist.BumpWristPosition(Constants.WRIST.BUMP_VALUE));
 
     m_ps4Controller.povRight().onTrue(elevatorWrist.BumpWristPosition(-Constants.WRIST.BUMP_VALUE));
-
+*/
     // //Left Joystick Y
     // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake1Speed((-Constants.INTAKE.BUMP_VALUE))));
     // m_ps4Controller.axisLessThan(1,-0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake1Speed((Constants.INTAKE.BUMP_VALUE))));
@@ -402,7 +406,7 @@ public class RobotContainer {
 
     m_ps4Controller
         .options()
-        .onTrue(ManipulatorCommands.TestElevatorWristSequencingOld(elevatorWrist));
+        .onTrue(ManipulatorCommands.TestElevatorWristSequencing(elevatorWrist));
 
     m_ps4Controller.PS().onTrue(ManipulatorCommands.CoralL1Cmd(elevatorWrist));
 
