@@ -15,15 +15,22 @@
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "coralToL4"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "indexCoral"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "coralToL4"
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -32,7 +39,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shootCoral"
+            "name": "shoot"
           }
         },
         {
@@ -52,13 +59,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "toIntakeCoral"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "intakeCoral"
+                        "name": "intake"
                       }
                     }
                   ]
@@ -78,15 +79,22 @@
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "coralToL4"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "indexCoral"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "coralToL4"
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -95,7 +103,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shootCoral"
+            "name": "shoot"
           }
         },
         {
@@ -115,13 +123,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "toIntakeCoral"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "intakeCoral"
+                        "name": "intake"
                       }
                     }
                   ]
@@ -141,15 +143,22 @@
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "coralToL4"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "indexCoral"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "coralToL4"
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -158,7 +167,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shootCoral"
+            "name": "shoot"
           }
         },
         {
@@ -178,13 +187,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "toIntakeCoral"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "intakeCoral"
+                        "name": "intake"
                       }
                     }
                   ]
