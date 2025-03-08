@@ -213,21 +213,15 @@ public class RobotContainer {
         break;
     }
 
-    // NamedCommands.registerCommand(
-    //   "shootCoral", ManipulatorCommands.shootCoralCmd(intakeShooter, intakeCoralSensor));
-    // NamedCommands.registerCommand(
-    //    "intakeCoral",
-    //    ManipulatorCommands.intakeCoralCmd(intakeShooter, intakeCoralSensor, elevatorWrist));
-    // NamedCommands.registerCommand(
-    //    "indexCoral", ManipulatorCommands.indexCoralCmd(intakeShooter, intakeCoralSensor));
-    // NamedCommands.registerCommand(
-    //    "shootAlgaeAtP1", ManipulatorCommands.shootAlgaeP1Cmd(intakeShooter));
-    // NamedCommands.registerCommand(
-    //    "intakeAlgae", ManipulatorCommands.intakeAlgaeA1A2Cmd(intakeShooter));
+    NamedCommands.registerCommand(
+        "shoot", ManipulatorCommands.shootCmd(intakeShooter, elevatorWrist));
+    NamedCommands.registerCommand(
+        "intake", ManipulatorCommands.intakeCmd(intakeShooter, intakeCoralSensor, elevatorWrist));
     NamedCommands.registerCommand("coralToL4", ManipulatorCommands.CoralL4Cmd(elevatorWrist));
     NamedCommands.registerCommand("coralToL3", ManipulatorCommands.CoralL3Cmd(elevatorWrist));
     NamedCommands.registerCommand("coralToL2", ManipulatorCommands.CoralL2Cmd(elevatorWrist));
-    NamedCommands.registerCommand("toIntakeCoral", ManipulatorCommands.CoralL1Cmd(elevatorWrist));
+    NamedCommands.registerCommand(
+        "toIntakeCoral", ManipulatorCommands.CoralIntakePositionCmd(elevatorWrist));
     NamedCommands.registerCommand("coralToL1", ManipulatorCommands.CoralL1Cmd(elevatorWrist));
     NamedCommands.registerCommand(
         "algaeFromA2", ManipulatorCommands.AlgaeAtA2(elevatorWrist, algaeCradleFlag));
@@ -237,8 +231,6 @@ public class RobotContainer {
         "algaeToP1", ManipulatorCommands.AlgaeToP1(elevatorWrist, algaeCradleFlag));
     NamedCommands.registerCommand(
         "algaeToeNet", ManipulatorCommands.AlgaeToNetCmd(elevatorWrist, algaeCradleFlag));
-    // NamedCommands.registerCommand(
-    //    "shootAlgaeAtNet", ManipulatorCommands.ShootAlgaeToNetCmd(elevatorWrist, intakeShooter));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
