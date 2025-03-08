@@ -155,13 +155,14 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.red, 4)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "ShootNet")),
-        myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.SHOOTNET, false),
-        Commands.waitSeconds(.5),
+        // myElevatorWrist.setPositionElevatorCmd(Constants.ELEVATOR.SHOOTNET, false),
+        // Commands.waitSeconds(.5),
         myElevatorWrist.setPositionWristCmd(Constants.WRIST.SHOOTNET, false),
         Commands.waitSeconds(.1),
         myShooter.setSpeedCmd(60),
-        Commands.waitSeconds(2),
-        myShooter.setSpeedCmd(0),
+        Commands.waitSeconds(.5),
+        // myShooter.setSpeedCmd(0),
+        myElevatorWrist.setPositionWristCmd(Constants.WRIST.PRENET, false),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange)));
   }
 

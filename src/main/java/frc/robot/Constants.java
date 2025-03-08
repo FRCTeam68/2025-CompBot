@@ -117,7 +117,7 @@ public final class Constants {
     public static final double L3 = 4.2; // 3.9; //
     public static final double L4 = 4.2; // 3.9; // all 3 of these must be the same value
     public static final double CRADLE = 15;
-    public static final double SHOOTNET = 15;
+    public static final double SHOOTNET = 10;
     public static final double PRENET = 27;
     public static final double A2 = 27.5;
     public static final double A1 = 27.5;
