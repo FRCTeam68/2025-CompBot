@@ -135,13 +135,70 @@
                 }
               },
               {
+                "type": "named",
+                "data": {
+                  "name": "intakeAlgae"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "C2_Intake-Net"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.5
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "algaeToPreNet"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shootAlgaeAtNet"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "C2_ Net-EFAlgaeIntake"
+                }
+              },
+              {
                 "type": "sequential",
                 "data": {
                   "commands": [
                     {
                       "type": "named",
                       "data": {
-                        "name": "intakeAlgae"
+                        "name": "algaeFromA2"
                       }
                     }
                   ]
@@ -157,7 +214,26 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "C2_Intake-Net"
+                  "pathName": "C2_EfAlgaeIntake-EfAlgae"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "intakeAlgae"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "C2_EFAlgae-Net"
                 }
               },
               {
