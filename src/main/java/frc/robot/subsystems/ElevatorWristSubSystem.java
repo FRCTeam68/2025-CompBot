@@ -262,9 +262,12 @@ public class ElevatorWristSubSystem extends SubsystemBase {
           sequence2 = Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence2", "NULL"));
           ///// MOVE AWAY FROM SHOOTNET POSITION /////
           // if current elevator is above minimum high safe position
+          // and commanded elevator is below the minimum high safe position
           // and
           // if current wrist position is less then safe position
-          if (e_current >= Constants.ELEVATOR.MIN_HIGH_SAFE && w_current < Constants.WRIST.SAFE) {
+          if ((e_current >= Constants.ELEVATOR.MIN_HIGH_SAFE
+                  && e_goal < Constants.ELEVATOR.MIN_HIGH_SAFE)
+              && w_current < Constants.WRIST.SAFE) {
             sequence0 =
                 Commands.sequence(
                     Commands.runOnce(
@@ -278,11 +281,15 @@ public class ElevatorWristSubSystem extends SubsystemBase {
           // if current and commanded wrist position is greater then the safe position
           // or
           // if current and commanded wrist position is elevate position
+          // or
+          // if current and commanded elevator position are above minimum safe position
           if (e_current <= Constants.ELEVATOR.MAX_LOW_SAFE
               || (w_current >= Constants.WRIST.SAFE && w_goal >= Constants.WRIST.SAFE)
               || (w_current >= Constants.WRIST.MIN_SLOT1_TO_ELEVATE
                   && w_current <= Constants.WRIST.MAX_SLOT1_TO_ELEVATE
-                  && w_goal == Constants.WRIST.SLOT1_TO_ELEVATE)) {
+                  && w_goal == Constants.WRIST.SLOT1_TO_ELEVATE)
+              || (e_current >= Constants.ELEVATOR.MIN_HIGH_SAFE
+                  && e_goal >= Constants.ELEVATOR.MIN_HIGH_SAFE)) {
             if (w_goal <= Constants.WRIST.CRADLE
                 || w_current >= Constants.WRIST.CRADLE - Constants.WRIST.ERROR) {
               sequence1 =
