@@ -160,6 +160,14 @@ public class ElevatorWristSubSystem extends SubsystemBase {
         });
   }
 
+  public RollerSystem getElevator() {
+    return elevator;
+  }
+
+  public RollerSystem getWrist() {
+    return wrist;
+  }
+
   @AutoLogOutput
   public Command setPositionCmd(double e_goal, double w_goal) {
     return Commands.sequence(

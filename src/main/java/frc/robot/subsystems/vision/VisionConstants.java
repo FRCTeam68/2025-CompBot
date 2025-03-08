@@ -24,7 +24,7 @@ public class VisionConstants {
       AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
   // Camera names, must match names configured on coprocessor
-  public static String camera0Name = "limelight-none"; // back,  LL2
+  public static String camera0Name = "limelight-hopper"; // back,  LL2
   public static String camera1Name = "limelight-reef"; // front, LL3G
 
   // Robot to camera transforms
@@ -47,8 +47,8 @@ public class VisionConstants {
   // (Adjust to trust some cameras more than others)
   public static double[] cameraStdDevFactors =
       new double[] {
-        1.0, // Camera 0
-        1.0 // Camera 1
+        0.5, // Camera 0  LL2
+        1.0 // Camera 1   LL3G
       };
 
   // Multipliers to apply for MegaTag 2 observations
