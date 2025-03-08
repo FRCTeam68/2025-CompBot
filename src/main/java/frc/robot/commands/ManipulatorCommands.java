@@ -206,31 +206,32 @@ public class ManipulatorCommands {
   public static Command CoralL4Cmd(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "L4")),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.L4, Constants.WRIST.L4));
+        myElevatorWrist.setPositionCmdNewIf(Constants.ELEVATOR.L4, Constants.WRIST.L4));
   }
 
   public static Command CoralL3Cmd(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "L3")),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.L3, Constants.WRIST.L3));
+        myElevatorWrist.setPositionCmdNewIf(Constants.ELEVATOR.L3, Constants.WRIST.L3));
   }
 
   public static Command CoralL2Cmd(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "L2")),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.L2, Constants.WRIST.L2));
+        myElevatorWrist.setPositionCmdNewIf(Constants.ELEVATOR.L2, Constants.WRIST.L2));
   }
 
   public static Command CoralL1Cmd(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "L1")),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.L1, Constants.WRIST.L1));
+        myElevatorWrist.setPositionCmdNewIf(Constants.ELEVATOR.L1, Constants.WRIST.L1));
   }
 
   public static Command CoralIntakePositionCmd(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
-        Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "L1")),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.L1, Constants.WRIST.L1));
+        Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "INTAKE")),
+        myElevatorWrist.setPositionCmdNewIf(
+            Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.INTAKE));
   }
 
   public static Command AlgaeToNetCmd(
@@ -238,8 +239,8 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.waitUntil(() -> algaeCradleFlag == false),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "NET")),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.SHOOTNET, Constants.WRIST.PRENET),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.SHOOTNET, Constants.WRIST.SHOOTNET));
+        myElevatorWrist.setPositionCmdNewIf(Constants.ELEVATOR.SHOOTNET, Constants.WRIST.PRENET),
+        myElevatorWrist.setPositionCmdNewIf(Constants.ELEVATOR.SHOOTNET, Constants.WRIST.SHOOTNET));
   }
   /*
     public static Command ShootAlgaeToNetCmd(
@@ -261,28 +262,29 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.waitUntil(() -> algaeCradleFlag == false),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "P1")),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.P1, Constants.WRIST.P1));
+        myElevatorWrist.setPositionCmdNewIf(Constants.ELEVATOR.P1, Constants.WRIST.P1));
   }
 
   public static Command AlgaeAtA2(ElevatorWristSubSystem myElevatorWrist, Boolean algaeCradleFlag) {
     return Commands.sequence(
         Commands.waitUntil(() -> algaeCradleFlag == false),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "A2")),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.A2, Constants.WRIST.A2));
+        myElevatorWrist.setPositionCmdNewIf(Constants.ELEVATOR.A2, Constants.WRIST.A2));
   }
 
   public static Command AlgaeAtA1(ElevatorWristSubSystem myElevatorWrist, Boolean algaeCradleFlag) {
     return Commands.sequence(
         Commands.waitUntil(() -> algaeCradleFlag == false),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "A1")),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.A1, Constants.WRIST.A1));
+        myElevatorWrist.setPositionCmdNewIf(Constants.ELEVATOR.A1, Constants.WRIST.A1));
   }
 
   public static Command AlgaeCradle(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "AlgaeCradle")),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.SAFE),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.CRADLE));
+        myElevatorWrist.setPositionCmdNewIf(Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.SAFE),
+        myElevatorWrist.setPositionCmdNewIf(
+            Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.CRADLE));
   }
 
   public static Command DeployClimberCmd(RollerSystem myClimber) {
@@ -319,7 +321,7 @@ public class ManipulatorCommands {
   public static Command MoveToElevatorWristZero(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/State", "ZERO")),
-        myElevatorWrist.setPositionCmdNew(
+        myElevatorWrist.setPositionCmdNewIf(
             Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.MIN_POSITION));
   }
 

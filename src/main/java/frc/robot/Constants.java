@@ -107,7 +107,7 @@ public final class Constants {
     public static final int CANCODER_CANID = 36;
     public static final String CANBUS = "rio";
     public static final double MIN_POSITION = 0;
-    public static final double MIN_SLOT1_TO_ELEVATE = 4.2; // 3.8;
+    public static final double MIN_SLOT1_TO_ELEVATE = 4.1; // 3.8;
     public static final double SLOT1_TO_ELEVATE = 4.2; // packaged position to lift elevator
     public static final double MAX_SLOT1_TO_ELEVATE = 4.3; // 4.0;
     public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 14.5; // min slot2
