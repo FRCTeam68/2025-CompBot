@@ -16,115 +16,116 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.ElevatorWristSubSystem;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.RangeSensorSubSystem;
 import frc.robot.subsystems.rollers.RollerSystem;
-
 import java.util.Set;
-
 import org.littletonrobotics.junction.Logger;
 
 public class ManipulatorCommands {
-   
-     private ManipulatorCommands() {}
-   
-     public static Command intakeCmd(
-         RollerSystem myIntake,
-         RangeSensorSubSystem intake_sensor,
-         ElevatorWristSubSystem myElevatorWrist) {
-       return new DeferredCommand(
-           () -> {
-             // initialization
-             Command command;
-             Command ledIntaking =
-                 Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4));
-             Command ledHaveObject =
-                 Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue));
-             command = Commands.none();
-             if (Constants.WRIST.POSITION_SCORING_ELEMENT == "Algae" || Constants.WRIST.POSITION_SCORING_ELEMENT == "AlgaeNet") {
-               ///// INTAKE ALGAE /////
-               command =
-                   Commands.sequence(
-                       Commands.runOnce(
-                           () ->
-                               Logger.recordOutput("Manipulator/IntakeShooterState", "IntakeAlgae")),
-                               myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_INTAKE_SPEED),
-                       Commands.waitUntil(() -> myIntake.hasPiece()),
-                       ledHaveObject,
-                       Commands.runOnce(() -> myIntake.setPosition(myIntake.getPosition())));
-             } else {
-              ///// INTAKE CORAL /////
-              command =
-                  Commands.sequence(
-                      CoralIntakePositionCmd(myElevatorWrist),
-                      Commands.runOnce(
-                          () ->
-                              Logger.recordOutput("Manipulator/IntakeShooterState", "IntakeCoral")),
-                              myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
-                      Commands.waitUntil(() -> intake_sensor.havePiece()),
-                      ledHaveObject,
-                      Commands.waitSeconds(.07),
-                      myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED),
-                      Commands.waitUntil(() -> intake_sensor.havePiece() == false),
-                      myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED * -1),
-                      Commands.waitUntil(() -> intake_sensor.havePiece()),
-                      Commands.runOnce(
-                          () ->
-                          myIntake.setPosition(
-                            myIntake.getPosition()
-                                      - Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_REVERSE)));
-            }
-             // execute sequence
-             return ledIntaking.andThen(command);
-           },
-           Set.of(myIntake, intake_sensor, myElevatorWrist));
-     }
-   
-     public static Command shootCmd(RollerSystem myShooter, ElevatorWristSubSystem myElevatorWrist) {
-       return new DeferredCommand(
-           () -> {
-             // initialization
-             Command command;
-             Command ledShooting =
-                 Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red));
-             Command ledShot = Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange));
-             command = Commands.none();
-              if (Constants.WRIST.POSITION_SCORING_ELEMENT == "Algae"){
-                ///// SHOOT ALGAE PROCESSOR /////
-                command =
-                   Commands.sequence(
-                       Commands.runOnce(
-                           () -> Logger.recordOutput("Manipulator/IntakeShooterState", "ShootProcessor")),
-                       myShooter.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_SPEED),
-                       Commands.waitSeconds(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_TIMEOUT),
-                       myShooter.setSpeedCmd(0));
-             } else if (Constants.WRIST.POSITION_SCORING_ELEMENT == "AlgaeNet"){
-                ///// SHOOT ALGAE NET /////
-                command =
-                    Commands.parallel(
-                      Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "ShootNet")),
-                      myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.SHOOTNET, Constants.WRIST.SHOOTNET),
-                      Commands.sequence(
+
+  private ManipulatorCommands() {}
+
+  public static Command intakeCmd(
+      RollerSystem myIntake,
+      RangeSensorSubSystem intake_sensor,
+      ElevatorWristSubSystem myElevatorWrist) {
+    return new DeferredCommand(
+        () -> {
+          // initialization
+          Command command;
+          Command ledIntaking =
+              Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4));
+          Command ledHaveObject =
+              Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue));
+          command = Commands.none();
+          if (Constants.WRIST.POSITION_SCORING_ELEMENT == "Algae"
+              || Constants.WRIST.POSITION_SCORING_ELEMENT == "AlgaeNet") {
+            ///// INTAKE ALGAE /////
+            command =
+                Commands.sequence(
+                    Commands.runOnce(
+                        () -> Logger.recordOutput("Manipulator/IntakeShooterState", "IntakeAlgae")),
+                    myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_INTAKE_SPEED),
+                    Commands.waitUntil(() -> myIntake.hasPiece()),
+                    ledHaveObject,
+                    Commands.runOnce(() -> myIntake.setPosition(myIntake.getPosition())));
+          } else {
+            ///// INTAKE CORAL /////
+            command =
+                Commands.sequence(
+                    CoralIntakePositionCmd(myElevatorWrist),
+                    Commands.runOnce(
+                        () -> Logger.recordOutput("Manipulator/IntakeShooterState", "IntakeCoral")),
+                    myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
+                    Commands.waitUntil(() -> intake_sensor.havePiece()),
+                    ledHaveObject,
+                    Commands.waitSeconds(.07),
+                    myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED),
+                    Commands.waitUntil(() -> intake_sensor.havePiece() == false),
+                    myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED * -1),
+                    Commands.waitUntil(() -> intake_sensor.havePiece()),
+                    Commands.runOnce(
+                        () ->
+                            myIntake.setPosition(
+                                myIntake.getPosition()
+                                    - Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_REVERSE)));
+          }
+          // execute sequence
+          return ledIntaking.andThen(command);
+        },
+        Set.of(myIntake, intake_sensor, myElevatorWrist));
+  }
+
+  public static Command shootCmd(RollerSystem myShooter, ElevatorWristSubSystem myElevatorWrist) {
+    return new DeferredCommand(
+        () -> {
+          // initialization
+          Command command;
+          Command ledShooting =
+              Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red));
+          Command ledShot = Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange));
+          command = Commands.none();
+          if (Constants.WRIST.POSITION_SCORING_ELEMENT == "Algae") {
+            ///// SHOOT ALGAE PROCESSOR /////
+            command =
+                Commands.sequence(
+                    Commands.runOnce(
+                        () ->
+                            Logger.recordOutput(
+                                "Manipulator/IntakeShooterState", "ShootProcessor")),
+                    myShooter.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_SPEED),
+                    Commands.waitSeconds(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_TIMEOUT),
+                    myShooter.setSpeedCmd(0));
+          } else if (Constants.WRIST.POSITION_SCORING_ELEMENT == "AlgaeNet") {
+            ///// SHOOT ALGAE NET /////
+            command =
+                Commands.parallel(
+                    Commands.runOnce(
+                        () -> Logger.recordOutput("Manipulator/ElevatorWristState", "ShootNet")),
+                    myElevatorWrist.setPositionCmdNew(
+                        Constants.ELEVATOR.SHOOTNET, Constants.WRIST.SHOOTNET),
+                    Commands.sequence(
                         Commands.waitSeconds(Constants.INTAKE_SHOOTER.ALGAE_NET_SHOOT_DELAY),
                         myShooter.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_NET_SHOOT_SPEED),
                         Commands.waitSeconds(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_TIMEOUT),
                         myShooter.setSpeedCmd(0)));
-             } else if (Constants.WRIST.POSITION_SCORING_ELEMENT == "CoralL1") {
-                ///// SHOOT CORAL /////
-                command =
-                  Commands.sequence(
-                      Commands.runOnce(
-                          () -> Logger.recordOutput("Manipulator/IntakeShooterState", "ShootCoralL1")),
-                      myShooter.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_L1_SHOOT_SPEED),
-                      Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_SHOOT_TIMEOUT),
-                      myShooter.setSpeedCmd(0));
-            }else {
-              ///// SHOOT CORAL /////
-              command =
+          } else if (Constants.WRIST.POSITION_SCORING_ELEMENT == "CoralL1") {
+            ///// SHOOT CORAL /////
+            command =
+                Commands.sequence(
+                    Commands.runOnce(
+                        () ->
+                            Logger.recordOutput("Manipulator/IntakeShooterState", "ShootCoralL1")),
+                    myShooter.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_L1_SHOOT_SPEED),
+                    Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_SHOOT_TIMEOUT),
+                    myShooter.setSpeedCmd(0));
+          } else {
+            ///// SHOOT CORAL /////
+            command =
                 Commands.sequence(
                     Commands.runOnce(
                         () -> Logger.recordOutput("Manipulator/IntakeShooterState", "ShootCoral")),
@@ -132,13 +133,13 @@ public class ManipulatorCommands {
                     Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_SHOOT_TIMEOUT),
                     myShooter.setSpeedCmd(0));
           }
-             // execute sequence
-             return ledShooting.andThen(command).andThen(ledShot);
-           },
-           Set.of(myShooter, myElevatorWrist));
-     }
-   
-     public static Command CoralL4Cmd(ElevatorWristSubSystem myElevatorWrist) {
+          // execute sequence
+          return ledShooting.andThen(command).andThen(ledShot);
+        },
+        Set.of(myShooter, myElevatorWrist));
+  }
+
+  public static Command CoralL4Cmd(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L4")),
@@ -163,15 +164,16 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "CoralL1"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L1")),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.L1 + Constants.ELEVATOR.L1_OFFSET, Constants.WRIST.L1 + Constants.WRIST.L1_OFFSET));
+        myElevatorWrist.setPositionCmdNew(
+            Constants.ELEVATOR.L1 + Constants.ELEVATOR.L1_OFFSET,
+            Constants.WRIST.L1 + Constants.WRIST.L1_OFFSET));
   }
 
   public static Command CoralIntakePositionCmd(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "INTAKE")),
-        myElevatorWrist.setPositionCmdNew(
-            Constants.ELEVATOR.INTAKE, Constants.WRIST.INTAKE));
+        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.INTAKE, Constants.WRIST.INTAKE));
   }
 
   public static Command AlgaeToNetCmd(
@@ -180,8 +182,7 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "AlgaeNet"),
         Commands.waitUntil(() -> algaeCradleFlag == false),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "NET")),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.PRENET, Constants.WRIST.PRENET),
-        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.SHOOTNET, Constants.WRIST.SHOOTNET));
+        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.PRENET, Constants.WRIST.PRENET));
   }
 
   public static Command AlgaeToP1(ElevatorWristSubSystem myElevatorWrist, Boolean algaeCradleFlag) {
@@ -211,10 +212,10 @@ public class ManipulatorCommands {
   public static Command AlgaeCradle(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Algae"),
-        Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "AlgaeCradle")),
+        Commands.runOnce(
+            () -> Logger.recordOutput("Manipulator/ElevatorWristState", "AlgaeCradle")),
         myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.SAFE),
-        myElevatorWrist.setPositionCmdNew(
-            Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.CRADLE));
+        myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.CRADLE));
   }
 
   public static Command DeployClimberCmd(RollerSystem myClimber) {
@@ -236,70 +237,76 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "CLIMBED")),
         Commands.runOnce(() -> LEDSegment.all.setRainbowAnimation(4)));
   }
-
-  public static Command ZeroClimberCmd(RollerSystem myClimber) {
-    return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.red, 4)),
-        Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "ZEROING CLIMBER")),
-        Commands.runOnce(() -> myClimber.setSpeedCmd(Constants.CLIMBER.ZEROING_SPEED)),
-        Commands.waitUntil(
-            () -> myClimber.getSupplyCurrent() > Constants.CLIMBER.ZEROING_CURRENT_LIMIT),
-        Commands.runOnce(() -> myClimber.setSpeedCmd(0)),
-        Commands.runOnce(() -> myClimber.setPosition(myClimber.getPosition() + 10), myClimber),
-        Commands.runOnce(() -> myClimber.zero()));
-  }
-
+  /* // DO NOT USE UNLESS CURRENT LIMIT IS FIXED
+    public static Command ZeroClimberCmd(RollerSystem myClimber) {
+      return Commands.sequence(
+          Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.red, 4)),
+          Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "ZEROING CLIMBER")),
+          myClimber.setSpeedCmd(Constants.CLIMBER.ZEROING_SPEED),
+          Commands.waitUntil(
+              () -> myClimber.getTorqueCurrent() > Constants.CLIMBER.ZEROING_CURRENT_LIMIT),
+          myClimber.setSpeedCmd(0),
+          Commands.runOnce(() -> myClimber.setPosition(myClimber.getPosition() + 10), myClimber),
+          Commands.runOnce(() -> myClimber.zero()),
+          Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.green)),
+          Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "ZEROED CLIMBER")));
+    }
+  */
   public static Command ElevatorWristZeroCmd(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
-      Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Null"),
+        Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Null"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "ZERO")),
         myElevatorWrist.setPositionCmdNew(
             Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.MIN_POSITION));
   }
 
-  public static Command TestPit(RollerSystem myIntake, RangeSensorSubSystem intake_sensor, RollerSystem myShooter, ElevatorWristSubSystem myElevatorWrist, RollerSystem myClimber) {
+  public static Command TestPit(
+      RollerSystem myIntake,
+      RangeSensorSubSystem intake_sensor,
+      RollerSystem myShooter,
+      ElevatorWristSubSystem myElevatorWrist,
+      RollerSystem myClimber) {
     return Commands.sequence(
-      Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.white)),
-      CoralIntakePositionCmd(myElevatorWrist),
-      intakeCmd(myIntake, intake_sensor, myElevatorWrist),
-      CoralL4Cmd(myElevatorWrist),
-      Commands.waitSeconds(0.5),
-      CoralL2Cmd(myElevatorWrist),
-      Commands.waitSeconds(0.5),
-      shootCmd(myShooter, myElevatorWrist),
-      Commands.waitSeconds(1),
-      Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.green)),
-      AlgaeToP1(myElevatorWrist, false),
-      intakeCmd(myIntake, intake_sensor, myElevatorWrist),
-      AlgaeToNetCmd(myElevatorWrist, false),
-      Commands.waitSeconds(0.5),
-      AlgaeToP1(myElevatorWrist, false),
-      Commands.waitSeconds(0.5),
-      shootCmd(myShooter, myElevatorWrist),
-      Commands.waitSeconds(1),
-      ElevatorWristZeroCmd(myElevatorWrist),
-      Commands.waitSeconds(0.5),
-      Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
-      ZeroClimberCmd(myClimber),
-      DeployClimberCmd(myClimber),
-      Commands.waitSeconds(0.5),
-      RetractClimberCmd(myClimber),
-      Commands.runOnce(() -> LEDSegment.all.setRainbowAnimation(4))
-    );
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.white)),
+        CoralIntakePositionCmd(myElevatorWrist),
+        intakeCmd(myIntake, intake_sensor, myElevatorWrist),
+        CoralL4Cmd(myElevatorWrist),
+        Commands.waitSeconds(0.5),
+        CoralL2Cmd(myElevatorWrist),
+        Commands.waitSeconds(0.5),
+        shootCmd(myShooter, myElevatorWrist),
+        Commands.waitSeconds(1),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.green)),
+        AlgaeToP1(myElevatorWrist, false),
+        intakeCmd(myIntake, intake_sensor, myElevatorWrist),
+        AlgaeToNetCmd(myElevatorWrist, false),
+        Commands.waitSeconds(0.5),
+        AlgaeToP1(myElevatorWrist, false),
+        Commands.waitSeconds(0.5),
+        shootCmd(myShooter, myElevatorWrist),
+        Commands.waitSeconds(1),
+        ElevatorWristZeroCmd(myElevatorWrist),
+        Commands.waitSeconds(0.5),
+        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
+        // ZeroClimberCmd(myClimber),
+        DeployClimberCmd(myClimber),
+        Commands.waitSeconds(0.5),
+        RetractClimberCmd(myClimber),
+        Commands.runOnce(() -> LEDSegment.all.setRainbowAnimation(4)));
   }
-
-  public static Command TestElevatorWristSequencing(ElevatorWristSubSystem myElevatorWrist) {
-    Runnable[] positions = new Runnable[10];
-    positions[0] = (Runnable) CoralIntakePositionCmd(myElevatorWrist);
-    positions[1] = (Runnable) CoralL2Cmd(myElevatorWrist);
-    positions[2] = (Runnable) CoralL3Cmd(myElevatorWrist);
-    positions[3] = (Runnable) CoralL4Cmd(myElevatorWrist);
-    positions[4] = (Runnable) CoralL1Cmd(myElevatorWrist);
-    positions[5] = (Runnable) AlgaeToP1(myElevatorWrist, false);
-    positions[6] = (Runnable) AlgaeAtA1(myElevatorWrist, false);
-    positions[7] = (Runnable) AlgaeAtA2(myElevatorWrist, false);
-    positions[8] = (Runnable) AlgaeToNetCmd(myElevatorWrist, false);
-    positions[9] = (Runnable) AlgaeCradle(myElevatorWrist);
+  /*
+    public static Command TestElevatorWristSequencing(ElevatorWristSubSystem myElevatorWrist) {
+      Runnable[] positions = new Runnable[10];
+      positions[0] = (Runnable) CoralIntakePositionCmd(myElevatorWrist);
+      positions[1] = (Runnable) CoralL2Cmd(myElevatorWrist);
+      positions[2] = (Runnable) CoralL3Cmd(myElevatorWrist);
+      positions[3] = (Runnable) CoralL4Cmd(myElevatorWrist);
+      positions[4] = (Runnable) CoralL1Cmd(myElevatorWrist);
+      positions[5] = (Runnable) AlgaeToP1(myElevatorWrist, false);
+      positions[6] = (Runnable) AlgaeAtA1(myElevatorWrist, false);
+      positions[7] = (Runnable) AlgaeAtA2(myElevatorWrist, false);
+      positions[8] = (Runnable) AlgaeToNetCmd(myElevatorWrist, false);
+      positions[9] = (Runnable) AlgaeCradle(myElevatorWrist);
 
       for (int i = 0; i <= (positions.length - 1); i++) {
         positions[i].run();
@@ -311,9 +318,9 @@ public class ManipulatorCommands {
           Commands.waitSeconds(0.5);
         }
       }
-       return ElevatorWristZeroCmd(myElevatorWrist);
-  }
-
+      return ElevatorWristZeroCmd(myElevatorWrist);
+    }
+  */
   public static Command TestElevatorWristSequencingOld(ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
         // home intake

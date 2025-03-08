@@ -410,9 +410,11 @@ public class RobotContainer {
     // m_ps4Controller.axisLessThan(5,-0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake2Speed((Constants.INTAKE.BUMP_VALUE))));
 
     // use incase you notice red light on dashboard.
-    m_ps4Controller.share().onTrue(ManipulatorCommands.ZeroClimberCmd(climber));
+    // m_ps4Controller.share().onTrue(ManipulatorCommands.ZeroClimberCmd(climber));
 
-    m_ps4Controller.options().onTrue(ManipulatorCommands.TestElevatorWristSequencing(elevatorWrist));
+    m_ps4Controller
+        .options()
+        .onTrue(ManipulatorCommands.TestElevatorWristSequencingOld(elevatorWrist));
 
     m_ps4Controller.PS().onTrue(ManipulatorCommands.CoralL1Cmd(elevatorWrist));
 

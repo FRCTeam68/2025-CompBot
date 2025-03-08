@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
-import frc.robot.Constants.ELEVATOR;
 import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
@@ -46,6 +45,8 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   @Getter @AutoLogOutput private double wristAngle = 0.0;
   @Getter @AutoLogOutput private double e_goal = 0;
   @Getter @AutoLogOutput private double w_goal = 0;
+  private double e_bump_goal = 0;
+  private double w_bump_goal = 0;
 
   public ElevatorWristSubSystem() {
 
@@ -135,11 +136,18 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     // robot poses
     Logger.recordOutput(
         "RobotPose/Elevator Stage 1",
-        new Pose3d[] {new Pose3d(0, 0, Units.inchesToMeters(elevator.getPosition() / 5 * 5.5), new Rotation3d(0, 0, 0))});
+        new Pose3d[] {
+          new Pose3d(
+              0, 0, Units.inchesToMeters(elevator.getPosition() / 5 * 5.5), new Rotation3d(0, 0, 0))
+        });
     Logger.recordOutput(
         "RobotPose/Elevator Stage 2",
         new Pose3d[] {
-          new Pose3d(0, 0, Units.inchesToMeters((elevator.getPosition() / 5 * 5.5) * 2), new Rotation3d(0, 0, 0))
+          new Pose3d(
+              0,
+              0,
+              Units.inchesToMeters((elevator.getPosition() / 5 * 5.5) * 2),
+              new Rotation3d(0, 0, 0))
         });
     Logger.recordOutput(
         "RobotPose/Wrist",
@@ -233,20 +241,22 @@ public class ElevatorWristSubSystem extends SubsystemBase {
           double w_current = wrist.getPosition();
           Command sequence0;
           Command sequence1;
-          Command sequenceFinal = Commands.sequence(
-            Commands.waitUntil(() -> wrist.atPosition()),
-            Commands.waitUntil(() -> elevator.atPosition()));
+          Command sequence2;
+          Command sequenceFinal =
+              Commands.sequence(
+                  Commands.waitUntil(() -> wrist.atPosition()),
+                  Commands.waitUntil(() -> elevator.atPosition()));
           Command ledBegin =
               Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4));
           Command ledEnd = Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange));
           sequence0 = Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence0", "NULL"));
           sequence1 = Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence1", "NULL"));
+          sequence2 = Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence2", "NULL"));
           ///// MOVE AWAY FROM SHOOTNET POSITION /////
           // if current elevator is above minimum high safe position
           // and
           // if current wrist position is less then safe position
-          if (e_current >= Constants.ELEVATOR.MIN_HIGH_SAFE
-              && w_current < Constants.WRIST.SAFE) {
+          if (e_current >= Constants.ELEVATOR.MIN_HIGH_SAFE && w_current < Constants.WRIST.SAFE) {
             sequence0 =
                 Commands.sequence(
                     Commands.runOnce(
@@ -347,14 +357,30 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                       Commands.runOnce(
                           () ->
                               elevator.setPosition(
-                                  (Constants.ELEVATOR.MIN_MID_SAFE * 2)
-                                      - Constants.ELEVATOR.MAX_MID_SAFE)),
+                                  Constants.ELEVATOR.MAX_MID_SAFE
+                                      - Constants.ELEVATOR.MIN_MID_SAFE
+                                      + Constants.ELEVATOR.MIN_MID_SAFE)),
                       Commands.waitUntil(
                           () ->
                               (elevator.getPosition() <= Constants.ELEVATOR.MAX_MID_SAFE)
-                                  && (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE)),
-                      Commands.runOnce(() -> wrist.setPosition(w_goal)),
-                      Commands.runOnce(() -> elevator.setPosition(e_goal)));
+                                  && (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE)));
+              if (e_goal > elevator.getPosition()) {
+                sequence2 =
+                    Commands.sequence(
+                        Commands.runOnce(
+                            () ->
+                                Logger.recordOutput("Manipulator/Sequence2", "Wrist -> Elevator")),
+                        Commands.runOnce(() -> wrist.setPosition(w_goal)),
+                        Commands.waitUntil(() -> wrist.getPosition() >= Constants.WRIST.SAFE),
+                        Commands.runOnce(() -> elevator.setPosition(e_goal)));
+              } else {
+                sequence2 =
+                    Commands.parallel(
+                        Commands.runOnce(
+                            () -> Logger.recordOutput("Manipulator/Sequence2", "Wrist + Elevator")),
+                        Commands.runOnce(() -> wrist.setPosition(w_goal)),
+                        Commands.runOnce(() -> elevator.setPosition(e_goal)));
+              }
             } else {
               sequence1 =
                   Commands.sequence(
@@ -366,12 +392,14 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                       Commands.runOnce(
                           () ->
                               elevator.setPosition(
-                                  (Constants.ELEVATOR.MIN_MID_SAFE * 2)
-                                      - Constants.ELEVATOR.MAX_MID_SAFE)),
+                                  Constants.ELEVATOR.MAX_MID_SAFE
+                                      - Constants.ELEVATOR.MIN_MID_SAFE
+                                      + Constants.ELEVATOR.MIN_MID_SAFE)),
                       Commands.waitUntil(
                           () ->
                               (elevator.getPosition() <= Constants.ELEVATOR.MAX_MID_SAFE)
                                   && (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE)),
+                      Commands.waitSeconds(.3),
                       Commands.runOnce(() -> wrist.setPosition(w_goal)),
                       Commands.runOnce(() -> elevator.setPosition(e_goal)));
             }
@@ -385,6 +413,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
           return ledBegin
               .andThen(sequence0)
               .andThen(sequence1)
+              .andThen(sequence2)
               .andThen(sequenceFinal)
               .andThen(ledEnd);
         },
@@ -428,41 +457,39 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   }
 
   public Command BumpElevatorPosition(double bumpValue) {
-            // initialization
-            e_goal = elevator.getPosition() + bumpValue;
-            // check limits
-            if (e_goal < Constants.ELEVATOR.MIN_POSITION) {
-                e_goal = Constants.ELEVATOR.MIN_POSITION;
-            } else if (e_goal > Constants.ELEVATOR.MAX_POSITION) {
-                e_goal = Constants.ELEVATOR.MAX_POSITION;
-            }
-            // coral L1 offset
-            if (Constants.WRIST.POSITION_SCORING_ELEMENT == "CoralL1") {
-                Constants.ELEVATOR.L1_OFFSET = Constants.ELEVATOR.L1_OFFSET + bumpValue;
-                Logger.recordOutput(
-                                  "Roller/Elevator/L1 Offset", Constants.ELEVATOR.L1_OFFSET);
-            }
-            // set position
-            return Commands.runOnce(() -> elevator.setPosition(e_goal));
+    // initialization
+    e_bump_goal = elevator.getPosition() + bumpValue;
+    // check limits
+    if (e_bump_goal < Constants.ELEVATOR.MIN_POSITION) {
+      e_bump_goal = Constants.ELEVATOR.MIN_POSITION;
+    } else if (e_goal > Constants.ELEVATOR.MAX_POSITION) {
+      e_bump_goal = Constants.ELEVATOR.MAX_POSITION;
+    }
+    // coral L1 offset
+    if (Constants.WRIST.POSITION_SCORING_ELEMENT == "CoralL1") {
+      Constants.ELEVATOR.L1_OFFSET = Constants.ELEVATOR.L1_OFFSET + bumpValue;
+      Logger.recordOutput("Roller/Elevator/L1 Offset", Constants.ELEVATOR.L1_OFFSET);
+    }
+    // set position
+    return runOnce(() -> elevator.setPosition(e_bump_goal));
   }
 
   public Command BumpWristPosition(double bumpValue) {
-            // initialization
-            w_goal = wrist.getPosition() + bumpValue;
-            // check limits
-            if (w_goal < Constants.WRIST.MIN_POSITION) {
-                w_goal = Constants.WRIST.MIN_POSITION;
-            } else if (w_goal > Constants.WRIST.MAX_POSITION) {
-                w_goal = Constants.WRIST.MAX_POSITION;
-            }
-            // coral L1 offset
-            if (Constants.WRIST.POSITION_SCORING_ELEMENT == "CoralL1") {
-                Constants.WRIST.L1_OFFSET = Constants.WRIST.L1_OFFSET + bumpValue;
-                Logger.recordOutput(
-                                  "Roller/Wrist/L1 Offset", Constants.WRIST.L1_OFFSET);
-            }
-            // set position
-            return Commands.runOnce(() -> wrist.setPosition(w_goal));
+    // initialization
+    w_bump_goal = wrist.getPosition() + bumpValue;
+    // check limits
+    if (w_bump_goal < Constants.WRIST.MIN_POSITION) {
+      w_bump_goal = Constants.WRIST.MIN_POSITION;
+    } else if (w_goal > Constants.WRIST.MAX_POSITION) {
+      w_bump_goal = Constants.WRIST.MAX_POSITION;
+    }
+    // coral L1 offset
+    if (Constants.WRIST.POSITION_SCORING_ELEMENT == "CoralL1") {
+      Constants.WRIST.L1_OFFSET = Constants.WRIST.L1_OFFSET + bumpValue;
+      Logger.recordOutput("Roller/Wrist/L1 Offset", Constants.WRIST.L1_OFFSET);
+    }
+    // set position
+    return runOnce(() -> wrist.setPosition(w_bump_goal));
   }
 
   public Command staticElevatorCharacterization(double outputRampRate) {

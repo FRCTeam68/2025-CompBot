@@ -19,9 +19,7 @@ import com.ctre.phoenix6.CANBus.CANBusStatus;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -126,8 +124,9 @@ public class Robot extends LoggedRobot {
         "RobotPose/Climber",
         new Pose3d[] {new Pose3d(-0.2921, 0, 0.4398003396, new Rotation3d(0, 0, 0))});
     // use for robot model setup in AdvantageScope
-    //Logger.recordOutput("RobotPose/Zero2d", new Pose2d[] {new Pose2d(0, 0, new Rotation2d(0, 0))});
-    //Logger.recordOutput(
+    // Logger.recordOutput("RobotPose/Zero2d", new Pose2d[] {new Pose2d(0, 0, new Rotation2d(0,
+    // 0))});
+    // Logger.recordOutput(
     //    "RobotPose/Zero3d", new Pose3d[] {new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0))});
   }
 

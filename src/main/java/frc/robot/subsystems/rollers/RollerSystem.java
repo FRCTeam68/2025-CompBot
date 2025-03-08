@@ -123,8 +123,15 @@ public class RollerSystem extends SubsystemBase {
 
     // robot poses
     if (name == "Climber") {
-      Logger.recordOutput("RobotPose/Climber",
-        new Pose3d[] {new Pose3d(-0.2921, 0, 0.4398003396, new Rotation3d(0, inputs.positionRotations / 125 * (12 / 32), 0))});
+      Logger.recordOutput(
+          "RobotPose/Climber",
+          new Pose3d[] {
+            new Pose3d(
+                -0.2921,
+                0,
+                0.4398003396,
+                new Rotation3d(0, inputs.positionRotations / 125 * (12 / 32), 0))
+          });
     }
   }
 
@@ -196,8 +203,8 @@ public class RollerSystem extends SubsystemBase {
     return inputs.positionRotations;
   }
 
-  public double getSupplyCurrent() {
-    return inputs.supplyCurrentAmps;
+  public double getTorqueCurrent() {
+    return inputs.torqueCurrentAmps;
   }
 
   public boolean atSpeed() {

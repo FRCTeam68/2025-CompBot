@@ -25,16 +25,10 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.LED;
-import frc.robot.subsystems.LightsSubsystem;
-import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
-
 import java.util.LinkedList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
-
-import com.ctre.phoenix.led.CANdle;
 
 public class Vision extends SubsystemBase {
   private final VisionConsumer consumer;
@@ -153,9 +147,10 @@ public class Vision extends SubsystemBase {
       }
 
       // led status light
-      //if (inputs[cameraIndex].poseObservations != 0) {
-      //  LEDSegment.set
-      //}
+      // if (inputs[cameraIndex].poseObservations != 0) {
+      //  LEDSegment.led + camera.index.setColor()
+      // CANdle.setLEDs(0, 255, 0, 0, cameraIndex, 0);
+      // }
       // Log camera datadata
       Logger.recordOutput(
           "Vision/Camera" + Integer.toString(cameraIndex) + "/TagPoses",

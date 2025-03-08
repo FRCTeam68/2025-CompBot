@@ -15,15 +15,12 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Meters;
 
-import org.littletonrobotics.junction.AutoLogOutput;
-
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
-import lombok.Getter;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -125,7 +122,7 @@ public final class Constants {
     public static final double MAX_POSITION_AT_P1 = 34;
     public static final double MAX_POSITION = 34;
     public static final double INTAKE = 1.5;
-    public static final double L1 = 27.5;
+    public static final double L1 = 17;
     public static double L1_OFFSET = 0;
     public static final double L2 = 4.2; // 3.9; // DO NOT MODIFY WITHOUT CHANGING
     public static final double L3 = 4.2; // 3.9; // SEQUENCING LOGIC
@@ -145,8 +142,8 @@ public final class Constants {
         new Slot0Configs().withKP(40).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(5) // 60  5
-            .withMotionMagicAcceleration(10) // 240  15
+            .withMotionMagicCruiseVelocity(60) // 60  5
+            .withMotionMagicAcceleration(240) // 240  15
             .withMotionMagicJerk(10000);
   }
 
@@ -178,7 +175,7 @@ public final class Constants {
     // sequencing contants
     public static final double MAX_LOW_SAFE = 1;
     public static final double MIN_MID_SAFE = 11.78;
-    public static final double MAX_MID_SAFE = 17.02;
+    public static final double MAX_MID_SAFE = 16;
     public static final double MIN_HIGH_SAFE = 24;
     public static final double MAX_LOW_WRIST_MOVE_FROM_SAFE =
         3; // height to start wrist move if wrist is in safe position
@@ -187,8 +184,8 @@ public final class Constants {
         new Slot0Configs().withKP(10).withKI(0).withKD(0).withKS(0.5).withKV(0.2).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(5) // 40  5
-            .withMotionMagicAcceleration(10) // 120  60
+            .withMotionMagicCruiseVelocity(40) // 40  5
+            .withMotionMagicAcceleration(120) // 120  60
             .withMotionMagicJerk(400);
   }
 
@@ -204,8 +201,8 @@ public final class Constants {
     public static final String CANBUS = "rio";
     public static final double GOAL = 102; // 52;
     public static final double MAX_HEIGHT = 60;
-    public static final double ZEROING_SPEED = 5; // speed when zeroing
-    public static final double ZEROING_CURRENT_LIMIT = 10; // current limit when zeroing
+    public static final double ZEROING_SPEED = -70; // speed when zeroing
+    public static final double ZEROING_CURRENT_LIMIT = 45; // current limit when zeroing
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(10).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
