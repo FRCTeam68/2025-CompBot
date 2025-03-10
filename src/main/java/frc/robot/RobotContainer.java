@@ -364,11 +364,9 @@ public class RobotContainer {
         .rightTrigger()
         .onTrue(ManipulatorCommands.shootCmd(intakeShooter, elevatorWrist));
 
-    // m_xboxController.leftBumper().onTrue(ManipulatorCommands.intakeCmd(intakeShooter,
-    // intakeCoralSensor, elevatorWrist));
-
-    // m_xboxController.rightBumper().onTrue(ManipulatorCommands.shootCmd(intakeShooter,
-    // elevatorWrist));
+    // Reef alignment
+    m_xboxController.leftBumper().onTrue(new AlignToReefTagRelative(false, drive).withTimeout(3));
+    m_xboxController.rightBumper().onTrue(new AlignToReefTagRelative(true, drive).withTimeout(3));
 
     m_xboxController
         .start()
