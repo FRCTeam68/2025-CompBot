@@ -320,7 +320,7 @@ public class RobotContainer {
                 drive,
                 () -> -m_xboxController.getLeftY(),
                 () -> -m_xboxController.getLeftX(),
-                () -> drive.getRotation().minus(vision.getTargetX(1))));
+                () -> vision.getTagPose(1).getRotation()));
 
     // // Reset gyro to 0° when B button is pressed
     m_xboxController
