@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.drive.Drive;
+import org.littletonrobotics.junction.Logger;
 
 public class AlignToReefTagRelative extends Command {
   private PIDController xController, yController, rotController;
@@ -56,12 +57,15 @@ public class AlignToReefTagRelative extends Command {
       this.dontSeeTagTimer.reset();
 
       double[] postions = LimelightHelpers.getBotPose_TargetSpace("limelight-reef");
-      SmartDashboard.putNumber("x", postions[2]);
+      Logger.recordOutput("AlignReef/x", postions[2]);
 
       double xSpeed = xController.calculate(postions[2]);
-      SmartDashboard.putNumber("xspee", xSpeed);
+      Logger.recordOutput("AlignReef/xspeed", xSpeed);
       double ySpeed = -yController.calculate(postions[0]);
       double rotValue = -rotController.calculate(postions[4]);
+
+      xSpeed = yController.getError() < Constants.Y_TOLERANCE_REEF_ALIGNMENT ? xSpeed : 0;
+      Logger.recordOutput("AlignReef/xspeed2", xSpeed);
 
       drivebase.runVelocity(new ChassisSpeeds(xSpeed, ySpeed, rotValue));
 
@@ -72,7 +76,7 @@ public class AlignToReefTagRelative extends Command {
       drivebase.stop();
     }
 
-    SmartDashboard.putNumber("poseValidTimer", stopTimer.get());
+    Logger.recordOutput("AlignReef/poseValidTimer", stopTimer.get());
   }
 
   @Override
