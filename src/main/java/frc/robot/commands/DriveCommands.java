@@ -123,7 +123,8 @@ public class DriveCommands {
             new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
-    Logger.recordOutput("drivecmd/radians", rotationSupplier.get().getRadians());
+    Logger.recordOutput("DriveAtAngle/radians", rotationSupplier.get().getRadians());
+    Logger.recordOutput("DriveAtAngle/degrees", rotationSupplier.get().getDegrees());
 
     // Construct command
     return Commands.run(

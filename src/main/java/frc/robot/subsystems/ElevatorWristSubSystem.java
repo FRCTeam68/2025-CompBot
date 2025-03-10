@@ -36,8 +36,13 @@ public class ElevatorWristSubSystem extends SubsystemBase {
 
   private final RollerSystem wrist;
   private final RollerSystem elevator;
+
+  @SuppressWarnings("unused")
   private final RollerSystem elevatorFollower;
+
+  @SuppressWarnings("unused")
   private final RangeSensorSubSystem ElevatorSensor;
+
   private final CANcoder wristCANcoder;
 
   @Getter @AutoLogOutput private double setpoint = 0.0;
@@ -470,43 +475,43 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   public boolean atPosition() {
     return elevator.atPosition() && wrist.atPosition();
   }
-/* //FIXME
-  public Command BumpElevatorPosition(double bumpValue) {
-    // initialization
-    e_bump_goal = elevator.getPosition() + bumpValue;
-    // check limits
-    if (e_bump_goal < Constants.ELEVATOR.MIN_POSITION) {
-      e_bump_goal = Constants.ELEVATOR.MIN_POSITION;
-    } else if (e_goal > Constants.ELEVATOR.MAX_POSITION) {
-      e_bump_goal = Constants.ELEVATOR.MAX_POSITION;
+  /* //FIXME
+    public Command BumpElevatorPosition(double bumpValue) {
+      // initialization
+      e_bump_goal = elevator.getPosition() + bumpValue;
+      // check limits
+      if (e_bump_goal < Constants.ELEVATOR.MIN_POSITION) {
+        e_bump_goal = Constants.ELEVATOR.MIN_POSITION;
+      } else if (e_goal > Constants.ELEVATOR.MAX_POSITION) {
+        e_bump_goal = Constants.ELEVATOR.MAX_POSITION;
+      }
+      // coral L1 offset
+      if (Constants.WRIST.POSITION_SCORING_ELEMENT == "CoralL1") {
+        Constants.ELEVATOR.L1_OFFSET = Constants.ELEVATOR.L1_OFFSET + bumpValue;
+        Logger.recordOutput("Roller/Elevator/L1 Offset", Constants.ELEVATOR.L1_OFFSET);
+      }
+      // set position
+      return runOnce(() -> elevator.setPosition(e_bump_goal));
     }
-    // coral L1 offset
-    if (Constants.WRIST.POSITION_SCORING_ELEMENT == "CoralL1") {
-      Constants.ELEVATOR.L1_OFFSET = Constants.ELEVATOR.L1_OFFSET + bumpValue;
-      Logger.recordOutput("Roller/Elevator/L1 Offset", Constants.ELEVATOR.L1_OFFSET);
-    }
-    // set position
-    return runOnce(() -> elevator.setPosition(e_bump_goal));
-  }
 
-  public Command BumpWristPosition(double bumpValue) {
-    // initialization
-    w_bump_goal = wrist.getPosition() + bumpValue;
-    // check limits
-    if (w_bump_goal < Constants.WRIST.MIN_POSITION) {
-      w_bump_goal = Constants.WRIST.MIN_POSITION;
-    } else if (w_goal > Constants.WRIST.MAX_POSITION) {
-      w_bump_goal = Constants.WRIST.MAX_POSITION;
+    public Command BumpWristPosition(double bumpValue) {
+      // initialization
+      w_bump_goal = wrist.getPosition() + bumpValue;
+      // check limits
+      if (w_bump_goal < Constants.WRIST.MIN_POSITION) {
+        w_bump_goal = Constants.WRIST.MIN_POSITION;
+      } else if (w_goal > Constants.WRIST.MAX_POSITION) {
+        w_bump_goal = Constants.WRIST.MAX_POSITION;
+      }
+      // coral L1 offset
+      if (Constants.WRIST.POSITION_SCORING_ELEMENT == "CoralL1") {
+        Constants.WRIST.L1_OFFSET = Constants.WRIST.L1_OFFSET + bumpValue;
+        Logger.recordOutput("Roller/Wrist/L1 Offset", Constants.WRIST.L1_OFFSET);
+      }
+      // set position
+      return runOnce(() -> wrist.setPosition(w_bump_goal));
     }
-    // coral L1 offset
-    if (Constants.WRIST.POSITION_SCORING_ELEMENT == "CoralL1") {
-      Constants.WRIST.L1_OFFSET = Constants.WRIST.L1_OFFSET + bumpValue;
-      Logger.recordOutput("Roller/Wrist/L1 Offset", Constants.WRIST.L1_OFFSET);
-    }
-    // set position
-    return runOnce(() -> wrist.setPosition(w_bump_goal));
-  }
-*/
+  */
   public Command staticElevatorCharacterization(double outputRampRate) {
     final StaticCharacterizationState state = new StaticCharacterizationState();
     Timer timer = new Timer();
