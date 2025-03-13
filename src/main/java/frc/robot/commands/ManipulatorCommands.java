@@ -54,10 +54,10 @@ public class ManipulatorCommands {
                     myIntakeLow.setSpeedCmd(Constants.INTAKE_SHOOTER_LOW.ALGAE_INTAKE_SPEED),
                     Commands.waitUntil(() -> myIntake.hasPiece()),
                     ledHaveObject,
-                    // myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_HOLD_SPEED),
-                    // myIntakeLow.setSpeedCmd(Constants.INTAKE_SHOOTER_LOW.ALGAE_HOLD_SPEED)
-                    Commands.runOnce(() -> myIntake.setPosition(myIntake.getPosition())),
-                    Commands.runOnce(() -> myIntakeLow.setPosition(myIntakeLow.getPosition())));
+                    myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_HOLD_SPEED),
+                    myIntakeLow.setSpeedCmd(Constants.INTAKE_SHOOTER_LOW.ALGAE_HOLD_SPEED));
+            // Commands.runOnce(() -> myIntake.setPosition(myIntake.getPosition())),
+            // Commands.runOnce(() -> myIntakeLow.setPosition(myIntakeLow.getPosition())));
           } else {
             ///// INTAKE CORAL /////
             command =
@@ -65,9 +65,9 @@ public class ManipulatorCommands {
                     CoralIntakePositionCmd(myElevatorWrist),
                     Commands.runOnce(
                         () -> Logger.recordOutput("Manipulator/IntakeShooterState", "IntakeCoral")),
-                    ledIntaking,
+                    // ledIntaking,
                     myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
-                    myIntakeLow.setSpeedCmd(0),
+                    // myIntakeLow.setSpeedCmd(0),
                     Commands.waitUntil(() -> intake_sensor.havePiece()),
                     ledHaveObject,
                     Commands.waitSeconds(.03),

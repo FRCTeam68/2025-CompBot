@@ -87,7 +87,7 @@ public final class Constants {
     public static final double ALGAE_HOLD_SPEED = -5;
     public static final double ALGAE_SHOOT_SPEED = 20;
     public static final double ALGAE_NET_SHOOT_SPEED = 80;
-    public static final double ALGAE_NET_SHOOT_DELAY = .13;
+    public static final double ALGAE_NET_SHOOT_DELAY = .3; // .13;
     public static final double ALGAE_SHOOT_TIMEOUT = 1;
     //
     public static final double BUMP_VALUE = 1; // rotations
@@ -101,7 +101,7 @@ public final class Constants {
   }
 
   public static final class INTAKE_SHOOTER_LOW {
-    public static final int CANID = 31;
+    public static final int CANID = 38;
     public static final String CANBUS = "rio";
     public static final double MAX_SPEED = 100; // rps
 

@@ -125,7 +125,7 @@ public class RobotContainer {
                     Constants.INTAKE_SHOOTER_LOW.CANID,
                     Constants.INTAKE_SHOOTER_LOW.CANBUS,
                     40,
-                    false,
+                    true,
                     0,
                     false,
                     false,
@@ -533,6 +533,7 @@ public class RobotContainer {
   public void StopSubSystems() {
     elevatorWrist.stop();
     intakeShooter.stop();
+    intakeShooterLow.stop();
     climber.stop();
   }
 }
