@@ -59,6 +59,8 @@ public final class Constants {
         new Pose2d(right.getMeasureX(), Meters.of(4.16), right.getRotation());
     public static final Pose2d left =
         new Pose2d(right.getMeasureX(), Meters.of(5.60), right.getRotation());
+    public static final double TRANSLATION_START_ERROR = Units.inchesToMeters(1);
+    public static final double ROTATION_START_ERROR = 1;
   }
 
   public static final class LED {

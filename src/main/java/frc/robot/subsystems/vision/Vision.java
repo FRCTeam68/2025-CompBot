@@ -25,6 +25,9 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.LightsConstants;
+import frc.robot.subsystems.LightsSubsystem;
+import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.LinkedList;
 import java.util.List;
@@ -120,6 +123,26 @@ public class Vision extends SubsystemBase {
           robotPosesAccepted.add(observation.pose());
         }
 
+        // led status lights
+        if (cameraIndex == 0) {
+          if (!rejectPose) {
+            LEDSegment.LED0.setColor(LightsSubsystem.blue);
+          } else if (inputs[cameraIndex].connected) {
+            LEDSegment.LED0.setColor(LightsSubsystem.green);
+          } else {
+            LEDSegment.LED0.setColor(LightsSubsystem.red);
+          }
+        }
+        if (cameraIndex == 1) {
+          if (!rejectPose) {
+            LEDSegment.LED1.setColor(LightsSubsystem.blue);
+          } else if (inputs[cameraIndex].connected) {
+            LEDSegment.LED1.setColor(LightsSubsystem.green);
+          } else {
+            LEDSegment.LED1.setColor(LightsSubsystem.red);
+          }
+        }
+
         // Skip if rejected
         if (rejectPose) {
           continue;
@@ -146,11 +169,6 @@ public class Vision extends SubsystemBase {
             VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
       }
 
-      // led status light
-      // if (inputs[cameraIndex].poseObservations != 0) {
-      //  LEDSegment.led + camera.index.setColor()
-      // CANdle.setLEDs(0, 255, 0, 0, cameraIndex, 0);
-      // }
       // Log camera datadata
       Logger.recordOutput(
           "Vision/Camera" + Integer.toString(cameraIndex) + "/TagPoses",

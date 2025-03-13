@@ -9,6 +9,7 @@ import com.ctre.phoenix6.hardware.CANrange;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.util.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
@@ -55,6 +56,25 @@ public class RangeSensorSubSystem extends SubsystemBase {
 
     isDetected = detectedSignal.getValue();
     Logger.recordOutput("CAN_range/" + name + "/isDetected", isDetected);
+
+    // led status lights
+    if (name == "intakeCoral") {
+      if (isDetected) {
+        LEDSegment.LED2.setColor(LightsSubsystem.blue);
+      } else if (sensorConnected) {
+        LEDSegment.LED2.setColor(LightsSubsystem.green);
+      } else {
+        LEDSegment.LED2.setColor(LightsSubsystem.red);
+      }
+    } else {
+      if (isDetected) {
+        LEDSegment.LED3.setColor(LightsSubsystem.blue);
+      } else if (sensorConnected) {
+        LEDSegment.LED3.setColor(LightsSubsystem.green);
+      } else {
+        LEDSegment.LED3.setColor(LightsSubsystem.red);
+      }
+    }
   }
 
   public double getDistance_mm() {

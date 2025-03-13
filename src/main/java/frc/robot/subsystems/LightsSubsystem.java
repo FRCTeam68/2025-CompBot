@@ -100,12 +100,12 @@ public class LightsSubsystem extends SubsystemBase {
     // DriverStationIndicator(7, 1, -1),
     // Do1to4(0, 4, 0),
     // Do5to8(4, 4, 1),
-    LED0(0, 1, 0),
-    LED1(1, 1, 0),
-    LED2(2, 1, 0),
-    LED3(3, 1, 0),
-    LED4(4, 1, 0),
-    LED5(5, 1, 0),
+    LED0(0, 1, 0), // camera - hopper
+    LED1(1, 1, 0), // camera - reef
+    LED2(2, 1, 0), // CANrange - intake
+    LED3(3, 1, 0), // CANrange - reef post
+    LED4(4, 1, 0), // rio can bus
+    LED5(5, 1, 0), // CAnivore can bus
     LED6(6, 1, 0),
     LED7(7, 1, 0),
     // side1(8, 7, 2),
@@ -123,6 +123,15 @@ public class LightsSubsystem extends SubsystemBase {
     // side2(15, 4, 5),
     // side3(22, 4, 6),
     // side4(29, 4, 7);
+
+    // auton setup
+    autonYLeft(45, 4, 0),
+    autonRLeft(49, 3, 0),
+    autonXLeft(52, 2, 0),
+    autonXRight(54, 2, 0),
+    autonRRight(56, 3, 0),
+    autonYRight(59, 4, 0),
+
 
     // there is 1 long strand:  36 + 18 + 36, so 90 LEDs total
     leftside(8, 37, 1),
