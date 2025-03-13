@@ -21,6 +21,7 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
@@ -39,6 +40,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -105,6 +107,8 @@ public class Drive extends SubsystemBase {
       };
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+
+  private SwerveModuleState[] setpointStates;
 
   public Drive(
       GyroIO gyroIO,
@@ -230,7 +234,7 @@ public class Drive extends SubsystemBase {
   public void runVelocity(ChassisSpeeds speeds) {
     // Calculate module setpoints
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-    SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
+    setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
 
     // Log unoptimized setpoints and setpoint speeds
@@ -374,5 +378,106 @@ public class Drive extends SubsystemBase {
       new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
       new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
     };
+  }
+
+  // -------------------------- from ORCAbot  ---------------------------
+
+  /**
+   * Gets the current yaw angle of the robot, as reported by the swerve pose estimator in the
+   * underlying drivebase. Note, this is not the raw gyro reading, this may be corrected from calls
+   * to resetOdometry().
+   *
+   * @return The yaw angle
+   */
+  public Rotation2d getHeading() {
+    return getGyroRotation();
+  }
+
+  public boolean isRedSide() {
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
+      return alliance.get() == DriverStation.Alliance.Red;
+    }
+    return false;
+  }
+
+  /**
+   * Use PathPlanner Path finding to go to a point on the field.
+   *
+   * @param pose Target {@link Pose2d} to go to.
+   * @param constraints Maximum linear and rotational speeds and accelerations.
+   * @return PathFinding command
+   */
+  public Command driveToPose(Pose2d pose, PathConstraints constraints) {
+    // Since AutoBuilder is configured, we can use it to build pathfinding commands
+    return AutoBuilder.pathfindToPose(pose, constraints);
+  }
+
+  /**
+   * Use PathPlanner Path finding to go to a point on the field.
+   *
+   * @param pose Target {@link Pose2d} to go to.
+   * @param constraints Maximum linear and rotational speeds and accelerations.
+   * @param endSpeed Final velocity at goal.
+   * @return PathFinding command
+   */
+  public Command driveToPose(Pose2d pose, PathConstraints constraints, double endSpeed) {
+    // Since AutoBuilder is configured, we can use it to build pathfinding commands
+    return AutoBuilder.pathfindToPose(pose, constraints, endSpeed);
+  }
+
+  /**
+   * Use PathPlanner Path finding to go to a point on the field.
+   *
+   * @param pose Target {@link Pose2d} to go to in relation to robot pose.
+   * @param constraints Maximum linear and rotational speeds and accelerations.
+   * @param endSpeed Final velocity at goal.
+   * @return PathFinding command
+   */
+  public Command driveToPoseRobotRelative(
+      Pose2d pose, PathConstraints constraints, double endSpeed) {
+    Pose2d robot2d = getPose();
+
+    // Since AutoBuilder is configured, we can use it to build pathfinding commands
+    return AutoBuilder.pathfindToPose(
+        new Pose2d(
+            pose.getX() + robot2d.getX(),
+            pose.getY() + robot2d.getY(),
+            new Rotation2d(pose.getRotation().getRadians() + robot2d.getRotation().getRadians())),
+        constraints,
+        endSpeed // Goal end velocity in meters/sec
+        );
+  }
+
+  /**
+   * Gets the measured field-relative robot velocity (x, y and omega)
+   *
+   * @return A ChassisSpeeds object of the current field-relative velocity
+   */
+  public ChassisSpeeds getFieldVelocity() {
+    // ChassisSpeeds has a method to convert from field-relative to robot-relative speeds,
+    // but not the reverse.  However, because this transform is a simple rotation, negating the
+    // angle given as the robot angle reverses the direction of rotation, and the conversion is
+    // reversed.
+    ChassisSpeeds robotRelativeSpeeds = kinematics.toChassisSpeeds(setpointStates);
+    return ChassisSpeeds.fromRobotRelativeSpeeds(robotRelativeSpeeds, getOdometryHeading());
+    // Might need to be this instead
+    // return ChassisSpeeds.fromFieldRelativeSpeeds(
+    //        kinematics.toChassisSpeeds(getStates()), getOdometryHeading().unaryMinus());
+  }
+
+  /**
+   * Fetch the latest odometry heading, should be trusted over {@link SwerveDrive#getYaw()}.
+   *
+   * @return {@link Rotation2d} of the robot heading.
+   */
+  public Rotation2d getOdometryHeading() {
+    return poseEstimator.getEstimatedPosition().getRotation();
+  }
+
+  public LinearVelocity getVelocityMagnitude() {
+    ChassisSpeeds cs = getFieldVelocity();
+    return MetersPerSecond.of(
+        new Translation2d(cs.vxMetersPerSecond, cs.vyMetersPerSecond).getNorm());
   }
 }

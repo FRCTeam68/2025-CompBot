@@ -17,10 +17,13 @@ import static edu.wpi.first.units.Units.Meters;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -222,5 +225,62 @@ public final class Constants {
 
   public static final class LightsConstants {
     public static final int CANDLE_PORT = 60;
+  }
+
+  public static final class PathPlannerConstants {
+
+    public static final PathConstraints testingConstraints =
+        new PathConstraints(
+            Units.feetToMeters(1.5), 2.0, Units.degreesToRadians(50), Units.degreesToRadians(300));
+
+    public static final PathConstraints slowConstraints =
+        new PathConstraints(
+            Units.feetToMeters(3.5), 4.0, Units.degreesToRadians(100), Units.degreesToRadians(720));
+
+    public static final PathConstraints defaultConstraints =
+        new PathConstraints(
+            Units.feetToMeters(8), 4.0, Units.degreesToRadians(200), Units.degreesToRadians(720));
+
+    public static final PathConstraints fastConstraints =
+        new PathConstraints(
+            Units.feetToMeters(14), 4.0, Units.degreesToRadians(360), Units.degreesToRadians(720));
+  }
+
+  public static final class FieldPoses {
+
+    public static final double[] fieldSize = {17.55, 8.05};
+    // Wall thickness is 0.051
+    public static final double[] centerOfReef = {4.487, 4.025};
+
+    public static final List<Pose2d> blueReefPoses =
+        new ArrayList<Pose2d>() {
+          {
+            add(new Pose2d(2.890, 4.025, new Rotation2d(Units.degreesToRadians(1.00))));
+            add(new Pose2d(3.689, 2.642, new Rotation2d(Units.degreesToRadians(61.0))));
+            add(new Pose2d(5.285, 2.642, new Rotation2d(Units.degreesToRadians(121.0))));
+            add(new Pose2d(6.087, 4.025, new Rotation2d(Units.degreesToRadians(181.0))));
+            add(new Pose2d(5.285, 5.408, new Rotation2d(Units.degreesToRadians(241.0))));
+            add(new Pose2d(3.689, 5.408, new Rotation2d(Units.degreesToRadians(301.0))));
+          }
+        };
+
+    public static final List<Pose2d> redReefPoses =
+        new ArrayList<Pose2d>() {
+          {
+            add(new Pose2d(11.466, 4.025, new Rotation2d(Units.degreesToRadians(1.0))));
+            add(new Pose2d(12.265, 2.642, new Rotation2d(Units.degreesToRadians(61.0))));
+            add(new Pose2d(13.861, 2.642, new Rotation2d(Units.degreesToRadians(121.0))));
+            add(new Pose2d(14.663, 4.025, new Rotation2d(Units.degreesToRadians(181.0))));
+            add(new Pose2d(13.861, 5.408, new Rotation2d(Units.degreesToRadians(241.0))));
+            add(new Pose2d(12.265, 5.408, new Rotation2d(Units.degreesToRadians(301.0))));
+          }
+        };
+
+    public static final double leftOffset = 0.165;
+    public static final double L2ScoringOffset = 0.285;
+    public static final double L3ScoringOffset = 0.155;
+    public static final double L4ScoringOffset = 0.27;
+    public static final double topAlgaeScoringOffset = 0.23;
+    public static final double bottomAlgaeScoringOffset = 0.25;
   }
 }

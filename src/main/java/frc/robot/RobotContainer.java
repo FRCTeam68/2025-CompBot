@@ -36,6 +36,7 @@ import frc.robot.subsystems.ElevatorWristSubSystem;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.RangeSensorSubSystem;
+import frc.robot.subsystems.ReefCentering;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -68,6 +69,7 @@ public class RobotContainer {
   private final RangeSensorSubSystem intakeCoralSensor;
   private final ElevatorWristSubSystem elevatorWrist;
   private final LightsSubsystem lightsSubsystem;
+  private ReefCentering reefCentering;
 
   public String selectedAutonName;
 
@@ -146,6 +148,8 @@ public class RobotContainer {
             40); // does not have a piece but might want to use to detect overrun limits?
         climber.zero();
 
+        reefCentering = new ReefCentering(drive);
+
         lightsSubsystem = new LightsSubsystem();
         break;
 
@@ -178,8 +182,10 @@ public class RobotContainer {
 
         climber =
             new RollerSystem("Climber", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
-
         // TBD, this needs an actual simulated sensor.....
+
+        reefCentering = new ReefCentering(drive);
+
         lightsSubsystem = new LightsSubsystem();
         break;
 
@@ -207,6 +213,8 @@ public class RobotContainer {
         elevatorWrist = new ElevatorWristSubSystem();
 
         climber = new RollerSystem("Climber", new RollerSystemIO() {});
+
+        reefCentering = new ReefCentering(drive);
 
         // TBD, this needs an actual simulated sensor.....
         lightsSubsystem = new LightsSubsystem();
@@ -381,19 +389,49 @@ public class RobotContainer {
     m_ps4Controller.R2().onTrue(ManipulatorCommands.AlgaeAtA2(elevatorWrist, algaeCradleFlag));
 
     m_ps4Controller.options().onTrue(Commands.runOnce(() -> putAutonPoseToDashboard()));
-/*
-    m_ps4Controller
-        .povUp()
-        .onTrue(elevatorWrist.BumpElevatorPosition(Constants.ELEVATOR.BUMP_VALUE));
 
-    m_ps4Controller
+    m_xboxController
         .povDown()
-        .onTrue(elevatorWrist.BumpElevatorPosition(-Constants.ELEVATOR.BUMP_VALUE));
+        .whileTrue(
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Back)
+                .until(() -> reefCentering.haveConditionsChanged())
+                .repeatedly());
+    m_xboxController
+        .povUp()
+        .whileTrue(
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Middle)
+                .until(() -> reefCentering.haveConditionsChanged())
+                .repeatedly());
+    m_xboxController
+        .povLeft()
+        .whileTrue(
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Left)
+                .until(() -> reefCentering.haveConditionsChanged())
+                .repeatedly());
+    m_xboxController
+        .povRight()
+        .whileTrue(
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Right)
+                .until(() -> reefCentering.haveConditionsChanged())
+                .repeatedly());
 
-    m_ps4Controller.povLeft().onTrue(elevatorWrist.BumpWristPosition(Constants.WRIST.BUMP_VALUE));
+    /*
+        m_ps4Controller
+            .povUp()
+            .onTrue(elevatorWrist.BumpElevatorPosition(Constants.ELEVATOR.BUMP_VALUE));
 
-    m_ps4Controller.povRight().onTrue(elevatorWrist.BumpWristPosition(-Constants.WRIST.BUMP_VALUE));
-*/
+        m_ps4Controller
+            .povDown()
+            .onTrue(elevatorWrist.BumpElevatorPosition(-Constants.ELEVATOR.BUMP_VALUE));
+
+        m_ps4Controller.povLeft().onTrue(elevatorWrist.BumpWristPosition(Constants.WRIST.BUMP_VALUE));
+
+        m_ps4Controller.povRight().onTrue(elevatorWrist.BumpWristPosition(-Constants.WRIST.BUMP_VALUE));
+    */
     // //Left Joystick Y
     // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake1Speed((-Constants.INTAKE.BUMP_VALUE))));
     // m_ps4Controller.axisLessThan(1,-0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake1Speed((Constants.INTAKE.BUMP_VALUE))));
