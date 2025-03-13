@@ -470,43 +470,34 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   public boolean atPosition() {
     return elevator.atPosition() && wrist.atPosition();
   }
-/* //FIXME
+
   public Command BumpElevatorPosition(double bumpValue) {
-    // initialization
-    e_bump_goal = elevator.getPosition() + bumpValue;
-    // check limits
-    if (e_bump_goal < Constants.ELEVATOR.MIN_POSITION) {
-      e_bump_goal = Constants.ELEVATOR.MIN_POSITION;
-    } else if (e_goal > Constants.ELEVATOR.MAX_POSITION) {
-      e_bump_goal = Constants.ELEVATOR.MAX_POSITION;
-    }
-    // coral L1 offset
-    if (Constants.WRIST.POSITION_SCORING_ELEMENT == "CoralL1") {
-      Constants.ELEVATOR.L1_OFFSET = Constants.ELEVATOR.L1_OFFSET + bumpValue;
-      Logger.recordOutput("Roller/Elevator/L1 Offset", Constants.ELEVATOR.L1_OFFSET);
-    }
-    // set position
-    return runOnce(() -> elevator.setPosition(e_bump_goal));
+    // double elevatorNow = elevator.getPosition();
+    return new ConditionalCommand(
+        runOnce(() -> elevator.setPosition(elevator.getPosition() + bumpValue)),
+        Commands.none(),
+        () -> {
+          double elevatorNow = elevator.getPosition();
+          return elevatorNow + bumpValue > Constants.ELEVATOR.MIN_POSITION - 0.2
+              && elevatorNow + bumpValue < Constants.ELEVATOR.MAX_POSITION;
+        });
   }
 
   public Command BumpWristPosition(double bumpValue) {
-    // initialization
-    w_bump_goal = wrist.getPosition() + bumpValue;
-    // check limits
-    if (w_bump_goal < Constants.WRIST.MIN_POSITION) {
-      w_bump_goal = Constants.WRIST.MIN_POSITION;
-    } else if (w_goal > Constants.WRIST.MAX_POSITION) {
-      w_bump_goal = Constants.WRIST.MAX_POSITION;
-    }
-    // coral L1 offset
-    if (Constants.WRIST.POSITION_SCORING_ELEMENT == "CoralL1") {
-      Constants.WRIST.L1_OFFSET = Constants.WRIST.L1_OFFSET + bumpValue;
-      Logger.recordOutput("Roller/Wrist/L1 Offset", Constants.WRIST.L1_OFFSET);
-    }
-    // set position
-    return runOnce(() -> wrist.setPosition(w_bump_goal));
+    // double elevatorNow = elevator.getPosition();
+    return new ConditionalCommand(
+        runOnce(() -> wrist.setPosition(wrist.getPosition() + bumpValue)),
+        Commands.none(),
+        () -> {
+          double wristNow = wrist.getPosition();
+          double elevatorNow = elevator.getPosition();
+          return (wristNow + bumpValue > Constants.WRIST.MIN_POSITION - 0.2
+                  && wristNow + bumpValue < Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN)
+              || (elevatorNow >= Constants.ELEVATOR.MIN_POSITION_AT_P1 - 0.2
+                  && wristNow + bumpValue < Constants.WRIST.MAX_POSITION_AT_P1);
+        });
   }
-*/
+
   public Command staticElevatorCharacterization(double outputRampRate) {
     final StaticCharacterizationState state = new StaticCharacterizationState();
     Timer timer = new Timer();
