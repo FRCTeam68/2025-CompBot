@@ -15,11 +15,13 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
@@ -47,6 +49,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   ;
   // private final VelocityTorqueCurrentFOC torqueVelocity  = new VelocityTorqueCurrentFOC(0);
   private final MotionMagicVoltage mmvPosition = new MotionMagicVoltage(0);
+  private final MotionMagicTorqueCurrentFOC mmtcPosition = new MotionMagicTorqueCurrentFOC(0);
   private final NeutralOut neutralOut = new NeutralOut();
 
   private final double reduction;
@@ -58,6 +61,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
       boolean invert,
       int followerID,
       boolean followOpposite,
+      int canCoderID,
       boolean brake,
       double reduction) {
     this.reduction = reduction;
@@ -72,6 +76,14 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
     } else {
       config.Voltage.PeakForwardVoltage = 12;
       config.Voltage.PeakReverseVoltage = -12;
+
+      if (canCoderID != 0) {
+        // this is a CANcoder.  fuse it to motor
+        config.Feedback.FeedbackRemoteSensorID = canCoderID;
+        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        config.Feedback.RotorToSensorRatio = reduction;
+        reduction = 1;
+      }
 
       config.MotorOutput.Inverted =
           invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
@@ -136,12 +148,12 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
 
   @Override
   public void setPosition(double rotations) {
-    talon.setControl(mmvPosition.withPosition(rotations));
+    talon.setControl(mmtcPosition.withPosition(rotations));
   }
 
   @Override
   public void setPosition(double rotations, double feedforward) {
-    talon.setControl(mmvPosition.withPosition(rotations).withFeedForward(feedforward));
+    talon.setControl(mmtcPosition.withPosition(rotations).withFeedForward(feedforward));
     System.out.println("\tFF set to: " + feedforward);
   }
 

@@ -67,6 +67,7 @@ public class RobotContainer {
   private final RollerSystem intakeShooter;
   private final RollerSystem intakeShooterLow;
   private final RangeSensorSubSystem intakeCoralSensor;
+  private final RangeSensorSubSystem reefPostSensor;
   private final ElevatorWristSubSystem elevatorWrist;
   private final LightsSubsystem lightsSubsystem;
 
@@ -80,7 +81,7 @@ public class RobotContainer {
   private static String m_autonName;
 
   private boolean algaeCradleFlag = false;
-  private boolean m_pitModeActive = false;
+  //   private boolean m_pitModeActive = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -110,6 +111,7 @@ public class RobotContainer {
                     false,
                     0,
                     false,
+                    0,
                     true,
                     1));
         // init tunables in the parent roller system
@@ -125,10 +127,11 @@ public class RobotContainer {
                     Constants.INTAKE_SHOOTER_LOW.CANID,
                     Constants.INTAKE_SHOOTER_LOW.CANBUS,
                     40,
-                    false,
+                    true,
                     0,
                     false,
-                    false,
+                    0,
+                    true,
                     1));
         // init tunables in the parent roller system
         intakeShooterLow.setPID(Constants.INTAKE_SHOOTER_LOW.SLOT0_CONFIGS);
@@ -143,6 +146,13 @@ public class RobotContainer {
                 Constants.INTAKE_CORAL_SENSOR.CANBUS,
                 Constants.INTAKE_CORAL_SENSOR.THRESHOLD);
 
+        reefPostSensor =
+            new RangeSensorSubSystem(
+                "ReefPostSensor",
+                Constants.REEF_POST_SENSOR.CANID,
+                Constants.REEF_POST_SENSOR.CANBUS,
+                Constants.REEF_POST_SENSOR.THRESHOLD);
+
         elevatorWrist = new ElevatorWristSubSystem();
 
         climber =
@@ -155,6 +165,7 @@ public class RobotContainer {
                     true,
                     0,
                     false,
+                    0,
                     true,
                     1));
         // init tunables in the parent roller system
@@ -196,6 +207,13 @@ public class RobotContainer {
                 Constants.INTAKE_CORAL_SENSOR.CANBUS,
                 Constants.INTAKE_CORAL_SENSOR.THRESHOLD);
 
+        reefPostSensor =
+            new RangeSensorSubSystem(
+                "ReefPostSensor",
+                Constants.REEF_POST_SENSOR.CANID,
+                Constants.REEF_POST_SENSOR.CANBUS,
+                Constants.REEF_POST_SENSOR.THRESHOLD);
+
         // TBD, this needs an actual simulated sensor.....
         elevatorWrist = new ElevatorWristSubSystem();
 
@@ -226,6 +244,13 @@ public class RobotContainer {
                 Constants.INTAKE_CORAL_SENSOR.CANID,
                 Constants.INTAKE_CORAL_SENSOR.CANBUS,
                 Constants.INTAKE_CORAL_SENSOR.THRESHOLD); // TBD, need better dummy
+
+        reefPostSensor =
+            new RangeSensorSubSystem(
+                "ReefPostSensor",
+                Constants.REEF_POST_SENSOR.CANID,
+                Constants.REEF_POST_SENSOR.CANBUS,
+                Constants.REEF_POST_SENSOR.THRESHOLD);
 
         // TBD, this needs an actual simulated sensor.....
         elevatorWrist = new ElevatorWristSubSystem();
@@ -288,8 +313,7 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
-    SmartDashboard.putBoolean("HaveCoral", false);
-    SmartDashboard.putString("atPosition", "--");
+    SmartDashboard.putBoolean("haveCoral", false);
     SmartDashboard.putBoolean("CLIMB", false);
 
     LEDSegment.all.setRainbowAnimation(2);
@@ -303,10 +327,23 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    Trigger m_LaserCanTrigger = new Trigger(intakeCoralSensor::havePiece);
-    m_LaserCanTrigger
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("laserCanTrip", true)))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("laserCanTrip", false)));
+    Trigger m_IntakeCoralTrigger = new Trigger(intakeCoralSensor::havePiece);
+    m_IntakeCoralTrigger
+        .onTrue(
+            Commands.runOnce(() -> SmartDashboard.putBoolean("haveCoral", true))
+                .andThen(() -> Logger.recordOutput("IntakeCoral/present", true)))
+        .onFalse(
+            Commands.runOnce(() -> SmartDashboard.putBoolean("haveCoral", false))
+                .andThen(() -> Logger.recordOutput("IntakeCoral/present", false)));
+
+    Trigger m_ReefPostTrigger = new Trigger(reefPostSensor::havePiece);
+    m_ReefPostTrigger
+        .onTrue(
+            Commands.runOnce(() -> SmartDashboard.putBoolean("reefPost", true))
+                .andThen(() -> Logger.recordOutput("ReefPost/present", true)))
+        .onFalse(
+            Commands.runOnce(() -> SmartDashboard.putBoolean("reefPost", false))
+                .andThen(() -> Logger.recordOutput("ReefPost/present", false)));
 
     // Default command, normal field-relative drive
     drive.setDefaultCommand(

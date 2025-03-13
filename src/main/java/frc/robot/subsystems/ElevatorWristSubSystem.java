@@ -37,11 +37,9 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   private final RollerSystem wrist;
   private final RollerSystem elevator;
   private final RollerSystem elevatorFollower;
-  private final RangeSensorSubSystem ElevatorSensor;
   private final CANcoder wristCANcoder;
 
   @Getter @AutoLogOutput private double setpoint = 0.0;
-  @Getter @AutoLogOutput private double elevatorHeight = 0.0;
   @Getter @AutoLogOutput private double wristAngle = 0.0;
   @Getter @AutoLogOutput private double e_goal = 0;
   @Getter @AutoLogOutput private double w_goal = 0;
@@ -50,24 +48,23 @@ public class ElevatorWristSubSystem extends SubsystemBase {
 
   public ElevatorWristSubSystem() {
 
+    wristCANcoder = new CANcoder(Constants.WRIST.CANCODER_CANID, Constants.WRIST.CANBUS);
+    var cancoderConfig = new CANcoderConfiguration();
+    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+    cancoderConfig.MagnetSensor.MagnetOffset = Constants.WRIST.CANCODER_OFFSET;
+    tryUntilOk(5, () -> wristCANcoder.getConfigurator().apply(cancoderConfig));
+
     wrist =
         new RollerSystem(
             "Wrist",
             new RollerSystemIOTalonFX(
-                Constants.WRIST.CANID, Constants.WRIST.CANBUS, 80, true, 0, false, true, 1));
+                Constants.WRIST.CANID, Constants.WRIST.CANBUS, 80, true, 0, false, 0, true, 62.5));
     // init tunables in the parent roller system
     wrist.setPID(Constants.WRIST.SLOT0_CONFIGS);
     wrist.setMotionMagic(Constants.WRIST.MOTIONMAGIC_CONFIGS);
     wrist.setAtSetpointBand(.3);
     wrist.setPieceCurrentThreshold(
         40); // does not have a piece but might want to use to detect overrun limits?
-
-    wristCANcoder = new CANcoder(Constants.WRIST.CANCODER_CANID, Constants.WRIST.CANBUS);
-    var cancoderConfig = new CANcoderConfiguration();
-    // cancoderConfig.MagnetSensor.MagnetOffset = offset.getRotations();
-    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-    cancoderConfig.MagnetSensor.MagnetOffset = Constants.WRIST.CANCODER_OFFSET;
-    tryUntilOk(5, () -> wristCANcoder.getConfigurator().apply(cancoderConfig));
 
     elevator =
         new RollerSystem(
@@ -79,6 +76,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 false,
                 0,
                 false,
+                0,
                 true,
                 1));
     // init tunables in the parent roller system
@@ -87,6 +85,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     elevator.setAtSetpointBand(.3);
     elevator.setPieceCurrentThreshold(
         40); // does not have a piece but might want to use to detect overrun limits?
+
     elevatorFollower =
         new RollerSystem(
             "ElevatorFollower",
@@ -97,15 +96,9 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 false,
                 Constants.ELEVATOR.RIGHT_CANID,
                 true,
+                0,
                 true,
                 1));
-
-    ElevatorSensor =
-        new RangeSensorSubSystem(
-            "ElevatorHeight",
-            Constants.ELEVATOR_SENSOR.CANID,
-            Constants.ELEVATOR_SENSOR.CANBUS,
-            Constants.ELEVATOR_SENSOR.THRESHOLD);
 
     // this should account for wrist not starting in zero position
     // wrist.setPosition(
@@ -125,9 +118,6 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   }
 
   public void periodic() {
-    elevatorHeight = elevator.getPosition();
-    SmartDashboard.putNumber("ElevatorHieght", elevatorHeight);
-    SmartDashboard.putBoolean("Elevator at Zero", elevatorHeight < 96);
 
     wristAngle = wristCANcoder.getPosition().getValueAsDouble();
     SmartDashboard.putNumber("WristAngle", wristAngle);
@@ -458,14 +448,6 @@ public class ElevatorWristSubSystem extends SubsystemBase {
               return waitForIt;
             }));
   }
-
-  // public double getElevatorHeight() {
-  //   return elevatorHeight;
-  // }
-
-  // public double getWristAngle() {
-  //   return wristAngle;
-  // }
 
   public boolean atPosition() {
     return elevator.atPosition() && wrist.atPosition();
