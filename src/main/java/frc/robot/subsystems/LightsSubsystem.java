@@ -132,7 +132,6 @@ public class LightsSubsystem extends SubsystemBase {
     autonRRight(56, 3, 0),
     autonYRight(59, 4, 0),
 
-
     // there is 1 long strand:  36 + 18 + 36, so 90 LEDs total
     leftside(8, 37, 1),
     middle(45, 18, 2),
