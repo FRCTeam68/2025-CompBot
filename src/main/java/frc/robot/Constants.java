@@ -253,9 +253,9 @@ public final class Constants {
 
   public static final double ROT_SETPOINT_REEF_ALIGNMENT = 0; // Rotation
   public static final double ROT_TOLERANCE_REEF_ALIGNMENT = 0.5;
-  public static final double X_SETPOINT_REEF_ALIGNMENT = -0.5; // Vertical pose
+  public static final double X_SETPOINT_REEF_ALIGNMENT = -0.3; // -0.5; // Vertical pose
   public static final double X_TOLERANCE_REEF_ALIGNMENT = 0.005;
-  public static final double Y_SETPOINT_REEF_ALIGNMENT = 0.19; // Horizontal pose
+  public static final double Y_SETPOINT_REEF_ALIGNMENT = 0.18; // 0.19; // Horizontal pose
   public static final double Y_TOLERANCE_REEF_ALIGNMENT = 0.005;
 
   public static final double DONT_SEE_TAG_WAIT_TIME = 1;
