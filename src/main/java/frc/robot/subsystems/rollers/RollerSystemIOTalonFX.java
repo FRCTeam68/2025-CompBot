@@ -82,7 +82,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
         config.Feedback.FeedbackRemoteSensorID = canCoderID;
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         config.Feedback.RotorToSensorRatio = reduction;
-        reduction = 1;
+        config.Feedback.SensorToMechanismRatio = 1;
       }
 
       config.MotorOutput.Inverted =
@@ -148,12 +148,12 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
 
   @Override
   public void setPosition(double rotations) {
-    talon.setControl(mmtcPosition.withPosition(rotations));
+    talon.setControl(mmvPosition.withPosition(rotations));
   }
 
   @Override
   public void setPosition(double rotations, double feedforward) {
-    talon.setControl(mmtcPosition.withPosition(rotations).withFeedForward(feedforward));
+    talon.setControl(mmvPosition.withPosition(rotations).withFeedForward(feedforward));
     System.out.println("\tFF set to: " + feedforward);
   }
 
