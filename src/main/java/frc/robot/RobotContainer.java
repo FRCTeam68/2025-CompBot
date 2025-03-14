@@ -474,9 +474,13 @@ public class RobotContainer {
                 .until(() -> reefCentering.haveConditionsChanged())
                 .repeatedly());
 
-    m_ps4Controller.povUp().onTrue(elevatorWrist.BumpElevatorPosition(Constants.ELEVATOR.BUMP_VALUE));
+    m_ps4Controller
+        .povUp()
+        .onTrue(elevatorWrist.BumpElevatorPosition(Constants.ELEVATOR.BUMP_VALUE));
 
-    m_ps4Controller.povDown().onTrue(elevatorWrist.BumpElevatorPosition(-Constants.ELEVATOR.BUMP_VALUE));
+    m_ps4Controller
+        .povDown()
+        .onTrue(elevatorWrist.BumpElevatorPosition(-Constants.ELEVATOR.BUMP_VALUE));
 
     m_ps4Controller.povLeft().onTrue(elevatorWrist.BumpWristPosition(Constants.WRIST.BUMP_VALUE));
 
