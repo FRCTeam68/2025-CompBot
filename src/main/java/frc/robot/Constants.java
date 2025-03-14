@@ -76,7 +76,6 @@ public final class Constants {
 
   public static final class INTAKE_SHOOTER {
     public static final int CANID = 30;
-    // public static final int RIGHT_CANID = 31;
     public static final String CANBUS = "rio";
     public static final double MAX_SPEED = 100; // rps
     // coral
@@ -86,6 +85,29 @@ public final class Constants {
     public static final double CORAL_SHOOT_SPEED = 30; // 40
     public static final double CORAL_L1_SHOOT_SPEED = -10; // 40
     public static final double CORAL_SHOOT_TIMEOUT = 1;
+    // algae
+    public static final double ALGAE_INTAKE_SPEED = -40;
+    public static final double ALGAE_HOLD_SPEED = -5;
+    public static final double ALGAE_SHOOT_SPEED = 20;
+    public static final double ALGAE_NET_SHOOT_SPEED = 80;
+    public static final double ALGAE_NET_SHOOT_DELAY = .2; // .13;
+    public static final double ALGAE_SHOOT_TIMEOUT = 1;
+    //
+    public static final double BUMP_VALUE = 1; // rotations
+    public static final Slot0Configs SLOT0_CONFIGS =
+        new Slot0Configs().withKP(.2).withKI(0).withKD(0).withKS(0).withKV(0.13).withKA(0);
+    public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
+        new MotionMagicConfigs()
+            .withMotionMagicCruiseVelocity(20)
+            .withMotionMagicAcceleration(40)
+            .withMotionMagicJerk(400);
+  }
+
+  public static final class INTAKE_SHOOTER_LOW {
+    public static final int CANID = 38;
+    public static final String CANBUS = "rio";
+    public static final double MAX_SPEED = 100; // rps
+
     // algae
     public static final double ALGAE_INTAKE_SPEED = -40;
     public static final double ALGAE_HOLD_SPEED = -5;
@@ -124,8 +146,8 @@ public final class Constants {
     public static final double MAX_POSITION_AT_ELEVATOR_MIN = 26; // max slot2
     public static final double MAX_POSITION_AT_P1 = 34;
     public static final double MAX_POSITION = 34;
-    public static final double INTAKE = 1.5;
-    public static final double L1 = 17;
+    public static final double INTAKE = 1;
+    public static final double L1 = 27.5;
     public static double L1_OFFSET = 0;
     public static final double L2 = 4.2; // 3.9; // DO NOT MODIFY WITHOUT CHANGING
     public static final double L3 = 4.2; // 3.9; // SEQUENCING LOGIC
