@@ -277,32 +277,46 @@ public final class Constants {
     public static final List<Pose2d> blueReefPoses =
         new ArrayList<Pose2d>() {
           {
-            add(new Pose2d(2.890, 4.025, new Rotation2d(Units.degreesToRadians(1.00))));
-            add(new Pose2d(3.689, 2.642, new Rotation2d(Units.degreesToRadians(61.0))));
-            add(new Pose2d(5.285, 2.642, new Rotation2d(Units.degreesToRadians(121.0))));
-            add(new Pose2d(6.087, 4.025, new Rotation2d(Units.degreesToRadians(181.0))));
-            add(new Pose2d(5.285, 5.408, new Rotation2d(Units.degreesToRadians(241.0))));
-            add(new Pose2d(3.689, 5.408, new Rotation2d(Units.degreesToRadians(301.0))));
+            // add(new Pose2d(2.890, 4.025, new Rotation2d(Units.degreesToRadians(1.00))));
+            // add(new Pose2d(3.689, 2.642, new Rotation2d(Units.degreesToRadians(61.0))));
+            // add(new Pose2d(5.285, 2.642, new Rotation2d(Units.degreesToRadians(121.0))));
+            // add(new Pose2d(6.087, 4.025, new Rotation2d(Units.degreesToRadians(181.0))));
+            // add(new Pose2d(5.285, 5.408, new Rotation2d(Units.degreesToRadians(241.0))));
+            // add(new Pose2d(3.689, 5.408, new Rotation2d(Units.degreesToRadians(301.0))));
+
+            add(new Pose2d(3.174, 4.025, new Rotation2d(Units.degreesToRadians(1.00))));
+            add(new Pose2d(3.829, 2.902, new Rotation2d(Units.degreesToRadians(61.0))));
+            add(new Pose2d(5.157, 2.902, new Rotation2d(Units.degreesToRadians(121.0))));
+            add(new Pose2d(5.772, 4.025, new Rotation2d(Units.degreesToRadians(181.0))));
+            add(new Pose2d(5.139, 5.144, new Rotation2d(Units.degreesToRadians(241.0))));
+            add(new Pose2d(3.849, 5.144, new Rotation2d(Units.degreesToRadians(301.0))));
           }
         };
 
     public static final List<Pose2d> redReefPoses =
         new ArrayList<Pose2d>() {
           {
-            add(new Pose2d(11.466, 4.025, new Rotation2d(Units.degreesToRadians(1.0))));
-            add(new Pose2d(12.265, 2.642, new Rotation2d(Units.degreesToRadians(61.0))));
-            add(new Pose2d(13.861, 2.642, new Rotation2d(Units.degreesToRadians(121.0))));
-            add(new Pose2d(14.663, 4.025, new Rotation2d(Units.degreesToRadians(181.0))));
-            add(new Pose2d(13.861, 5.408, new Rotation2d(Units.degreesToRadians(241.0))));
-            add(new Pose2d(12.265, 5.408, new Rotation2d(Units.degreesToRadians(301.0))));
+            // add(new Pose2d(11.466, 4.025, new Rotation2d(Units.degreesToRadians(1.0))));
+            // add(new Pose2d(12.265, 2.642, new Rotation2d(Units.degreesToRadians(61.0))));
+            // add(new Pose2d(13.861, 2.642, new Rotation2d(Units.degreesToRadians(121.0))));
+            // add(new Pose2d(14.663, 4.025, new Rotation2d(Units.degreesToRadians(181.0))));
+            // add(new Pose2d(13.861, 5.408, new Rotation2d(Units.degreesToRadians(241.0))));
+            // add(new Pose2d(12.265, 5.408, new Rotation2d(Units.degreesToRadians(301.0))));
+
+            add(new Pose2d(11.182, 4.025, new Rotation2d(Units.degreesToRadians(1.0))));
+            add(new Pose2d(12.125, 2.902, new Rotation2d(Units.degreesToRadians(61.0))));
+            add(new Pose2d(13.989, 2.902, new Rotation2d(Units.degreesToRadians(121.0))));
+            add(new Pose2d(14.978, 4.025, new Rotation2d(Units.degreesToRadians(181.0))));
+            add(new Pose2d(14.007, 5.144, new Rotation2d(Units.degreesToRadians(241.0))));
+            add(new Pose2d(12.105, 5.144, new Rotation2d(Units.degreesToRadians(301.0))));
           }
         };
 
-    public static final double leftOffset = 0.165;
-    public static final double L2ScoringOffset = 0.285;
-    public static final double L3ScoringOffset = 0.155;
-    public static final double L4ScoringOffset = 0.27;
-    public static final double topAlgaeScoringOffset = 0.23;
-    public static final double bottomAlgaeScoringOffset = 0.25;
+    public static final double leftOffset = 0.155;
+    // public static final double L2ScoringOffset = 0.285;
+    // public static final double L3ScoringOffset = 0.155;
+    // public static final double L4ScoringOffset = 0.27;
+    // public static final double topAlgaeScoringOffset = 0.23;
+    // public static final double bottomAlgaeScoringOffset = 0.25;
   }
 }
