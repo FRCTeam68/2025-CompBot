@@ -152,7 +152,7 @@ public final class Constants {
     public static final double MAX_POSITION_AT_ELEVATOR_MIN = 26 / REDUCTION; // max slot2
     public static final double MAX_POSITION_AT_P1 = 34 / REDUCTION;
     public static final double MAX_POSITION = 34 / REDUCTION;
-    public static final double INTAKE = 1.5 / REDUCTION;
+    public static final double INTAKE = .3; // 1.5 / REDUCTION;
     public static final double L1 = 17 / REDUCTION;
     public static double L1_OFFSET = 0;
     public static final double L2 = 4.2 / REDUCTION; // 3.9; // DO NOT MODIFY WITHOUT CHANGING
@@ -169,15 +169,15 @@ public final class Constants {
     public static final double SAFE =
         14.5 / REDUCTION; // minimum position to move full elevator travel
     public static final double ERROR = 0.5 / REDUCTION;
-    public static final double CANCODER_OFFSET = 0.064453125;
+    public static final double CANCODER_OFFSET = -0.056640625; // 0.064453125;
     // public static final double CANCODER_FACTOR = 1.4634 / 0.02197;
     public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(40 / REDUCTION).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
+        new Slot0Configs().withKP(1).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(60 / REDUCTION) // 60  5
-            .withMotionMagicAcceleration(240 / REDUCTION) // 240  15
-            .withMotionMagicJerk(10000 / REDUCTION);
+            .withMotionMagicCruiseVelocity(4) // 60  5
+            .withMotionMagicAcceleration(8) // 240  15
+            .withMotionMagicJerk(50);
   }
 
   public static final class ELEVATOR { // old AngleSubSystem
