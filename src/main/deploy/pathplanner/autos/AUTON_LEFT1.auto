@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Start_Left_J-L4"
+                  "pathName": "L1_Start-J"
                 }
               },
               {
@@ -36,7 +36,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "L1_J-Coral"
+                  "pathName": "L1_J-Source"
                 }
               },
               {
@@ -62,7 +62,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Coral_K-L4"
+                  "pathName": "L1_Source-K"
                 }
               },
               {
