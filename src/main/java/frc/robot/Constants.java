@@ -303,12 +303,19 @@ public final class Constants {
             // add(new Pose2d(13.861, 5.408, new Rotation2d(Units.degreesToRadians(241.0))));
             // add(new Pose2d(12.265, 5.408, new Rotation2d(Units.degreesToRadians(301.0))));
 
-            add(new Pose2d(11.182, 4.025, new Rotation2d(Units.degreesToRadians(1.0))));
-            add(new Pose2d(12.125, 2.902, new Rotation2d(Units.degreesToRadians(61.0))));
-            add(new Pose2d(13.989, 2.902, new Rotation2d(Units.degreesToRadians(121.0))));
-            add(new Pose2d(14.978, 4.025, new Rotation2d(Units.degreesToRadians(181.0))));
-            add(new Pose2d(14.007, 5.144, new Rotation2d(Units.degreesToRadians(241.0))));
-            add(new Pose2d(12.105, 5.144, new Rotation2d(Units.degreesToRadians(301.0))));
+            // add(new Pose2d(11.182, 4.025, new Rotation2d(Units.degreesToRadians(1.0))));
+            // add(new Pose2d(12.125, 2.902, new Rotation2d(Units.degreesToRadians(61.0))));
+            // add(new Pose2d(13.989, 2.902, new Rotation2d(Units.degreesToRadians(121.0))));
+            // add(new Pose2d(14.978, 4.025, new Rotation2d(Units.degreesToRadians(181.0))));
+            // add(new Pose2d(14.007, 5.144, new Rotation2d(Units.degreesToRadians(241.0))));
+            // add(new Pose2d(12.105, 5.144, new Rotation2d(Units.degreesToRadians(301.0))));
+
+            add(new Pose2d(11.750, 4.025, new Rotation2d(Units.degreesToRadians(1.0))));
+            add(new Pose2d(12.405, 2.902, new Rotation2d(Units.degreesToRadians(61.0))));
+            add(new Pose2d(13.733, 2.902, new Rotation2d(Units.degreesToRadians(121.0))));
+            add(new Pose2d(14.348, 4.025, new Rotation2d(Units.degreesToRadians(181.0))));
+            add(new Pose2d(13.715, 5.144, new Rotation2d(Units.degreesToRadians(241.0))));
+            add(new Pose2d(12.425, 5.144, new Rotation2d(Units.degreesToRadians(301.0))));
           }
         };
 
