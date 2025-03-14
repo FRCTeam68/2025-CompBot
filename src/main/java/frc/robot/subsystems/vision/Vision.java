@@ -65,12 +65,17 @@ public class Vision extends SubsystemBase {
   }
 
   public Pose2d getTagPose(int cameraIndex) {
-    int tagId = inputs[cameraIndex].tagIds[0];
-    var tagPose = aprilTagLayout.getTagPose(tagId);
-
     Pose2d tagPose2d;
-    if (tagPose.isPresent()) {
-      tagPose2d = tagPose.get().toPose2d();
+
+    if (inputs[cameraIndex].tagIds.length > 0) {
+      int tagId = inputs[cameraIndex].tagIds[0];
+      var tagPose = aprilTagLayout.getTagPose(tagId);
+
+      if (tagPose.isPresent()) {
+        tagPose2d = tagPose.get().toPose2d();
+      } else {
+        tagPose2d = new Pose2d();
+      }
     } else {
       tagPose2d = new Pose2d();
     }

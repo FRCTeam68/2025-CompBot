@@ -17,6 +17,7 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -334,27 +335,27 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // Auto aim command example
-    // @SuppressWarnings("resource")
-    // PIDController aimController = new PIDController(0.2, 0.0, 0.0);
-    // aimController.enableContinuousInput(-Math.PI, Math.PI);
-    // m_xboxController
-    //     .x()
-    //     .whileTrue(
-    //         Commands.startRun(
-    //             () -> {
-    //               aimController.reset();
-    //             },
-    //             () -> {
-    //               DriveCommands.joystickDriveAtAngle(
-    //                   drive,
-    //                   () -> -m_xboxController.getLeftY(),
-    //                   () -> -m_xboxController.getLeftX(),
-    //                   () ->
-    //                       new Rotation2d(
-    //                           aimController.calculate(vision.getTargetX(1).getRadians())));
-    //               Logger.recordOutput("DriveAtAngle/TargetX", vision.getTargetX(1).getRadians());
-    //             },
-    //             drive));
+    @SuppressWarnings("resource")
+    PIDController aimController = new PIDController(0.2, 0.0, 0.0);
+    aimController.enableContinuousInput(-Math.PI, Math.PI);
+    m_xboxController
+        .x()
+        .whileTrue(
+            Commands.startRun(
+                () -> {
+                  aimController.reset();
+                },
+                () -> {
+                  DriveCommands.joystickDriveAtAngle(
+                      drive,
+                      () -> -m_xboxController.getLeftY(),
+                      () -> -m_xboxController.getLeftX(),
+                      () ->
+                          new Rotation2d(
+                              aimController.calculate(vision.getTargetX(1).getRadians())));
+                  Logger.recordOutput("DriveAtAngle/TargetX", vision.getTargetX(1).getRadians());
+                },
+                drive));
 
     m_xboxController
         .leftTrigger()
