@@ -1,0 +1,137 @@
+{
+  "name": "2025",
+  "sourceUrl": "",
+  "rotations": [
+    {
+      "axis": "x",
+      "degrees": 90
+    },
+    {
+      "axis": "z",
+      "degrees": 90
+    }
+  ],
+  "position": [
+    0,
+    0,
+    0
+  ],
+  "cameras": [
+    {
+      "name": "Front Camera",
+      "fov": 82,
+      "resolution": [
+        1280,
+        800
+      ],
+      "position": [
+        0.1327198,
+        0,
+        0.175768
+      ],
+      "rotations": [
+        {
+          "axis": "y",
+          "degrees": -25
+        }
+      ]
+    },
+    {
+      "name": "Rear Camera",
+      "fov": 62.5,
+      "resolution": [
+        320,
+        240
+      ],
+      "position": [
+        0,
+        0.1016,
+        0.9651816104
+      ],
+      "rotations": [
+        {
+          "axis": "y",
+          "degrees": -24.45
+        },
+        {
+          "axis": "z",
+          "degrees": 180
+        }
+      ]
+    }
+  ],
+  "components": [
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 90
+        },
+        {
+          "axis": "z",
+          "degrees": 90
+        }
+      ],
+      "zeroedPosition": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 90
+        },
+        {
+          "axis": "z",
+          "degrees": 90
+        }
+      ],
+      "zeroedPosition": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": -130
+        },
+        {
+          "axis": "y",
+          "degrees": 0
+        },
+        {
+          "axis": "z",
+          "degrees": 90
+        }
+      ],
+      "zeroedPosition": [
+        -0.444,
+        0,
+        0.22575
+      ]
+    },
+    {
+      "zeroedRotations": [
+        {
+          "axis": "x",
+          "degrees": 0
+        },
+        {
+          "axis": "z",
+          "degrees": -90
+        }
+      ],
+      "zeroedPosition": [
+        -0.4398003396,
+        0,
+        -0.2921
+      ]
+    }
+  ]
+}
