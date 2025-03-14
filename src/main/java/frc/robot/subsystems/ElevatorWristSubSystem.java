@@ -241,7 +241,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             }));
   }
 
-  public Command setPositionCmdNew(double e_goal, double w_goal) {
+  public Command setPositionCmdNew(RollerSystem myIntakeLow, double e_goal, double w_goal) {
     return new DeferredCommand(
         () -> {
           // initialization
@@ -326,15 +326,14 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                           () ->
                               Logger.recordOutput(
                                   "Manipulator/Sequence1", "THROUGH LOW SAFE (ELEVATE)")),
-                      // algaeintake.setSpeedCmd(5),
+                      myIntakeLow.setSpeedCmd(-3),
                       Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.SLOT1_TO_ELEVATE)),
                       Commands.runOnce(() -> elevator.setPosition(e_goal)),
                       Commands.waitUntil(
                           () -> elevator.getPosition() <= Constants.ELEVATOR.MAX_LOW_SAFE),
                       Commands.runOnce(() -> wrist.setPosition(w_goal)),
-                      Commands.waitUntil(() -> elevator.atPosition())
-                      // algaeintake.setSpeedCmd(0),
-                      );
+                      Commands.waitUntil(() -> elevator.atPosition()),
+                      myIntakeLow.setSpeedCmd(0));
             } else {
               sequence1 =
                   Commands.sequence(

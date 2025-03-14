@@ -87,7 +87,7 @@ public final class Constants {
     public static final double ALGAE_HOLD_SPEED = -5;
     public static final double ALGAE_SHOOT_SPEED = 20;
     public static final double ALGAE_NET_SHOOT_SPEED = 80;
-    public static final double ALGAE_NET_SHOOT_DELAY = .3; // .13;
+    public static final double ALGAE_NET_SHOOT_DELAY = .2; // .13;
     public static final double ALGAE_SHOOT_TIMEOUT = 1;
     //
     public static final double BUMP_VALUE = 1; // rotations
@@ -143,8 +143,8 @@ public final class Constants {
     public static final double MAX_POSITION_AT_ELEVATOR_MIN = 26; // max slot2
     public static final double MAX_POSITION_AT_P1 = 34;
     public static final double MAX_POSITION = 34;
-    public static final double INTAKE = 1.5;
-    public static final double L1 = 17;
+    public static final double INTAKE = 1;
+    public static final double L1 = 27.5;
     public static double L1_OFFSET = 0;
     public static final double L2 = 4.2; // 3.9; // DO NOT MODIFY WITHOUT CHANGING
     public static final double L3 = 4.2; // 3.9; // SEQUENCING LOGIC
