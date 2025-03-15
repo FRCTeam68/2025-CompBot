@@ -20,6 +20,7 @@ import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
@@ -49,7 +50,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   private final MotionMagicVoltage mmvPosition = new MotionMagicVoltage(0);
   private final NeutralOut neutralOut = new NeutralOut();
 
-  private final double reduction;
+  private double reduction;
 
   public RollerSystemIOTalonFX(
       int id,
@@ -58,9 +59,10 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
       boolean invert,
       int followerID,
       boolean followOpposite,
+      int canCoderID,
       boolean brake,
       double reduction) {
-    this.reduction = reduction;
+
     talon = new TalonFX(id, bus);
 
     if (followerID != 0) {
@@ -72,6 +74,16 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
     } else {
       config.Voltage.PeakForwardVoltage = 12;
       config.Voltage.PeakReverseVoltage = -12;
+
+      if (canCoderID != 0) {
+        // this is a CANcoder.  fuse it to motor
+        config.Feedback.FeedbackRemoteSensorID = canCoderID;
+        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        config.Feedback.RotorToSensorRatio = reduction;
+        config.Feedback.SensorToMechanismRatio = 1;
+        reduction = 1;
+      }
+      this.reduction = reduction;
 
       config.MotorOutput.Inverted =
           invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
@@ -115,7 +127,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
                 position, velocity, appliedVoltage, supplyCurrent, torqueCurrent, tempCelsius)
             .isOK();
     inputs.positionRads = Units.rotationsToRadians(position.getValueAsDouble()) / reduction;
-    inputs.positionRotations = position.getValueAsDouble() / reduction;
+    inputs.positionRotations = position.getValueAsDouble();
     inputs.velocityRadsPerSec = Units.rotationsToRadians(velocity.getValueAsDouble()) / reduction;
     inputs.velocityRotsPerSec = velocity.getValueAsDouble() / reduction;
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();

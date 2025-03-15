@@ -36,36 +36,53 @@ public class ElevatorWristSubSystem extends SubsystemBase {
 
   private final RollerSystem wrist;
   private final RollerSystem elevator;
+
+  @SuppressWarnings("unused")
   private final RollerSystem elevatorFollower;
-  private final RangeSensorSubSystem ElevatorSensor;
+
+  @SuppressWarnings("unused")
+  private final RangeSensorSubSystem reefPostSensor;
+
   private final CANcoder wristCANcoder;
+  private final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
 
   @Getter @AutoLogOutput private double setpoint = 0.0;
-  @Getter @AutoLogOutput private double elevatorHeight = 0.0;
+  @Getter @AutoLogOutput private boolean reefPostDetected = false;
+  @Getter @AutoLogOutput private boolean reefPostSensorDetected = false;
+  @Getter @AutoLogOutput private double reefPostSensorDistance = 0.0;
   @Getter @AutoLogOutput private double wristAngle = 0.0;
-  @Getter @AutoLogOutput private double e_goal = 0;
-  @Getter @AutoLogOutput private double w_goal = 0;
+  private double e_goal = 0;
+  private double w_goal = 0;
+  private double e_bump_goal = 0;
+  private double w_bump_goal = 0;
 
   public ElevatorWristSubSystem() {
+
+    wristCANcoder = new CANcoder(Constants.WRIST.CANCODER_CANID, Constants.WRIST.CANBUS);
+    cancoderConfig.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(0.9);
+    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+    cancoderConfig.MagnetSensor.MagnetOffset = Constants.WRIST.CANCODER_OFFSET;
+    tryUntilOk(5, () -> wristCANcoder.getConfigurator().apply(cancoderConfig));
 
     wrist =
         new RollerSystem(
             "Wrist",
             new RollerSystemIOTalonFX(
-                Constants.WRIST.CANID, Constants.WRIST.CANBUS, 80, true, 0, false, true, 1));
+                Constants.WRIST.CANID,
+                Constants.WRIST.CANBUS,
+                80,
+                true,
+                0,
+                false,
+                Constants.WRIST.CANCODER_CANID,
+                true,
+                Constants.WRIST.REDUCTION));
     // init tunables in the parent roller system
     wrist.setPID(Constants.WRIST.SLOT0_CONFIGS);
     wrist.setMotionMagic(Constants.WRIST.MOTIONMAGIC_CONFIGS);
-    wrist.setAtSetpointBand(.3);
+    wrist.setAtSetpointBand(.005);
     wrist.setPieceCurrentThreshold(
         40); // does not have a piece but might want to use to detect overrun limits?
-
-    wristCANcoder = new CANcoder(Constants.WRIST.CANCODER_CANID, Constants.WRIST.CANBUS);
-    var cancoderConfig = new CANcoderConfiguration();
-    // cancoderConfig.MagnetSensor.MagnetOffset = offset.getRotations();
-    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-    cancoderConfig.MagnetSensor.MagnetOffset = Constants.WRIST.CANCODER_OFFSET;
-    tryUntilOk(5, () -> wristCANcoder.getConfigurator().apply(cancoderConfig));
 
     elevator =
         new RollerSystem(
@@ -77,6 +94,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 false,
                 0,
                 false,
+                0,
                 true,
                 1));
     // init tunables in the parent roller system
@@ -95,42 +113,38 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 false,
                 Constants.ELEVATOR.RIGHT_CANID,
                 true,
+                0,
                 true,
                 1));
 
-    ElevatorSensor =
+    reefPostSensor =
         new RangeSensorSubSystem(
-            "ElevatorHeight",
-            Constants.ELEVATOR_SENSOR.CANID,
-            Constants.ELEVATOR_SENSOR.CANBUS,
-            Constants.ELEVATOR_SENSOR.THRESHOLD);
-
-    // this should account for wrist not starting in zero position
-    // wrist.setPosition(
-    //     wristCANcoder.getPosition().getValueAsDouble() * Constants.WRIST.CANCODER_FACTOR);
-    // elevator.setPosition(0);
-
-    wristAngle = wristCANcoder.getPosition().getValueAsDouble();
-    SmartDashboard.putNumber("WristAngle", wristAngle);
-    SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
+            "reefPostSensor",
+            Constants.REEFPOSTSENSOR.CANID,
+            Constants.REEFPOSTSENSOR.CANBUS,
+            Constants.REEFPOSTSENSOR.THRESHOLD);
 
     zero();
   }
 
   public void zero() {
-    wrist.zero();
     elevator.zero();
   }
 
   public void periodic() {
-    elevatorHeight = elevator.getPosition();
-    SmartDashboard.putNumber("ElevatorHieght", elevatorHeight);
-    SmartDashboard.putBoolean("Elevator at Zero", elevatorHeight < 96);
+    reefPostSensorDetected = reefPostSensor.havePiece();
+    reefPostSensorDistance = reefPostSensor.getDistance_mm();
+    reefPostDetected = (reefPostSensorDistance > 130) && (reefPostSensorDistance < 225);
+    SmartDashboard.putNumber("Reef Post Sensor Distance", reefPostSensorDistance);
+    SmartDashboard.putBoolean("Reef Post Sensor Detected", reefPostSensorDetected);
+    SmartDashboard.putBoolean("Reef Post Detected", reefPostDetected);
+    Logger.recordOutput("reefPost/SensorDistance", reefPostSensorDistance);
+    Logger.recordOutput("reefPost/SensorDetected", reefPostSensorDetected);
+    Logger.recordOutput("reefPost/Detected", reefPostDetected);
 
     wristAngle = wristCANcoder.getPosition().getValueAsDouble();
     SmartDashboard.putNumber("WristAngle", wristAngle);
-    // SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
-
+    SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
     // robot poses
     Logger.recordOutput(
         "RobotPose/Elevator Stage 1",
@@ -154,7 +168,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
               0.28575,
               0,
               0.411 + Units.inchesToMeters((elevator.getPosition() / 5 * 5.5) * 2),
-              new Rotation3d(0, wrist.getPosition() / 25 * (12 / 30), 0))
+              new Rotation3d(0, Units.rotationsToRadians(wrist.getPosition()), 0))
         });
   }
 
@@ -239,7 +253,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             }));
   }
 
-  public Command setPositionCmdNew(double e_goal, double w_goal) {
+  public Command setPositionCmdNew(RollerSystem myIntakeLow, double e_goal, double w_goal) {
     return new DeferredCommand(
         () -> {
           // initialization
@@ -288,23 +302,12 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                   && w_goal == Constants.WRIST.SLOT1_TO_ELEVATE)
               || (e_current >= Constants.ELEVATOR.MIN_HIGH_SAFE
                   && e_goal >= Constants.ELEVATOR.MIN_HIGH_SAFE)) {
-            if (w_goal <= Constants.WRIST.CRADLE
-                || w_current >= Constants.WRIST.CRADLE - Constants.WRIST.ERROR) {
-              sequence1 =
-                  Commands.sequence(
-                      Commands.runOnce(
-                          () -> Logger.recordOutput("Manipulator/Sequence1", "SIMULTANEOUS")),
-                      Commands.runOnce(() -> wrist.setPosition(w_goal)),
-                      Commands.runOnce(() -> elevator.setPosition(e_goal)));
-            } else {
-              sequence1 =
-                  Commands.sequence(
-                      Commands.runOnce(
-                          () -> Logger.recordOutput("Manipulator/Sequence1", "WRIST -> ELEVATOR")),
-                      Commands.runOnce(() -> wrist.setPosition(w_goal)),
-                      Commands.waitSeconds(.3),
-                      Commands.runOnce(() -> elevator.setPosition(e_goal)));
-            }
+            sequence1 =
+                Commands.parallel(
+                    Commands.runOnce(
+                        () -> Logger.recordOutput("Manipulator/Sequence1", "SIMULTANEOUS")),
+                    Commands.runOnce(() -> wrist.setPosition(w_goal)),
+                    Commands.runOnce(() -> elevator.setPosition(e_goal)));
             ///// MOVE TO INTAKE POSITION //////
             // if commanded elevator position is the minimum
             // and
@@ -324,15 +327,14 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                           () ->
                               Logger.recordOutput(
                                   "Manipulator/Sequence1", "THROUGH LOW SAFE (ELEVATE)")),
-                      // algaeintake.setSpeedCmd(5),
+                      myIntakeLow.setSpeedCmd(-3),
                       Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.SLOT1_TO_ELEVATE)),
                       Commands.runOnce(() -> elevator.setPosition(e_goal)),
                       Commands.waitUntil(
                           () -> elevator.getPosition() <= Constants.ELEVATOR.MAX_LOW_SAFE),
                       Commands.runOnce(() -> wrist.setPosition(w_goal)),
-                      Commands.waitUntil(() -> elevator.atPosition())
-                      // algaeintake.setSpeedCmd(0),
-                      );
+                      Commands.waitUntil(() -> elevator.atPosition()),
+                      myIntakeLow.setSpeedCmd(0));
             } else {
               sequence1 =
                   Commands.sequence(
@@ -417,10 +419,9 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                       Commands.runOnce(() -> elevator.setPosition(e_goal)));
             }
           } else { // fallback to failsafe sequence
-            // return setPositionCmd(e_goal, w_goal);
             Commands.sequence(
                 Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence1", "FAILSAFE")),
-                Commands.waitSeconds(5));
+                setPositionCmd(e_goal, w_goal));
           }
           // execute sequence
           return ledBegin
@@ -457,81 +458,35 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             }));
   }
 
-  // public double getElevatorHeight() {
-  //   return elevatorHeight;
-  // }
-
-  // public double getWristAngle() {
-  //   return wristAngle;
-  // }
-
   public boolean atPosition() {
     return elevator.atPosition() && wrist.atPosition();
   }
 
   public Command BumpElevatorPosition(double bumpValue) {
-    return new DeferredCommand(
+    // double elevatorNow = elevator.getPosition();
+    return new ConditionalCommand(
+        runOnce(() -> elevator.setPosition(elevator.getPosition() + bumpValue)),
+        Commands.none(),
         () -> {
-          // initialization
-          Command L1;
-          Command bump;
-          double e_bump_goal = elevator.getPosition() + bumpValue;
-          L1 = Commands.none();
-          // check limits
-          if (e_bump_goal < Constants.ELEVATOR.MIN_POSITION) {
-            e_bump_goal = Constants.ELEVATOR.MIN_POSITION;
-          } else if (e_bump_goal > Constants.ELEVATOR.MAX_POSITION) {
-            e_bump_goal = Constants.ELEVATOR.MAX_POSITION;
-          }
-          // coral L1 offset
-          if (Constants.WRIST.POSITION_SCORING_ELEMENT == "CoralL1") {
-            L1 =
-                Commands.sequence(
-                    Commands.runOnce(
-                        () ->
-                            Constants.ELEVATOR.L1_OFFSET =
-                                Constants.ELEVATOR.L1_OFFSET + bumpValue),
-                    Commands.runOnce(
-                        () ->
-                            Logger.recordOutput(
-                                "Roller/Elevator/L1 Offset", Constants.ELEVATOR.L1_OFFSET)));
-          }
-          // set position
-          bump =
-              Commands.sequence(
-                  // Commands.runOnce(() -> Logger.recordOutput("Manipulator/e_bump_goal",
-                  // e_bump_goal)),
-                  Commands.runOnce(
-                      () ->
-                          elevator.setPosition(
-                              Math.max(
-                                  Math.min(
-                                      elevator.getPosition() + bumpValue,
-                                      Constants.ELEVATOR.MAX_POSITION),
-                                  Constants.ELEVATOR.MIN_POSITION))),
-                  Commands.waitUntil(() -> elevator.atPosition()));
-
-          return L1.andThen(bump);
-        },
-        Set.of(this));
+          double elevatorNow = elevator.getPosition();
+          return elevatorNow + bumpValue > Constants.ELEVATOR.MIN_POSITION - 0.2
+              && elevatorNow + bumpValue < Constants.ELEVATOR.MAX_POSITION;
+        });
   }
 
   public Command BumpWristPosition(double bumpValue) {
-    // coral L1 offset
-    if (Constants.WRIST.POSITION_SCORING_ELEMENT == "CoralL1") {
-      Constants.ELEVATOR.L1_OFFSET = Constants.ELEVATOR.L1_OFFSET + bumpValue;
-      Logger.recordOutput("Roller/Elevator/L1 Offset", Constants.ELEVATOR.L1_OFFSET);
-    }
-    // set position
-    return Commands.sequence(
-        // Commands.runOnce(() -> Logger.recordOutput("Manipulator/e_bump_goal", e_bump_goal)),
-        Commands.runOnce(
-            () ->
-                wrist.setPosition(
-                    Math.max(
-                        Math.min(wrist.getPosition() + bumpValue, Constants.WRIST.MAX_POSITION),
-                        Constants.WRIST.MIN_POSITION))),
-        Commands.waitUntil(() -> wrist.atPosition()));
+    // double elevatorNow = elevator.getPosition();
+    return new ConditionalCommand(
+        runOnce(() -> wrist.setPosition(wrist.getPosition() + bumpValue)),
+        Commands.none(),
+        () -> {
+          double wristNow = wrist.getPosition();
+          double elevatorNow = elevator.getPosition();
+          return (wristNow + bumpValue > Constants.WRIST.MIN_POSITION - 0.2
+                  && wristNow + bumpValue < Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN)
+              || (elevatorNow >= Constants.ELEVATOR.MIN_POSITION_AT_P1 - 0.2
+                  && wristNow + bumpValue < Constants.WRIST.MAX_POSITION_AT_P1);
+        });
   }
 
   public Command staticElevatorCharacterization(double outputRampRate) {

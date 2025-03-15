@@ -17,10 +17,13 @@ import static edu.wpi.first.units.Units.Meters;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -75,7 +78,6 @@ public final class Constants {
 
   public static final class INTAKE_SHOOTER {
     public static final int CANID = 30;
-    // public static final int RIGHT_CANID = 31;
     public static final String CANBUS = "rio";
     public static final double MAX_SPEED = 100; // rps
     // coral
@@ -85,6 +87,29 @@ public final class Constants {
     public static final double CORAL_SHOOT_SPEED = 30; // 40
     public static final double CORAL_L1_SHOOT_SPEED = -10; // 40
     public static final double CORAL_SHOOT_TIMEOUT = 1;
+    // algae
+    public static final double ALGAE_INTAKE_SPEED = -40;
+    public static final double ALGAE_HOLD_SPEED = -5;
+    public static final double ALGAE_SHOOT_SPEED = 20;
+    public static final double ALGAE_NET_SHOOT_SPEED = 80;
+    public static final double ALGAE_NET_SHOOT_DELAY = .2; // .13;
+    public static final double ALGAE_SHOOT_TIMEOUT = 1;
+    //
+    public static final double BUMP_VALUE = 1; // rotations
+    public static final Slot0Configs SLOT0_CONFIGS =
+        new Slot0Configs().withKP(.2).withKI(0).withKD(0).withKS(0).withKV(0.13).withKA(0);
+    public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
+        new MotionMagicConfigs()
+            .withMotionMagicCruiseVelocity(20)
+            .withMotionMagicAcceleration(40)
+            .withMotionMagicJerk(400);
+  }
+
+  public static final class INTAKE_SHOOTER_LOW {
+    public static final int CANID = 38;
+    public static final String CANBUS = "rio";
+    public static final double MAX_SPEED = 100; // rps
+
     // algae
     public static final double ALGAE_INTAKE_SPEED = -40;
     public static final double ALGAE_HOLD_SPEED = -5;
@@ -115,38 +140,39 @@ public final class Constants {
     public static final int CANCODER_CANID = 36;
     public static final String CANBUS = "rio";
     public static String POSITION_SCORING_ELEMENT = "NULL";
+    public static final double REDUCTION = 62.5;
     public static final double MIN_POSITION = 0;
-    public static final double MIN_SLOT1_TO_ELEVATE = 4.1; // 3.8;
-    public static final double SLOT1_TO_ELEVATE = 4.2; // packaged position to lift elevator
-    public static final double MAX_SLOT1_TO_ELEVATE = 4.3; // 4.0;
-    public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 14.5; // min slot2
-    public static final double MAX_POSITION_AT_ELEVATOR_MIN = 26; // max slot2
-    public static final double MAX_POSITION_AT_P1 = 34;
-    public static final double MAX_POSITION = 34;
-    public static final double INTAKE = 1.5;
-    public static final double L1 = 17;
+    public static final double MIN_SLOT1_TO_ELEVATE = 0.0606; // 3.8;
+    public static final double SLOT1_TO_ELEVATE = 0.0672; // packaged position to lift elevator
+    public static final double MAX_SLOT1_TO_ELEVATE = 0.0688; // 4.0;
+    public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 0.232; // min slot2
+    public static final double MAX_POSITION_AT_ELEVATOR_MIN = 0.416; // max slot2
+    public static final double MAX_POSITION_AT_P1 = 0.544;
+    public static final double MAX_POSITION = 0.544;
+    public static final double INTAKE = 0.02; // 1.5 / REDUCTION;
+    public static final double L1 = 0.44;
     public static double L1_OFFSET = 0;
-    public static final double L2 = 4.2; // 3.9; // DO NOT MODIFY WITHOUT CHANGING
-    public static final double L3 = 4.2; // 3.9; // SEQUENCING LOGIC
-    public static final double L4 = 4.2; // 3.9; // all 3 of these must be the same value
-    public static final double CRADLE = 12;
-    public static final double SHOOTNET = 5;
-    public static final double PRENET = 22;
-    public static final double A2 = 27.5;
-    public static final double A1 = 27.5;
-    public static final double P1 = 33;
-    public static final double BUMP_VALUE = .5; // rotations
-    public static final double SAFE = 14.5; // minimum position to move full elevator travel
-    public static final double ERROR = 0.5;
-    public static final double CANCODER_OFFSET = 0.064453125;
-    public static final double CANCODER_FACTOR = 1.4634 / 0.02197;
+    public static final double L2 = 0.0672; // 3.9; // DO NOT MODIFY WITHOUT CHANGING
+    public static final double L3 = 0.0672; // 3.9; // SEQUENCING LOGIC
+    public static final double L4 = 0.0672; // 3.9; // all 3 of these must be the same value
+    public static final double CRADLE = 0.192;
+    public static final double SHOOTNET = 0.08;
+    public static final double PRENET = 0.352;
+    public static final double A2 = 0.44;
+    public static final double A1 = 0.44;
+    public static final double P1 = 0.528;
+    public static final double BUMP_VALUE = 0.008; // rotations
+    public static final double SAFE = 0.232; // minimum position to move full elevator travel
+    public static final double ERROR = 0.008;
+    public static final double CANCODER_OFFSET = -0.056640625; // 0.064453125;
+    // public static final double CANCODER_FACTOR = 1.4634 / 0.02197;
     public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(40).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
+        new Slot0Configs().withKP(120).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(60) // 60  5
-            .withMotionMagicAcceleration(240) // 240  15
-            .withMotionMagicJerk(10000);
+            .withMotionMagicCruiseVelocity(40) // 60  5
+            .withMotionMagicAcceleration(100) // 240  15
+            .withMotionMagicJerk(400);
   }
 
   public static final class ELEVATOR { // old AngleSubSystem
@@ -191,7 +217,7 @@ public final class Constants {
             .withMotionMagicJerk(400);
   }
 
-  public static final class ELEVATOR_SENSOR {
+  public static final class REEFPOSTSENSOR {
     // distance sensor
     public static final int CANID = 47;
     public static final String CANBUS = "rio";
@@ -224,5 +250,98 @@ public final class Constants {
 
   public static final class LightsConstants {
     public static final int CANDLE_PORT = 60;
+  }
+
+  // Aim constants
+  public static final double X_REEF_ALIGNMENT_P = 2.5;
+  public static final double Y_REEF_ALIGNMENT_P = 4.5;
+  public static final double ROT_REEF_ALIGNMENT_P = 0.058;
+
+  public static final double ROT_SETPOINT_REEF_ALIGNMENT = 0; // Rotation
+  public static final double ROT_TOLERANCE_REEF_ALIGNMENT = 0.5;
+  public static final double X_SETPOINT_REEF_ALIGNMENT = -0.3; // -0.5; // Vertical pose
+  public static final double X_TOLERANCE_REEF_ALIGNMENT = 0.005;
+  public static final double Y_SETPOINT_REEF_ALIGNMENT = 0.18; // 0.19; // Horizontal pose
+  public static final double Y_TOLERANCE_REEF_ALIGNMENT = 0.005;
+
+  public static final double DONT_SEE_TAG_WAIT_TIME = 1;
+  public static final double POSE_VALIDATION_TIME = 0.3;
+
+  public static final class PathPlannerConstants {
+
+    public static final PathConstraints testingConstraints =
+        new PathConstraints(
+            Units.feetToMeters(1.5), 2.0, Units.degreesToRadians(50), Units.degreesToRadians(300));
+
+    public static final PathConstraints slowConstraints =
+        new PathConstraints(
+            Units.feetToMeters(3.5), 4.0, Units.degreesToRadians(100), Units.degreesToRadians(720));
+
+    public static final PathConstraints defaultConstraints =
+        new PathConstraints(
+            Units.feetToMeters(8), 4.0, Units.degreesToRadians(200), Units.degreesToRadians(720));
+
+    public static final PathConstraints fastConstraints =
+        new PathConstraints(
+            Units.feetToMeters(14), 4.0, Units.degreesToRadians(360), Units.degreesToRadians(720));
+  }
+
+  public static final class FieldPoses {
+
+    public static final double[] fieldSize = {17.55, 8.05};
+    // Wall thickness is 0.051
+    public static final double[] centerOfReef = {4.487, 4.025};
+
+    public static final List<Pose2d> blueReefPoses =
+        new ArrayList<Pose2d>() {
+          {
+            // add(new Pose2d(2.890, 4.025, new Rotation2d(Units.degreesToRadians(1.00))));
+            // add(new Pose2d(3.689, 2.642, new Rotation2d(Units.degreesToRadians(61.0))));
+            // add(new Pose2d(5.285, 2.642, new Rotation2d(Units.degreesToRadians(121.0))));
+            // add(new Pose2d(6.087, 4.025, new Rotation2d(Units.degreesToRadians(181.0))));
+            // add(new Pose2d(5.285, 5.408, new Rotation2d(Units.degreesToRadians(241.0))));
+            // add(new Pose2d(3.689, 5.408, new Rotation2d(Units.degreesToRadians(301.0))));
+
+            add(new Pose2d(3.174, 4.025, new Rotation2d(Units.degreesToRadians(1.00))));
+            add(new Pose2d(3.829, 2.902, new Rotation2d(Units.degreesToRadians(61.0))));
+            add(new Pose2d(5.157, 2.902, new Rotation2d(Units.degreesToRadians(121.0))));
+            add(new Pose2d(5.772, 4.025, new Rotation2d(Units.degreesToRadians(181.0))));
+            add(new Pose2d(5.139, 5.144, new Rotation2d(Units.degreesToRadians(241.0))));
+            add(new Pose2d(3.849, 5.144, new Rotation2d(Units.degreesToRadians(301.0))));
+          }
+        };
+
+    public static final List<Pose2d> redReefPoses =
+        new ArrayList<Pose2d>() {
+          {
+            // add(new Pose2d(11.466, 4.025, new Rotation2d(Units.degreesToRadians(1.0))));
+            // add(new Pose2d(12.265, 2.642, new Rotation2d(Units.degreesToRadians(61.0))));
+            // add(new Pose2d(13.861, 2.642, new Rotation2d(Units.degreesToRadians(121.0))));
+            // add(new Pose2d(14.663, 4.025, new Rotation2d(Units.degreesToRadians(181.0))));
+            // add(new Pose2d(13.861, 5.408, new Rotation2d(Units.degreesToRadians(241.0))));
+            // add(new Pose2d(12.265, 5.408, new Rotation2d(Units.degreesToRadians(301.0))));
+
+            // add(new Pose2d(11.182, 4.025, new Rotation2d(Units.degreesToRadians(1.0))));
+            // add(new Pose2d(12.125, 2.902, new Rotation2d(Units.degreesToRadians(61.0))));
+            // add(new Pose2d(13.989, 2.902, new Rotation2d(Units.degreesToRadians(121.0))));
+            // add(new Pose2d(14.978, 4.025, new Rotation2d(Units.degreesToRadians(181.0))));
+            // add(new Pose2d(14.007, 5.144, new Rotation2d(Units.degreesToRadians(241.0))));
+            // add(new Pose2d(12.105, 5.144, new Rotation2d(Units.degreesToRadians(301.0))));
+
+            add(new Pose2d(11.750, 4.025, new Rotation2d(Units.degreesToRadians(1.0))));
+            add(new Pose2d(12.405, 2.902, new Rotation2d(Units.degreesToRadians(61.0))));
+            add(new Pose2d(13.733, 2.902, new Rotation2d(Units.degreesToRadians(121.0))));
+            add(new Pose2d(14.348, 4.025, new Rotation2d(Units.degreesToRadians(181.0))));
+            add(new Pose2d(13.715, 5.144, new Rotation2d(Units.degreesToRadians(241.0))));
+            add(new Pose2d(12.425, 5.144, new Rotation2d(Units.degreesToRadians(301.0))));
+          }
+        };
+
+    public static final double leftOffset = 0.155;
+    // public static final double L2ScoringOffset = 0.285;
+    // public static final double L3ScoringOffset = 0.155;
+    // public static final double L4ScoringOffset = 0.27;
+    // public static final double topAlgaeScoringOffset = 0.23;
+    // public static final double bottomAlgaeScoringOffset = 0.25;
   }
 }

@@ -12,6 +12,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -130,7 +131,8 @@ public class RollerSystem extends SubsystemBase {
                 -0.2921,
                 0,
                 0.4398003396,
-                new Rotation3d(0, inputs.positionRotations / 125 * (12 / 32), 0))
+                new Rotation3d(
+                    0, Units.rotationsToRadians(inputs.positionRotations / 125 * (12 / 32)), 0))
           });
     }
   }
