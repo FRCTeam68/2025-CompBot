@@ -281,7 +281,7 @@ public class RobotContainer {
         "algaeToP1",
         ManipulatorCommands.AlgaeToP1(intakeShooterLow, elevatorWrist, algaeCradleFlag));
     NamedCommands.registerCommand(
-        "algaeToeNet",
+        "algaeToPreNet",
         ManipulatorCommands.AlgaeToNetCmd(intakeShooterLow, elevatorWrist, algaeCradleFlag));
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto/Auto Choices", AutoBuilder.buildAutoChooser());

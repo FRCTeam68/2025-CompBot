@@ -86,14 +86,15 @@ public final class Constants {
     public static final double CORAL_INTAKE_INDEX_REVERSE = 3; // revolutions to reverse
     public static final double CORAL_SHOOT_SPEED = 30; // 40
     public static final double CORAL_L1_SHOOT_SPEED = -10; // 40
-    public static final double CORAL_SHOOT_TIMEOUT = 1;
+    public static final double CORAL_SHOOT_TIMEOUT = .5;
+    public static final double CORAL_L1_SHOOT_TIMEOUT = 1;
     // algae
     public static final double ALGAE_INTAKE_SPEED = -40;
     public static final double ALGAE_HOLD_SPEED = -5;
     public static final double ALGAE_SHOOT_SPEED = 20;
     public static final double ALGAE_NET_SHOOT_SPEED = 80;
-    public static final double ALGAE_NET_SHOOT_DELAY = .2; // .13;
-    public static final double ALGAE_SHOOT_TIMEOUT = 1;
+    public static final double ALGAE_NET_SHOOT_DELAY = .17; // .13;
+    public static final double ALGAE_SHOOT_TIMEOUT = .2;
     //
     public static final double BUMP_VALUE = 1; // rotations
     public static final Slot0Configs SLOT0_CONFIGS =
@@ -115,8 +116,6 @@ public final class Constants {
     public static final double ALGAE_HOLD_SPEED = -5;
     public static final double ALGAE_SHOOT_SPEED = 20;
     public static final double ALGAE_NET_SHOOT_SPEED = 80;
-    public static final double ALGAE_NET_SHOOT_DELAY = .13;
-    public static final double ALGAE_SHOOT_TIMEOUT = 1;
     //
     public static final double BUMP_VALUE = 1; // rotations
     public static final Slot0Configs SLOT0_CONFIGS =

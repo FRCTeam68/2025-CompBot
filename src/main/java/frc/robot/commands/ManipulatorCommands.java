@@ -133,7 +133,7 @@ public class ManipulatorCommands {
                         () ->
                             Logger.recordOutput("Manipulator/IntakeShooterState", "ShootCoralL1")),
                     myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_L1_SHOOT_SPEED),
-                    Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_SHOOT_TIMEOUT),
+                    Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_L1_SHOOT_TIMEOUT),
                     myIntake.setSpeedCmd(0),
                     myIntakeLow.setSpeedCmd(0));
           } else {
