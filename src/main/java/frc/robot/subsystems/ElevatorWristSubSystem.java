@@ -134,7 +134,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   public void periodic() {
     reefPostSensorDetected = reefPostSensor.havePiece();
     reefPostSensorDistance = reefPostSensor.getDistance_mm();
-    reefPostDetected = (reefPostSensorDistance > 200) && (reefPostSensorDistance < 300);
+    reefPostDetected = (reefPostSensorDistance > 130) && (reefPostSensorDistance < 225);
     SmartDashboard.putNumber("Reef Post Sensor Distance", reefPostSensorDistance);
     SmartDashboard.putBoolean("Reef Post Sensor Detected", reefPostSensorDetected);
     SmartDashboard.putBoolean("Reef Post Detected", reefPostDetected);
