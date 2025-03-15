@@ -52,9 +52,7 @@ import frc.robot.subsystems.rollers.RollerSystemIOSim;
 import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOInputsAutoLogged;
 import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import frc.robot.util.AllianceFlipUtil;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -89,7 +87,7 @@ public class RobotContainer {
 
   private boolean algaeCradleFlag = false;
   private boolean m_pitModeActive = false;
-  
+
   private static boolean auton_start_position_ok = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -610,7 +608,7 @@ public class RobotContainer {
     SmartDashboard.putBoolean("Auto/offset_ROT_OK:", offsetROK);
 
     if (offsetXOK && offsetYOK && offsetROK) {
-        auton_start_position_ok = true;
+      auton_start_position_ok = true;
     } else {
       if (offsetXOK) {
         LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
@@ -662,13 +660,13 @@ public class RobotContainer {
             && elevatorWrist.getWrist().getPosition() < 0.01
             && elevatorWrist.getElevator().getPosition() < 0.01;
     if (autonready && auton_start_position_ok) {
-        LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4);
+      LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4);
     } else if (autonready) {
-        LEDSegment.leftside.setColor(LightsSubsystem.green);
-        LEDSegment.rightside.setColor(LightsSubsystem.green);
+      LEDSegment.leftside.setColor(LightsSubsystem.green);
+      LEDSegment.rightside.setColor(LightsSubsystem.green);
     } else {
-        LEDSegment.leftside.setColor(LightsSubsystem.red);
-        LEDSegment.rightside.setColor(LightsSubsystem.red);
+      LEDSegment.leftside.setColor(LightsSubsystem.red);
+      LEDSegment.rightside.setColor(LightsSubsystem.red);
     }
 
     SmartDashboard.putBoolean(
