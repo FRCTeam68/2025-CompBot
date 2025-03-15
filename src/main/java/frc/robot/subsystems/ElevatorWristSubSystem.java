@@ -7,11 +7,6 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.util.PhoenixUtil.tryUntilOk;
-
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
@@ -27,6 +22,8 @@ import frc.robot.Constants;
 import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
+import frc.robot.subsystems.wristRoller.wristRollerSystem;
+import frc.robot.subsystems.wristRoller.wristRollerSystemIOTalonFX;
 import java.util.Set;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -34,31 +31,21 @@ import org.littletonrobotics.junction.Logger;
 
 public class ElevatorWristSubSystem extends SubsystemBase {
 
-  private final RollerSystem wrist;
+  private final wristRollerSystem wrist;
   private final RollerSystem elevator;
   private final RollerSystem elevatorFollower;
-  private final CANcoder wristCANcoder;
 
   @Getter @AutoLogOutput private double setpoint = 0.0;
   @Getter @AutoLogOutput private double wristAngle = 0.0;
-  @Getter @AutoLogOutput private double e_goal = 0;
-  @Getter @AutoLogOutput private double w_goal = 0;
   private double e_bump_goal = 0;
   private double w_bump_goal = 0;
 
   public ElevatorWristSubSystem() {
 
-    wristCANcoder = new CANcoder(Constants.WRIST.CANCODER_CANID, Constants.WRIST.CANBUS);
-    CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
-    cancoderConfig.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(0.9);
-    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-    cancoderConfig.MagnetSensor.MagnetOffset = Constants.WRIST.CANCODER_OFFSET;
-    tryUntilOk(5, () -> wristCANcoder.getConfigurator().apply(cancoderConfig));
-
     wrist =
-        new RollerSystem(
+        new wristRollerSystem(
             "Wrist",
-            new RollerSystemIOTalonFX(
+            new wristRollerSystemIOTalonFX(
                 Constants.WRIST.CANID,
                 Constants.WRIST.CANBUS,
                 80,
@@ -66,12 +53,15 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 0,
                 false,
                 Constants.WRIST.CANCODER_CANID,
+                0.9,
                 true,
-                62.5));
+                Constants.WRIST.CANCODER_OFFSET,
+                true,
+                Constants.WRIST.REDUCTION));
     // init tunables in the parent roller system
     wrist.setPID(Constants.WRIST.SLOT0_CONFIGS);
     wrist.setMotionMagic(Constants.WRIST.MOTIONMAGIC_CONFIGS);
-    wrist.setAtSetpointBand(0.003);
+    wrist.setAtSetpointBand(0.005);
     wrist.setPieceCurrentThreshold(
         40); // does not have a piece but might want to use to detect overrun limits?
 
@@ -114,9 +104,9 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     //     wristCANcoder.getPosition().getValueAsDouble() * Constants.WRIST.CANCODER_FACTOR);
     // elevator.setPosition(0);
 
-    wristAngle = wristCANcoder.getPosition().getValueAsDouble();
-    SmartDashboard.putNumber("WristAngle", wristAngle);
-    SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
+    // wristAngle = wristCANcoder.getPosition().getValueAsDouble();
+    // SmartDashboard.putNumber("WristAngle", wristAngle);
+    // SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
 
     zero();
   }
@@ -128,9 +118,9 @@ public class ElevatorWristSubSystem extends SubsystemBase {
 
   public void periodic() {
 
-    wristAngle = wristCANcoder.getPosition().getValueAsDouble();
+    wristAngle = wrist.getPosition();
     SmartDashboard.putNumber("WristAngle", wristAngle);
-    // SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
+    SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
 
     // robot poses
     Logger.recordOutput(
@@ -163,9 +153,9 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     return elevator;
   }
 
-  public RollerSystem getWrist() {
-    return wrist;
-  }
+  //   public RollerSystem getWrist() {
+  //     return wrist;
+  //   }
 
   @AutoLogOutput
   public Command setPositionCmd(double e_goal, double w_goal) {
@@ -245,7 +235,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
         () -> {
           // initialization
           double e_current = elevator.getPosition();
-          double w_current = wrist.getPosition();
+          double w_current = wristAngle;
           Command sequence0;
           Command sequence1;
           Command sequence2;
@@ -254,7 +244,12 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                   Commands.waitUntil(() -> wrist.atPosition()),
                   Commands.waitUntil(() -> elevator.atPosition()));
           Command ledBegin =
-              Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4));
+              Commands.sequence(
+                  Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4)),
+                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/w_goal", w_goal)),
+                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/e_goal", e_goal)),
+                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/w_current", w_current)),
+                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/e_current", e_current)));
           Command ledEnd = Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange));
           sequence0 = Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence0", "NULL"));
           sequence1 = Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence1", "NULL"));
@@ -418,9 +413,11 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             }
           } else { // fallback to failsafe sequence
             // return setPositionCmd(e_goal, w_goal);
-            Commands.sequence(
-                Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence1", "FAILSAFE")),
-                Commands.waitSeconds(5));
+            sequence1 =
+                Commands.sequence(
+                    Commands.runOnce(
+                        () -> Logger.recordOutput("Manipulator/Sequence1", "FAILSAFE")),
+                    Commands.waitSeconds(5));
           }
           // execute sequence
           return ledBegin

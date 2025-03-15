@@ -144,7 +144,7 @@ public final class Constants {
     public static String POSITION_SCORING_ELEMENT = "NULL";
     public static final double REDUCTION = 62.5;
     public static final double MIN_POSITION = 0;
-    public static final double MIN_SLOT1_TO_ELEVATE = 0.0656; // 3.8;
+    public static final double MIN_SLOT1_TO_ELEVATE = 0.0606; // 3.8;
     public static final double SLOT1_TO_ELEVATE = 0.0672; // packaged position to lift elevator
     public static final double MAX_SLOT1_TO_ELEVATE = 0.0688; // 4.0;
     public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 0.232; // min slot2
