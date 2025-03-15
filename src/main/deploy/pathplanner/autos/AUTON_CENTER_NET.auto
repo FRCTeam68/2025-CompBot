@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Center-H-L4"
+                  "pathName": "C_Start-H"
                 }
               },
               {
@@ -26,7 +26,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shootCoral"
+            "name": "shoot"
           }
         },
         {
@@ -61,7 +61,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "intakeAlgae"
+                  "name": "intake"
                 }
               }
             ]
@@ -84,7 +84,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.8
+                        "waitTime": 0.3
                       }
                     },
                     {
@@ -102,7 +102,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shootAlgaeAtNet"
+            "name": "shoot"
           }
         },
         {
@@ -137,7 +137,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "intakeAlgae"
+                  "name": "intake"
                 }
               }
             ]
@@ -160,7 +160,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.5
+                        "waitTime": 0.3
                       }
                     },
                     {
@@ -178,7 +178,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shootAlgaeAtNet"
+            "name": "shoot"
           }
         },
         {
@@ -220,7 +220,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "intakeAlgae"
+                  "name": "intake"
                 }
               }
             ]
@@ -243,7 +243,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.5
+                        "waitTime": 0.3
                       }
                     },
                     {
@@ -261,7 +261,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shootAlgaeAtNet"
+            "name": "shoot"
           }
         }
       ]

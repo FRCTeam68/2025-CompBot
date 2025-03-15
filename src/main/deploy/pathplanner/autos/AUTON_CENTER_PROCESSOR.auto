@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Center-H-L4"
+                  "pathName": "C_Start-H"
                 }
               },
               {
@@ -26,7 +26,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shootCoral"
+            "name": "shoot"
           }
         },
         {
@@ -61,7 +61,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "intakeAlgae"
+                  "name": "intake"
                 }
               }
             ]
@@ -74,7 +74,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "A1-Processer"
+                  "pathName": "C1_A1-Processer"
                 }
               },
               {
@@ -102,7 +102,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shootAlgaeAtP1"
+            "name": "shoot"
           }
         },
         {
@@ -127,7 +127,7 @@
         {
           "type": "named",
           "data": {
-            "name": "intakeAlgae"
+            "name": "intake"
           }
         },
         {
@@ -165,7 +165,7 @@
         {
           "type": "named",
           "data": {
-            "name": "shootAlgaeAtP1"
+            "name": "shoot"
           }
         }
       ]
