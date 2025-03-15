@@ -138,38 +138,39 @@ public final class Constants {
     public static final int CANCODER_CANID = 36;
     public static final String CANBUS = "rio";
     public static String POSITION_SCORING_ELEMENT = "NULL";
+    public static final double REDUCTION = 62.5;
     public static final double MIN_POSITION = 0;
-    public static final double MIN_SLOT1_TO_ELEVATE = 4.1; // 3.8;
-    public static final double SLOT1_TO_ELEVATE = 4.2; // packaged position to lift elevator
-    public static final double MAX_SLOT1_TO_ELEVATE = 4.3; // 4.0;
-    public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 14.5; // min slot2
-    public static final double MAX_POSITION_AT_ELEVATOR_MIN = 26; // max slot2
-    public static final double MAX_POSITION_AT_P1 = 34;
-    public static final double MAX_POSITION = 34;
-    public static final double INTAKE = 1;
-    public static final double L1 = 27.5;
+    public static final double MIN_SLOT1_TO_ELEVATE = 0.0606; // 3.8;
+    public static final double SLOT1_TO_ELEVATE = 0.0672; // packaged position to lift elevator
+    public static final double MAX_SLOT1_TO_ELEVATE = 0.0688; // 4.0;
+    public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 0.232; // min slot2
+    public static final double MAX_POSITION_AT_ELEVATOR_MIN = 0.416; // max slot2
+    public static final double MAX_POSITION_AT_P1 = 0.544;
+    public static final double MAX_POSITION = 0.544;
+    public static final double INTAKE = 0.02; // 1.5 / REDUCTION;
+    public static final double L1 = 0.272;
     public static double L1_OFFSET = 0;
-    public static final double L2 = 4.2; // 3.9; // DO NOT MODIFY WITHOUT CHANGING
-    public static final double L3 = 4.2; // 3.9; // SEQUENCING LOGIC
-    public static final double L4 = 4.2; // 3.9; // all 3 of these must be the same value
-    public static final double CRADLE = 12;
-    public static final double SHOOTNET = 5;
-    public static final double PRENET = 22;
-    public static final double A2 = 27.5;
-    public static final double A1 = 27.5;
-    public static final double P1 = 33;
-    public static final double BUMP_VALUE = .5; // rotations
-    public static final double SAFE = 14.5; // minimum position to move full elevator travel
-    public static final double ERROR = 0.5;
-    public static final double CANCODER_OFFSET = 0.064453125;
-    public static final double CANCODER_FACTOR = 1.4634 / 0.02197;
+    public static final double L2 = 0.0672; // 3.9; // DO NOT MODIFY WITHOUT CHANGING
+    public static final double L3 = 0.0672; // 3.9; // SEQUENCING LOGIC
+    public static final double L4 = 0.0672; // 3.9; // all 3 of these must be the same value
+    public static final double CRADLE = 0.192;
+    public static final double SHOOTNET = 0.08;
+    public static final double PRENET = 0.352;
+    public static final double A2 = 0.44;
+    public static final double A1 = 0.44;
+    public static final double P1 = 0.528;
+    public static final double BUMP_VALUE = 0.008; // rotations
+    public static final double SAFE = 0.232; // minimum position to move full elevator travel
+    public static final double ERROR = 0.008;
+    public static final double CANCODER_OFFSET = -0.056640625; // 0.064453125;
+    // public static final double CANCODER_FACTOR = 1.4634 / 0.02197;
     public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(40).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
+        new Slot0Configs().withKP(120).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(60) // 60  5
-            .withMotionMagicAcceleration(240) // 240  15
-            .withMotionMagicJerk(10000);
+            .withMotionMagicCruiseVelocity(40) // 60  5
+            .withMotionMagicAcceleration(100) // 240  15
+            .withMotionMagicJerk(350);
   }
 
   public static final class ELEVATOR { // old AngleSubSystem

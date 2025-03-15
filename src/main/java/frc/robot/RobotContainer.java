@@ -115,6 +115,7 @@ public class RobotContainer {
                     false,
                     0,
                     false,
+                    0,
                     true,
                     1));
         // init tunables in the parent roller system
@@ -133,6 +134,7 @@ public class RobotContainer {
                     true,
                     0,
                     false,
+                    0,
                     false,
                     1));
         // init tunables in the parent roller system
@@ -160,6 +162,7 @@ public class RobotContainer {
                     true,
                     0,
                     false,
+                    0,
                     true,
                     1));
         // init tunables in the parent roller system

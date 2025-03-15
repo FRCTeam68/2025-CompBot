@@ -55,24 +55,32 @@ public class ElevatorWristSubSystem extends SubsystemBase {
 
   public ElevatorWristSubSystem() {
 
-    wrist =
-        new RollerSystem(
-            "Wrist",
-            new RollerSystemIOTalonFX(
-                Constants.WRIST.CANID, Constants.WRIST.CANBUS, 80, true, 0, false, true, 1));
-    // init tunables in the parent roller system
-    wrist.setPID(Constants.WRIST.SLOT0_CONFIGS);
-    wrist.setMotionMagic(Constants.WRIST.MOTIONMAGIC_CONFIGS);
-    wrist.setAtSetpointBand(.3);
-    wrist.setPieceCurrentThreshold(
-        40); // does not have a piece but might want to use to detect overrun limits?
-
     wristCANcoder = new CANcoder(Constants.WRIST.CANCODER_CANID, Constants.WRIST.CANBUS);
     var cancoderConfig = new CANcoderConfiguration();
     // cancoderConfig.MagnetSensor.MagnetOffset = offset.getRotations();
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     cancoderConfig.MagnetSensor.MagnetOffset = Constants.WRIST.CANCODER_OFFSET;
     tryUntilOk(5, () -> wristCANcoder.getConfigurator().apply(cancoderConfig));
+
+    wrist =
+        new RollerSystem(
+            "Wrist",
+            new RollerSystemIOTalonFX(
+                Constants.WRIST.CANID,
+                Constants.WRIST.CANBUS,
+                80,
+                true,
+                0,
+                false,
+                Constants.WRIST.CANCODER_CANID,
+                true,
+                1));
+    // init tunables in the parent roller system
+    wrist.setPID(Constants.WRIST.SLOT0_CONFIGS);
+    wrist.setMotionMagic(Constants.WRIST.MOTIONMAGIC_CONFIGS);
+    wrist.setAtSetpointBand(.3);
+    wrist.setPieceCurrentThreshold(
+        40); // does not have a piece but might want to use to detect overrun limits?
 
     elevator =
         new RollerSystem(
@@ -84,6 +92,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 false,
                 0,
                 false,
+                0,
                 true,
                 1));
     // init tunables in the parent roller system
@@ -102,6 +111,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 false,
                 Constants.ELEVATOR.RIGHT_CANID,
                 true,
+                0,
                 true,
                 1));
 
