@@ -13,7 +13,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface wristRollerSystemIO {
   @AutoLog
-  static class RollerSystemIOInputs {
+  static class wristRollerSystemIOInputs {
     public boolean connected = false;
     public double positionRads = 0.0;
     public double positionRotations = 0.0;
@@ -25,7 +25,7 @@ public interface wristRollerSystemIO {
     public double tempCelsius = 0.0;
   }
 
-  default void updateInputs(RollerSystemIOInputs inputs) {}
+  default void updateInputs(wristRollerSystemIOInputs inputs) {}
 
   /* Run rollers at volts */
   default void setVolts(double volts) {}

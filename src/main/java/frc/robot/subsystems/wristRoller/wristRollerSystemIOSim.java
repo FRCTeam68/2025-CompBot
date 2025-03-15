@@ -1,0 +1,75 @@
+// Copyright (c) 2025 FRC 6328
+// http://github.com/Mechanical-Advantage
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
+
+package frc.robot.subsystems.wristRoller;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import frc.robot.Constants;
+
+public class wristRollerSystemIOSim implements wristRollerSystemIO {
+  private final DCMotorSim sim;
+  private double appliedVoltage = 0.0;
+
+  public wristRollerSystemIOSim(DCMotor motorModel, double reduction, double moi) {
+    sim =
+        new DCMotorSim(LinearSystemId.createDCMotorSystem(motorModel, moi, reduction), motorModel);
+  }
+
+  @Override
+  public void updateInputs(wristRollerSystemIOInputs inputs) {
+    if (DriverStation.isDisabled()) {
+      setVolts(0.0);
+    }
+
+    inputs.connected = true;
+    sim.update(Constants.loopPeriodSecs);
+    inputs.positionRads = sim.getAngularPositionRad();
+    inputs.velocityRadsPerSec = sim.getAngularVelocityRadPerSec();
+    inputs.appliedVoltage = appliedVoltage;
+    inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
+  }
+
+  @Override
+  public void setVolts(double volts) {
+    appliedVoltage = MathUtil.clamp(volts, -12.0, 12.0);
+    sim.setInputVoltage(appliedVoltage);
+  }
+
+  @Override
+  public void setSpeed(double speed) {
+    sim.setAngularVelocity(Units.rotationsToRadians(speed));
+  }
+
+  @Override
+  public void setPosition(double position) {
+    sim.setAngle(Units.rotationsToRadians(position));
+  }
+
+  @Override
+  public void stop() {
+    setVolts(0.0);
+  }
+
+  @Override
+  public void zero() {
+    sim.setAngle(0);
+  }
+
+  // @Override
+  // public void setPID(double kP, double kI, double kD) {
+  // }
+
+  // /** Set motion magic velocity, acceleration and jerk. */
+  // @Override
+  // public default void setMotionMagic(MotionMagicConfigs newconfig) {}
+
+}

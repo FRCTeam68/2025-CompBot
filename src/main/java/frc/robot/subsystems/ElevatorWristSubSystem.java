@@ -50,8 +50,6 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 Constants.WRIST.CANBUS,
                 80,
                 true,
-                0,
-                false,
                 Constants.WRIST.CANCODER_CANID,
                 0.9,
                 true,

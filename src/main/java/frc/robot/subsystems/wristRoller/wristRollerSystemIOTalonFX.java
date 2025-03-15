@@ -15,7 +15,6 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
@@ -64,8 +63,6 @@ public class wristRollerSystemIOTalonFX implements wristRollerSystemIO {
       String bus,
       int currentLimitAmps,
       boolean invert,
-      int followerID,
-      boolean followOpposite,
       int canCoderID,
       double canCoderDiscontinuityPoint,
       boolean canCoderClockwise,
@@ -76,41 +73,34 @@ public class wristRollerSystemIOTalonFX implements wristRollerSystemIO {
     talon = new TalonFX(id, bus);
     wristCANcoder = new CANcoder(canCoderID, bus);
 
-    if (followerID != 0) {
-      // this is a follower motor.  Assign its lead motor
-      // also, do not need to set config.
-      talon.setPosition(0);
-      talon.setControl(new Follower(followerID, followOpposite));
-      System.out.println("****** follower motor on elevator setup ******");
-    } else {
-      config.Voltage.PeakForwardVoltage = 12;
-      config.Voltage.PeakReverseVoltage = -12;
+    config.Voltage.PeakForwardVoltage = 12;
+    config.Voltage.PeakReverseVoltage = -12;
 
-      // this is a CANcoder.  fuse it to motor
-      canCoderConfig.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(canCoderDiscontinuityPoint);
-      canCoderConfig.MagnetSensor.SensorDirection =
-          canCoderClockwise
-              ? SensorDirectionValue.Clockwise_Positive
-              : SensorDirectionValue.CounterClockwise_Positive;
-      canCoderConfig.MagnetSensor.withMagnetOffset(canCoderOffset);
-      config.Feedback.FeedbackRemoteSensorID = canCoderID;
-      config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-      config.Feedback.RotorToSensorRatio = reduction;
-      config.Feedback.SensorToMechanismRatio = 1;
+    // this is a CANcoder.  fuse it to motor
+    canCoderConfig.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(canCoderDiscontinuityPoint);
+    canCoderConfig.MagnetSensor.SensorDirection =
+        canCoderClockwise
+            ? SensorDirectionValue.Clockwise_Positive
+            : SensorDirectionValue.CounterClockwise_Positive;
+    canCoderConfig.MagnetSensor.withMagnetOffset(canCoderOffset);
+    config.Feedback.FeedbackRemoteSensorID = canCoderID;
+    config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    config.Feedback.RotorToSensorRatio = reduction;
+    config.Feedback.SensorToMechanismRatio = 1;
 
-      config.MotorOutput.Inverted =
-          invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
-      config.MotorOutput.NeutralMode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
-      config.CurrentLimits.SupplyCurrentLimit = currentLimitAmps;
-      config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.MotorOutput.Inverted =
+        invert ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+    config.MotorOutput.NeutralMode = brake ? NeutralModeValue.Brake : NeutralModeValue.Coast;
+    config.CurrentLimits.SupplyCurrentLimit = currentLimitAmps;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-      config.CurrentLimits.StatorCurrentLimit = currentLimitAmps;
-      config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.StatorCurrentLimit = currentLimitAmps;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
 
-      config.TorqueCurrent.PeakForwardTorqueCurrent = currentLimitAmps;
-      config.TorqueCurrent.PeakReverseTorqueCurrent = -currentLimitAmps;
-      tryUntilOk(5, () -> talon.getConfigurator().apply(config));
-    }
+    config.TorqueCurrent.PeakForwardTorqueCurrent = currentLimitAmps;
+    config.TorqueCurrent.PeakReverseTorqueCurrent = -currentLimitAmps;
+    tryUntilOk(5, () -> wristCANcoder.getConfigurator().apply(canCoderConfig));
+    tryUntilOk(5, () -> talon.getConfigurator().apply(config));
 
     position = talon.getPosition();
     velocity = talon.getVelocity();
@@ -134,15 +124,15 @@ public class wristRollerSystemIOTalonFX implements wristRollerSystemIO {
   }
 
   @Override
-  public void updateInputs(RollerSystemIOInputs inputs) {
+  public void updateInputs(wristRollerSystemIOInputs inputs) {
     inputs.connected =
         BaseStatusSignal.refreshAll(
                 position, velocity, appliedVoltage, supplyCurrent, torqueCurrent, tempCelsius)
             .isOK();
-    inputs.positionRads = Units.rotationsToRadians(position.getValueAsDouble()) / reduction;
-    inputs.positionRotations = position.getValueAsDouble() / reduction;
-    inputs.velocityRadsPerSec = Units.rotationsToRadians(velocity.getValueAsDouble()) / reduction;
-    inputs.velocityRotsPerSec = velocity.getValueAsDouble() / reduction;
+    inputs.positionRads = Units.rotationsToRadians(position.getValueAsDouble());
+    inputs.positionRotations = position.getValueAsDouble();
+    inputs.velocityRadsPerSec = Units.rotationsToRadians(velocity.getValueAsDouble());
+    inputs.velocityRotsPerSec = velocity.getValueAsDouble();
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();

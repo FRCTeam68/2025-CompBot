@@ -25,7 +25,8 @@ import org.littletonrobotics.junction.Logger;
 public class wristRollerSystem extends SubsystemBase {
   private final String name;
   private final wristRollerSystemIO io;
-  protected final RollerSystemIOInputsAutoLogged inputs = new RollerSystemIOInputsAutoLogged();
+  protected final wristRollerSystemIOInputsAutoLogged inputs =
+      new wristRollerSystemIOInputsAutoLogged();
   private final Alert disconnected;
   protected final Timer stateTimer = new Timer();
 
