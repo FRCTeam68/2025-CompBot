@@ -57,7 +57,7 @@ public final class Constants {
     // Measured from the center of the ice cream
     public static final double separation = Units.inchesToMeters(72.0);
     public static final Pose2d right =
-        new Pose2d(Meters.of(7.26), Meters.of(2.65), new Rotation2d(180));
+        new Pose2d(Meters.of(7.26), Meters.of(2.65), new Rotation2d(Units.degreesToRadians(180)));
     public static final Pose2d middle =
         new Pose2d(right.getMeasureX(), Meters.of(4.16), right.getRotation());
     public static final Pose2d left =

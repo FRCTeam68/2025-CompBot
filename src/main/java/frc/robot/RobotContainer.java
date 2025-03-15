@@ -52,7 +52,9 @@ import frc.robot.subsystems.rollers.RollerSystemIOSim;
 import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOInputsAutoLogged;
 import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import frc.robot.util.AllianceFlipUtil;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -70,8 +72,8 @@ public class RobotContainer {
   private final RollerSystem climber;
   private final RollerSystem intakeShooter;
   private final RollerSystem intakeShooterLow;
-  private final RangeSensorSubSystem intakeCoralSensor;
-  private final ElevatorWristSubSystem elevatorWrist;
+  private static RangeSensorSubSystem intakeCoralSensor;
+  private static ElevatorWristSubSystem elevatorWrist;
   private final LightsSubsystem lightsSubsystem;
   private ReefCentering reefCentering;
 
@@ -87,6 +89,8 @@ public class RobotContainer {
 
   private boolean algaeCradleFlag = false;
   private boolean m_pitModeActive = false;
+  
+  private static boolean auton_start_position_ok = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -282,7 +286,7 @@ public class RobotContainer {
         "algaeToeNet",
         ManipulatorCommands.AlgaeToNetCmd(intakeShooterLow, elevatorWrist, algaeCradleFlag));
     // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    autoChooser = new LoggedDashboardChooser<>("Auto/Auto Choices", AutoBuilder.buildAutoChooser());
     autoChooser.addOption(
         "Functional Test",
         ManipulatorCommands.FunctionalTest(
@@ -317,7 +321,7 @@ public class RobotContainer {
     SmartDashboard.putString("atPosition", "--");
     SmartDashboard.putBoolean("CLIMB", false);
 
-    LEDSegment.all.setRainbowAnimation(2);
+    // LEDSegment.all.setRainbowAnimation(2);
   }
 
   /**
@@ -555,69 +559,94 @@ public class RobotContainer {
 
   public static void putAutonPoseToDashboard() {
     Pose2d curPose = AllianceFlipUtil.apply(drive.getPose());
+    double autonX = 0;
     double autonY = 0;
-    double OffsetX = 0;
-    double OffsetY = 0;
-    double OffsetR = 0;
-
-    SmartDashboard.putNumber("auton_X:", curPose.getX());
-    SmartDashboard.putNumber("auton_Y:", curPose.getY());
-    SmartDashboard.putNumber("auton_ROT:", curPose.getRotation().getDegrees());
+    double autonR = 0;
+    double offsetX = 0;
+    double offsetY = 0;
+    double offsetR = 0;
+    boolean offsetXOK = false;
+    boolean offsetYOK = false;
+    boolean offsetROK = false;
 
     m_autonName = autoChooser.get().getName();
 
     if (m_autonName.contains("LEFT")) {
+      autonX = Constants.AutonStartPositions.left.getX();
       autonY = Constants.AutonStartPositions.left.getY();
+      autonR = Constants.AutonStartPositions.left.getRotation().getDegrees();
     } else if (m_autonName.contains("CENTER")) {
+      autonX = Constants.AutonStartPositions.middle.getX();
       autonY = Constants.AutonStartPositions.middle.getY();
+      autonR = Constants.AutonStartPositions.middle.getRotation().getDegrees();
     } else if (m_autonName.contains("RIGHT")) {
+      autonX = Constants.AutonStartPositions.right.getX();
       autonY = Constants.AutonStartPositions.right.getY();
+      autonR = Constants.AutonStartPositions.right.getRotation().getDegrees();
     }
 
-    OffsetX = curPose.getX() - Constants.AutonStartPositions.right.getX();
-    OffsetY = curPose.getY() - autonY;
-    OffsetR =
-        Math.abs(curPose.getRotation().getDegrees())
-            - Constants.AutonStartPositions.right.getRotation().getDegrees();
+    offsetX = curPose.getX() - autonX;
+    offsetY = curPose.getY() - autonY;
+    offsetR = Math.abs(curPose.getRotation().getDegrees()) - autonR;
 
-    SmartDashboard.putNumber("auton_offset_X:", OffsetX);
-    SmartDashboard.putNumber("auton_offset_Y:", OffsetY);
-    SmartDashboard.putNumber("auton_offset_ROT:", OffsetR);
+    offsetXOK =
+        (Math.abs(offsetX) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR / 2))
+            ? true
+            : false;
+    offsetYOK =
+        (Math.abs(offsetY) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR / 2))
+            ? true
+            : false;
+    offsetROK =
+        (Math.abs(offsetR) < (Constants.AutonStartPositions.ROTATION_START_ERROR / 2))
+            ? true
+            : false;
 
-    if (Math.abs(OffsetX) < Constants.AutonStartPositions.TRANSLATION_START_ERROR) {
-      LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
-      LEDSegment.autonXRight.setColor(LightsSubsystem.green);
+    SmartDashboard.putNumber("Auto/offset_X:", offsetX);
+    SmartDashboard.putNumber("Auto/offset_Y:", offsetY);
+    SmartDashboard.putNumber("Auto/offset_ROT:", offsetR);
+    SmartDashboard.putBoolean("Auto/offset_X_OK:", offsetXOK);
+    SmartDashboard.putBoolean("Auto/offset_Y_OK:", offsetYOK);
+    SmartDashboard.putBoolean("Auto/offset_ROT_OK:", offsetROK);
+
+    if (offsetXOK && offsetYOK && offsetROK) {
+        auton_start_position_ok = true;
     } else {
-      if (OffsetX < 0) {
-        LEDSegment.autonXLeft.setColor(LightsSubsystem.red);
+      if (offsetXOK) {
+        LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
         LEDSegment.autonXRight.setColor(LightsSubsystem.green);
       } else {
-        LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
-        LEDSegment.autonXRight.setColor(LightsSubsystem.red);
+        if (offsetX < 0) {
+          LEDSegment.autonXLeft.setColor(LightsSubsystem.red);
+          LEDSegment.autonXRight.setColor(LightsSubsystem.green);
+        } else {
+          LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
+          LEDSegment.autonXRight.setColor(LightsSubsystem.red);
+        }
       }
-    }
-    if (Math.abs(OffsetY) < Constants.AutonStartPositions.TRANSLATION_START_ERROR) {
-      LEDSegment.autonYLeft.setColor(LightsSubsystem.green);
-      LEDSegment.autonYRight.setColor(LightsSubsystem.green);
-    } else {
-      if (OffsetY < 0) {
-        LEDSegment.autonYLeft.setColor(LightsSubsystem.red);
+      if (offsetYOK) {
+        LEDSegment.autonYLeft.setColor(LightsSubsystem.green);
         LEDSegment.autonYRight.setColor(LightsSubsystem.green);
       } else {
-        LEDSegment.autonYLeft.setColor(LightsSubsystem.green);
-        LEDSegment.autonYRight.setColor(LightsSubsystem.red);
+        if (offsetY < 0) {
+          LEDSegment.autonYLeft.setColor(LightsSubsystem.red);
+          LEDSegment.autonYRight.setColor(LightsSubsystem.green);
+        } else {
+          LEDSegment.autonYLeft.setColor(LightsSubsystem.green);
+          LEDSegment.autonYRight.setColor(LightsSubsystem.red);
+        }
       }
-    }
-    if (Math.abs(OffsetR) < Constants.AutonStartPositions.ROTATION_START_ERROR) {
-      LEDSegment.autonRLeft.setColor(LightsSubsystem.green);
-      LEDSegment.autonRRight.setColor(LightsSubsystem.green);
-    } else {
-      if (OffsetR < 0) {
-        LEDSegment.autonRLeft.setColor(LightsSubsystem.red);
+      if (offsetROK) {
+        LEDSegment.autonRLeft.setColor(LightsSubsystem.green);
         LEDSegment.autonRRight.setColor(LightsSubsystem.green);
       } else {
-        LEDSegment.autonRLeft.setColor(LightsSubsystem.green);
-        LEDSegment.autonRRight.setColor(LightsSubsystem.red);
+        if (offsetR < 0) {
+          LEDSegment.autonRLeft.setColor(LightsSubsystem.red);
+          LEDSegment.autonRRight.setColor(LightsSubsystem.green);
+        } else {
+          LEDSegment.autonRLeft.setColor(LightsSubsystem.green);
+          LEDSegment.autonRRight.setColor(LightsSubsystem.red);
+        }
       }
     }
   }
@@ -630,26 +659,30 @@ public class RobotContainer {
             && m_xboxController.isConnected()
             && m_ps4Controller.isConnected()
             && intakeCoralSensor.havePiece()
-            && elevatorWrist.getWristAngle() < 0.01
-            && elevatorWrist.getElevatorHeight() < 0.01;
-    if (autonready) {
-      LEDSegment.leftside.setColor(LightsSubsystem.green);
-      LEDSegment.rightside.setColor(LightsSubsystem.green);
+            && elevatorWrist.getWrist().getPosition() < 0.01
+            && elevatorWrist.getElevator().getPosition() < 0.01;
+    if (autonready && auton_start_position_ok) {
+        LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4);
+    } else if (autonready) {
+        LEDSegment.leftside.setColor(LightsSubsystem.green);
+        LEDSegment.rightside.setColor(LightsSubsystem.green);
     } else {
-      LEDSegment.leftside.setColor(LightsSubsystem.red);
-      LEDSegment.rightside.setColor(LightsSubsystem.red);
+        LEDSegment.leftside.setColor(LightsSubsystem.red);
+        LEDSegment.rightside.setColor(LightsSubsystem.red);
     }
 
     SmartDashboard.putBoolean(
-        "auton_selected",
+        "Match Ready/auton_selected",
         m_autonName.contains("LEFT")
             || m_autonName.contains("CENTER")
             || m_autonName.contains("RIGHT"));
-    SmartDashboard.putBoolean("xbox_connected", m_xboxController.isConnected());
-    SmartDashboard.putBoolean("ps4_connected", m_ps4Controller.isConnected());
-    SmartDashboard.putBoolean("coral_loaded", intakeCoralSensor.havePiece());
-    SmartDashboard.putBoolean("wrist_zeroed", elevatorWrist.getWristAngle() < 0.01);
-    SmartDashboard.putBoolean("elevator_zeroed", elevatorWrist.getElevatorHeight() < 0.01);
+    SmartDashboard.putBoolean("Match Ready/xbox_connected", m_xboxController.isConnected());
+    SmartDashboard.putBoolean("Match Ready/ps4_connected", m_ps4Controller.isConnected());
+    SmartDashboard.putBoolean("Match Ready/coral_loaded", intakeCoralSensor.havePiece());
+    SmartDashboard.putBoolean(
+        "Match Ready/wrist_zeroed", elevatorWrist.getWrist().getPosition() < 0.01);
+    SmartDashboard.putBoolean(
+        "Match Ready/elevator_zeroed", elevatorWrist.getElevator().getPosition() < 0.01);
   }
 
   public Command staticClimberCharacterization(double outputRampRate) {

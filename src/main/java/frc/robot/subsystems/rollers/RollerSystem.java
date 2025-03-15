@@ -131,8 +131,7 @@ public class RollerSystem extends SubsystemBase {
                 -0.2921,
                 0,
                 0.4398003396,
-                new Rotation3d(
-                    0, Units.rotationsToRadians(inputs.positionRotations / 125 * (12 / 32)), 0))
+                new Rotation3d(0, Units.rotationsToRadians(getPosition() / 125 * (12 / 32)), 0))
           });
     }
   }
