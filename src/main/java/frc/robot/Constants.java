@@ -87,7 +87,7 @@ public final class Constants {
     public static final double ALGAE_HOLD_SPEED = -5;
     public static final double ALGAE_SHOOT_SPEED = 20;
     public static final double ALGAE_NET_SHOOT_SPEED = 80;
-    public static final double ALGAE_NET_SHOOT_DELAY = .2; // .13;
+    public static final double ALGAE_NET_SHOOT_DELAY = .13;
     public static final double ALGAE_SHOOT_TIMEOUT = 1;
     //
     public static final double BUMP_VALUE = 1; // rotations
