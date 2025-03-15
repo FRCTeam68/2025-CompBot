@@ -16,7 +16,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -44,20 +43,20 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   private final RangeSensorSubSystem ElevatorSensor;
 
   private final CANcoder wristCANcoder;
+  private final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
 
   @Getter @AutoLogOutput private double setpoint = 0.0;
   @Getter @AutoLogOutput private double elevatorHeight = 0.0;
   @Getter @AutoLogOutput private double wristAngle = 0.0;
-  @Getter @AutoLogOutput private double e_goal = 0;
-  @Getter @AutoLogOutput private double w_goal = 0;
+  private double e_goal = 0;
+  private double w_goal = 0;
   private double e_bump_goal = 0;
   private double w_bump_goal = 0;
 
   public ElevatorWristSubSystem() {
 
     wristCANcoder = new CANcoder(Constants.WRIST.CANCODER_CANID, Constants.WRIST.CANBUS);
-    var cancoderConfig = new CANcoderConfiguration();
-    // cancoderConfig.MagnetSensor.MagnetOffset = offset.getRotations();
+    cancoderConfig.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(0.9);
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
     cancoderConfig.MagnetSensor.MagnetOffset = Constants.WRIST.CANCODER_OFFSET;
     tryUntilOk(5, () -> wristCANcoder.getConfigurator().apply(cancoderConfig));
@@ -74,11 +73,11 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 false,
                 Constants.WRIST.CANCODER_CANID,
                 true,
-                1));
+                Constants.WRIST.REDUCTION));
     // init tunables in the parent roller system
     wrist.setPID(Constants.WRIST.SLOT0_CONFIGS);
     wrist.setMotionMagic(Constants.WRIST.MOTIONMAGIC_CONFIGS);
-    wrist.setAtSetpointBand(.3);
+    wrist.setAtSetpointBand(.005);
     wrist.setPieceCurrentThreshold(
         40); // does not have a piece but might want to use to detect overrun limits?
 
@@ -122,32 +121,14 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             Constants.ELEVATOR_SENSOR.CANBUS,
             Constants.ELEVATOR_SENSOR.THRESHOLD);
 
-    // this should account for wrist not starting in zero position
-    // wrist.setPosition(
-    //     wristCANcoder.getPosition().getValueAsDouble() * Constants.WRIST.CANCODER_FACTOR);
-    // elevator.setPosition(0);
-
-    wristAngle = wristCANcoder.getPosition().getValueAsDouble();
-    SmartDashboard.putNumber("WristAngle", wristAngle);
-    SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
-
     zero();
   }
 
   public void zero() {
-    wrist.zero();
     elevator.zero();
   }
 
   public void periodic() {
-    elevatorHeight = elevator.getPosition();
-    SmartDashboard.putNumber("ElevatorHieght", elevatorHeight);
-    SmartDashboard.putBoolean("Elevator at Zero", elevatorHeight < 96);
-
-    wristAngle = wristCANcoder.getPosition().getValueAsDouble();
-    SmartDashboard.putNumber("WristAngle", wristAngle);
-    // SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
-
     // robot poses
     Logger.recordOutput(
         "RobotPose/Elevator Stage 1",
@@ -171,7 +152,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
               0.28575,
               0,
               0.411 + Units.inchesToMeters((elevator.getPosition() / 5 * 5.5) * 2),
-              new Rotation3d(0, wrist.getPosition() / 25 * (12 / 30), 0))
+              new Rotation3d(0, Units.rotationsToRadians(wrist.getPosition()), 0))
         });
   }
 
@@ -305,23 +286,12 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                   && w_goal == Constants.WRIST.SLOT1_TO_ELEVATE)
               || (e_current >= Constants.ELEVATOR.MIN_HIGH_SAFE
                   && e_goal >= Constants.ELEVATOR.MIN_HIGH_SAFE)) {
-            if (w_goal <= Constants.WRIST.CRADLE
-                || w_current >= Constants.WRIST.CRADLE - Constants.WRIST.ERROR) {
-              sequence1 =
-                  Commands.sequence(
-                      Commands.runOnce(
-                          () -> Logger.recordOutput("Manipulator/Sequence1", "SIMULTANEOUS")),
-                      Commands.runOnce(() -> wrist.setPosition(w_goal)),
-                      Commands.runOnce(() -> elevator.setPosition(e_goal)));
-            } else {
-              sequence1 =
-                  Commands.sequence(
-                      Commands.runOnce(
-                          () -> Logger.recordOutput("Manipulator/Sequence1", "WRIST -> ELEVATOR")),
-                      Commands.runOnce(() -> wrist.setPosition(w_goal)),
-                      Commands.waitSeconds(.3),
-                      Commands.runOnce(() -> elevator.setPosition(e_goal)));
-            }
+            sequence1 =
+                Commands.parallel(
+                    Commands.runOnce(
+                        () -> Logger.recordOutput("Manipulator/Sequence1", "SIMULTANEOUS")),
+                    Commands.runOnce(() -> wrist.setPosition(w_goal)),
+                    Commands.runOnce(() -> elevator.setPosition(e_goal)));
             ///// MOVE TO INTAKE POSITION //////
             // if commanded elevator position is the minimum
             // and
@@ -433,10 +403,9 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                       Commands.runOnce(() -> elevator.setPosition(e_goal)));
             }
           } else { // fallback to failsafe sequence
-            // return setPositionCmd(e_goal, w_goal);
             Commands.sequence(
                 Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence1", "FAILSAFE")),
-                Commands.waitSeconds(5));
+                setPositionCmd(e_goal, w_goal));
           }
           // execute sequence
           return ledBegin
@@ -472,14 +441,6 @@ public class ElevatorWristSubSystem extends SubsystemBase {
               return waitForIt;
             }));
   }
-
-  // public double getElevatorHeight() {
-  //   return elevatorHeight;
-  // }
-
-  // public double getWristAngle() {
-  //   return wristAngle;
-  // }
 
   public boolean atPosition() {
     return elevator.atPosition() && wrist.atPosition();

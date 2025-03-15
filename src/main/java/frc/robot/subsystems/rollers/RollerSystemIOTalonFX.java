@@ -127,7 +127,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
                 position, velocity, appliedVoltage, supplyCurrent, torqueCurrent, tempCelsius)
             .isOK();
     inputs.positionRads = Units.rotationsToRadians(position.getValueAsDouble()) / reduction;
-    inputs.positionRotations = position.getValueAsDouble() / reduction;
+    inputs.positionRotations = position.getValueAsDouble();
     inputs.velocityRadsPerSec = Units.rotationsToRadians(velocity.getValueAsDouble()) / reduction;
     inputs.velocityRotsPerSec = velocity.getValueAsDouble() / reduction;
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();

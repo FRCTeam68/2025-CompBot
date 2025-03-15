@@ -148,7 +148,7 @@ public final class Constants {
     public static final double MAX_POSITION_AT_P1 = 0.544;
     public static final double MAX_POSITION = 0.544;
     public static final double INTAKE = 0.02; // 1.5 / REDUCTION;
-    public static final double L1 = 0.272;
+    public static final double L1 = 0.44;
     public static double L1_OFFSET = 0;
     public static final double L2 = 0.0672; // 3.9; // DO NOT MODIFY WITHOUT CHANGING
     public static final double L3 = 0.0672; // 3.9; // SEQUENCING LOGIC
@@ -170,7 +170,7 @@ public final class Constants {
         new MotionMagicConfigs()
             .withMotionMagicCruiseVelocity(40) // 60  5
             .withMotionMagicAcceleration(100) // 240  15
-            .withMotionMagicJerk(350);
+            .withMotionMagicJerk(400);
   }
 
   public static final class ELEVATOR { // old AngleSubSystem
