@@ -36,8 +36,13 @@ public class ElevatorWristSubSystem extends SubsystemBase {
 
   private final RollerSystem wrist;
   private final RollerSystem elevator;
+
+  @SuppressWarnings("unused")
   private final RollerSystem elevatorFollower;
+
+  @SuppressWarnings("unused")
   private final RangeSensorSubSystem ElevatorSensor;
+
   private final CANcoder wristCANcoder;
 
   @Getter @AutoLogOutput private double setpoint = 0.0;

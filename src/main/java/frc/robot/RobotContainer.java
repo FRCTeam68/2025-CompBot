@@ -17,8 +17,11 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS4Controller.Axis;
 import edu.wpi.first.wpilibj.Timer;
@@ -334,63 +337,69 @@ public class RobotContainer {
             () -> -m_xboxController.getLeftX(),
             () -> -m_xboxController.getRightX()));
 
-    // // Lock to 0° when A button is held
-    // m_xboxController
-    //     .a()
-    //     .whileTrue(
-    //         DriveCommands.joystickDriveAtAngle(
-    //             drive,
-    //             () -> -m_xboxController.getLeftY(),
-    //             () -> -m_xboxController.getLeftX(),
-    //             () -> new Rotation2d()));
+    // Lock to 0° when A button is held
+    m_xboxController
+        .a()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -m_xboxController.getLeftY(),
+                () -> -m_xboxController.getLeftX(),
+                () -> new Rotation2d(Units.Degrees.of(0))));
 
-    // m_xboxController
-    //     .y()
-    //     .whileTrue(
-    //         DriveCommands.joystickDriveAtAngle(
-    //             drive,
-    //             () -> -m_xboxController.getLeftY(),
-    //             () -> -m_xboxController.getLeftX(),
-    //             () -> new Rotation2d(vision.getTargetX(0).getRadians())));
+    // Lock to 120° when A button is held
+    m_xboxController
+        .b()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -m_xboxController.getLeftY(),
+                () -> -m_xboxController.getLeftX(),
+                () -> Rotation2d.fromDegrees(120)));
 
-    // // Switch to X pattern when X button is pressed
-    // m_xboxController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    // lock to tag angle
+    m_xboxController
+        .y()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -m_xboxController.getLeftY(),
+                () -> -m_xboxController.getLeftX(),
+                () -> vision.getTagPose(1).getRotation()));
 
     // // Reset gyro to 0° when B button is pressed
-    // m_xboxController
-    //     .b()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //                 () ->
-    //                     drive.setPose(
-    //                         new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-    //                 drive)
-    //             .ignoringDisable(true));
+    m_xboxController
+        .back()
+        .onTrue(
+            Commands.runOnce(
+                    () ->
+                        drive.setPose(
+                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+                    drive)
+                .ignoringDisable(true));
 
     // Auto aim command example
-    // @SuppressWarnings("resource")
-    // PIDController aimController = new PIDController(0.2, 0.0, 0.0);
-    // aimController.enableContinuousInput(-Math.PI, Math.PI);
-    // m_xboxController
-    //     .y()
-    //     .whileTrue(
-    //         Commands.startRun(
-    //             () -> {  aimController.reset(); },
-    // 			() -> {  DriveCommands.joystickDriveAtAngle(
-    //                 drive,
-    //                 () -> -m_xboxController.getLeftY(),
-    //                 () -> -m_xboxController.getLeftX(),
-    //                 aimController.calculate(vision.getTargetX(0).getRadians()));
-    //             },
-    //             drive));
-
-    // same as on PS4 cross
-    m_xboxController.a().onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
-
-    // m_xboxController
-    //     .back()
-    //     .onTrue(Commands.runOnce(() -> drive.setPose(new Pose2d()),
-    // drive).ignoringDisable(true));
+    @SuppressWarnings("resource")
+    PIDController aimController = new PIDController(0.2, 0.0, 0.0);
+    aimController.enableContinuousInput(-Math.PI, Math.PI);
+    m_xboxController
+        .x()
+        .whileTrue(
+            Commands.startRun(
+                () -> {
+                  aimController.reset();
+                },
+                () -> {
+                  DriveCommands.joystickDriveAtAngle(
+                      drive,
+                      () -> -m_xboxController.getLeftY(),
+                      () -> -m_xboxController.getLeftX(),
+                      () ->
+                          new Rotation2d(
+                              aimController.calculate(vision.getTargetX(1).getRadians())));
+                  Logger.recordOutput("DriveAtAngle/TargetX", vision.getTargetX(1).getRadians());
+                },
+                drive));
 
     m_xboxController
         .leftTrigger()
@@ -402,11 +411,9 @@ public class RobotContainer {
         .rightTrigger()
         .onTrue(ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist));
 
-    // m_xboxController.leftBumper().onTrue(ManipulatorCommands.intakeCmd(intakeShooter,
-    // intakeCoralSensor, elevatorWrist));
-
-    // m_xboxController.rightBumper().onTrue(ManipulatorCommands.shootCmd(intakeShooter,
-    // elevatorWrist));
+    // Reef alignment
+    m_xboxController.leftBumper().onTrue(new AlignToReefTagRelative(false, drive).withTimeout(3));
+    m_xboxController.rightBumper().onTrue(new AlignToReefTagRelative(true, drive).withTimeout(3));
 
     m_xboxController
         .start()
