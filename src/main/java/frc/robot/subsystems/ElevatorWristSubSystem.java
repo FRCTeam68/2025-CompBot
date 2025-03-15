@@ -41,12 +41,13 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   private final RollerSystem elevatorFollower;
 
   @SuppressWarnings("unused")
-  private final RangeSensorSubSystem ElevatorSensor;
+  private final RangeSensorSubSystem reefPostSensor;
 
   private final CANcoder wristCANcoder;
 
   @Getter @AutoLogOutput private double setpoint = 0.0;
-  @Getter @AutoLogOutput private double elevatorHeight = 0.0;
+  @Getter @AutoLogOutput private boolean reefPostSensorDetected = false;
+  @Getter @AutoLogOutput private double reefPostSensorDistance = 0.0;
   @Getter @AutoLogOutput private double wristAngle = 0.0;
   @Getter @AutoLogOutput private double e_goal = 0;
   @Getter @AutoLogOutput private double w_goal = 0;
@@ -105,12 +106,12 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 true,
                 1));
 
-    ElevatorSensor =
+    reefPostSensor =
         new RangeSensorSubSystem(
-            "ElevatorHeight",
-            Constants.ELEVATOR_SENSOR.CANID,
-            Constants.ELEVATOR_SENSOR.CANBUS,
-            Constants.ELEVATOR_SENSOR.THRESHOLD);
+            "reefPostSensor",
+            Constants.REEFPOSTSENSOR.CANID,
+            Constants.REEFPOSTSENSOR.CANBUS,
+            Constants.REEFPOSTSENSOR.THRESHOLD);
 
     // this should account for wrist not starting in zero position
     // wrist.setPosition(
@@ -130,13 +131,16 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   }
 
   public void periodic() {
-    elevatorHeight = elevator.getPosition();
-    SmartDashboard.putNumber("ElevatorHieght", elevatorHeight);
-    SmartDashboard.putBoolean("Elevator at Zero", elevatorHeight < 96);
+    reefPostSensorDetected = reefPostSensor.havePiece();
+    reefPostSensorDistance = reefPostSensor.getDistance_mm();
+    SmartDashboard.putNumber("Reef Post Distance", reefPostSensorDistance);
+    SmartDashboard.putBoolean("Reef Post Detected", reefPostSensorDetected);
+    Logger.recordOutput("reefPostSensor/Distance", reefPostSensorDistance);
+    Logger.recordOutput("reefPostSensor/Detected", reefPostSensorDetected);
 
     wristAngle = wristCANcoder.getPosition().getValueAsDouble();
     SmartDashboard.putNumber("WristAngle", wristAngle);
-    // SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
+    SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
 
     // robot poses
     Logger.recordOutput(

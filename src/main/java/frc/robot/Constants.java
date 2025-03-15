@@ -214,7 +214,7 @@ public final class Constants {
             .withMotionMagicJerk(400);
   }
 
-  public static final class ELEVATOR_SENSOR {
+  public static final class REEFPOSTSENSOR {
     // distance sensor
     public static final int CANID = 47;
     public static final String CANBUS = "rio";
