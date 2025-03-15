@@ -47,6 +47,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   private final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
 
   @Getter @AutoLogOutput private double setpoint = 0.0;
+  @Getter @AutoLogOutput private boolean reefPostDetected = false;
   @Getter @AutoLogOutput private boolean reefPostSensorDetected = false;
   @Getter @AutoLogOutput private double reefPostSensorDistance = 0.0;
   @Getter @AutoLogOutput private double wristAngle = 0.0;
@@ -133,10 +134,13 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   public void periodic() {
     reefPostSensorDetected = reefPostSensor.havePiece();
     reefPostSensorDistance = reefPostSensor.getDistance_mm();
-    SmartDashboard.putNumber("Reef Post Distance", reefPostSensorDistance);
-    SmartDashboard.putBoolean("Reef Post Detected", reefPostSensorDetected);
-    Logger.recordOutput("reefPostSensor/Distance", reefPostSensorDistance);
-    Logger.recordOutput("reefPostSensor/Detected", reefPostSensorDetected);
+    reefPostDetected = (reefPostSensorDistance > 200) && (reefPostSensorDistance < 300);
+    SmartDashboard.putNumber("Reef Post Sensor Distance", reefPostSensorDistance);
+    SmartDashboard.putBoolean("Reef Post Sensor Detected", reefPostSensorDetected);
+    SmartDashboard.putBoolean("Reef Post Detected", reefPostDetected);
+    Logger.recordOutput("reefPost/SensorDistance", reefPostSensorDistance);
+    Logger.recordOutput("reefPost/SensorDetected", reefPostSensorDetected);
+    Logger.recordOutput("reefPost/Detected", reefPostDetected);
 
     wristAngle = wristCANcoder.getPosition().getValueAsDouble();
     SmartDashboard.putNumber("WristAngle", wristAngle);
