@@ -535,15 +535,11 @@ public class RobotContainer {
         .onFalse(Commands.runOnce(() -> algaeCradleFlag = false));
 
     // climber.setDefaultCommand(
-    //     Commands.run(() -> climber.setVolts(-m_ps4Controller.getLeftY() * 12), climber));
-    /*
-        climber.setDefaultCommand(
-            Commands.run(() -> climber.setVolts(-m_ps4Controller.getLeftY() * 12), climber)
-                .unless(
-                    () -> {
-                      return Math.abs(m_ps4Controller.getLeftY()) < .05;
-                    }));
-    */
+    //     Commands.run(() -> climber.setVolts(-m_ps4Controller.getLeftY() * 12), climber)
+    //         .unless(
+    //             () -> {
+    //               return Math.abs(m_ps4Controller.getLeftY()) < .05;
+    //             }));
   }
 
   /**
@@ -697,7 +693,7 @@ public class RobotContainer {
               Logger.recordOutput(
                   "Climber/StaticCharacterizationOutput", state.characterizationOutput);
             })
-        .until(() -> climber.getPosition() >= Constants.CLIMBER.GOAL)
+        .until(() -> climber.getPosition() >= Constants.CLIMBER.DEPLOY)
         .finallyDo(
             () -> {
               // stopProfile = false;

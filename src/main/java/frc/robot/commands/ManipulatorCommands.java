@@ -250,7 +250,7 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.red, 4)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "deploy")),
-        Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.GOAL), myClimber),
+        Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.DEPLOY), myClimber),
         Commands.waitUntil(() -> myClimber.atPosition()),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "deployed")),
         Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)));
@@ -260,7 +260,7 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.white, 4)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "climbing")),
-        Commands.runOnce(() -> myClimber.setPosition(0), myClimber),
+        Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.RETRACT), myClimber),
         Commands.waitUntil(() -> myClimber.atPosition()),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "CLIMBED")),
         Commands.runOnce(() -> LEDSegment.all.setRainbowAnimation(4)));

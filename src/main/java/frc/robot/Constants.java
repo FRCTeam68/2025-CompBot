@@ -227,7 +227,8 @@ public final class Constants {
   public static final class CLIMBER {
     public static final int CANID = 40;
     public static final String CANBUS = "rio";
-    public static final double GOAL = 102; // 52;
+    public static final double DEPLOY = 39;
+    public static final double RETRACT = -71;
     public static final double MAX_HEIGHT = 60;
     public static final double ZEROING_SPEED = -70; // speed when zeroing
     public static final double ZEROING_CURRENT_LIMIT = 45; // current limit when zeroing
