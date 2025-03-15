@@ -179,6 +179,9 @@ public class RobotContainer {
         reefCentering = new ReefCentering(drive);
 
         lightsSubsystem = new LightsSubsystem();
+
+        LEDSegment.LED6.setColor(LightsSubsystem.green);
+
         break;
 
       case SIM:

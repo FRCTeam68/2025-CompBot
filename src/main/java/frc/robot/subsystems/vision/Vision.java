@@ -57,6 +57,9 @@ public class Vision extends SubsystemBase {
           new Alert(
               "Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
     }
+
+    // initalize mega tag 1 light
+    LEDSegment.LED6.setColor(LightsSubsystem.red);
   }
 
   /**
@@ -191,6 +194,7 @@ public class Vision extends SubsystemBase {
           megaTagCounter += 1;
           if (megaTagCounter > 50) {
             inputs[cameraIndex].skipMegaTag1 = true;
+            LEDSegment.LED6.setColor(LightsSubsystem.green);
           }
         }
       }
