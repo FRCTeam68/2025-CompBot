@@ -35,10 +35,12 @@ public class Vision extends SubsystemBase {
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
+  private int megaTagCounter;
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
     this.consumer = consumer;
     this.io = io;
+    megaTagCounter = 0;
 
     // Initialize inputs
     this.inputs = new VisionIOInputsAutoLogged[io.length];
@@ -162,6 +164,13 @@ public class Vision extends SubsystemBase {
             observation.pose().toPose2d(),
             observation.timestamp(),
             VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+
+        if (observation.type() == PoseObservationType.MEGATAG_1) {
+          megaTagCounter += 1;
+          if (megaTagCounter > 50) {
+            inputs[cameraIndex].skipMegaTag1 = true;
+          }
+        }
       }
 
       // led status light
