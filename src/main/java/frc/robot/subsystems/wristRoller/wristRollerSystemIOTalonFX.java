@@ -46,6 +46,7 @@ public class wristRollerSystemIOTalonFX implements wristRollerSystemIO {
   private final StatusSignal<Current> supplyCurrent;
   private final StatusSignal<Current> torqueCurrent;
   private final StatusSignal<Temperature> tempCelsius;
+  private final StatusSignal<Angle> cancoderPosition;
 
   // Single shot for voltage mode, robot loop will call continuously
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true).withUpdateFreqHz(0);
@@ -108,6 +109,7 @@ public class wristRollerSystemIOTalonFX implements wristRollerSystemIO {
     supplyCurrent = talon.getSupplyCurrent();
     torqueCurrent = talon.getTorqueCurrent();
     tempCelsius = talon.getDeviceTemp();
+    cancoderPosition = wristCANcoder.getPosition();
 
     tryUntilOk(
         5,
@@ -119,7 +121,8 @@ public class wristRollerSystemIOTalonFX implements wristRollerSystemIO {
                 appliedVoltage,
                 supplyCurrent,
                 torqueCurrent,
-                tempCelsius));
+                tempCelsius,
+                cancoderPosition));
     tryUntilOk(5, () -> talon.optimizeBusUtilization(0, 1.0));
   }
 
@@ -127,7 +130,13 @@ public class wristRollerSystemIOTalonFX implements wristRollerSystemIO {
   public void updateInputs(wristRollerSystemIOInputs inputs) {
     inputs.connected =
         BaseStatusSignal.refreshAll(
-                position, velocity, appliedVoltage, supplyCurrent, torqueCurrent, tempCelsius)
+                position,
+                velocity,
+                appliedVoltage,
+                supplyCurrent,
+                torqueCurrent,
+                tempCelsius,
+                cancoderPosition)
             .isOK();
     inputs.positionRads = Units.rotationsToRadians(position.getValueAsDouble());
     inputs.positionRotations = position.getValueAsDouble();
@@ -137,6 +146,7 @@ public class wristRollerSystemIOTalonFX implements wristRollerSystemIO {
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
     inputs.tempCelsius = tempCelsius.getValueAsDouble();
+    inputs.cancoderPosition = cancoderPosition.getValueAsDouble();
   }
 
   @Override

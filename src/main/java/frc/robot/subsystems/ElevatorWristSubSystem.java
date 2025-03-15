@@ -37,8 +37,6 @@ public class ElevatorWristSubSystem extends SubsystemBase {
 
   @Getter @AutoLogOutput private double setpoint = 0.0;
   @Getter @AutoLogOutput private double wristAngle = 0.0;
-  private double e_bump_goal = 0;
-  private double w_bump_goal = 0;
 
   public ElevatorWristSubSystem() {
 
@@ -102,15 +100,16 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     //     wristCANcoder.getPosition().getValueAsDouble() * Constants.WRIST.CANCODER_FACTOR);
     // elevator.setPosition(0);
 
-    // wristAngle = wristCANcoder.getPosition().getValueAsDouble();
-    // SmartDashboard.putNumber("WristAngle", wristAngle);
-    // SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
+    wristAngle = wrist.getPosition();
+    SmartDashboard.putNumber("WristAngle", wristAngle);
+    SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
 
     zero();
   }
 
   public void zero() {
-    wrist.zero();
+    // wrist.zero();  do not zero now that CANcoder is attached.  0 should be 0 when commanded now
+    // due to magoffset being set
     elevator.zero();
   }
 
@@ -233,7 +232,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
         () -> {
           // initialization
           double e_current = elevator.getPosition();
-          double w_current = wristAngle;
+          double w_current = wrist.getPosition();
           Command sequence0;
           Command sequence1;
           Command sequence2;

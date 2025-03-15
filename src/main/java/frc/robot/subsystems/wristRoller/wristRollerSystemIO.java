@@ -23,6 +23,7 @@ public interface wristRollerSystemIO {
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;
     public double tempCelsius = 0.0;
+    public double cancoderPosition = 0.0;
   }
 
   default void updateInputs(wristRollerSystemIOInputs inputs) {}
