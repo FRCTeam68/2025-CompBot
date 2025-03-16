@@ -66,6 +66,11 @@ public final class Constants {
     public static final double ROTATION_START_ERROR = 1;
   }
 
+  public static final class AUTO {
+    public static final double CORAL_STATION_WAIT = 0;
+    public static final double REEF_TIMEOUT = 2;
+  }
+
   public static final class LED {
     public static final int PWMPORT = 0;
     public static final int BUFFERSIZE = 120;

@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.*;
+import frc.robot.commands.auton.autons;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorWristSubSystem;
 import frc.robot.subsystems.LightsSubsystem;
@@ -287,7 +288,25 @@ public class RobotContainer {
         "algaeToPreNet",
         ManipulatorCommands.AlgaeToNetCmd(intakeShooterLow, elevatorWrist, algaeCradleFlag));
     // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto/Auto Choices", AutoBuilder.buildAutoChooser());
+    autoChooser = new LoggedDashboardChooser<>("Auto/Auto Choices");
+    // Set up autos
+    autoChooser.addOption(
+        "AUTON LEFT",
+        autons.side(
+            true, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+    autoChooser.addOption(
+        "AUTON CENTER PROCESSOR",
+        autons.centerProcessor(
+            intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+    autoChooser.addOption(
+        "AUTON CENTER NET",
+        autons.centerNet(
+            intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+    autoChooser.addOption(
+        "AUTON RIGHT",
+        autons.side(
+            false, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+    // Set up testing routines
     autoChooser.addOption(
         "Functional Test",
         ManipulatorCommands.FunctionalTest(
