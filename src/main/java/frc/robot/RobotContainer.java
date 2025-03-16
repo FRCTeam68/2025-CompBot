@@ -609,6 +609,7 @@ public class RobotContainer {
     if (offsetXOK && offsetYOK && offsetROK) {
       auton_start_position_ok = true;
     } else {
+        auton_start_position_ok = false;
       if (offsetXOK) {
         LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
         LEDSegment.autonXRight.setColor(LightsSubsystem.green);
