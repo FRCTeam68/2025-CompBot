@@ -26,6 +26,7 @@ public class ReefCentering {
 
   private final Drive m_drive;
   private Pose2d nearestReefSide = new Pose2d();
+  private Pose2d nearestSourceSide = new Pose2d();
 
   public enum Side {
     Left,
@@ -43,6 +44,11 @@ public class ReefCentering {
     else return m_drive.getPose().nearest(FieldPoses.blueReefPoses);
   }
 
+  public Pose2d calculateNearestSourceSide() {
+    if (m_drive.isRedSide()) return m_drive.getPose().nearest(FieldPoses.redSourcePoses);
+    else return m_drive.getPose().nearest(FieldPoses.blueSourcePoses);
+  }
+
   private Pose2d calculatePath(Side side) {
     double x = nearestReefSide.getX();
     double y = nearestReefSide.getY();
@@ -58,7 +64,9 @@ public class ReefCentering {
         y -= FieldPoses.leftOffset * Math.cos(rot);
         break;
       case Back:
-        rot += Math.toRadians(180);
+        x = nearestSourceSide.getX();
+        y = nearestSourceSide.getY();
+        rot = nearestSourceSide.getRotation().getRadians();
         break;
       default:
         break;
@@ -122,6 +130,7 @@ public class ReefCentering {
     return Commands.defer(
         () -> {
           nearestReefSide = calculateNearestSide();
+          nearestSourceSide = calculateNearestSourceSide();
 
           Pose2d scoringPosition = calculatePath(side);
           Command pathCommand = getPathFromWaypoint(scoringPosition);
