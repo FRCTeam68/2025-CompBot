@@ -171,13 +171,13 @@ public class autons {
                 ManipulatorCommands.AlgaeToNetCmd(myIntakeLow, myElevatorWrist, false))),
         ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
         Commands.parallel(
-            AutoBuilder.followPath(path[6]), // to away from reef algae 3
+            AutoBuilder.followPath(path[7]), // to away from reef algae 3
             ManipulatorCommands.AlgaeAtA2(myIntakeLow, myElevatorWrist, false)),
         Commands.parallel(
-            AutoBuilder.followPath(path[7]), // to reef algae 3
+            AutoBuilder.followPath(path[8]), // to reef algae 3
             ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)),
         Commands.parallel(
-            AutoBuilder.followPath(path[8]), // to net
+            AutoBuilder.followPath(path[9]), // to net
             Commands.sequence(
                 Commands.waitSeconds(2),
                 ManipulatorCommands.AlgaeToNetCmd(myIntakeLow, myElevatorWrist, false))),
