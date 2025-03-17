@@ -158,16 +158,7 @@ public class Robot extends LoggedRobot {
       Logger.recordOutput("CANBUS/rio/Desc", canInfo2.Status.getDescription());
 
     // led status lights
-    if (canInfo.Status.isOK()) {
-      LEDSegment.LED4.setColor(LightsSubsystem.green);
-    } else {
-      LEDSegment.LED4.setColor(LightsSubsystem.red);
-    }
-    if (canInfo2.Status.isOK()) {
-      LEDSegment.LED5.setColor(LightsSubsystem.green);
-    } else {
-      LEDSegment.LED5.setColor(LightsSubsystem.red);
-    }
+    RobotContainer.canBusStatuses();
   }
 
   /** This function is called once when the robot is disabled. */
@@ -179,7 +170,7 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
-    RobotContainer.putAutonPoseToDashboard();
+    RobotContainer.AutonPose();
     RobotContainer.autonReadyStatus();
   }
 

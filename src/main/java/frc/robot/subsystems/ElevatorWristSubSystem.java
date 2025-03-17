@@ -549,4 +549,8 @@ public class ElevatorWristSubSystem extends SubsystemBase {
         runOnce(() -> wrist.setPosition(wrist.getPosition())),
         runOnce(() -> elevator.setPosition(elevator.getPosition())));
   }
+
+  public boolean isConnected() {
+    return wrist.isConnected() && elevator.isConnected() && elevatorFollower.isConnected() && reefPostSensor.isConnected();
+  }
 }

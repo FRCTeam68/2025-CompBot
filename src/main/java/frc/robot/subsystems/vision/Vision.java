@@ -36,8 +36,10 @@ public class Vision extends SubsystemBase {
   private final VisionConsumer consumer;
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
-  private final Alert[] disconnectedAlerts;
+  public final Alert[] disconnectedAlerts;
   private int megaTagCounter;
+
+  public boolean skipMegaTag1;
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
     this.consumer = consumer;
@@ -193,7 +195,7 @@ public class Vision extends SubsystemBase {
         if (observation.type() == PoseObservationType.MEGATAG_1) {
           megaTagCounter += 1;
           if (megaTagCounter > 50) {
-            inputs[cameraIndex].skipMegaTag1 = true;
+            skipMegaTag1 = inputs[cameraIndex].skipMegaTag1 = true;
             LEDSegment.LED6.setColor(LightsSubsystem.green);
           }
         }

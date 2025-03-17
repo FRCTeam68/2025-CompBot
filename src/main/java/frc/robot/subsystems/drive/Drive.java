@@ -51,6 +51,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.drive.GyroIO.GyroIOInputs;
+import frc.robot.subsystems.drive.ModuleIO.ModuleIOInputs;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -479,5 +481,9 @@ public class Drive extends SubsystemBase {
     ChassisSpeeds cs = getFieldVelocity();
     return MetersPerSecond.of(
         new Translation2d(cs.vxMetersPerSecond, cs.vyMetersPerSecond).getNorm());
+  }
+
+  public boolean isConnected() {
+    return gyroInputs.connected && modules[0].isConnected() && modules[1].isConnected() && modules[2].isConnected() && modules[3].isConnected();
   }
 }

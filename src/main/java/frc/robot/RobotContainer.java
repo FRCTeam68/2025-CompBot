@@ -66,13 +66,13 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private static Drive drive;
-  private final Vision vision;
-  private final RollerSystem climber;
-  private final RollerSystem intakeShooter;
-  private final RollerSystem intakeShooterLow;
+  private static Vision vision;
+  private static RollerSystem climber;
+  private static RollerSystem intakeShooter;
+  private static RollerSystem intakeShooterLow;
   private static RangeSensorSubSystem intakeCoralSensor;
   private static ElevatorWristSubSystem elevatorWrist;
-  private final LightsSubsystem lightsSubsystem;
+  private static LightsSubsystem lightsSubsystem;
   private ReefCentering reefCentering;
 
   public String selectedAutonName;
@@ -83,11 +83,12 @@ public class RobotContainer {
 
   private static LoggedDashboardChooser<Command> autoChooser;
   private static String m_autonName;
-  private static boolean autonready;
 
   private boolean algaeCradleFlag = false;
   private boolean m_pitModeActive = false;
 
+  private static boolean rioBusStatus;
+  private static boolean CANivoreBusStatus;
   private static boolean auton_start_position_ok = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -459,7 +460,7 @@ public class RobotContainer {
         .R2()
         .onTrue(ManipulatorCommands.AlgaeAtA2(intakeShooterLow, elevatorWrist, algaeCradleFlag));
 
-    m_ps4Controller.options().onTrue(Commands.runOnce(() -> putAutonPoseToDashboard()));
+    // m_ps4Controller.options().onTrue(Commands.runOnce(() -> AutonPose()));
 
     m_xboxController
         .povDown()
@@ -554,7 +555,7 @@ public class RobotContainer {
     return autoChooser.get();
   }
 
-  public static void putAutonPoseToDashboard() {
+  public static void AutonPose() {
     Pose2d curPose = AllianceFlipUtil.apply(drive.getPose());
     double autonX = 0;
     double autonY = 0;
@@ -650,7 +651,9 @@ public class RobotContainer {
   }
 
   public static void autonReadyStatus() {
-    autonready =
+    boolean autonRobotStatus;
+
+    autonRobotStatus =
         (m_autonName.contains("LEFT")
                 || m_autonName.contains("CENTER")
                 || m_autonName.contains("RIGHT"))
@@ -658,10 +661,16 @@ public class RobotContainer {
             && m_ps4Controller.isConnected()
             && intakeCoralSensor.havePiece()
             && elevatorWrist.getWrist().getPosition() < 0.01
-            && elevatorWrist.getElevator().getPosition() < 0.01;
-    if (autonready && auton_start_position_ok) {
+            && elevatorWrist.getElevator().getPosition() < 0.01
+            && rioBusStatus
+            && CANivoreBusStatus
+            && vision.disconnectedAlerts[0].get()
+            && vision.disconnectedAlerts[1].get()
+            //&& vision pose accepted
+            && vision.skipMegaTag1;
+    if (autonRobotStatus && auton_start_position_ok) {
       LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4);
-    } else if (autonready) {
+    } else if (autonRobotStatus) {
       LEDSegment.leftside.setColor(LightsSubsystem.green);
       LEDSegment.rightside.setColor(LightsSubsystem.green);
     } else {
@@ -681,7 +690,29 @@ public class RobotContainer {
         "Match Ready/wrist_zeroed", elevatorWrist.getWrist().getPosition() < 0.01);
     SmartDashboard.putBoolean(
         "Match Ready/elevator_zeroed", elevatorWrist.getElevator().getPosition() < 0.01);
+    SmartDashboard.putBoolean("Match Ready/rioBus_status", rioBusStatus);
+    SmartDashboard.putBoolean("Match Ready/CANivoreBus_status", CANivoreBusStatus);
+    SmartDashboard.putBoolean("Match Ready/hopper_camera", vision.disconnectedAlerts[0].get());
+    SmartDashboard.putBoolean("Match Ready/reef_camera", vision.disconnectedAlerts[1].get());
+    //SmartDashboard.putBoolean("Match Ready/aprilTag_detected", vision.);
+    SmartDashboard.putBoolean("Match Ready/vision_rotation", vision.skipMegaTag1);
   }
+
+  public static void canBusStatuses() {
+    rioBusStatus = intakeShooter.isConnected() && intakeShooterLow.isConnected() && elevatorWrist.isConnected();
+    CANivoreBusStatus = drive.isConnected();
+
+    if (rioBusStatus) {
+        LEDSegment.LED4.setColor(LightsSubsystem.green);
+    } else {
+        LEDSegment.LED4.setColor(LightsSubsystem.red);
+    }
+    if (CANivoreBusStatus) {
+        LEDSegment.LED5.setColor(LightsSubsystem.green);
+    } else {
+        LEDSegment.LED5.setColor(LightsSubsystem.red);
+    }
+ }
 
   public Command staticClimberCharacterization(double outputRampRate) {
     final StaticCharacterizationState state = new StaticCharacterizationState();

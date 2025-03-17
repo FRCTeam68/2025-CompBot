@@ -56,9 +56,9 @@ public class Module {
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       constants;
 
-  private final Alert driveDisconnectedAlert;
-  private final Alert turnDisconnectedAlert;
-  private final Alert turnEncoderDisconnectedAlert;
+  public final Alert driveDisconnectedAlert;
+  public final Alert turnDisconnectedAlert;
+  public final Alert turnEncoderDisconnectedAlert;
   private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
   public Module(
@@ -181,5 +181,9 @@ public class Module {
   /* Sets brake mode to {@code enabled} */
   public void setBrakeMode(boolean enabled) {
     io.setBrakeMode(enabled);
+  }
+
+  public boolean isConnected() {
+    return inputs.driveConnected && inputs.turnConnected && inputs.turnEncoderConnected;
   }
 }

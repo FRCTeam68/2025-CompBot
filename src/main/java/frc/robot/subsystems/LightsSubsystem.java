@@ -16,6 +16,8 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LightsConstants;
+import frc.robot.subsystems.vision.Vision;
+
 import org.littletonrobotics.junction.Logger;
 
 public class LightsSubsystem extends SubsystemBase {

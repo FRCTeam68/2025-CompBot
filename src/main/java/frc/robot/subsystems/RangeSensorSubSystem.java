@@ -84,4 +84,8 @@ public class RangeSensorSubSystem extends SubsystemBase {
   public boolean havePiece() {
     return isDetected;
   }
+
+  public boolean isConnected() {
+    return sensorConnected;
+  }
 }

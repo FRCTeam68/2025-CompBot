@@ -217,6 +217,10 @@ public class RollerSystem extends SubsystemBase {
     return Math.abs(setpoint - getPosition()) < setpointBand.getAsDouble();
   }
 
+  public boolean isConnected() {
+    return inputs.connected;
+  }
+
   public void stop() {
     io.stop();
   }
