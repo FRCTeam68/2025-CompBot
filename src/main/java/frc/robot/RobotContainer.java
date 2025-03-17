@@ -184,6 +184,9 @@ public class RobotContainer {
 
         LEDSegment.LED6.setColor(LightsSubsystem.green);
 
+        SmartDashboard.putString(
+                            "BumpMode", "ELEVATOR");
+
         break;
 
       case SIM:
@@ -492,23 +495,25 @@ public class RobotContainer {
                 .until(() -> reefCentering.haveConditionsChanged())
                 .repeatedly());
 
-    if (!m_climberBump) {
-      m_ps4Controller
-          .povUp()
-          .onTrue(elevatorWrist.BumpElevatorPosition(Constants.ELEVATOR.BUMP_VALUE));
+    m_ps4Controller
+        .povUp()
+        .onTrue(
+            m_climberBump
+                ? elevatorWrist.BumpElevatorPosition(Constants.ELEVATOR.BUMP_VALUE)
+                : ManipulatorCommands.BumpClimberCmd(Constants.CLIMBER.BUMP_VALUE, climber));
 
-      m_ps4Controller
-          .povDown()
-          .onTrue(elevatorWrist.BumpElevatorPosition(-Constants.ELEVATOR.BUMP_VALUE));
-    } else {
-      m_ps4Controller
-          .povUp()
-          .onTrue(ManipulatorCommands.BumpClimberCmd(Constants.CLIMBER.BUMP_VALUE, climber));
+    m_ps4Controller
+        .povDown()
+        .onTrue(elevatorWrist.BumpElevatorPosition(-Constants.ELEVATOR.BUMP_VALUE));
+    // } else {
+    //   m_ps4Controller
+    //       .povUp()
+    //       .onTrue(ManipulatorCommands.BumpClimberCmd(Constants.CLIMBER.BUMP_VALUE, climber));
 
-      m_ps4Controller
-          .povDown()
-          .onTrue(ManipulatorCommands.BumpClimberCmd(-Constants.CLIMBER.BUMP_VALUE, climber));
-    }
+    //   m_ps4Controller
+    //       .povDown()
+    //       .onTrue(ManipulatorCommands.BumpClimberCmd(-Constants.CLIMBER.BUMP_VALUE, climber));
+    // }
 
     m_ps4Controller
         .share()
