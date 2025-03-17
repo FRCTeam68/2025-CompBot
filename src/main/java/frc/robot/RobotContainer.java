@@ -15,7 +15,6 @@ package frc.robot;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -292,20 +291,16 @@ public class RobotContainer {
     // Set up autos
     autoChooser.addOption(
         "AUTON LEFT",
-        autons.side(
-            true, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+        autons.side(true, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
     autoChooser.addOption(
         "AUTON CENTER PROCESSOR",
-        autons.centerProcessor(
-            intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+        autons.centerProcessor(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
     autoChooser.addOption(
         "AUTON CENTER NET",
-        autons.centerNet(
-            intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+        autons.centerNet(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
     autoChooser.addOption(
         "AUTON RIGHT",
-        autons.side(
-            false, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+        autons.side(false, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
     // Set up testing routines
     autoChooser.addOption(
         "Functional Test",
@@ -585,7 +580,11 @@ public class RobotContainer {
     boolean offsetYOK = false;
     boolean offsetROK = false;
 
-    m_autonName = autoChooser.get().getName();
+    try {
+      m_autonName = autoChooser.get().getName();
+    } catch (Exception e) {
+      m_autonName = "";
+    }
 
     if (m_autonName.contains("LEFT")) {
       autonX = Constants.AutonStartPositions.left.getX();
@@ -628,7 +627,7 @@ public class RobotContainer {
     if (offsetXOK && offsetYOK && offsetROK) {
       auton_start_position_ok = true;
     } else {
-        auton_start_position_ok = false;
+      auton_start_position_ok = false;
       if (offsetXOK) {
         LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
         LEDSegment.autonXRight.setColor(LightsSubsystem.green);

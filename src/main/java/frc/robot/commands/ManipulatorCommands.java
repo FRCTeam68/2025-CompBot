@@ -27,7 +27,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class ManipulatorCommands {
 
-    public static boolean havePiece = false;
+  public static boolean havePiece = false;
 
   private ManipulatorCommands() {}
 
@@ -65,30 +65,33 @@ public class ManipulatorCommands {
           } else {
             ///// INTAKE CORAL /////
             if (intake_sensor.havePiece()) {
-                command = Commands.runOnce(
-                    () -> Logger.recordOutput("Manipulator/IntakeShooterState", "AlreadyHasCoral"));
+              command =
+                  Commands.runOnce(
+                      () ->
+                          Logger.recordOutput("Manipulator/IntakeShooterState", "AlreadyHasCoral"));
             } else {
-                command =
-                    Commands.sequence(
-                        CoralIntakePositionCmd(myIntakeLow, myElevatorWrist),
-                        Commands.runOnce(
-                            () -> Logger.recordOutput("Manipulator/IntakeShooterState", "IntakeCoral")),
-                        // ledIntaking,
-                        myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
-                        // myIntakeLow.setSpeedCmd(0),
-                        Commands.waitUntil(() -> intake_sensor.havePiece()),
-                        Commands.runOnce(() -> havePiece = true),
-                        ledHaveObject,
-                        Commands.waitSeconds(.03),
-                        myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED),
-                        Commands.waitUntil(() -> intake_sensor.havePiece() == false),
-                        myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED * -1),
-                        Commands.waitUntil(() -> intake_sensor.havePiece()),
-                        Commands.runOnce(
-                            () ->
-                                myIntake.setPosition(
-                                    myIntake.getPosition()
-                                        - Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_REVERSE)));
+              command =
+                  Commands.sequence(
+                      CoralIntakePositionCmd(myIntakeLow, myElevatorWrist),
+                      Commands.runOnce(
+                          () ->
+                              Logger.recordOutput("Manipulator/IntakeShooterState", "IntakeCoral")),
+                      // ledIntaking,
+                      myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
+                      // myIntakeLow.setSpeedCmd(0),
+                      Commands.waitUntil(() -> intake_sensor.havePiece()),
+                      Commands.runOnce(() -> havePiece = true),
+                      ledHaveObject,
+                      Commands.waitSeconds(.03),
+                      myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED),
+                      Commands.waitUntil(() -> intake_sensor.havePiece() == false),
+                      myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED * -1),
+                      Commands.waitUntil(() -> intake_sensor.havePiece()),
+                      Commands.runOnce(
+                          () ->
+                              myIntake.setPosition(
+                                  myIntake.getPosition()
+                                      - Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_REVERSE)));
             }
           }
           // execute sequence
