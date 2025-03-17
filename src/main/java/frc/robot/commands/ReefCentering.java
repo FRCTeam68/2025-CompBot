@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.IdealStartingState;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -25,14 +26,15 @@ import java.util.Set;
 public class ReefCentering {
 
   private final Drive m_drive;
-  private Pose2d nearestReefSide = new Pose2d();
-  private Pose2d nearestSourceSide = new Pose2d();
+  private Pose2d nearestSide = new Pose2d();
+  private Side selectedSide;
 
   public enum Side {
     Left,
     Middle,
     Right,
-    Back
+    Back,
+    Barge
   }
 
   public ReefCentering(Drive drive) {
@@ -40,6 +42,26 @@ public class ReefCentering {
   }
 
   public Pose2d calculateNearestSide() {
+    Pose2d nearest;
+
+    switch (selectedSide) {
+      case Left, Middle, Right:
+        nearest = calculateNearestReefSide();
+        break;
+      case Back:
+        nearest = calculateNearestSourceSide();
+        break;
+      case Barge:
+        nearest = calculateNearestBargeSide();
+        break;
+      default:
+        nearest = new Pose2d();
+        break;
+    }
+    return nearest;
+  }
+
+  public Pose2d calculateNearestReefSide() {
     if (m_drive.isRedSide()) return m_drive.getPose().nearest(FieldPoses.redReefPoses);
     else return m_drive.getPose().nearest(FieldPoses.blueReefPoses);
   }
@@ -49,12 +71,17 @@ public class ReefCentering {
     else return m_drive.getPose().nearest(FieldPoses.blueSourcePoses);
   }
 
-  private Pose2d calculatePath(Side side) {
-    double x = nearestReefSide.getX();
-    double y = nearestReefSide.getY();
-    double rot = nearestReefSide.getRotation().getRadians();
+  public Pose2d calculateNearestBargeSide() {
+    if (m_drive.isRedSide()) return m_drive.getPose().nearest(FieldPoses.redBargePoses);
+    else return m_drive.getPose().nearest(FieldPoses.blueBargePoses);
+  }
 
-    switch (side) {
+  private Pose2d calculatePath() {
+    double x = nearestSide.getX();
+    double y = nearestSide.getY();
+    double rot = nearestSide.getRotation().getRadians();
+
+    switch (selectedSide) {
       case Left:
         x -= FieldPoses.leftOffset * Math.sin(rot);
         y += FieldPoses.leftOffset * Math.cos(rot);
@@ -64,9 +91,10 @@ public class ReefCentering {
         y -= FieldPoses.leftOffset * Math.cos(rot);
         break;
       case Back:
-        x = nearestSourceSide.getX();
-        y = nearestSourceSide.getY();
-        rot = nearestSourceSide.getRotation().getRadians();
+        // nothing to change
+        break;
+      case Barge:
+        y = m_drive.getPose().getY();
         break;
       default:
         break;
@@ -82,7 +110,7 @@ public class ReefCentering {
 
     Pose2d nearSide = calculateNearestSide();
 
-    if (nearSide != nearestReefSide) return true;
+    if (nearSide != nearestSide) return true;
 
     return false;
   }
@@ -100,10 +128,27 @@ public class ReefCentering {
       return Commands.print("Auto alignment too close to desired position to continue");
     }
 
+    PathConstraints pathContraints;
+
+    switch (selectedSide) {
+      case Left, Middle, Right:
+        pathContraints = Constants.PathPlannerConstants.slowConstraints;
+        break;
+      case Back:
+        pathContraints = Constants.PathPlannerConstants.fastConstraints;
+        break;
+      case Barge:
+        pathContraints = Constants.PathPlannerConstants.defaultConstraints;
+        break;
+      default:
+        pathContraints = Constants.PathPlannerConstants.defaultConstraints;
+        break;
+    }
+
     PathPlannerPath path =
         new PathPlannerPath(
             waypoints,
-            Constants.PathPlannerConstants.slowConstraints,
+            pathContraints,
             new IdealStartingState(m_drive.getVelocityMagnitude(), m_drive.getHeading()),
             new GoalEndState(0.0, waypoint.getRotation()));
 
@@ -129,10 +174,9 @@ public class ReefCentering {
   public Command createPathCommand(Side side) {
     return Commands.defer(
         () -> {
-          nearestReefSide = calculateNearestSide();
-          nearestSourceSide = calculateNearestSourceSide();
+          nearestSide = calculateNearestSide();
 
-          Pose2d scoringPosition = calculatePath(side);
+          Pose2d scoringPosition = calculatePath();
           Command pathCommand = getPathFromWaypoint(scoringPosition);
 
           return pathCommand;
