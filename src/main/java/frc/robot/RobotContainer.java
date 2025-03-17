@@ -39,7 +39,6 @@ import frc.robot.subsystems.ElevatorWristSubSystem;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.RangeSensorSubSystem;
-import frc.robot.subsystems.ReefCentering;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -609,7 +608,7 @@ public class RobotContainer {
     if (offsetXOK && offsetYOK && offsetROK) {
       auton_start_position_ok = true;
     } else {
-        auton_start_position_ok = false;
+      auton_start_position_ok = false;
       if (offsetXOK) {
         LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
         LEDSegment.autonXRight.setColor(LightsSubsystem.green);
