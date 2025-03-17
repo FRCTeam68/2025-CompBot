@@ -16,6 +16,7 @@ package frc.robot.commands.auton;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import frc.robot.Constants;
 import frc.robot.commands.ManipulatorCommands;
 import frc.robot.subsystems.ElevatorWristSubSystem;
@@ -62,10 +63,30 @@ public class autons {
 
             return Commands.sequence(
                 Commands.parallel(
-                    ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
-                    AutoBuilder.followPath(path[0]) // to reef post
+                    AutoBuilder.followPath(path[0]), // to reef post
+                    ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist)
                 ),
-                ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist)
+                ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+                Commands.deadline(
+                    Commands.sequence(
+                        AutoBuilder.followPath(path[1]), // to coral station
+                        Commands.waitSeconds(Constants.AUTO.CORAL_STATION_WAIT),
+                        AutoBuilder.followPath(path[2])), // to reef coral 2
+                    ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)
+                ),
+                ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor).withTimeout(Constants.AUTO.REEF_TIMEOUT).handleInterrupt(() -> myIntake.setSpeedCmd(0)),
+                Commands.either(
+                    Commands.sequence(
+                        ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
+                        ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist))
+                    , null, () -> {return ManipulatorCommands.havePiece;}),
+                Commands.deadline(
+                    Commands.sequence(
+                        AutoBuilder.followPath(path[3]), // to coral station
+                        Commands.waitSeconds(Constants.AUTO.CORAL_STATION_WAIT),
+                        AutoBuilder.followPath(path[4])), // to reef coral 2
+                    ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)
+                )
             );
 
     }
@@ -80,8 +101,8 @@ public class autons {
 
             return Commands.sequence(
                 Commands.parallel(
-                    ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
-                    AutoBuilder.followPath(path[0]) // to reef post
+                    AutoBuilder.followPath(path[0]), // to reef post
+                    ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist)
                 ),
                 ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
                 Commands.parallel(
@@ -125,8 +146,8 @@ public class autons {
 
             return Commands.sequence(
                 Commands.parallel(
-                    ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
-                    AutoBuilder.followPath(path[0]) // to reef post
+                    AutoBuilder.followPath(path[0]), // to reef post
+                    ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist)
                 ),
                 ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
                 Commands.parallel(
