@@ -355,15 +355,14 @@ public class RobotContainer {
                 () -> -m_xboxController.getLeftX(),
                 () -> new Rotation2d(Units.Degrees.of(0))));
 
-    // Lock to 120° when A button is held
+    // drive to nearest barge shotting location
     m_xboxController
         .b()
         .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -m_xboxController.getLeftY(),
-                () -> -m_xboxController.getLeftX(),
-                () -> Rotation2d.fromDegrees(120)));
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Barge)
+                .until(() -> reefCentering.haveConditionsChanged())
+                .repeatedly());
 
     // lock to tag angle
     m_xboxController

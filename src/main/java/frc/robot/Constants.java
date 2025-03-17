@@ -270,20 +270,16 @@ public final class Constants {
   public static final class PathPlannerConstants {
 
     public static final PathConstraints testingConstraints =
-        new PathConstraints(
-            Units.feetToMeters(1.5), 2.0, Units.degreesToRadians(50), Units.degreesToRadians(300));
+        new PathConstraints(.5, 2.0, Units.degreesToRadians(50), Units.degreesToRadians(300));
 
     public static final PathConstraints slowConstraints =
-        new PathConstraints(
-            Units.feetToMeters(3.5), 4.0, Units.degreesToRadians(100), Units.degreesToRadians(720));
+        new PathConstraints(1, 4.0, Units.degreesToRadians(100), Units.degreesToRadians(720));
 
     public static final PathConstraints defaultConstraints =
-        new PathConstraints(
-            Units.feetToMeters(8), 4.0, Units.degreesToRadians(200), Units.degreesToRadians(720));
+        new PathConstraints(2, 4.0, Units.degreesToRadians(200), Units.degreesToRadians(720));
 
     public static final PathConstraints fastConstraints =
-        new PathConstraints(
-            Units.feetToMeters(14), 4.0, Units.degreesToRadians(360), Units.degreesToRadians(720));
+        new PathConstraints(3, 4.0, Units.degreesToRadians(360), Units.degreesToRadians(720));
   }
 
   public static final class FieldPoses {
@@ -356,6 +352,21 @@ public final class Constants {
           {
             add(new Pose2d(16.273, 7.096, new Rotation2d(Units.degreesToRadians(233)))); // right
             add(new Pose2d(16.375, 0.938, new Rotation2d(Units.degreesToRadians(143)))); // left
+          }
+        };
+
+    public static final List<Pose2d> blueBargePoses =
+        new ArrayList<Pose2d>() {
+          {
+            add(new Pose2d(8.06, 5, new Rotation2d(Units.degreesToRadians(181))));
+            add(new Pose2d(8.06, 6.5, new Rotation2d(Units.degreesToRadians(181))));
+          }
+        };
+    public static final List<Pose2d> redBargePoses =
+        new ArrayList<Pose2d>() {
+          {
+            add(new Pose2d(9.490, 3, new Rotation2d(Units.degreesToRadians(1))));
+            add(new Pose2d(9.490, 1.5, new Rotation2d(Units.degreesToRadians(1))));
           }
         };
   }
