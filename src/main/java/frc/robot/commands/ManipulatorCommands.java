@@ -249,7 +249,7 @@ public class ManipulatorCommands {
   public static Command DeployClimberCmd(RollerSystem myClimber) {
     return Commands.sequence(
         Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.red, 4)),
-        Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "deploy")),
+        Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "deploying")),
         Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.DEPLOY), myClimber),
         Commands.waitUntil(() -> myClimber.atPosition()),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "deployed")),
@@ -265,21 +265,16 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "CLIMBED")),
         Commands.runOnce(() -> LEDSegment.all.setRainbowAnimation(4)));
   }
-  /* // DO NOT USE UNLESS CURRENT LIMIT IS FIXED
-    public static Command ZeroClimberCmd(RollerSystem myClimber) {
-      return Commands.sequence(
-          Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.red, 4)),
-          Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "ZEROING CLIMBER")),
-          myClimber.setSpeedCmd(Constants.CLIMBER.ZEROING_SPEED),
-          Commands.waitUntil(
-              () -> myClimber.getTorqueCurrent() > Constants.CLIMBER.ZEROING_CURRENT_LIMIT),
-          myClimber.setSpeedCmd(0),
-          Commands.runOnce(() -> myClimber.setPosition(myClimber.getPosition() + 10), myClimber),
-          Commands.runOnce(() -> myClimber.zero()),
-          Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.green)),
-          Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "ZEROED CLIMBER")));
-    }
-  */
+
+  // NO CHECKS
+  public static Command BumpClimberCmd(double bump, RollerSystem myClimber) {
+    return Commands.sequence(
+        Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "bumping")),
+        Commands.runOnce(() -> myClimber.setPosition(myClimber.getPosition() + bump), myClimber),
+        Commands.waitUntil(() -> myClimber.atPosition()),
+        Commands.runOnce(() -> myClimber.zero()));
+  }
+
   public static Command ElevatorWristZeroCmd(
       RollerSystem myIntakeLow, ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
@@ -323,33 +318,7 @@ public class ManipulatorCommands {
         RetractClimberCmd(myClimber),
         Commands.runOnce(() -> LEDSegment.all.setRainbowAnimation(4)));
   }
-  /*
-    public static Command TestElevatorWristSequencing(ElevatorWristSubSystem myElevatorWrist) {
-      Runnable[] positions = new Runnable[10];
-      positions[0] = (Runnable) CoralIntakePositionCmd(myElevatorWrist);
-      positions[1] = (Runnable) CoralL2Cmd(myElevatorWrist);
-      positions[2] = (Runnable) CoralL3Cmd(myElevatorWrist);
-      positions[3] = (Runnable) CoralL4Cmd(myElevatorWrist);
-      positions[4] = (Runnable) CoralL1Cmd(myElevatorWrist);
-      positions[5] = (Runnable) AlgaeToP1(myElevatorWrist, false);
-      positions[6] = (Runnable) AlgaeAtA1(myElevatorWrist, false);
-      positions[7] = (Runnable) AlgaeAtA2(myElevatorWrist, false);
-      positions[8] = (Runnable) AlgaeToNetCmd(myElevatorWrist, false);
-      positions[9] = (Runnable) AlgaeCradle(myElevatorWrist);
 
-      for (int i = 0; i <= (positions.length - 1); i++) {
-        positions[i].run();
-        Commands.waitSeconds(0.5);
-        for (int k = i; k <= (positions.length - 1); k++) {
-          positions[i].run();
-          Commands.waitSeconds(0.5);
-          positions[i].run();
-          Commands.waitSeconds(0.5);
-        }
-      }
-      return ElevatorWristZeroCmd(myElevatorWrist);
-    }
-  */
   public static Command TestElevatorWristSequencing(
       RollerSystem myIntakeLow, ElevatorWristSubSystem myElevatorWrist) {
     return Commands.sequence(
