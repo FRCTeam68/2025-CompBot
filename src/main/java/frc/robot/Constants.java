@@ -238,6 +238,7 @@ public final class Constants {
     public static final double DEPLOY = 39;
     public static final double RETRACT = -71;
     public static final double MAX_HEIGHT = 60;
+    public static final double BUMP_VALUE = 2;
     public static final double ZEROING_SPEED = -70; // speed when zeroing
     public static final double ZEROING_CURRENT_LIMIT = 45; // current limit when zeroing
     public static final Slot0Configs SLOT0_CONFIGS =
