@@ -33,7 +33,7 @@ import java.util.List;
 public final class Constants {
   public static final Mode simMode = Mode.SIM;
   public static final double loopPeriodSecs = 0.02;
-  public static final boolean tuningMode = true;
+  public static final boolean tuningMode = false;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
   public static enum Mode {
@@ -78,7 +78,7 @@ public final class Constants {
     public static final double IJ_NET_ELEVATOR_DELAY = 0.8;
     public static final double EF_NET_ELEVATOR_DELAY = 2;
     // coral autons
-    public static final double START_ELEVATOR_DELAY = 1;
+    public static final double START_ELEVATOR_DELAY = .5;
     public static final double CORAL_STATION_WAIT = 0;
     public static final double REEF_TIMEOUT = 2;
   }
