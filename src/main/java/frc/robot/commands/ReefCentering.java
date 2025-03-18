@@ -135,7 +135,7 @@ public class ReefCentering {
         pathContraints = Constants.PathPlannerConstants.slowConstraints;
         break;
       case Back:
-        pathContraints = Constants.PathPlannerConstants.fastConstraints;
+        pathContraints = Constants.PathPlannerConstants.defaultConstraints;
         break;
       case Barge:
         pathContraints = Constants.PathPlannerConstants.defaultConstraints;
