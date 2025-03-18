@@ -103,7 +103,7 @@ public class ManipulatorCommands {
           Command command;
           Command ledShooting =
               Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red));
-          Command ledShot = Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange));
+          Command ledShot = Commands.runOnce(() -> LEDSegment.all.disableLEDs());
           command = Commands.none();
           if (Constants.WRIST.POSITION_SCORING_ELEMENT == "Algae") {
             ///// SHOOT ALGAE PROCESSOR /////
@@ -266,7 +266,7 @@ public class ManipulatorCommands {
 
   public static Command RetractClimberCmd(RollerSystem myClimber) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.white, 4)),
+        Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.red, 4)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "climbing")),
         Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.RETRACT), myClimber),
         Commands.waitUntil(() -> myClimber.atPosition()),
@@ -299,7 +299,6 @@ public class ManipulatorCommands {
       RangeSensorSubSystem intake_sensor,
       RollerSystem myClimber) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.white)),
         CoralIntakePositionCmd(myIntakeLow, myElevatorWrist),
         intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor),
         CoralL4Cmd(myIntakeLow, myElevatorWrist),
@@ -308,7 +307,6 @@ public class ManipulatorCommands {
         Commands.waitSeconds(0.5),
         shootCmd(myIntake, myIntakeLow, myElevatorWrist),
         Commands.waitSeconds(1),
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.green)),
         AlgaeToP1(myIntakeLow, myElevatorWrist, false),
         intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor),
         AlgaeToNetCmd(myIntakeLow, myElevatorWrist, false),
@@ -319,12 +317,9 @@ public class ManipulatorCommands {
         Commands.waitSeconds(1),
         ElevatorWristZeroCmd(myIntakeLow, myElevatorWrist),
         Commands.waitSeconds(0.5),
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
-        // ZeroClimberCmd(myClimber),
         DeployClimberCmd(myClimber),
         Commands.waitSeconds(0.5),
-        RetractClimberCmd(myClimber),
-        Commands.runOnce(() -> LEDSegment.all.setRainbowAnimation(4)));
+        RetractClimberCmd(myClimber));
   }
 
   public static Command TestElevatorWristSequencing(

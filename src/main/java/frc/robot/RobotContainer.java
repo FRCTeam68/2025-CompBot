@@ -458,9 +458,7 @@ public class RobotContainer {
         .square()
         .onTrue(ManipulatorCommands.CoralL2Cmd(intakeShooterLow, elevatorWrist));
 
-    m_ps4Controller
-        .cross()
-        .onTrue(ManipulatorCommands.CoralIntakePositionCmd(intakeShooterLow, elevatorWrist));
+    m_ps4Controller.cross().onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
 
     m_ps4Controller
         .L1()
@@ -477,7 +475,7 @@ public class RobotContainer {
         .R2()
         .onTrue(ManipulatorCommands.AlgaeAtA2(intakeShooterLow, elevatorWrist, algaeCradleFlag));
 
-    m_ps4Controller.options().onTrue(Commands.runOnce(() -> putAutonPoseToDashboard()));
+    // m_ps4Controller.options().onTrue(Commands.runOnce(() -> putAutonPoseToDashboard()));
 
     m_xboxController
         .povDown()
@@ -547,11 +545,11 @@ public class RobotContainer {
     // use incase you notice red light on dashboard.
     // m_ps4Controller.share().onTrue(ManipulatorCommands.ZeroClimberCmd(climber));
 
-    // m_ps4Controller
-    //     .options()
-    //     .onTrue(ManipulatorCommands.TestElevatorWristSequencing(elevatorWrist));
+    m_ps4Controller
+        .options()
+        .onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
 
-    m_ps4Controller.PS().onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
+    // m_ps4Controller.PS().onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
 
     // m_ps4Controller
     //     .touchpad()
