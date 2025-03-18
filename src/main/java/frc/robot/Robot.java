@@ -172,6 +172,8 @@ public class Robot extends LoggedRobot {
     } else {
       LEDSegment.LED5.setColor(LightsSubsystem.red);
     }
+
+    RobotContainer.logClimberPose();
   }
 
   /** This function is called once when the robot is disabled. */

@@ -704,7 +704,7 @@ public class RobotContainer {
         "Match Ready/elevator_zeroed", elevatorWrist.getElevator().getPosition() < 0.01);
   }
 
-  public void logClimberPose() {
+  public static void logClimberPose() {
     Logger.recordOutput(
         "RobotPose/Climber",
         new Pose3d[] {
