@@ -547,7 +547,7 @@ public class RobotContainer {
 
     m_ps4Controller
         .options()
-        .onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
+        .onTrue(ManipulatorCommands.CoralIntakePositionCmd(intakeShooterLow, elevatorWrist));
 
     // m_ps4Controller.PS().onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
 
@@ -720,7 +720,7 @@ public class RobotContainer {
         "Match Ready/elevator_zeroed", elevatorWrist.getElevator().getPosition() < 0.01);
   }
 
-  public void logClimberPose() {
+  public static void logClimberPose() {
     Logger.recordOutput(
         "RobotPose/Climber",
         new Pose3d[] {
