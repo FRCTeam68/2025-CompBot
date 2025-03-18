@@ -58,6 +58,11 @@ public class autons {
 
     return Commands.sequence(
         // first coral
+        Commands.parallel(
+            AutoBuilder.followPath(path[0]), // to reef post
+            Commands.sequence(
+                Commands.waitSeconds(Constants.AUTO.START_ELEVATOR_DELAY),
+                ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist))),
         AutoBuilder.followPath(path[0]), // to reef post
         Commands.waitSeconds(Constants.AUTO.START_ELEVATOR_DELAY),
         ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
@@ -136,7 +141,10 @@ public class autons {
             () -> {
               return intake_sensor.havePiece();
             }),
-        AutoBuilder.followPath(path[5])); // to coral station
+        Commands.parallel(
+            ManipulatorCommands.CoralIntakePositionCmd(myIntakeLow, myElevatorWrist),
+            AutoBuilder.followPath(path[5]) // to coral station
+            ));
   }
 
   public static Command centerProcessor(
