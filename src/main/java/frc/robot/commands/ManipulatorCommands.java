@@ -27,8 +27,6 @@ import org.littletonrobotics.junction.Logger;
 
 public class ManipulatorCommands {
 
-  public static boolean havePiece = false;
-
   private ManipulatorCommands() {}
 
   public static Command intakeCmd(
@@ -39,7 +37,6 @@ public class ManipulatorCommands {
     return new DeferredCommand(
         () -> {
           // initialization
-          Command havePieceFalse = Commands.runOnce(() -> havePiece = false);
           Command command;
           Command ledIntaking =
               Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4));
@@ -56,7 +53,6 @@ public class ManipulatorCommands {
                     myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_INTAKE_SPEED),
                     myIntakeLow.setSpeedCmd(Constants.INTAKE_SHOOTER_LOW.ALGAE_INTAKE_SPEED),
                     Commands.waitUntil(() -> myIntake.hasPiece()),
-                    Commands.runOnce(() -> havePiece = true),
                     ledHaveObject,
                     myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_HOLD_SPEED),
                     myIntakeLow.setSpeedCmd(Constants.INTAKE_SHOOTER_LOW.ALGAE_HOLD_SPEED));
@@ -80,7 +76,6 @@ public class ManipulatorCommands {
                       myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
                       // myIntakeLow.setSpeedCmd(0),
                       Commands.waitUntil(() -> intake_sensor.havePiece()),
-                      Commands.runOnce(() -> havePiece = true),
                       ledHaveObject,
                       Commands.waitSeconds(.03),
                       myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED),
@@ -95,7 +90,7 @@ public class ManipulatorCommands {
             }
           }
           // execute sequence
-          return havePieceFalse.andThen(ledIntaking).andThen(command);
+          return ledIntaking.andThen(command);
         },
         Set.of(myIntake, intake_sensor, myElevatorWrist));
   }

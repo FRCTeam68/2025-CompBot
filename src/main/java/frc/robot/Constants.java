@@ -67,6 +67,10 @@ public final class Constants {
   }
 
   public static final class AUTO {
+    // center autons
+    public static final double CORAL_TO_ALGAE_PATH_DELAY = 0.3;
+    // side autons
+    public static final double START_ELEVATOR_DELAY = 1;
     public static final double CORAL_STATION_WAIT = 0;
     public static final double REEF_TIMEOUT = 2;
   }
