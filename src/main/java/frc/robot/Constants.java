@@ -62,14 +62,22 @@ public final class Constants {
         new Pose2d(right.getMeasureX(), Meters.of(4.16), right.getRotation());
     public static final Pose2d left =
         new Pose2d(right.getMeasureX(), Meters.of(5.60), right.getRotation());
-    public static final double TRANSLATION_START_ERROR = Units.inchesToMeters(1);
-    public static final double ROTATION_START_ERROR = 1;
+    public static final double TRANSLATION_START_ERROR = Units.inchesToMeters(2);
+    public static final double ROTATION_START_ERROR = 3;
   }
 
   public static final class AUTO {
-    // center autons
-    public static final double CORAL_TO_ALGAE_PATH_DELAY = 0.3;
-    // side autons
+    // algae autons
+    public static final double H4_GH_PATH_DELAY = 0.3;
+    // processor
+    public static final double GH_PROC_ELEVATOR_DELAY = 0.8;
+    public static final double PROC_EF_ELEVATOR_DELAY = 0.1;
+    public static final double EF_PROC_ELEVATOR_DELAY = 0.6;
+    // net
+    public static final double GH_NET_ELEVATOR_DELAY = 0.3;
+    public static final double IJ_NET_ELEVATOR_DELAY = 0.8;
+    public static final double EF_NET_ELEVATOR_DELAY = 2;
+    // coral autons
     public static final double START_ELEVATOR_DELAY = 1;
     public static final double CORAL_STATION_WAIT = 0;
     public static final double REEF_TIMEOUT = 2;
