@@ -421,10 +421,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 setPositionCmd(e_goal, w_goal));
           }
           // execute sequence
-          return sequence0
-              .andThen(sequence1)
-              .andThen(sequence2)
-              .andThen(sequenceFinal);
+          return sequence0.andThen(sequence1).andThen(sequence2).andThen(sequenceFinal);
         },
         Set.of(this));
   }
