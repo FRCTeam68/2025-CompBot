@@ -26,8 +26,8 @@ import java.util.Set;
 public class ReefCentering {
 
   private final Drive m_drive;
-  private Pose2d nearestSide = new Pose2d();
-  private Side selectedSide;
+  private static Pose2d nearestSide = new Pose2d();
+  private static Side selectedSide;
 
   public enum Side {
     Left,
@@ -174,6 +174,7 @@ public class ReefCentering {
   public Command createPathCommand(Side side) {
     return Commands.defer(
         () -> {
+          selectedSide = side;
           nearestSide = calculateNearestSide();
 
           Pose2d scoringPosition = calculatePath();
