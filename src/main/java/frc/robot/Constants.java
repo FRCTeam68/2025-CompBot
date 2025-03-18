@@ -62,8 +62,25 @@ public final class Constants {
         new Pose2d(right.getMeasureX(), Meters.of(4.16), right.getRotation());
     public static final Pose2d left =
         new Pose2d(right.getMeasureX(), Meters.of(5.60), right.getRotation());
-    public static final double TRANSLATION_START_ERROR = Units.inchesToMeters(1);
-    public static final double ROTATION_START_ERROR = 1;
+    public static final double TRANSLATION_START_ERROR = Units.inchesToMeters(2);
+    public static final double ROTATION_START_ERROR = 3;
+  }
+
+  public static final class AUTO {
+    // algae autons
+    public static final double H4_GH_PATH_DELAY = 0.3;
+    // processor
+    public static final double GH_PROC_ELEVATOR_DELAY = 0.8;
+    public static final double PROC_EF_ELEVATOR_DELAY = 0.1;
+    public static final double EF_PROC_ELEVATOR_DELAY = 0.6;
+    // net
+    public static final double GH_NET_ELEVATOR_DELAY = 0.3;
+    public static final double IJ_NET_ELEVATOR_DELAY = 0.8;
+    public static final double EF_NET_ELEVATOR_DELAY = 2;
+    // coral autons
+    public static final double START_ELEVATOR_DELAY = 1;
+    public static final double CORAL_STATION_WAIT = 0;
+    public static final double REEF_TIMEOUT = 2;
   }
 
   public static final class LED {
@@ -229,6 +246,7 @@ public final class Constants {
     public static final double DEPLOY = 39;
     public static final double RETRACT = -71;
     public static final double MAX_HEIGHT = 60;
+    public static final double BUMP_VALUE = 2;
     public static final double ZEROING_SPEED = -70; // speed when zeroing
     public static final double ZEROING_CURRENT_LIMIT = 45; // current limit when zeroing
     public static final Slot0Configs SLOT0_CONFIGS =

@@ -15,13 +15,14 @@ package frc.robot;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.Units;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS4Controller.Axis;
 import edu.wpi.first.wpilibj.Timer;
@@ -34,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.*;
+import frc.robot.commands.auton.autons;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorWristSubSystem;
 import frc.robot.subsystems.LightsSubsystem;
@@ -66,7 +68,7 @@ public class RobotContainer {
   // Subsystems
   private static Drive drive;
   private final Vision vision;
-  private final RollerSystem climber;
+  private static RollerSystem climber;
   private final RollerSystem intakeShooter;
   private final RollerSystem intakeShooterLow;
   private static RangeSensorSubSystem intakeCoralSensor;
@@ -85,7 +87,7 @@ public class RobotContainer {
   private static boolean autonready;
 
   private boolean algaeCradleFlag = false;
-  private boolean m_pitModeActive = false;
+  private boolean m_climberBump = false;
 
   private static boolean auton_start_position_ok = false;
 
@@ -180,6 +182,8 @@ public class RobotContainer {
         lightsSubsystem = new LightsSubsystem();
 
         LEDSegment.LED6.setColor(LightsSubsystem.green);
+
+        SmartDashboard.putString("BumpMode", "ELEVATOR");
 
         break;
 
@@ -286,7 +290,21 @@ public class RobotContainer {
         "algaeToPreNet",
         ManipulatorCommands.AlgaeToNetCmd(intakeShooterLow, elevatorWrist, algaeCradleFlag));
     // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto/Auto Choices", AutoBuilder.buildAutoChooser());
+    autoChooser = new LoggedDashboardChooser<>("Auto/Auto Choices");
+    // Set up autos
+    autoChooser.addOption(
+        "AUTON LEFT",
+        autons.side(true, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+    autoChooser.addOption(
+        "AUTON CENTER PROCESSOR",
+        autons.centerProcessor(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+    autoChooser.addOption(
+        "AUTON CENTER NET",
+        autons.centerNet(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+    autoChooser.addOption(
+        "AUTON RIGHT",
+        autons.side(false, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+    // Set up testing routines
     autoChooser.addOption(
         "Functional Test",
         ManipulatorCommands.FunctionalTest(
@@ -353,7 +371,7 @@ public class RobotContainer {
                 drive,
                 () -> -m_xboxController.getLeftY(),
                 () -> -m_xboxController.getLeftX(),
-                () -> new Rotation2d(Units.Degrees.of(0))));
+                () -> new Rotation2d(Units.degreesToRadians(0))));
 
     // drive to nearest barge shotting location
     m_xboxController
@@ -438,9 +456,7 @@ public class RobotContainer {
         .square()
         .onTrue(ManipulatorCommands.CoralL2Cmd(intakeShooterLow, elevatorWrist));
 
-    m_ps4Controller
-        .cross()
-        .onTrue(ManipulatorCommands.CoralIntakePositionCmd(intakeShooterLow, elevatorWrist));
+    m_ps4Controller.cross().onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
 
     m_ps4Controller
         .L1()
@@ -457,7 +473,7 @@ public class RobotContainer {
         .R2()
         .onTrue(ManipulatorCommands.AlgaeAtA2(intakeShooterLow, elevatorWrist, algaeCradleFlag));
 
-    m_ps4Controller.options().onTrue(Commands.runOnce(() -> putAutonPoseToDashboard()));
+    // m_ps4Controller.options().onTrue(Commands.runOnce(() -> putAutonPoseToDashboard()));
 
     m_xboxController
         .povDown()
@@ -490,11 +506,28 @@ public class RobotContainer {
 
     m_ps4Controller
         .povUp()
-        .onTrue(elevatorWrist.BumpElevatorPosition(Constants.ELEVATOR.BUMP_VALUE));
+        .onTrue(
+            Commands.either(
+                ManipulatorCommands.BumpClimberCmd(Constants.CLIMBER.BUMP_VALUE, climber),
+                elevatorWrist.BumpElevatorPosition(Constants.ELEVATOR.BUMP_VALUE),
+                () -> m_climberBump));
 
     m_ps4Controller
         .povDown()
-        .onTrue(elevatorWrist.BumpElevatorPosition(-Constants.ELEVATOR.BUMP_VALUE));
+        .onTrue(
+            Commands.either(
+                ManipulatorCommands.BumpClimberCmd(-Constants.CLIMBER.BUMP_VALUE, climber),
+                elevatorWrist.BumpElevatorPosition(-Constants.ELEVATOR.BUMP_VALUE),
+                () -> m_climberBump));
+
+    m_ps4Controller
+        .share()
+        .onTrue(
+            Commands.runOnce(() -> m_climberBump = !m_climberBump)
+                .andThen(
+                    () ->
+                        SmartDashboard.putString(
+                            "BumpMode", m_climberBump ? "CLIMBER" : "ELEVATOR")));
 
     m_ps4Controller.povLeft().onTrue(elevatorWrist.BumpWristPosition(Constants.WRIST.BUMP_VALUE));
 
@@ -510,15 +543,15 @@ public class RobotContainer {
     // use incase you notice red light on dashboard.
     // m_ps4Controller.share().onTrue(ManipulatorCommands.ZeroClimberCmd(climber));
 
-    // m_ps4Controller
-    //     .options()
-    //     .onTrue(ManipulatorCommands.TestElevatorWristSequencing(elevatorWrist));
-
-    m_ps4Controller.PS().onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
-
     m_ps4Controller
-        .touchpad()
-        .onTrue(ManipulatorCommands.ElevatorWristZeroCmd(intakeShooterLow, elevatorWrist));
+        .options()
+        .onTrue(ManipulatorCommands.CoralIntakePositionCmd(intakeShooterLow, elevatorWrist));
+
+    // m_ps4Controller.PS().onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
+
+    // m_ps4Controller
+    //     .touchpad()
+    //     .onTrue(ManipulatorCommands.ElevatorWristZeroCmd(intakeShooterLow, elevatorWrist));
 
     // Right Joystick Y
     m_ps4Controller
@@ -564,7 +597,11 @@ public class RobotContainer {
     boolean offsetYOK = false;
     boolean offsetROK = false;
 
-    m_autonName = autoChooser.get().getName();
+    try {
+      m_autonName = autoChooser.get().getName();
+    } catch (Exception e) {
+      m_autonName = "";
+    }
 
     if (m_autonName.contains("LEFT")) {
       autonX = Constants.AutonStartPositions.left.getX();
@@ -679,6 +716,21 @@ public class RobotContainer {
         "Match Ready/wrist_zeroed", elevatorWrist.getWrist().getPosition() < 0.01);
     SmartDashboard.putBoolean(
         "Match Ready/elevator_zeroed", elevatorWrist.getElevator().getPosition() < 0.01);
+  }
+
+  public static void logClimberPose() {
+    Logger.recordOutput(
+        "RobotPose/Climber",
+        new Pose3d[] {
+          new Pose3d(
+              -0.2921,
+              0,
+              0.4398003396,
+              new Rotation3d(
+                  0,
+                  Units.degreesToRadians(47.559917 - (climber.getPosition() / 125 * (12 / 32))),
+                  0))
+        });
   }
 
   public Command staticClimberCharacterization(double outputRampRate) {

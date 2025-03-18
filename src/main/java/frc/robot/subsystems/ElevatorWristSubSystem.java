@@ -263,12 +263,9 @@ public class ElevatorWristSubSystem extends SubsystemBase {
           Command sequence1;
           Command sequence2;
           Command sequenceFinal =
-              Commands.sequence(
+              Commands.parallel(
                   Commands.waitUntil(() -> wrist.atPosition()),
                   Commands.waitUntil(() -> elevator.atPosition()));
-          Command ledBegin =
-              Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4));
-          Command ledEnd = Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.orange));
           sequence0 = Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence0", "NULL"));
           sequence1 = Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence1", "NULL"));
           sequence2 = Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence2", "NULL"));
@@ -424,12 +421,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 setPositionCmd(e_goal, w_goal));
           }
           // execute sequence
-          return ledBegin
-              .andThen(sequence0)
-              .andThen(sequence1)
-              .andThen(sequence2)
-              .andThen(sequenceFinal)
-              .andThen(ledEnd);
+          return sequence0.andThen(sequence1).andThen(sequence2).andThen(sequenceFinal);
         },
         Set.of(this));
   }
