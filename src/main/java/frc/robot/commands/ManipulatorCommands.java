@@ -62,9 +62,12 @@ public class ManipulatorCommands {
             ///// INTAKE CORAL /////
             if (intake_sensor.havePiece()) {
               command =
-                  Commands.runOnce(
-                      () ->
-                          Logger.recordOutput("Manipulator/IntakeShooterState", "AlreadyHasCoral"));
+                  Commands.parallel(
+                      Commands.runOnce(
+                          () ->
+                              Logger.recordOutput(
+                                  "Manipulator/IntakeShooterState", "AlreadyHasCoral")),
+                      myIntake.setSpeedCmd(0));
             } else {
               command =
                   Commands.sequence(

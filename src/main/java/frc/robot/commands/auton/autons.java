@@ -63,9 +63,6 @@ public class autons {
             Commands.sequence(
                 Commands.waitSeconds(Constants.AUTO.START_ELEVATOR_DELAY),
                 ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist))),
-        AutoBuilder.followPath(path[0]), // to reef post
-        Commands.waitSeconds(Constants.AUTO.START_ELEVATOR_DELAY),
-        ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
         ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
         // second coral
         Commands.deadline(
@@ -142,7 +139,7 @@ public class autons {
               return intake_sensor.havePiece();
             }),
         Commands.parallel(
-            ManipulatorCommands.CoralIntakePositionCmd(myIntakeLow, myElevatorWrist),
+            ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor),
             AutoBuilder.followPath(path[5]) // to coral station
             ));
   }
