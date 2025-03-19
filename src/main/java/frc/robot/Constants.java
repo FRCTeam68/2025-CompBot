@@ -80,7 +80,8 @@ public final class Constants {
     // coral autons
     public static final double START_ELEVATOR_DELAY = .5;
     public static final double CORAL_STATION_WAIT = 0;
-    public static final double REEF_TIMEOUT = 2;
+    public static final double REEF_TIMEOUT = 0.5;
+    public static final double INDEX_DELAY = 0.5;
   }
 
   public static final class LED {

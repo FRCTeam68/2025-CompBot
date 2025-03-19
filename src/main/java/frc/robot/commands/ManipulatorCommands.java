@@ -23,11 +23,14 @@ import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.RangeSensorSubSystem;
 import frc.robot.subsystems.rollers.RollerSystem;
 import java.util.Set;
+import lombok.Getter;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class ManipulatorCommands {
 
-    public static boolean havePiece = false;
+  @Getter @AutoLogOutput public static boolean havePiece = false;
+  @Getter @AutoLogOutput public static boolean indexing = false;
 
   private ManipulatorCommands() {}
 
@@ -42,10 +45,12 @@ public class ManipulatorCommands {
           Command command;
           Command ledIntaking =
               Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4));
-          Command ledHaveObject = 
+          Command ledHaveObject =
               Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue));
-          Command haveObjectFlag = 
-                Commands.runOnce(() -> havePiece = true);
+          Command haveObjectFlag =
+              Commands.parallel(
+                  Commands.runOnce(() -> havePiece = true),
+                  Commands.runOnce(() -> indexing = false));
           command = Commands.none();
           if (Constants.WRIST.POSITION_SCORING_ELEMENT == "Algae"
               || Constants.WRIST.POSITION_SCORING_ELEMENT == "AlgaeNet") {
@@ -71,18 +76,21 @@ public class ManipulatorCommands {
                               Logger.recordOutput(
                                   "Manipulator/IntakeShooterState", "AlreadyHasCoral")),
                       myIntake.setSpeedCmd(0),
+                      Commands.runOnce(() -> indexing = true),
                       Commands.runOnce(() -> havePiece = true));
             } else {
               command =
                   Commands.sequence(
-                    Commands.runOnce(() -> havePiece = false),
+                      Commands.runOnce(() -> havePiece = false),
+                      Commands.runOnce(() -> indexing = false),
                       Commands.runOnce(
                           () ->
                               Logger.recordOutput("Manipulator/IntakeShooterState", "IntakeCoral")),
-                        CoralIntakePositionCmd(myIntakeLow, myElevatorWrist),
+                      CoralIntakePositionCmd(myIntakeLow, myElevatorWrist),
                       myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
                       Commands.waitUntil(() -> intake_sensor.havePiece()),
                       ledHaveObject,
+                      Commands.runOnce(() -> indexing = true),
                       Commands.waitSeconds(.03),
                       myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED),
                       Commands.waitUntil(() -> intake_sensor.havePiece() == false),

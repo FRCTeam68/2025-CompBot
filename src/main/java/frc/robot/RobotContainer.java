@@ -304,9 +304,7 @@ public class RobotContainer {
     autoChooser.addOption(
         "AUTON RIGHT",
         autons.side(false, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
-    autoChooser.addOption(
-        "NONE",
-        Commands.none());
+    autoChooser.addOption("NONE", Commands.none());
     // Set up testing routines
     autoChooser.addOption(
         "Functional Test",
