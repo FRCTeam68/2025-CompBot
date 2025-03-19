@@ -291,7 +291,7 @@ public final class Constants {
         new PathConstraints(.5, 2.0, Units.degreesToRadians(50), Units.degreesToRadians(300));
 
     public static final PathConstraints slowConstraints =
-        new PathConstraints(1, 4.0, Units.degreesToRadians(100), Units.degreesToRadians(720));
+        new PathConstraints(1.5, 4.0, Units.degreesToRadians(100), Units.degreesToRadians(720));
 
     public static final PathConstraints defaultConstraints =
         new PathConstraints(2, 4.0, Units.degreesToRadians(200), Units.degreesToRadians(720));
@@ -369,7 +369,7 @@ public final class Constants {
         new ArrayList<Pose2d>() {
           {
             add(new Pose2d(16.273, 7.096, new Rotation2d(Units.degreesToRadians(233)))); // right
-            add(new Pose2d(16.375, 0.938, new Rotation2d(Units.degreesToRadians(143)))); // left
+            add(new Pose2d(16.375, 0.938, new Rotation2d(Units.degreesToRadians(137)))); // left
           }
         };
 

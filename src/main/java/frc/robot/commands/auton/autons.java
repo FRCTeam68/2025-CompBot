@@ -71,9 +71,9 @@ public class autons {
                 Commands.waitSeconds(Constants.AUTO.CORAL_STATION_WAIT),
                 AutoBuilder.followPath(path[2])), // to reef coral 2
             ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)),
-        ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)
-            .withTimeout(Constants.AUTO.REEF_TIMEOUT)
-            .handleInterrupt(() -> myIntake.setSpeedCmd(0)),
+        // ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)
+        // .withTimeout(Constants.AUTO.REEF_TIMEOUT)
+        // .handleInterrupt(() -> myIntake.setSpeedCmd(0)),
         Commands.either(
             Commands.sequence(
                 ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
@@ -87,9 +87,10 @@ public class autons {
                         AutoBuilder.followPath(path[2])), // to reef coral 2
                     ManipulatorCommands.intakeCmd(
                         myIntake, myIntakeLow, myElevatorWrist, intake_sensor)),
-                ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)
-                    .withTimeout(Constants.AUTO.REEF_TIMEOUT)
-                    .handleInterrupt(() -> myIntake.setSpeedCmd(0)),
+                // ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist,
+                // intake_sensor)
+                // .withTimeout(Constants.AUTO.REEF_TIMEOUT)
+                // .handleInterrupt(() -> myIntake.setSpeedCmd(0)),
                 Commands.either(
                     Commands.sequence(
                         ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
@@ -108,9 +109,9 @@ public class autons {
                 Commands.waitSeconds(Constants.AUTO.CORAL_STATION_WAIT),
                 AutoBuilder.followPath(path[4])), // to reef coral 2
             ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)),
-        ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)
-            .withTimeout(Constants.AUTO.REEF_TIMEOUT)
-            .handleInterrupt(() -> myIntake.setSpeedCmd(0)),
+        // ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)
+        // .withTimeout(Constants.AUTO.REEF_TIMEOUT)
+        // .handleInterrupt(() -> myIntake.setSpeedCmd(0)),
         Commands.either(
             Commands.sequence(
                 ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
@@ -124,9 +125,10 @@ public class autons {
                         AutoBuilder.followPath(path[4])), // to reef coral 2
                     ManipulatorCommands.intakeCmd(
                         myIntake, myIntakeLow, myElevatorWrist, intake_sensor)),
-                ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)
-                    .withTimeout(Constants.AUTO.REEF_TIMEOUT)
-                    .handleInterrupt(() -> myIntake.setSpeedCmd(0)),
+                // ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist,
+                // intake_sensor)
+                // .withTimeout(Constants.AUTO.REEF_TIMEOUT)
+                // .handleInterrupt(() -> myIntake.setSpeedCmd(0)),
                 Commands.either(
                     Commands.sequence(
                         ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
