@@ -158,6 +158,19 @@ public class ManipulatorCommands {
                     Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_L1_SHOOT_TIMEOUT),
                     myIntake.setSpeedCmd(0),
                     myIntakeLow.setSpeedCmd(0));
+
+            ///// SHOOT CORAL L1 PIVOT /////
+            // command =
+            //     Commands.sequence(
+            //         Commands.parallel(
+            //             Commands.runOnce(
+            //                 () ->
+            //                     Logger.recordOutput("Manipulator/IntakeShooterState", "ShootCoralL1")),
+            //             myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
+            //             myElevatorWrist.setPositionCmdNew(myIntakeLow, Constants.ELEVATOR.L1_FINAL, Constants.WRIST.L1)),
+            //         Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_L1_SHOOT_TIMEOUT),
+            //         myIntake.setSpeedCmd(0),
+            //         myIntakeLow.setSpeedCmd(0));
           } else {
             ///// SHOOT CORAL L2 - L4 /////
             command =
@@ -205,9 +218,7 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "CoralL1"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L1")),
         myElevatorWrist.setPositionCmdNew(
-            myIntakeLow,
-            Constants.ELEVATOR.L1 + Constants.ELEVATOR.L1_OFFSET,
-            Constants.WRIST.L1 + Constants.WRIST.L1_OFFSET));
+            myIntakeLow, Constants.ELEVATOR.L1, Constants.WRIST.L1));
   }
 
   public static Command CoralIntakePositionCmd(

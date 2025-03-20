@@ -70,7 +70,7 @@ public class autons {
                 AutoBuilder.followPath(path[1]), // to coral station
                 Commands.waitSeconds(Constants.AUTO.CORAL_STATION_WAIT),
                 AutoBuilder.followPath(path[2]), // to reef coral 2
-                Commands.waitUntil(() -> !ManipulatorCommands.havePiece)
+                Commands.waitUntil(() -> ManipulatorCommands.havePiece)
                     .withTimeout(Constants.AUTO.REEF_TIMEOUT),
                 Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
                     .onlyWhile(() -> ManipulatorCommands.indexing)),
@@ -87,7 +87,7 @@ public class autons {
                         AutoBuilder.followPath(path[3]), // to coral station
                         Commands.waitSeconds(Constants.AUTO.CORAL_STATION_WAIT),
                         AutoBuilder.followPath(path[2]), // to reef coral 2
-                        Commands.waitUntil(() -> !ManipulatorCommands.havePiece)
+                        Commands.waitUntil(() -> ManipulatorCommands.havePiece)
                             .withTimeout(Constants.AUTO.REEF_TIMEOUT),
                         Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
                             .onlyWhile(() -> ManipulatorCommands.indexing)),
@@ -111,7 +111,7 @@ public class autons {
                 AutoBuilder.followPath(path[3]), // to coral station
                 Commands.waitSeconds(Constants.AUTO.CORAL_STATION_WAIT),
                 AutoBuilder.followPath(path[4]), // to reef coral 2
-                Commands.waitUntil(() -> !ManipulatorCommands.havePiece)
+                Commands.waitUntil(() -> ManipulatorCommands.havePiece)
                     .withTimeout(Constants.AUTO.REEF_TIMEOUT),
                 Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
                     .onlyWhile(() -> ManipulatorCommands.indexing)),
@@ -128,7 +128,7 @@ public class autons {
                         AutoBuilder.followPath(path[5]), // to coral station
                         Commands.waitSeconds(Constants.AUTO.CORAL_STATION_WAIT),
                         AutoBuilder.followPath(path[4]), // to reef coral 2
-                        Commands.waitUntil(() -> !ManipulatorCommands.havePiece)
+                        Commands.waitUntil(() -> ManipulatorCommands.havePiece)
                             .withTimeout(Constants.AUTO.REEF_TIMEOUT),
                         Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
                             .onlyWhile(() -> ManipulatorCommands.indexing)),

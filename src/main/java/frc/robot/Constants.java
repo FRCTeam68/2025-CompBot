@@ -168,7 +168,6 @@ public final class Constants {
     public static final double MAX_POSITION = 0.544;
     public static final double INTAKE = 0.02; // 1.5 / REDUCTION;
     public static final double L1 = 0.44;
-    public static double L1_OFFSET = 0;
     public static final double L2 = 0.0672; // 3.9; // DO NOT MODIFY WITHOUT CHANGING
     public static final double L3 = 0.0672; // 3.9; // SEQUENCING LOGIC
     public static final double L4 = 0.0672; // 3.9; // all 3 of these must be the same value
@@ -214,7 +213,7 @@ public final class Constants {
     public static final double L2 = 4.5;
     public static final double P1 = 3.4;
     public static final double L1 = 8;
-    public static double L1_OFFSET = 0;
+    public static final double L1_FINAL = 4; // used for pivoting L1 shoot
     public static final double INTAKE = 0;
     public static final double BUMP_VALUE = .5; // rotations
     // sequencing contants
