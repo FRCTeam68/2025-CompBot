@@ -73,7 +73,7 @@ public class autons {
                 Commands.waitUntil(() -> !ManipulatorCommands.havePiece)
                     .withTimeout(Constants.AUTO.REEF_TIMEOUT),
                 Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
-                    .onlyIf(() -> ManipulatorCommands.indexing)),
+                    .onlyWhile(() -> ManipulatorCommands.indexing)),
             ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)
                 .handleInterrupt(() -> myIntake.setSpeedCmd(0))),
         Commands.either(
@@ -90,7 +90,7 @@ public class autons {
                         Commands.waitUntil(() -> !ManipulatorCommands.havePiece)
                             .withTimeout(Constants.AUTO.REEF_TIMEOUT),
                         Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
-                            .onlyIf(() -> ManipulatorCommands.indexing)),
+                            .onlyWhile(() -> ManipulatorCommands.indexing)),
                     ManipulatorCommands.intakeCmd(
                             myIntake, myIntakeLow, myElevatorWrist, intake_sensor)
                         .handleInterrupt(() -> myIntake.setSpeedCmd(0))),
@@ -114,7 +114,7 @@ public class autons {
                 Commands.waitUntil(() -> !ManipulatorCommands.havePiece)
                     .withTimeout(Constants.AUTO.REEF_TIMEOUT),
                 Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
-                    .onlyIf(() -> ManipulatorCommands.indexing)),
+                    .onlyWhile(() -> ManipulatorCommands.indexing)),
             ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)
                 .handleInterrupt(() -> myIntake.setSpeedCmd(0))),
         Commands.either(
@@ -131,7 +131,7 @@ public class autons {
                         Commands.waitUntil(() -> !ManipulatorCommands.havePiece)
                             .withTimeout(Constants.AUTO.REEF_TIMEOUT),
                         Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
-                            .onlyIf(() -> ManipulatorCommands.indexing)),
+                            .onlyWhile(() -> ManipulatorCommands.indexing)),
                     ManipulatorCommands.intakeCmd(
                             myIntake, myIntakeLow, myElevatorWrist, intake_sensor)
                         .handleInterrupt(() -> myIntake.setSpeedCmd(0))),

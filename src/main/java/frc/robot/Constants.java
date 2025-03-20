@@ -78,10 +78,10 @@ public final class Constants {
     public static final double IJ_NET_ELEVATOR_DELAY = 0.8;
     public static final double EF_NET_ELEVATOR_DELAY = 2;
     // coral autons
-    public static final double START_ELEVATOR_DELAY = .5;
+    public static final double START_ELEVATOR_DELAY = .4;
     public static final double CORAL_STATION_WAIT = 0;
-    public static final double REEF_TIMEOUT = 0.5;
-    public static final double INDEX_DELAY = 0.5;
+    public static final double REEF_TIMEOUT = 0.4;
+    public static final double INDEX_DELAY = 0.4;
   }
 
   public static final class LED {
@@ -104,7 +104,7 @@ public final class Constants {
     public static final double CORAL_INTAKE_INDEX_REVERSE = 3; // revolutions to reverse
     public static final double CORAL_SHOOT_SPEED = 30; // 40
     public static final double CORAL_L1_SHOOT_SPEED = -10; // 40
-    public static final double CORAL_SHOOT_TIMEOUT = .5;
+    public static final double CORAL_SHOOT_TIMEOUT = .4;
     public static final double CORAL_L1_SHOOT_TIMEOUT = 1;
     // algae
     public static final double ALGAE_INTAKE_SPEED = -40;
