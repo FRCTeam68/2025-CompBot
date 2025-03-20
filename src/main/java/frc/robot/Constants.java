@@ -239,13 +239,16 @@ public final class Constants {
     public static final int CANID = 47;
     public static final String CANBUS = "rio";
     public static final double THRESHOLD = 50; // mm
+    // must be up against reef for these limits
+    public static final double LOW_LIMIT = 120; // mm
+    public static final double HIGH_LIMIT = 260; // mm
   }
 
   public static final class CLIMBER {
     public static final int CANID = 40;
     public static final String CANBUS = "rio";
     public static final double DEPLOY = 39;
-    public static final double RETRACT = -71;
+    public static final double RETRACT = -68;
     public static final double MAX_HEIGHT = 60;
     public static final double BUMP_VALUE = 2;
     public static final double ZEROING_SPEED = -70; // speed when zeroing
@@ -362,15 +365,23 @@ public final class Constants {
     public static final List<Pose2d> blueSourcePoses =
         new ArrayList<Pose2d>() {
           {
-            add(new Pose2d(1.277, 7.096, new Rotation2d(Units.degreesToRadians(307)))); // left
-            add(new Pose2d(1.175, 0.938, new Rotation2d(Units.degreesToRadians(53)))); // right
+            add(
+                new Pose2d(
+                    1.277, 7.096, new Rotation2d(Units.degreesToRadians(-53)))); // left  //307
+            add(
+                new Pose2d(
+                    1.175, 0.938, new Rotation2d(Units.degreesToRadians(53)))); // right   //53
           }
         };
     public static final List<Pose2d> redSourcePoses =
         new ArrayList<Pose2d>() {
           {
-            add(new Pose2d(16.273, 7.096, new Rotation2d(Units.degreesToRadians(233)))); // right
-            add(new Pose2d(16.375, 0.938, new Rotation2d(Units.degreesToRadians(137)))); // left
+            add(
+                new Pose2d(
+                    16.273, 7.096, new Rotation2d(Units.degreesToRadians(-127)))); // right //233
+            add(
+                new Pose2d(
+                    16.375, 0.938, new Rotation2d(Units.degreesToRadians(127)))); // left  //127
           }
         };
 

@@ -110,13 +110,9 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
         5,
         () ->
             BaseStatusSignal.setUpdateFrequencyForAll(
-                50.0,
-                position,
-                velocity,
-                appliedVoltage,
-                supplyCurrent,
-                torqueCurrent,
-                tempCelsius));
+                50.0, position, velocity, appliedVoltage, torqueCurrent));
+    tryUntilOk(
+        5, () -> BaseStatusSignal.setUpdateFrequencyForAll(250.0, supplyCurrent, tempCelsius));
     tryUntilOk(5, () -> talon.optimizeBusUtilization(0, 1.0));
   }
 
@@ -154,7 +150,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   @Override
   public void setPosition(double rotations, double feedforward) {
     talon.setControl(mmvPosition.withPosition(rotations).withFeedForward(feedforward));
-    System.out.println("\tFF set to: " + feedforward);
+    // System.out.println("\tFF set to: " + feedforward);
   }
 
   @Override

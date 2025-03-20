@@ -12,6 +12,7 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
@@ -50,6 +51,9 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   @Getter @AutoLogOutput private boolean reefPostDetected = false;
   @Getter @AutoLogOutput private boolean reefPostSensorDetected = false;
   @Getter @AutoLogOutput private double reefPostSensorDistance = 0.0;
+  @Getter @AutoLogOutput private double reefPostAvgDistance = 0.0;
+  private LinearFilter reefPostFilter;
+
   @Getter @AutoLogOutput private double wristAngle = 0.0;
   private double e_goal = 0;
   private double w_goal = 0;
@@ -57,6 +61,8 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   private double w_bump_goal = 0;
 
   public ElevatorWristSubSystem() {
+
+    reefPostFilter = LinearFilter.movingAverage(10);
 
     wristCANcoder = new CANcoder(Constants.WRIST.CANCODER_CANID, Constants.WRIST.CANBUS);
     cancoderConfig.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(0.9);
@@ -134,13 +140,15 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   public void periodic() {
     reefPostSensorDetected = reefPostSensor.havePiece();
     reefPostSensorDistance = reefPostSensor.getDistance_mm();
-    reefPostDetected = (reefPostSensorDistance > 130) && (reefPostSensorDistance < 225);
+    reefPostAvgDistance = reefPostFilter.calculate(reefPostSensorDistance);
+    reefPostDetected =
+        (reefPostAvgDistance > Constants.REEFPOSTSENSOR.LOW_LIMIT)
+            && (reefPostAvgDistance < Constants.REEFPOSTSENSOR.HIGH_LIMIT);
+
+    SmartDashboard.putNumber("Reef Post Sensor Avg Distance", reefPostAvgDistance);
     SmartDashboard.putNumber("Reef Post Sensor Distance", reefPostSensorDistance);
     SmartDashboard.putBoolean("Reef Post Sensor Detected", reefPostSensorDetected);
     SmartDashboard.putBoolean("Reef Post Detected", reefPostDetected);
-    Logger.recordOutput("reefPost/SensorDistance", reefPostSensorDistance);
-    Logger.recordOutput("reefPost/SensorDetected", reefPostSensorDetected);
-    Logger.recordOutput("reefPost/Detected", reefPostDetected);
 
     wristAngle = wristCANcoder.getPosition().getValueAsDouble();
     SmartDashboard.putNumber("WristAngle", wristAngle);
