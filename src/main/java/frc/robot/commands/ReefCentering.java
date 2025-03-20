@@ -178,7 +178,8 @@ public class ReefCentering {
           nearestSide = calculateNearestSide();
 
           Pose2d scoringPosition = calculatePath();
-          Command pathCommand = getPathFromWaypoint(scoringPosition);
+          // Command pathCommand = getPathFromWaypoint(scoringPosition);
+          Command pathCommand = getPathFromPose(scoringPosition);
 
           return pathCommand;
           // return m_drive.driveToPose(scoringPosition,
@@ -186,5 +187,29 @@ public class ReefCentering {
 
         },
         Set.of(m_drive));
+  }
+
+  private Command getPathFromPose(Pose2d scoringPose) {
+
+    PathConstraints pathContraints;
+
+    switch (selectedSide) {
+      case Left, Middle, Right:
+        pathContraints = Constants.PathPlannerConstants.slowConstraints;
+        break;
+      case Back:
+        pathContraints = Constants.PathPlannerConstants.defaultConstraints;
+        break;
+      case Barge:
+        pathContraints = Constants.PathPlannerConstants.defaultConstraints;
+        break;
+      default:
+        pathContraints = Constants.PathPlannerConstants.defaultConstraints;
+        break;
+    }
+
+    return AutoBuilder.pathfindToPose(
+        scoringPose, pathContraints, 0.0 // Goal end velocity in meters/sec
+        );
   }
 }

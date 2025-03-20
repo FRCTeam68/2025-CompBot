@@ -144,10 +144,11 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     reefPostDetected =
         (reefPostAvgDistance > Constants.REEFPOSTSENSOR.LOW_LIMIT)
             && (reefPostAvgDistance < Constants.REEFPOSTSENSOR.HIGH_LIMIT);
-
-    SmartDashboard.putNumber("Reef Post Sensor Avg Distance", reefPostAvgDistance);
-    SmartDashboard.putNumber("Reef Post Sensor Distance", reefPostSensorDistance);
-    SmartDashboard.putBoolean("Reef Post Sensor Detected", reefPostSensorDetected);
+    if (Constants.tuningMode) {
+      SmartDashboard.putNumber("Reef Post Sensor Avg Distance", reefPostAvgDistance);
+      SmartDashboard.putNumber("Reef Post Sensor Distance", reefPostSensorDistance);
+      SmartDashboard.putBoolean("Reef Post Sensor Detected", reefPostSensorDetected);
+    }
     SmartDashboard.putBoolean("Reef Post Detected", reefPostDetected);
 
     wristAngle = wristCANcoder.getPosition().getValueAsDouble();

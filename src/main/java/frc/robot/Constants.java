@@ -78,7 +78,7 @@ public final class Constants {
     public static final double IJ_NET_ELEVATOR_DELAY = 0.8;
     public static final double EF_NET_ELEVATOR_DELAY = 2;
     // coral autons
-    public static final double START_ELEVATOR_DELAY = .4;
+    public static final double START_ELEVATOR_DELAY = .7;
     public static final double CORAL_STATION_WAIT = 0;
     public static final double REEF_TIMEOUT = 0.4;
     public static final double INDEX_DELAY = 0.4;
@@ -247,8 +247,8 @@ public final class Constants {
     public static final int CANID = 40;
     public static final String CANBUS = "rio";
     public static final double DEPLOY = 39;
-    public static final double RETRACT = -68;
-    public static final double MAX_HEIGHT = 60;
+    public static final double RETRACT = -71;
+    // public static final double MAX_HEIGHT = 60;
     public static final double BUMP_VALUE = 2;
     public static final double ZEROING_SPEED = -70; // speed when zeroing
     public static final double ZEROING_CURRENT_LIMIT = 45; // current limit when zeroing

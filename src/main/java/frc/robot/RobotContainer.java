@@ -16,10 +16,8 @@ package frc.robot;
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -365,14 +363,14 @@ public class RobotContainer {
             () -> -m_xboxController.getRightX()));
 
     // Lock to 0° when A button is held
-    m_xboxController
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -m_xboxController.getLeftY(),
-                () -> -m_xboxController.getLeftX(),
-                () -> new Rotation2d(Units.degreesToRadians(0))));
+    // m_xboxController
+    //     .a()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> -m_xboxController.getLeftY(),
+    //             () -> -m_xboxController.getLeftX(),
+    //             () -> new Rotation2d(Units.degreesToRadians(0))));
 
     // drive to nearest barge shotting location
     m_xboxController
@@ -384,48 +382,48 @@ public class RobotContainer {
                 .repeatedly());
 
     // lock to tag angle
-    m_xboxController
-        .y()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -m_xboxController.getLeftY(),
-                () -> -m_xboxController.getLeftX(),
-                () -> vision.getTagPose(1).getRotation()));
+    // m_xboxController
+    //     .y()
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> -m_xboxController.getLeftY(),
+    //             () -> -m_xboxController.getLeftX(),
+    //             () -> vision.getTagPose(1).getRotation()));
 
     // // Reset gyro to 0° when B button is pressed
-    m_xboxController
-        .back()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-                    drive)
-                .ignoringDisable(true));
+    // m_xboxController
+    //     .back()
+    //     .onTrue(
+    //         Commands.runOnce(
+    //                 () ->
+    //                     drive.setPose(
+    //                         new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
+    //                 drive)
+    //             .ignoringDisable(true));
 
     // Auto aim command example
-    @SuppressWarnings("resource")
-    PIDController aimController = new PIDController(0.2, 0.0, 0.0);
-    aimController.enableContinuousInput(-Math.PI, Math.PI);
-    m_xboxController
-        .x()
-        .whileTrue(
-            Commands.startRun(
-                () -> {
-                  aimController.reset();
-                },
-                () -> {
-                  DriveCommands.joystickDriveAtAngle(
-                      drive,
-                      () -> -m_xboxController.getLeftY(),
-                      () -> -m_xboxController.getLeftX(),
-                      () ->
-                          new Rotation2d(
-                              aimController.calculate(vision.getTargetX(1).getRadians())));
-                  Logger.recordOutput("DriveAtAngle/TargetX", vision.getTargetX(1).getRadians());
-                },
-                drive));
+    // @SuppressWarnings("resource")
+    // PIDController aimController = new PIDController(0.2, 0.0, 0.0);
+    // aimController.enableContinuousInput(-Math.PI, Math.PI);
+    // m_xboxController
+    //     .x()
+    //     .whileTrue(
+    //         Commands.startRun(
+    //             () -> {
+    //               aimController.reset();
+    //             },
+    //             () -> {
+    //               DriveCommands.joystickDriveAtAngle(
+    //                   drive,
+    //                   () -> -m_xboxController.getLeftY(),
+    //                   () -> -m_xboxController.getLeftX(),
+    //                   () ->
+    //                       new Rotation2d(
+    //                           aimController.calculate(vision.getTargetX(1).getRadians())));
+    //               Logger.recordOutput("DriveAtAngle/TargetX", vision.getTargetX(1).getRadians());
+    //             },
+    //             drive));
 
     m_xboxController
         .leftTrigger()
