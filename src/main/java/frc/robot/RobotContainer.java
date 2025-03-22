@@ -292,16 +292,24 @@ public class RobotContainer {
     // Set up autos
     autoChooser.addOption(
         "AUTON LEFT",
-        autons.side(true, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+        autons
+            .side(true, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
+            .withName("LEFT"));
     autoChooser.addOption(
         "AUTON CENTER PROCESSOR",
-        autons.centerProcessor(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+        autons
+            .centerProcessor(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
+            .withName("CENTER_PROCESSOR"));
     autoChooser.addOption(
         "AUTON CENTER NET",
-        autons.centerNet(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+        autons
+            .centerNet(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
+            .withName("CENTER_NET"));
     autoChooser.addOption(
         "AUTON RIGHT",
-        autons.side(false, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+        autons
+            .side(false, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
+            .withName("RIGHT"));
     autoChooser.addOption("NONE", Commands.none());
     // Set up testing routines
     autoChooser.addOption(

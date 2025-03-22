@@ -192,10 +192,16 @@ public class ManipulatorCommands {
 
   public static Command CoralL4Cmd(
       RollerSystem myIntakeLow, ElevatorWristSubSystem myElevatorWrist) {
-    return Commands.sequence(
+    return Commands.parallel(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L4")),
-        myElevatorWrist.setPositionCmdNew(myIntakeLow, Constants.ELEVATOR.L4, Constants.WRIST.L4));
+        Commands.either(
+            myElevatorWrist.setPositionCmdNew(
+                myIntakeLow, Constants.ELEVATOR.L4, Constants.WRIST.L4),
+            Commands.none(),
+            () -> {
+              return ManipulatorCommands.havePiece;
+            }));
   }
 
   public static Command CoralL3Cmd(
@@ -203,7 +209,13 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L3")),
-        myElevatorWrist.setPositionCmdNew(myIntakeLow, Constants.ELEVATOR.L3, Constants.WRIST.L3));
+        Commands.either(
+            myElevatorWrist.setPositionCmdNew(
+                myIntakeLow, Constants.ELEVATOR.L3, Constants.WRIST.L3),
+            Commands.none(),
+            () -> {
+              return ManipulatorCommands.havePiece;
+            }));
   }
 
   public static Command CoralL2Cmd(
@@ -211,7 +223,13 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L2")),
-        myElevatorWrist.setPositionCmdNew(myIntakeLow, Constants.ELEVATOR.L2, Constants.WRIST.L2));
+        Commands.either(
+            myElevatorWrist.setPositionCmdNew(
+                myIntakeLow, Constants.ELEVATOR.L2, Constants.WRIST.L2),
+            Commands.none(),
+            () -> {
+              return ManipulatorCommands.havePiece;
+            }));
   }
 
   public static Command CoralL1Cmd(
@@ -219,7 +237,13 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "CoralL1"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L1")),
-        myElevatorWrist.setPositionCmdNew(myIntakeLow, Constants.ELEVATOR.L1, Constants.WRIST.L1));
+        Commands.either(
+            myElevatorWrist.setPositionCmdNew(
+                myIntakeLow, Constants.ELEVATOR.L1, Constants.WRIST.L1),
+            Commands.none(),
+            () -> {
+              return ManipulatorCommands.havePiece;
+            }));
   }
 
   public static Command CoralIntakePositionCmd(

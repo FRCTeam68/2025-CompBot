@@ -178,13 +178,18 @@ public class ReefCentering {
           nearestSide = calculateNearestSide();
 
           Pose2d scoringPosition = calculatePath();
-          // Command pathCommand = getPathFromWaypoint(scoringPosition);
-          Command pathCommand = getPathFromPose(scoringPosition);
+          Command pathCommand;
+          if (side == Side.Left || side == Side.Right || side == Side.Middle) {
+            // will allow left to right to left
+            pathCommand = getPathFromWaypoint(scoringPosition);
+          } else {
+            // straight path to pose
+            pathCommand = getPathFromPose(scoringPosition);
+          }
 
           return pathCommand;
           // return m_drive.driveToPose(scoringPosition,
           // Constants.PathPlannerConstants.slowConstraints, 0);
-
         },
         Set.of(m_drive));
   }
