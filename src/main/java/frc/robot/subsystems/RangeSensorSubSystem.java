@@ -50,6 +50,7 @@ public class RangeSensorSubSystem extends SubsystemBase {
     // Refresh all signals
     var sensorStatus = BaseStatusSignal.refreshAll(distanceSignal, detectedSignal);
     sensorConnected = sensorConnectedDebounce.calculate(sensorStatus.isOK());
+    Logger.recordOutput("CAN_range/" + name + "/connected", sensorConnected);
 
     distance_mm = distanceSignal.getValue().in(Millimeters);
     Logger.recordOutput("CAN_range/" + name + "/distance_mm", distance_mm);

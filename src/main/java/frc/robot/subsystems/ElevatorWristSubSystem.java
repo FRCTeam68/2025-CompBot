@@ -47,14 +47,14 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   private final CANcoder wristCANcoder;
   private final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
 
-  @Getter @AutoLogOutput private double setpoint = 0.0;
+  //   @Getter @AutoLogOutput private double setpoint = 0.0;
   @Getter @AutoLogOutput private boolean reefPostDetected = false;
   @Getter @AutoLogOutput private boolean reefPostSensorDetected = false;
   @Getter @AutoLogOutput private double reefPostSensorDistance = 0.0;
   @Getter @AutoLogOutput private double reefPostAvgDistance = 0.0;
   private LinearFilter reefPostFilter;
 
-  @Getter @AutoLogOutput private double wristAngle = 0.0;
+  @Getter private double wristAngle = 0.0;
   private double e_goal = 0;
   private double w_goal = 0;
   private double e_bump_goal = 0;
@@ -63,6 +63,8 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   public ElevatorWristSubSystem() {
 
     reefPostFilter = LinearFilter.movingAverage(10);
+    Logger.recordOutput(
+        "ElevatorWristSubSystem/reefPostHighLimit", Constants.REEFPOSTSENSOR.HIGH_LIMIT);
 
     wristCANcoder = new CANcoder(Constants.WRIST.CANCODER_CANID, Constants.WRIST.CANBUS);
     cancoderConfig.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(0.9);

@@ -179,8 +179,6 @@ public class RobotContainer {
 
         lightsSubsystem = new LightsSubsystem();
 
-        LEDSegment.LED6.setColor(LightsSubsystem.green);
-
         SmartDashboard.putString("BumpMode", "ELEVATOR");
 
         break;
@@ -556,9 +554,13 @@ public class RobotContainer {
 
     // m_ps4Controller.PS().onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
 
-    // m_ps4Controller
-    //     .touchpad()
-    //     .onTrue(ManipulatorCommands.ElevatorWristZeroCmd(intakeShooterLow, elevatorWrist));
+    m_ps4Controller
+        .touchpad()
+        .onTrue(
+            Commands.either(
+                ManipulatorCommands.climberToZeroCmd(climber),
+                Commands.none(),
+                () -> m_climberBump));
 
     // Right Joystick Y
     m_ps4Controller

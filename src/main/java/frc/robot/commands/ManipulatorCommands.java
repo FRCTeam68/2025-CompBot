@@ -324,6 +324,16 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> LEDSegment.all.setRainbowAnimation(4)));
   }
 
+  public static Command climberToZeroCmd(RollerSystem myClimber) {
+    return Commands.sequence(
+        Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.red, 4)),
+        Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "to zero")),
+        Commands.runOnce(() -> myClimber.setPosition(0), myClimber),
+        Commands.waitUntil(() -> myClimber.atPosition()),
+        Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "at zero")),
+        Commands.runOnce(() -> LEDSegment.all.setRainbowAnimation(4)));
+  }
+
   // NO CHECKS
   public static Command BumpClimberCmd(double bump, RollerSystem myClimber) {
     return Commands.sequence(
@@ -369,7 +379,8 @@ public class ManipulatorCommands {
         Commands.waitSeconds(0.5),
         DeployClimberCmd(myClimber),
         Commands.waitSeconds(0.5),
-        RetractClimberCmd(myClimber));
+        RetractClimberCmd(myClimber),
+        climberToZeroCmd(myClimber));
   }
 
   public static Command TestElevatorWristSequencing(
