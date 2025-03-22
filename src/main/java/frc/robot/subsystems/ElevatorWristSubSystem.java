@@ -295,15 +295,34 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                     Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.SAFE)));
             // Commands.waitSeconds(.02));
           }
-          ///// MOVE FROM MIN ELEVATOR OR BETWEEN SIMILAR WRIST POSITIONS //////
+          ///// MOVE FROM MIN ELEVATOR TO L1, A1, OR A2 //////
           // if elevator is near zero
-          // or
-          // if current and commanded wrist position is greater then the safe position
-          // or
-          // if current and commanded wrist position is elevate position
-          // or
-          // if current and commanded elevator position are above minimum safe position
+          // and
+          // if current wrist position is less then the cradle position
+          // and commanded wrist position is greater then the safe position
+
           if (e_current <= Constants.ELEVATOR.MAX_LOW_SAFE
+              && (w_current <= Constants.WRIST.CRADLE && w_goal >= Constants.WRIST.SAFE)) {
+            sequence1 =
+                Commands.sequence(
+                    Commands.runOnce(
+                        () -> Logger.recordOutput("Manipulator/Sequence1", "SLOWED WRIST")),
+                    Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.SAFE)),
+                    Commands.runOnce(() -> elevator.setPosition(e_goal)),
+                    Commands.waitUntil(() -> elevator.atPosition()),
+                    Commands.waitUntil(() -> wrist.atPosition()),
+                    Commands.runOnce(() -> wrist.setPosition(w_goal)));
+
+            ///// MOVE FROM MIN ELEVATOR OR BETWEEN SIMILAR WRIST POSITIONS //////
+            // if elevator is near zero
+            // or
+            // if current and commanded wrist position is greater then the safe position
+            // or
+            // if current and commanded wrist position is elevate position
+            // or
+            // if current and commanded elevator position are above minimum safe position
+            //
+          } else if (e_current <= Constants.ELEVATOR.MAX_LOW_SAFE
               || (w_current >= Constants.WRIST.SAFE && w_goal >= Constants.WRIST.SAFE)
               || (w_current >= Constants.WRIST.MIN_SLOT1_TO_ELEVATE
                   && w_current <= Constants.WRIST.MAX_SLOT1_TO_ELEVATE
