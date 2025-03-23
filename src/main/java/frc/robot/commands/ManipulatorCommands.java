@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.ElevatorWristSubSystem;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.LightsSubsystem.LEDSegment;
@@ -75,6 +76,7 @@ public class ManipulatorCommands {
                           () ->
                               Logger.recordOutput(
                                   "Manipulator/IntakeShooterState", "AlreadyHasCoral")),
+                      CoralIntakePositionCmd(myIntakeLow, myElevatorWrist),
                       myIntake.setSpeedCmd(0),
                       Commands.runOnce(() -> indexing = true),
                       Commands.runOnce(() -> havePiece = true));
@@ -200,7 +202,7 @@ public class ManipulatorCommands {
                 myIntakeLow, Constants.ELEVATOR.L4, Constants.WRIST.L4),
             Commands.none(),
             () -> {
-              return ManipulatorCommands.havePiece;
+              return ManipulatorCommands.havePiece || RobotContainer.m_climberBump;
             }));
   }
 
@@ -214,7 +216,7 @@ public class ManipulatorCommands {
                 myIntakeLow, Constants.ELEVATOR.L3, Constants.WRIST.L3),
             Commands.none(),
             () -> {
-              return ManipulatorCommands.havePiece;
+              return ManipulatorCommands.havePiece || RobotContainer.m_climberBump;
             }));
   }
 
@@ -228,7 +230,7 @@ public class ManipulatorCommands {
                 myIntakeLow, Constants.ELEVATOR.L2, Constants.WRIST.L2),
             Commands.none(),
             () -> {
-              return ManipulatorCommands.havePiece;
+              return ManipulatorCommands.havePiece || RobotContainer.m_climberBump;
             }));
   }
 
@@ -242,7 +244,7 @@ public class ManipulatorCommands {
                 myIntakeLow, Constants.ELEVATOR.L1, Constants.WRIST.L1),
             Commands.none(),
             () -> {
-              return ManipulatorCommands.havePiece;
+              return ManipulatorCommands.havePiece || RobotContainer.m_climberBump;
             }));
   }
 

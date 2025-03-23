@@ -80,7 +80,14 @@ public class autons {
         Commands.either(
             Commands.sequence(
                 ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
-                ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist)),
+                Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
+                    .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
+                Commands.either(
+                    ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+                    Commands.none(),
+                    () -> {
+                      return ElevatorWristSubSystem.reefPostDetected;
+                    })),
             // second coral - second try
             Commands.sequence(
                 Commands.deadline(
@@ -98,7 +105,14 @@ public class autons {
                 Commands.either(
                     Commands.sequence(
                         ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
-                        ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist)),
+                        Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
+                            .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
+                        Commands.either(
+                            ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+                            Commands.none(),
+                            () -> {
+                              return ElevatorWristSubSystem.reefPostDetected;
+                            })),
                     Commands.none(),
                     () -> {
                       return ManipulatorCommands.havePiece;
@@ -121,8 +135,15 @@ public class autons {
         Commands.either(
             Commands.sequence(
                 ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
-                ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist)),
-            // second coral - second try
+                Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
+                    .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
+                Commands.either(
+                    ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+                    Commands.none(),
+                    () -> {
+                      return ElevatorWristSubSystem.reefPostDetected;
+                    })),
+            // third coral - second try
             Commands.sequence(
                 Commands.deadline(
                     Commands.sequence(
@@ -139,7 +160,14 @@ public class autons {
                 Commands.either(
                     Commands.sequence(
                         ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
-                        ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist)),
+                        Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
+                            .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
+                        Commands.either(
+                            ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+                            Commands.none(),
+                            () -> {
+                              return ElevatorWristSubSystem.reefPostDetected;
+                            })),
                     Commands.none(),
                     () -> {
                       return ManipulatorCommands.havePiece;

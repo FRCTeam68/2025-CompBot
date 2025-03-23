@@ -85,7 +85,7 @@ public class RobotContainer {
   private static boolean autonready;
 
   private boolean algaeCradleFlag = false;
-  private boolean m_climberBump = false;
+  public static boolean m_climberBump = false;
 
   private static boolean auton_start_position_ok = false;
 

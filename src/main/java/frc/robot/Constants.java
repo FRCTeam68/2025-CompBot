@@ -81,6 +81,7 @@ public final class Constants {
     public static final double START_ELEVATOR_DELAY = .7;
     public static final double CORAL_STATION_WAIT = 0;
     public static final double REEF_TIMEOUT = 0.4;
+    public static final double REEF_POST_TIMEOUT = 0.3;
     public static final double INDEX_DELAY = 0.4;
   }
 
@@ -166,7 +167,7 @@ public final class Constants {
     public static final double MAX_POSITION_AT_ELEVATOR_MIN = 0.416; // max slot2
     public static final double MAX_POSITION_AT_P1 = 0.544;
     public static final double MAX_POSITION = 0.544;
-    public static final double INTAKE = 0.02; // 1.5 / REDUCTION;
+    public static final double INTAKE = 0.012; // 0.02; // 1.5 / REDUCTION;
     public static final double L1 = 0.44;
     public static final double L2 = 0.0672; // 3.9; // DO NOT MODIFY WITHOUT CHANGING
     public static final double L3 = 0.0672; // 3.9; // SEQUENCING LOGIC
@@ -247,7 +248,7 @@ public final class Constants {
     public static final int CANID = 40;
     public static final String CANBUS = "rio";
     public static final double DEPLOY = 51;
-    public static final double RETRACT = -50;
+    public static final double RETRACT = -58;
     // public static final double MAX_HEIGHT = 60;
     public static final double BUMP_VALUE = 2;
     public static final double ZEROING_SPEED = -70; // speed when zeroing
