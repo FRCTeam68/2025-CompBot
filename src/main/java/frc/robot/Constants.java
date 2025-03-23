@@ -240,8 +240,8 @@ public final class Constants {
     public static final String CANBUS = "rio";
     public static final double THRESHOLD = 50; // mm
     // must be up against reef for these limits
-    public static final double LOW_LIMIT = 120; // mm
-    public static final double HIGH_LIMIT = 260; // mm
+    public static final double LOW_LIMIT = 100; // mm
+    public static final double HIGH_LIMIT = 340; // mm
   }
 
   public static final class CLIMBER {
