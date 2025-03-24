@@ -156,9 +156,6 @@ public class Robot extends LoggedRobot {
     Logger.recordOutput("CANBUS/rio/Status", canInfo2.Status.getName());
     if (!canInfo2.Status.isOK())
       Logger.recordOutput("CANBUS/rio/Desc", canInfo2.Status.getDescription());
-
-    // led status lights
-    RobotContainer.canBusStatuses();
   }
 
   /** This function is called once when the robot is disabled. */
@@ -172,6 +169,7 @@ public class Robot extends LoggedRobot {
   public void disabledPeriodic() {
     RobotContainer.AutonPose();
     RobotContainer.autonReadyStatus();
+    RobotContainer.canBusStatuses();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
