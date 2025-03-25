@@ -20,10 +20,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.commands.ManipulatorCommands;
 import frc.robot.subsystems.ElevatorWristSubSystem;
-import frc.robot.subsystems.RangeSensorSubSystem;
-import frc.robot.subsystems.rollers.RollerSystem;
 import java.util.List;
 
 public class autons {
@@ -45,12 +44,7 @@ public class autons {
     }
   }
 
-  public static Command side(
-      Boolean leftSide,
-      RollerSystem myIntake,
-      RollerSystem myIntakeLow,
-      ElevatorWristSubSystem myElevatorWrist,
-      RangeSensorSubSystem intake_sensor) {
+  public static Command side(Boolean leftSide) {
 
     String pathGroupName;
     pathGroupName = leftSide ? "AUTON_LEFT1" : "AUTON_RIGHT1";
@@ -63,8 +57,8 @@ public class autons {
             Commands.sequence(
                 Commands.runOnce(() -> ManipulatorCommands.havePiece = true),
                 Commands.waitSeconds(Constants.AUTO.START_ELEVATOR_DELAY),
-                ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist))),
-        ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+                ManipulatorCommands.CoralL4Cmd())),
+        ManipulatorCommands.shootCmd(),
         // second coral
         Commands.deadline(
             Commands.sequence(
@@ -75,15 +69,15 @@ public class autons {
                     .withTimeout(Constants.AUTO.REEF_TIMEOUT),
                 Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
                     .onlyWhile(() -> ManipulatorCommands.indexing)),
-            ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)
-                .handleInterrupt(() -> myIntake.setSpeedCmd(0))),
+            ManipulatorCommands.intakeCmd()
+                .handleInterrupt(() -> RobotContainer.intakeShooter.setSpeedCmd(0))),
         Commands.either(
             Commands.sequence(
-                ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
+                ManipulatorCommands.CoralL4Cmd(),
                 Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
                     .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
                 Commands.either(
-                    ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+                    ManipulatorCommands.shootCmd(),
                     Commands.none(),
                     () -> {
                       return ElevatorWristSubSystem.reefPostDetected;
@@ -99,16 +93,15 @@ public class autons {
                             .withTimeout(Constants.AUTO.REEF_TIMEOUT),
                         Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
                             .onlyWhile(() -> ManipulatorCommands.indexing)),
-                    ManipulatorCommands.intakeCmd(
-                            myIntake, myIntakeLow, myElevatorWrist, intake_sensor)
-                        .handleInterrupt(() -> myIntake.setSpeedCmd(0))),
+                    ManipulatorCommands.intakeCmd()
+                        .handleInterrupt(() -> RobotContainer.intakeShooter.setSpeedCmd(0))),
                 Commands.either(
                     Commands.sequence(
-                        ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
+                        ManipulatorCommands.CoralL4Cmd(),
                         Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
                             .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
                         Commands.either(
-                            ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+                            ManipulatorCommands.shootCmd(),
                             Commands.none(),
                             () -> {
                               return ElevatorWristSubSystem.reefPostDetected;
@@ -130,15 +123,15 @@ public class autons {
                     .withTimeout(Constants.AUTO.REEF_TIMEOUT),
                 Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
                     .onlyWhile(() -> ManipulatorCommands.indexing)),
-            ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)
-                .handleInterrupt(() -> myIntake.setSpeedCmd(0))),
+            ManipulatorCommands.intakeCmd()
+                .handleInterrupt(() -> RobotContainer.intakeShooter.setSpeedCmd(0))),
         Commands.either(
             Commands.sequence(
-                ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
+                ManipulatorCommands.CoralL4Cmd(),
                 Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
                     .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
                 Commands.either(
-                    ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+                    ManipulatorCommands.shootCmd(),
                     Commands.none(),
                     () -> {
                       return ElevatorWristSubSystem.reefPostDetected;
@@ -154,16 +147,15 @@ public class autons {
                             .withTimeout(Constants.AUTO.REEF_TIMEOUT),
                         Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
                             .onlyWhile(() -> ManipulatorCommands.indexing)),
-                    ManipulatorCommands.intakeCmd(
-                            myIntake, myIntakeLow, myElevatorWrist, intake_sensor)
-                        .handleInterrupt(() -> myIntake.setSpeedCmd(0))),
+                    ManipulatorCommands.intakeCmd()
+                        .handleInterrupt(() -> RobotContainer.intakeShooter.setSpeedCmd(0))),
                 Commands.either(
                     Commands.sequence(
-                        ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
+                        ManipulatorCommands.CoralL4Cmd(),
                         Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
                             .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
                         Commands.either(
-                            ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+                            ManipulatorCommands.shootCmd(),
                             Commands.none(),
                             () -> {
                               return ElevatorWristSubSystem.reefPostDetected;
@@ -176,16 +168,11 @@ public class autons {
               return ManipulatorCommands.havePiece;
             }),
         Commands.parallel(
-            ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor),
-            AutoBuilder.followPath(path[5]) // to coral station
+            ManipulatorCommands.intakeCmd(), AutoBuilder.followPath(path[5]) // to coral station
             ));
   }
 
-  public static Command centerProcessor(
-      RollerSystem myIntake,
-      RollerSystem myIntakeLow,
-      ElevatorWristSubSystem myElevatorWrist,
-      RangeSensorSubSystem intake_sensor) {
+  public static Command centerProcessor() {
 
     PathPlannerPath[] path = pathBuilder("AUTON_CENTER_PROCESSOR");
 
@@ -193,44 +180,36 @@ public class autons {
         Commands.runOnce(() -> ManipulatorCommands.havePiece = true),
         Commands.parallel(
             AutoBuilder.followPath(path[0]), // to reef post
-            ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist)),
-        ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+            ManipulatorCommands.CoralL4Cmd()),
+        ManipulatorCommands.shootCmd(),
         Commands.parallel(
             Commands.sequence(
                 AutoBuilder.followPath(path[1]), // away from reef
                 Commands.waitSeconds(Constants.AUTO.H4_GH_PATH_DELAY),
                 AutoBuilder.followPath(path[2]) // to reef algae
                 ),
-            Commands.sequence(
-                ManipulatorCommands.AlgaeAtA1(myIntakeLow, myElevatorWrist, false),
-                ManipulatorCommands.intakeCmd(
-                    myIntake, myIntakeLow, myElevatorWrist, intake_sensor))),
+            Commands.sequence(ManipulatorCommands.AlgaeAtA1(), ManipulatorCommands.intakeCmd())),
         Commands.parallel(
             AutoBuilder.followPath(path[3]), // to processor
             Commands.sequence(
                 Commands.waitSeconds(Constants.AUTO.GH_PROC_ELEVATOR_DELAY),
-                ManipulatorCommands.AlgaeToP1(myIntakeLow, myElevatorWrist, false))),
-        ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+                ManipulatorCommands.AlgaeToP1())),
+        ManipulatorCommands.shootCmd(),
         Commands.parallel(
             AutoBuilder.followPath(path[4]), // to reef algae 2
             Commands.sequence(
                 Commands.waitSeconds(Constants.AUTO.PROC_EF_ELEVATOR_DELAY),
-                ManipulatorCommands.AlgaeAtA2(myIntakeLow, myElevatorWrist, false),
-                ManipulatorCommands.intakeCmd(
-                    myIntake, myIntakeLow, myElevatorWrist, intake_sensor))),
+                ManipulatorCommands.AlgaeAtA2(),
+                ManipulatorCommands.intakeCmd())),
         Commands.parallel(
             AutoBuilder.followPath(path[5]), // to processor
             Commands.sequence(
                 Commands.waitSeconds(Constants.AUTO.EF_PROC_ELEVATOR_DELAY),
-                ManipulatorCommands.AlgaeToP1(myIntakeLow, myElevatorWrist, false))),
-        ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist));
+                ManipulatorCommands.AlgaeToP1())),
+        ManipulatorCommands.shootCmd());
   }
 
-  public static Command centerNet(
-      RollerSystem myIntake,
-      RollerSystem myIntakeLow,
-      ElevatorWristSubSystem myElevatorWrist,
-      RangeSensorSubSystem intake_sensor) {
+  public static Command centerNet() {
 
     PathPlannerPath[] path = pathBuilder("AUTON_CENTER_NET");
 
@@ -238,39 +217,35 @@ public class autons {
         Commands.runOnce(() -> ManipulatorCommands.havePiece = true),
         Commands.parallel(
             AutoBuilder.followPath(path[0]), // to reef post
-            ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist)),
-        ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+            ManipulatorCommands.CoralL4Cmd()),
+        ManipulatorCommands.shootCmd(),
         Commands.parallel(
             Commands.sequence(
                 AutoBuilder.followPath(path[1]), // away from reef
                 Commands.waitSeconds(Constants.AUTO.H4_GH_PATH_DELAY),
                 AutoBuilder.followPath(path[2])), // to reef algae
-            Commands.sequence(
-                ManipulatorCommands.AlgaeAtA1(myIntakeLow, myElevatorWrist, false),
-                ManipulatorCommands.intakeCmd(
-                    myIntake, myIntakeLow, myElevatorWrist, intake_sensor))),
+            Commands.sequence(ManipulatorCommands.AlgaeAtA1(), ManipulatorCommands.intakeCmd())),
         Commands.parallel(
             AutoBuilder.followPath(path[3]), // to net
             Commands.sequence(
                 Commands.waitSeconds(Constants.AUTO.GH_NET_ELEVATOR_DELAY),
-                ManipulatorCommands.AlgaeToNetCmd(myIntakeLow, myElevatorWrist, false))),
-        ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+                ManipulatorCommands.AlgaeToNetCmd())),
+        ManipulatorCommands.shootCmd(),
         Commands.parallel(
             AutoBuilder.followPath(path[4]), // to away from reef algae 2
-            ManipulatorCommands.AlgaeAtA2(myIntakeLow, myElevatorWrist, false)),
+            ManipulatorCommands.AlgaeAtA2()),
         Commands.parallel(
             AutoBuilder.followPath(path[5]), // to reef algae 2
-            ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)),
+            ManipulatorCommands.intakeCmd()),
         Commands.parallel(
             AutoBuilder.followPath(path[6]), // to net
             Commands.sequence(
                 Commands.waitSeconds(Constants.AUTO.IJ_NET_ELEVATOR_DELAY),
-                ManipulatorCommands.AlgaeToNetCmd(myIntakeLow, myElevatorWrist, false))),
-        ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+                ManipulatorCommands.AlgaeToNetCmd())),
+        ManipulatorCommands.shootCmd(),
         Commands.parallel(
             AutoBuilder.followPath(path[7]),
-            ManipulatorCommands.CoralIntakePositionCmd(
-                myIntakeLow, myElevatorWrist))); // to away from reef algae 3
+            ManipulatorCommands.CoralIntakePositionCmd())); // to away from reef algae 3
     //     ManipulatorCommands.AlgaeAtA2(myIntakeLow, myElevatorWrist, false)),
     // Commands.parallel(
     //     AutoBuilder.followPath(path[8]), // to reef algae 3

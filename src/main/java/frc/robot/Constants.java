@@ -17,6 +17,7 @@ import static edu.wpi.first.units.Units.Meters;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -33,7 +34,7 @@ import java.util.List;
 public final class Constants {
   public static final Mode simMode = Mode.SIM;
   public static final double loopPeriodSecs = 0.02;
-  public static final boolean tuningMode = false;
+  public static final boolean tuningMode = true;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
   public static enum Mode {
@@ -185,6 +186,8 @@ public final class Constants {
     // public static final double CANCODER_FACTOR = 1.4634 / 0.02197;
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(120).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
+    public static final Slot1Configs SLOT1_CONFIGS =
+        new Slot1Configs().withKP(120).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
             .withMotionMagicCruiseVelocity(40) // 60  5
