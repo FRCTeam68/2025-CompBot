@@ -37,7 +37,6 @@ public class ManipulatorCommands {
   private static final RollerSystem intake = RobotContainer.intakeShooter;
   private static final RollerSystem intakeLow = RobotContainer.intakeShooterLow;
   private static final RangeSensorSubSystem intakeCoralSensor = RobotContainer.intakeCoralSensor;
-  private static final boolean overideMode = RobotContainer.m_overideMode;
 
   private ManipulatorCommands() {}
 

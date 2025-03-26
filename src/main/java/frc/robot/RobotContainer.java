@@ -84,8 +84,6 @@ public class RobotContainer {
   private static String m_autonName;
   private static boolean autonready;
 
-  private boolean algaeCradleFlag = false;
-  public static boolean m_climberBump = false;
   public static boolean m_overideMode = false;
 
   private static boolean auton_start_position_ok = false;
@@ -461,7 +459,7 @@ public class RobotContainer {
             Commands.either(
                 ManipulatorCommands.BumpClimberCmd(Constants.CLIMBER.BUMP_VALUE),
                 elevatorWrist.BumpElevatorPosition(Constants.ELEVATOR.BUMP_VALUE),
-                () -> m_climberBump));
+                () -> m_overideMode));
 
     m_ps4Controller
         .povDown()
@@ -469,7 +467,7 @@ public class RobotContainer {
             Commands.either(
                 ManipulatorCommands.BumpClimberCmd(-Constants.CLIMBER.BUMP_VALUE),
                 elevatorWrist.BumpElevatorPosition(-Constants.ELEVATOR.BUMP_VALUE),
-                () -> m_climberBump));
+                () -> m_overideMode));
 
     m_ps4Controller
         .share()
@@ -502,7 +500,7 @@ public class RobotContainer {
         .touchpad()
         .onTrue(
             Commands.either(
-                ManipulatorCommands.climberToZeroCmd(), Commands.none(), () -> m_climberBump));
+                ManipulatorCommands.climberToZeroCmd(), Commands.none(), () -> m_overideMode));
 
     // Right Joystick Y
     m_ps4Controller
@@ -515,9 +513,7 @@ public class RobotContainer {
     // Left Joystick Y
     m_ps4Controller
         .axisGreaterThan(Axis.kLeftY.value, 0.7)
-        .onTrue(ManipulatorCommands.AlgaeCradle())
-        .onTrue(Commands.runOnce(() -> algaeCradleFlag = true))
-        .onFalse(Commands.runOnce(() -> algaeCradleFlag = false));
+        .onTrue(ManipulatorCommands.AlgaeCradle());
 
     // climber.setDefaultCommand(
     //     Commands.run(() -> climber.setVolts(-m_ps4Controller.getLeftY() * 12), climber)
