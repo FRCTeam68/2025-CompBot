@@ -30,8 +30,10 @@ import org.littletonrobotics.junction.Logger;
 
 public class ManipulatorCommands {
 
-  @Getter @AutoLogOutput public static boolean havePiece = false;
   @Getter @AutoLogOutput public static boolean indexing = false;
+  @Getter @AutoLogOutput public static boolean safeToMove = false;
+  @Getter @AutoLogOutput public static boolean havePiece = false;
+
   private static final ElevatorWristSubSystem elevatorWrist = RobotContainer.elevatorWrist;
   private static final RollerSystem climber = RobotContainer.climber;
   private static final RollerSystem intake = RobotContainer.intakeShooter;
@@ -45,46 +47,49 @@ public class ManipulatorCommands {
         () -> {
           // initialization
           Command command;
-          Command ledIntaking =
-              Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4));
+          Command initialize =
+              Commands.parallel(
+                Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4)),
+                Commands.runOnce(() -> indexing = false),
+                Commands.runOnce(() -> safeToMove = false),
+                Commands.runOnce(() -> havePiece = false));
           Command ledHaveObject =
               Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue));
-          Command haveObjectFlag =
+          Command finalize =
               Commands.parallel(
-                  Commands.runOnce(() -> havePiece = true),
-                  Commands.runOnce(() -> indexing = false));
+                  Commands.runOnce(() -> indexing = false),
+                  Commands.runOnce(() -> safeToMove = true),
+                  Commands.runOnce(() -> havePiece = true));
           command = Commands.none();
+
           if (Constants.WRIST.POSITION_SCORING_ELEMENT == "Algae"
               || Constants.WRIST.POSITION_SCORING_ELEMENT == "AlgaeNet") {
             ///// INTAKE ALGAE /////
             command =
                 Commands.sequence(
-                    Commands.runOnce(() -> havePiece = false),
                     Commands.runOnce(
                         () -> Logger.recordOutput("Manipulator/IntakeShooterState", "IntakeAlgae")),
                     intake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_INTAKE_SPEED),
                     intakeLow.setSpeedCmd(Constants.INTAKE_SHOOTER_LOW.ALGAE_INTAKE_SPEED),
                     Commands.waitUntil(() -> intake.hasPiece()),
                     ledHaveObject,
+                    Commands.runOnce(() -> safeToMove = true),
                     intake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_HOLD_SPEED),
                     intakeLow.setSpeedCmd(Constants.INTAKE_SHOOTER_LOW.ALGAE_HOLD_SPEED));
           } else {
-            ///// INTAKE CORAL /////
             if (intakeCoralSensor.havePiece()) {
+              ///// ALREADY HAVE CORAL /////
               command =
                   Commands.parallel(
                       Commands.runOnce(
                           () ->
                               Logger.recordOutput(
                                   "Manipulator/IntakeShooterState", "AlreadyHasCoral")),
-                      CoralIntakePositionCmd(),
-                      intake.setSpeedCmd(0),
-                      Commands.runOnce(() -> havePiece = true));
+                      ledHaveObject);
             } else {
+              ///// INTAKE CORAL /////
               command =
                   Commands.sequence(
-                      Commands.runOnce(() -> havePiece = false),
-                      Commands.runOnce(() -> indexing = false),
                       Commands.runOnce(
                           () ->
                               Logger.recordOutput("Manipulator/IntakeShooterState", "IntakeCoral")),
@@ -97,16 +102,18 @@ public class ManipulatorCommands {
                       intake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED),
                       Commands.waitUntil(() -> intakeCoralSensor.havePiece() == false),
                       intake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED * -1),
+                      Commands.runOnce(() -> safeToMove = true),
                       Commands.waitUntil(() -> intakeCoralSensor.havePiece()),
                       Commands.runOnce(
                           () ->
                               intake.setPosition(
                                   intake.getPosition()
-                                      - Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_REVERSE)));
+                                      - Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_REVERSE)),
+                      Commands.waitUntil(() -> intake.atPosition()));
             }
           }
           // execute sequence
-          return ledIntaking.andThen(command).andThen(haveObjectFlag);
+          return initialize.andThen(command).andThen(finalize);
         },
         Set.of(intake, intakeLow));
   }
@@ -116,12 +123,17 @@ public class ManipulatorCommands {
         () -> {
           // initialization
           Command command;
-          Command shootInit =
+          Command initialize =
               Commands.parallel(
                   Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
-                  Commands.runOnce(() -> havePiece = false),
-                  Commands.runOnce(() -> indexing = false));
-          Command ledShot = Commands.runOnce(() -> LEDSegment.all.disableLEDs());
+                  Commands.runOnce(() -> indexing = false),
+                  Commands.runOnce(() -> safeToMove = false),
+                  Commands.runOnce(() -> havePiece = false));
+          Command finalize =
+              Commands.parallel(
+                  Commands.runOnce(() -> LEDSegment.all.disableLEDs()),
+                  intake.setSpeedCmd(0),
+                  intakeLow.setSpeedCmd(0));
           command = Commands.none();
           if (Constants.WRIST.POSITION_SCORING_ELEMENT == "Algae") {
             ///// SHOOT ALGAE PROCESSOR /////
@@ -133,9 +145,7 @@ public class ManipulatorCommands {
                                 "Manipulator/IntakeShooterState", "ShootProcessor")),
                     intake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_SPEED),
                     intakeLow.setSpeedCmd(Constants.INTAKE_SHOOTER_LOW.ALGAE_SHOOT_SPEED),
-                    Commands.waitSeconds(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_TIMEOUT),
-                    intake.setSpeedCmd(0),
-                    intakeLow.setSpeedCmd(0));
+                    Commands.waitSeconds(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_TIMEOUT));
           } else if (Constants.WRIST.POSITION_SCORING_ELEMENT == "AlgaeNet") {
             ///// SHOOT ALGAE NET /////
             command =
@@ -147,9 +157,7 @@ public class ManipulatorCommands {
                         Commands.waitSeconds(Constants.INTAKE_SHOOTER.ALGAE_NET_SHOOT_DELAY),
                         intake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_NET_SHOOT_SPEED),
                         intakeLow.setSpeedCmd(Constants.INTAKE_SHOOTER_LOW.ALGAE_NET_SHOOT_SPEED),
-                        Commands.waitSeconds(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_TIMEOUT),
-                        intake.setSpeedCmd(0),
-                        intakeLow.setSpeedCmd(0)));
+                        Commands.waitSeconds(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_TIMEOUT)));
           } else if (Constants.WRIST.POSITION_SCORING_ELEMENT == "CoralL1") {
             ///// SHOOT CORAL L1 /////
             command =
@@ -158,9 +166,7 @@ public class ManipulatorCommands {
                         () ->
                             Logger.recordOutput("Manipulator/IntakeShooterState", "ShootCoralL1")),
                     intake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_L1_SHOOT_SPEED),
-                    Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_L1_SHOOT_TIMEOUT),
-                    intake.setSpeedCmd(0),
-                    intakeLow.setSpeedCmd(0));
+                    Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_L1_SHOOT_TIMEOUT));
           } else {
             ///// SHOOT CORAL L2 - L4 /////
             command =
@@ -168,12 +174,10 @@ public class ManipulatorCommands {
                     Commands.runOnce(
                         () -> Logger.recordOutput("Manipulator/IntakeShooterState", "ShootCoral")),
                     intake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
-                    Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_SHOOT_TIMEOUT),
-                    intake.setSpeedCmd(0),
-                    intakeLow.setSpeedCmd(0));
+                    Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_SHOOT_TIMEOUT));
           }
           // execute sequence
-          return shootInit.andThen(command).andThen(ledShot);
+          return initialize.andThen(command).andThen(finalize);
         },
         Set.of(intake, intakeLow));
   }
@@ -187,7 +191,7 @@ public class ManipulatorCommands {
         Commands.runOnce(
             () -> Logger.recordOutput("Manipulator/ElevatorWristState", "CANNOT MOVE L4")),
         () -> {
-          return havePiece || indexing || RobotContainer.m_overideMode;
+          return havePiece || safeToMove || RobotContainer.m_overideMode;
         });
   }
 
@@ -200,7 +204,7 @@ public class ManipulatorCommands {
         Commands.runOnce(
             () -> Logger.recordOutput("Manipulator/ElevatorWristState", "CANNOT MOVE L3")),
         () -> {
-          return havePiece || indexing || RobotContainer.m_overideMode;
+          return havePiece || safeToMove || RobotContainer.m_overideMode;
         });
   }
 
@@ -213,7 +217,7 @@ public class ManipulatorCommands {
         Commands.runOnce(
             () -> Logger.recordOutput("Manipulator/ElevatorWristState", "CANNOT MOVE L2")),
         () -> {
-          return havePiece || indexing || RobotContainer.m_overideMode;
+          return havePiece || safeToMove || RobotContainer.m_overideMode;
         });
   }
 
@@ -226,7 +230,7 @@ public class ManipulatorCommands {
         Commands.runOnce(
             () -> Logger.recordOutput("Manipulator/ElevatorWristState", "CANNOT MOVE L1")),
         () -> {
-          return havePiece || indexing || RobotContainer.m_overideMode;
+          return havePiece || safeToMove || RobotContainer.m_overideMode;
         });
   }
 
