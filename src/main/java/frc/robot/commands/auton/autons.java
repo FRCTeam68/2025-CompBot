@@ -157,9 +157,8 @@ public class autons {
             Commands.waitUntil(() -> false)
         ).onlyIf(() -> ManipulatorCommands.isHavePiece()),
         Commands.parallel(
-            AutoBuilder.followPath(path[8]), // to coral station
-            ManipulatorCommands.intakeCmd()
-        )
+            //ReefCentering.createPathCommand(ReefCentering.Side.Back).until(() -> ReefCentering.haveConditionsChanged()).repeatedly(), // to coral station
+            ManipulatorCommands.intakeCmd())
     );
   }
 
