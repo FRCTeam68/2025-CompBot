@@ -116,8 +116,11 @@ public class ManipulatorCommands {
         () -> {
           // initialization
           Command command;
-          Command ledShooting =
-              Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red));
+          Command shootInit =
+              Commands.parallel(
+                  Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
+                  Commands.runOnce(() -> havePiece = false),
+                  Commands.runOnce(() -> indexing = false));
           Command ledShot = Commands.runOnce(() -> LEDSegment.all.disableLEDs());
           command = Commands.none();
           if (Constants.WRIST.POSITION_SCORING_ELEMENT == "Algae") {
@@ -170,7 +173,7 @@ public class ManipulatorCommands {
                     intakeLow.setSpeedCmd(0));
           }
           // execute sequence
-          return ledShooting.andThen(command).andThen(ledShot);
+          return shootInit.andThen(command).andThen(ledShot);
         },
         Set.of(intake, intakeLow));
   }
