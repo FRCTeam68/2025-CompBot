@@ -18,12 +18,15 @@ import com.ctre.phoenix6.CANBus.CANBusStatus;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
+import com.pathplanner.lib.commands.FollowPathCommand;
+
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.auton.autons;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.LightsSubsystem.LEDSegment;
@@ -131,6 +134,8 @@ public class Robot extends LoggedRobot {
     // 0))});
     // Logger.recordOutput(
     //    "RobotPose/Zero3d", new Pose3d[] {new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0))});
+
+    FollowPathCommand.warmupCommand().schedule();
   }
 
   /** This function is called periodically during all modes. */
@@ -185,6 +190,7 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
+    RobotContainer.loadAutonPath();
     RobotContainer.putAutonPoseToDashboard();
     RobotContainer.autonReadyStatus();
   }
@@ -193,6 +199,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     autonomousCommand = robotContainer.getAutonomousCommand();
+    RobotContainer.loadAutonPath();
 
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {
@@ -213,6 +220,7 @@ public class Robot extends LoggedRobot {
     // this line or comment it out.
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
+      autons.stopAllTimers();
     }
   }
 

@@ -68,6 +68,7 @@ public final class Constants {
   }
 
   public static final class AUTO {
+    public static final double CORAL_SHOOT_TIMEOUT = 0.2;
     // algae autons
     public static final double H4_GH_PATH_DELAY = 0.3;
     // processor
@@ -79,8 +80,9 @@ public final class Constants {
     public static final double IJ_NET_ELEVATOR_DELAY = 0.8;
     public static final double EF_NET_ELEVATOR_DELAY = 2;
     // coral autons
-    public static final double START_ELEVATOR_DELAY = .7;
+    public static final double START_ELEVATOR_DELAY = 0.7;
     public static final double CORAL_STATION_WAIT = 0;
+    public static final double CORAL_STATION_ELEVATOR_DELAY = 0.5;
     public static final double REEF_TIMEOUT = 0.4;
     public static final double REEF_POST_TIMEOUT = 0.3;
     public static final double INDEX_DELAY = 0.4;

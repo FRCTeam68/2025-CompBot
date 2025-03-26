@@ -269,11 +269,11 @@ public class RobotContainer {
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto/Auto Choices");
     // Set up autos
-    autoChooser.addOption("AUTON LEFT", autons.side(true).withName("LEFT"));
+    autoChooser.addOption("AUTON LEFT", autons.side().withName("LEFT"));
     autoChooser.addOption(
         "AUTON CENTER PROCESSOR", autons.centerProcessor().withName("CENTER_PROCESSOR"));
     autoChooser.addOption("AUTON CENTER NET", autons.centerNet().withName("CENTER_NET"));
-    autoChooser.addOption("AUTON RIGHT", autons.side(false).withName("RIGHT"));
+    autoChooser.addOption("AUTON RIGHT", autons.side().withName("RIGHT"));
     autoChooser.addOption("NONE", Commands.none());
     // Set up testing routines
     autoChooser.addOption("Functional Test", ManipulatorCommands.FunctionalTest());
@@ -530,6 +530,10 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  public static void loadAutonPath() {
+    autons.pathBuilder(autoChooser.get().getName());
   }
 
   public static void putAutonPoseToDashboard() {

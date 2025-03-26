@@ -30,9 +30,9 @@ import org.littletonrobotics.junction.Logger;
 
 public class ManipulatorCommands {
 
-  @Getter @AutoLogOutput public static boolean indexing = false;
-  @Getter @AutoLogOutput public static boolean safeToMove = false;
-  @Getter @AutoLogOutput public static boolean havePiece = false;
+  @Getter @AutoLogOutput private static boolean indexing = false;
+  @Getter @AutoLogOutput private static boolean safeToMove = false;
+  @Getter @AutoLogOutput private static boolean havePiece = false;
 
   private static final ElevatorWristSubSystem elevatorWrist = RobotContainer.elevatorWrist;
   private static final RollerSystem climber = RobotContainer.climber;
@@ -41,6 +41,10 @@ public class ManipulatorCommands {
   private static final RangeSensorSubSystem intakeCoralSensor = RobotContainer.intakeCoralSensor;
 
   private ManipulatorCommands() {}
+
+  public static void setHavePiece(boolean state) {
+    safeToMove = state;
+  }
 
   public static Command intakeCmd() {
     return new DeferredCommand(
