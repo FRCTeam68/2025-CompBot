@@ -185,7 +185,7 @@ public class ManipulatorCommands {
         Commands.runOnce(
             () -> Logger.recordOutput("Manipulator/ElevatorWristState", "CANNOT MOVE L4")),
         () -> {
-          return havePiece || overideMode;
+          return havePiece || indexing || RobotContainer.m_overideMode;
         });
   }
 
@@ -198,7 +198,7 @@ public class ManipulatorCommands {
         Commands.runOnce(
             () -> Logger.recordOutput("Manipulator/ElevatorWristState", "CANNOT MOVE L3")),
         () -> {
-          return havePiece || overideMode;
+          return havePiece || indexing || RobotContainer.m_overideMode;
         });
   }
 
@@ -211,20 +211,20 @@ public class ManipulatorCommands {
         Commands.runOnce(
             () -> Logger.recordOutput("Manipulator/ElevatorWristState", "CANNOT MOVE L2")),
         () -> {
-          return havePiece || overideMode;
+          return havePiece || indexing || RobotContainer.m_overideMode;
         });
   }
 
   public static Command CoralL1Cmd() {
     return Commands.either(
         Commands.parallel(
-            Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
+            Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "CoralL1"),
             Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L1")),
             elevatorWrist.setPositionCmdNew(Constants.ELEVATOR.L1, Constants.WRIST.L1, 1)),
         Commands.runOnce(
             () -> Logger.recordOutput("Manipulator/ElevatorWristState", "CANNOT MOVE L1")),
         () -> {
-          return havePiece || overideMode;
+          return havePiece || indexing || RobotContainer.m_overideMode;
         });
   }
 
@@ -246,7 +246,7 @@ public class ManipulatorCommands {
     return Commands.parallel(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "AlgaeNet"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "SHOOTNET")),
-        elevatorWrist.setPositionCmdNew(Constants.ELEVATOR.SHOOTNET, Constants.WRIST.SHOOTNET));
+        elevatorWrist.setPositionCmdNew(Constants.ELEVATOR.SHOOTNET, Constants.WRIST.SHOOTNET, 1));
   }
 
   public static Command AlgaeToP1() {

@@ -311,11 +311,14 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 Commands.sequence(
                     Commands.runOnce(
                         () -> Logger.recordOutput("Manipulator/Sequence1", "SLOWED WRIST")),
-                    Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.SAFE, wristSlot)),
+                    Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
                     Commands.runOnce(() -> elevator.setPosition(e_goal)),
-                    Commands.waitUntil(() -> elevator.atPosition()),
-                    Commands.waitUntil(() -> wrist.atPosition()),
-                    Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)));
+                    Commands.waitUntil(
+                        () ->
+                            (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE)
+                                || elevator.atPosition()));
+            // Commands.waitUntil(() -> wrist.atPosition()),
+            // Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)));
 
             ///// MOVE FROM MIN ELEVATOR OR BETWEEN SIMILAR WRIST POSITIONS //////
             // if elevator is near zero

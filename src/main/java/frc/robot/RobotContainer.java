@@ -474,11 +474,11 @@ public class RobotContainer {
     m_ps4Controller
         .share()
         .onTrue(
-            Commands.runOnce(() -> m_climberBump = !m_climberBump)
+            Commands.runOnce(() -> m_overideMode = !m_overideMode)
                 .andThen(
                     () ->
                         SmartDashboard.putString(
-                            "BumpMode", m_climberBump ? "CLIMBER" : "ELEVATOR")));
+                            "BumpMode", m_overideMode ? "CLIMBER" : "ELEVATOR")));
 
     m_ps4Controller.povLeft().onTrue(elevatorWrist.BumpWristPosition(Constants.WRIST.BUMP_VALUE));
 
