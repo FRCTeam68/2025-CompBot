@@ -49,10 +49,10 @@ public class ManipulatorCommands {
           Command command;
           Command initialize =
               Commands.parallel(
-                Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4)),
-                Commands.runOnce(() -> indexing = false),
-                Commands.runOnce(() -> safeToMove = false),
-                Commands.runOnce(() -> havePiece = false));
+                  Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4)),
+                  Commands.runOnce(() -> indexing = false),
+                  Commands.runOnce(() -> safeToMove = false),
+                  Commands.runOnce(() -> havePiece = false));
           Command ledHaveObject =
               Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue));
           Command finalize =
@@ -101,8 +101,8 @@ public class ManipulatorCommands {
                       Commands.waitSeconds(.03),
                       intake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED),
                       Commands.waitUntil(() -> intakeCoralSensor.havePiece() == false),
-                      intake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED * -1),
                       Commands.runOnce(() -> safeToMove = true),
+                      intake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED * -0.9),
                       Commands.waitUntil(() -> intakeCoralSensor.havePiece()),
                       Commands.runOnce(
                           () ->
