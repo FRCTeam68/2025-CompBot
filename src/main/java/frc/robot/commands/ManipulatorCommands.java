@@ -49,10 +49,14 @@ public class ManipulatorCommands {
           Command command;
           Command initialize =
               Commands.parallel(
-                Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4)),
-                Commands.runOnce(() -> indexing = false),
-                Commands.runOnce(() -> safeToMove = false),
-                Commands.runOnce(() -> havePiece = false));
+                  Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4)),
+                  Commands.runOnce(() -> indexing = false),
+                  Commands.runOnce(() -> safeToMove = false),
+                  Commands.runOnce(() -> havePiece = false),
+                  Commands.runOnce(
+                      () ->
+                          System.out.printf(
+                              "i:%s, s:%s, hp:%s ms%n", indexing, safeToMove, havePiece)));
           Command ledHaveObject =
               Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue));
           Command finalize =

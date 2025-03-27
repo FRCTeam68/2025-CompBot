@@ -404,9 +404,11 @@ public class RobotContainer {
     m_xboxController
         .start()
         .onTrue(
-            Commands.runOnce(() -> intakeShooter.setSpeed(0))
-                .andThen(() -> intakeShooterLow.setSpeed(0))
-                .andThen(elevatorWrist.haltCmd()));
+            intakeShooter
+                .setSpeedCmd(0)
+                .andThen(intakeShooterLow.setSpeedCmd(0))
+                .andThen(elevatorWrist.haltCmd())
+                .andThen(Commands.runOnce(() -> System.out.printf("stop%n"))));
 
     m_ps4Controller.triangle().onTrue(ManipulatorCommands.CoralL4Cmd());
 
