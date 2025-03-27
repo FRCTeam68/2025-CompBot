@@ -533,7 +533,7 @@ public class RobotContainer {
   }
 
   public static void loadAutonPath() {
-    autons.pathBuilder(autoChooser.get().getName());
+    // autons.pathBuilder(autoChooser.get().getName());
   }
 
   public static void putAutonPoseToDashboard() {
