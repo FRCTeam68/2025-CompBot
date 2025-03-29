@@ -13,6 +13,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -148,8 +149,9 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   }
 
   @Override
-  public void setPosition(double rotations, double feedforward) {
-    talon.setControl(mmvPosition.withPosition(rotations).withFeedForward(feedforward));
+  public void setPosition(double rotations, double feedforward, int slot) {
+    talon.setControl(
+        mmvPosition.withPosition(rotations).withFeedForward(feedforward).withSlot(slot));
     // System.out.println("\tFF set to: " + feedforward);
   }
 
@@ -165,13 +167,23 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   }
 
   @Override
-  public void setPID(Slot0Configs newconfig) {
-    config.Slot0.kP = newconfig.kP;
-    config.Slot0.kI = newconfig.kI;
-    config.Slot0.kD = newconfig.kD;
-    config.Slot0.kS = newconfig.kS;
-    config.Slot0.kV = newconfig.kV;
-    config.Slot0.kA = newconfig.kA;
+  public void setPID(Slot0Configs config0, Slot1Configs config1) {
+    // slot0
+    config.Slot0.kP = config0.kP;
+    config.Slot0.kI = config0.kI;
+    config.Slot0.kD = config0.kD;
+    config.Slot0.kS = config0.kS;
+    config.Slot0.kV = config0.kV;
+    config.Slot0.kA = config0.kA;
+    // slot1
+    if (config1 != null) {
+      config.Slot1.kP = config1.kP;
+      config.Slot1.kI = config1.kI;
+      config.Slot1.kD = config1.kD;
+      config.Slot1.kS = config1.kS;
+      config.Slot1.kV = config1.kV;
+      config.Slot1.kA = config1.kA;
+    }
     tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
   }
 

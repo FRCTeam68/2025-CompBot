@@ -17,6 +17,7 @@ import static edu.wpi.first.units.Units.Meters;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -186,10 +187,12 @@ public final class Constants {
     // public static final double CANCODER_FACTOR = 1.4634 / 0.02197;
     public static final Slot0Configs SLOT0_CONFIGS =
         new Slot0Configs().withKP(120).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
+    public static final Slot1Configs SLOT1_CONFIGS =
+        new Slot1Configs().withKP(50).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(40) // 60  5
-            .withMotionMagicAcceleration(100) // 240  15
+            .withMotionMagicCruiseVelocity(50) // 60  5
+            .withMotionMagicAcceleration(70) // 240  15
             .withMotionMagicJerk(400);
   }
 
@@ -389,15 +392,15 @@ public final class Constants {
     public static final List<Pose2d> blueBargePoses =
         new ArrayList<Pose2d>() {
           {
-            add(new Pose2d(8.06, 5, new Rotation2d(Units.degreesToRadians(181))));
-            add(new Pose2d(8.06, 6.5, new Rotation2d(Units.degreesToRadians(181))));
+            add(new Pose2d(8.187, 5, new Rotation2d(Units.degreesToRadians(181))));
+            add(new Pose2d(8.187, 6.5, new Rotation2d(Units.degreesToRadians(181))));
           }
         };
     public static final List<Pose2d> redBargePoses =
         new ArrayList<Pose2d>() {
           {
-            add(new Pose2d(9.490, 3, new Rotation2d(Units.degreesToRadians(1))));
-            add(new Pose2d(9.490, 1.5, new Rotation2d(Units.degreesToRadians(1))));
+            add(new Pose2d(9.363, 3, new Rotation2d(Units.degreesToRadians(1))));
+            add(new Pose2d(9.363, 1.5, new Rotation2d(Units.degreesToRadians(1))));
           }
         };
   }

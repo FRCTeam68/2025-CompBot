@@ -269,7 +269,11 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             }));
   }
 
-  public Command setPositionCmdNew(RollerSystem myIntakeLow, double e_goal, double w_goal) {
+  public Command setPositionCmdNew(double e_goal, double w_goal) {
+    return setPositionCmdNew(e_goal, w_goal, 0);
+  }
+
+  public Command setPositionCmdNew(double e_goal, double w_goal, int wristSlot) {
     return new DeferredCommand(
         () -> {
           // initialization
@@ -297,7 +301,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 Commands.sequence(
                     Commands.runOnce(
                         () -> Logger.recordOutput("Manipulator/Sequence0", "HIGH WRIST TO SAFE")),
-                    Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.SAFE)));
+                    Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.SAFE, wristSlot)));
             // Commands.waitSeconds(.02));
           }
           ///// MOVE FROM MIN ELEVATOR TO L1, A1, OR A2 //////
@@ -312,11 +316,15 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 Commands.sequence(
                     Commands.runOnce(
                         () -> Logger.recordOutput("Manipulator/Sequence1", "SLOWED WRIST")),
-                    Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.SAFE)),
+                    Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.SAFE, wristSlot)),
                     Commands.runOnce(() -> elevator.setPosition(e_goal)),
                     Commands.waitUntil(() -> elevator.atPosition()),
-                    Commands.waitUntil(() -> wrist.atPosition()),
-                    Commands.runOnce(() -> wrist.setPosition(w_goal)));
+                    Commands.waitUntil(
+                        () ->
+                            (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE)
+                                || elevator.atPosition()));
+            // Commands.waitUntil(() -> wrist.atPosition()),
+            // Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)));
 
             ///// MOVE FROM MIN ELEVATOR OR BETWEEN SIMILAR WRIST POSITIONS //////
             // if elevator is near zero
@@ -338,7 +346,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 Commands.parallel(
                     Commands.runOnce(
                         () -> Logger.recordOutput("Manipulator/Sequence1", "SIMULTANEOUS")),
-                    Commands.runOnce(() -> wrist.setPosition(w_goal)),
+                    Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
                     Commands.runOnce(() -> elevator.setPosition(e_goal)));
             ///// MOVE TO INTAKE POSITION //////
             // if commanded elevator position is the minimum
@@ -359,14 +367,13 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                           () ->
                               Logger.recordOutput(
                                   "Manipulator/Sequence1", "THROUGH LOW SAFE (ELEVATE)")),
-                      myIntakeLow.setSpeedCmd(-3),
-                      Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.SLOT1_TO_ELEVATE)),
+                      Commands.runOnce(
+                          () -> wrist.setPosition(Constants.WRIST.SLOT1_TO_ELEVATE, wristSlot)),
                       Commands.runOnce(() -> elevator.setPosition(e_goal)),
                       Commands.waitUntil(
                           () -> elevator.getPosition() <= Constants.ELEVATOR.MAX_LOW_SAFE),
-                      Commands.runOnce(() -> wrist.setPosition(w_goal)),
-                      Commands.waitUntil(() -> elevator.atPosition()),
-                      myIntakeLow.setSpeedCmd(0));
+                      Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
+                      Commands.waitUntil(() -> elevator.atPosition()));
             } else {
               sequence1 =
                   Commands.sequence(
@@ -374,13 +381,13 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                           () ->
                               Logger.recordOutput(
                                   "Manipulator/Sequence1", "THROUGH LOW SAFE (SAFE)")),
-                      Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.SAFE)),
+                      Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.SAFE, wristSlot)),
                       Commands.runOnce(() -> elevator.setPosition(e_goal)),
                       Commands.waitUntil(
                           () ->
                               elevator.getPosition()
                                   <= Constants.ELEVATOR.MAX_LOW_WRIST_MOVE_FROM_SAFE),
-                      Commands.runOnce(() -> wrist.setPosition(w_goal)));
+                      Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)));
             }
             ///// MOVE TO/FROM CORAL POSITIONS //////
             // if current wrist position is near elevate position
@@ -400,7 +407,8 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                           () ->
                               Logger.recordOutput(
                                   "Manipulator/Sequence1", "THROUGH MID SAFE (ELEVATE)")),
-                      Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.SLOT1_TO_ELEVATE)),
+                      Commands.runOnce(
+                          () -> wrist.setPosition(Constants.WRIST.SLOT1_TO_ELEVATE, wristSlot)),
                       Commands.runOnce(
                           () ->
                               elevator.setPosition(
@@ -417,7 +425,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                         Commands.runOnce(
                             () ->
                                 Logger.recordOutput("Manipulator/Sequence2", "Wrist -> Elevator")),
-                        Commands.runOnce(() -> wrist.setPosition(w_goal)),
+                        Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
                         Commands.waitUntil(() -> wrist.getPosition() >= Constants.WRIST.SAFE),
                         Commands.runOnce(() -> elevator.setPosition(e_goal)));
               } else {
@@ -425,7 +433,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                     Commands.parallel(
                         Commands.runOnce(
                             () -> Logger.recordOutput("Manipulator/Sequence2", "Wrist + Elevator")),
-                        Commands.runOnce(() -> wrist.setPosition(w_goal)),
+                        Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
                         Commands.runOnce(() -> elevator.setPosition(e_goal)));
               }
             } else {
@@ -435,7 +443,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                           () ->
                               Logger.recordOutput(
                                   "Manipulator/Sequence1", "THROUGH MID SAFE (SAFE)")),
-                      Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.SAFE)),
+                      Commands.runOnce(() -> wrist.setPosition(Constants.WRIST.SAFE, wristSlot)),
                       Commands.runOnce(
                           () ->
                               elevator.setPosition(
@@ -447,7 +455,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                               (elevator.getPosition() <= Constants.ELEVATOR.MAX_MID_SAFE)
                                   && (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE)),
                       Commands.waitSeconds(.3),
-                      Commands.runOnce(() -> wrist.setPosition(w_goal)),
+                      Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
                       Commands.runOnce(() -> elevator.setPosition(e_goal)));
             }
           } else { // fallback to failsafe sequence
@@ -474,9 +482,9 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   }
 
   // no checks.  you better know what you are doing !
-  public Command setPositionWristCmd(double w_goal, boolean waitForIt) {
+  public Command setPositionWristCmd(double w_goal, int slot, boolean waitForIt) {
     return Commands.sequence(
-        runOnce(() -> wrist.setPosition(w_goal)),
+        runOnce(() -> wrist.setPosition(w_goal, slot)),
         new ConditionalCommand(
             new WaitUntilCommand(() -> wrist.atPosition()),
             Commands.none(),
