@@ -151,9 +151,10 @@ public class ElevatorWristSubSystem extends SubsystemBase {
         (reefPostAvgDistance > Constants.REEFPOSTSENSOR.LOW_LIMIT)
             && (reefPostAvgDistance < Constants.REEFPOSTSENSOR.HIGH_LIMIT);
     if (Constants.bypassReefDetection) {
-      reefPostDetectedRaw = true;
+      reefPostDetected = true;
+    } else {
+      reefPostDetected = reefPostDetectedRaw;
     }
-    reefPostDetected = reefPostDetectedRaw;
     if (Constants.tuningMode) {
       SmartDashboard.putNumber("Reef Post Sensor Avg Distance", reefPostAvgDistance);
       SmartDashboard.putNumber("Reef Post Sensor Distance", reefPostSensorDistance);
