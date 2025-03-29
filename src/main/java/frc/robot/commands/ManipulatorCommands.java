@@ -118,7 +118,7 @@ public class ManipulatorCommands {
           // initialization
           Command command;
           Command ledShooting =
-              Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red));
+              Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.green));
           Command ledShot = Commands.runOnce(() -> LEDSegment.all.disableLEDs());
           command = Commands.none();
           if (Constants.WRIST.POSITION_SCORING_ELEMENT == "Algae") {
@@ -184,7 +184,8 @@ public class ManipulatorCommands {
                     myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
                     Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_SHOOT_TIMEOUT),
                     myIntake.setSpeedCmd(0),
-                    myIntakeLow.setSpeedCmd(0));
+                    myIntakeLow.setSpeedCmd(0),
+                    Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(false)));
           }
           // execute sequence
           return ledShooting.andThen(command).andThen(ledShot);
@@ -198,8 +199,10 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L4")),
         Commands.either(
-            myElevatorWrist.setPositionCmdNew(
-                myIntakeLow, Constants.ELEVATOR.L4, Constants.WRIST.L4),
+            Commands.sequence(
+                myElevatorWrist.setPositionCmdNew(
+                    myIntakeLow, Constants.ELEVATOR.L4, Constants.WRIST.L4),
+                Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(true))),
             Commands.none(),
             () -> {
               return ManipulatorCommands.havePiece || RobotContainer.m_climberBump;
@@ -212,8 +215,10 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L3")),
         Commands.either(
-            myElevatorWrist.setPositionCmdNew(
-                myIntakeLow, Constants.ELEVATOR.L3, Constants.WRIST.L3),
+            Commands.sequence(
+                myElevatorWrist.setPositionCmdNew(
+                    myIntakeLow, Constants.ELEVATOR.L3, Constants.WRIST.L3),
+                Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(true))),
             Commands.none(),
             () -> {
               return ManipulatorCommands.havePiece || RobotContainer.m_climberBump;
@@ -226,8 +231,10 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L2")),
         Commands.either(
-            myElevatorWrist.setPositionCmdNew(
-                myIntakeLow, Constants.ELEVATOR.L2, Constants.WRIST.L2),
+            Commands.sequence(
+                myElevatorWrist.setPositionCmdNew(
+                    myIntakeLow, Constants.ELEVATOR.L2, Constants.WRIST.L2),
+                Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(true))),
             Commands.none(),
             () -> {
               return ManipulatorCommands.havePiece || RobotContainer.m_climberBump;
@@ -318,7 +325,7 @@ public class ManipulatorCommands {
 
   public static Command RetractClimberCmd(RollerSystem myClimber) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.red, 4)),
+        Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.green, 4)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "climbing")),
         Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.RETRACT), myClimber),
         Commands.waitUntil(() -> myClimber.atPosition()),
