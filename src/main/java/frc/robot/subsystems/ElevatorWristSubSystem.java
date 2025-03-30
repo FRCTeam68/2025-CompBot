@@ -30,6 +30,7 @@ import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
 import java.util.Set;
 import lombok.Getter;
+import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -54,6 +55,8 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   @Getter @AutoLogOutput private double reefPostSensorDistance = 0.0;
   @Getter @AutoLogOutput private double reefPostAvgDistance = 0.0;
   private LinearFilter reefPostFilter;
+  @Getter @Setter @AutoLogOutput private boolean lookingToShoot = false;
+  private boolean prevIndicateToShoot = false;
 
   @Getter private double wristAngle = 0.0;
   private double e_goal = 0;
@@ -148,15 +151,26 @@ public class ElevatorWristSubSystem extends SubsystemBase {
         (reefPostAvgDistance > Constants.REEFPOSTSENSOR.LOW_LIMIT)
             && (reefPostAvgDistance < Constants.REEFPOSTSENSOR.HIGH_LIMIT);
     if (Constants.bypassReefDetection) {
-      reefPostDetectedRaw = true;
+      reefPostDetected = true;
+    } else {
+      reefPostDetected = reefPostDetectedRaw;
     }
-    reefPostDetected = reefPostDetectedRaw;
     if (Constants.tuningMode) {
       SmartDashboard.putNumber("Reef Post Sensor Avg Distance", reefPostAvgDistance);
       SmartDashboard.putNumber("Reef Post Sensor Distance", reefPostSensorDistance);
       SmartDashboard.putBoolean("Reef Post Sensor Detected", reefPostSensorDetected);
     }
     SmartDashboard.putBoolean("Reef Post Detected", reefPostDetected);
+
+    boolean indicateToShoot = reefPostDetectedRaw && lookingToShoot;
+    if (indicateToShoot != prevIndicateToShoot) {
+      if (indicateToShoot) {
+        LEDSegment.all.setColor(LightsSubsystem.red);
+      } else {
+        LEDSegment.all.disableLEDs();
+      }
+      prevIndicateToShoot = indicateToShoot;
+    }
 
     wristAngle = wristCANcoder.getPosition().getValueAsDouble();
     SmartDashboard.putNumber("WristAngle", wristAngle);
@@ -199,7 +213,6 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   @AutoLogOutput
   public Command setPositionCmd(double e_goal, double w_goal) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
         new ConditionalCommand(
             runOnce(() -> elevator.setPosition(Constants.ELEVATOR.SAFE_IN_BLOCK4))
                 .andThen(new WaitUntilCommand(() -> elevator.atPosition())),
