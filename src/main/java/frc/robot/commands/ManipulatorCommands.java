@@ -119,7 +119,11 @@ public class ManipulatorCommands {
           Command command;
           Command ledShooting =
               Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.green));
-          Command ledShot = Commands.runOnce(() -> LEDSegment.all.disableLEDs());
+          Command afterShot =
+              Commands.parallel(
+                  Commands.runOnce(() -> havePiece = false),
+                  Commands.runOnce(() -> indexing = false),
+                  Commands.runOnce(() -> LEDSegment.all.disableLEDs()));
           command = Commands.none();
           if (Constants.WRIST.POSITION_SCORING_ELEMENT == "Algae") {
             ///// SHOOT ALGAE PROCESSOR /////
@@ -188,7 +192,7 @@ public class ManipulatorCommands {
                     Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(false)));
           }
           // execute sequence
-          return ledShooting.andThen(command).andThen(ledShot);
+          return ledShooting.andThen(command).andThen(afterShot);
         },
         Set.of(myIntake, myElevatorWrist));
   }
