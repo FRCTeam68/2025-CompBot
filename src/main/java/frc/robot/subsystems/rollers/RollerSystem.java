@@ -9,6 +9,7 @@ package frc.robot.subsystems.rollers;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Timer;
@@ -97,7 +98,7 @@ public class RollerSystem extends SubsystemBase {
         newconfig.kS = rollerkS.get();
         newconfig.kV = rollerkV.get();
         newconfig.kA = rollerkA.get();
-        io.setPID(newconfig);
+        setPID(newconfig);
       }
       if (rollerMMV.hasChanged(hashCode())
           || rollerMMA.hasChanged(hashCode())
@@ -126,13 +127,28 @@ public class RollerSystem extends SubsystemBase {
 
   // must call this once and only once in robotcontainer after each RollerSystem is created
   public void setPID(Slot0Configs newconfig) {
-    rollerkP.initDefault(newconfig.kP);
-    rollerkI.initDefault(newconfig.kI);
-    rollerkD.initDefault(newconfig.kD);
-    rollerkS.initDefault(newconfig.kS);
-    rollerkV.initDefault(newconfig.kV);
-    rollerkA.initDefault(newconfig.kA);
-    io.setPID(newconfig);
+    setPID(newconfig, null);
+  }
+
+  // must call this once and only once in robotcontainer after each RollerSystem is created
+  public void setPID(Slot0Configs config0, Slot1Configs config1) {
+    // slot0
+    rollerkP.initDefault(config0.kP);
+    rollerkI.initDefault(config0.kI);
+    rollerkD.initDefault(config0.kD);
+    rollerkS.initDefault(config0.kS);
+    rollerkV.initDefault(config0.kV);
+    rollerkA.initDefault(config0.kA);
+    // slot1
+    if (config1 != null) {
+      rollerkP.initDefault(config1.kP);
+      rollerkI.initDefault(config1.kI);
+      rollerkD.initDefault(config1.kD);
+      rollerkS.initDefault(config1.kS);
+      rollerkV.initDefault(config1.kV);
+      rollerkA.initDefault(config1.kA);
+    }
+    io.setPID(config0, config1);
   }
 
   // must call this once and only once in robotcontainer after each RollerSystem is created
@@ -172,13 +188,18 @@ public class RollerSystem extends SubsystemBase {
     return this.runOnce(() -> setSpeed(speed));
   }
 
-  @AutoLogOutput
   public void setPosition(double position) {
+    setPosition(position, 0);
+  }
+
+  @AutoLogOutput
+  public void setPosition(double position, int slot) {
     // in rotations
     setpoint = position;
-    io.setPosition(position, feedforward);
+    io.setPosition(position, feedforward, slot);
     Logger.recordOutput("RollerData/" + name + "/setpointPosition", setpoint);
     Logger.recordOutput("RollerData/" + name + "/feedforward", feedforward);
+    Logger.recordOutput("RollerData/" + name + "/slot", slot);
   }
 
   public double getSpeed() {
