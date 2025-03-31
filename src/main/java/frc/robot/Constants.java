@@ -188,8 +188,8 @@ public final class Constants {
         new Slot0Configs().withKP(120).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(50) // 60  5
-            .withMotionMagicAcceleration(70) // 240  15
+            .withMotionMagicCruiseVelocity(40) // 60  5
+            .withMotionMagicAcceleration(100) // 240  15
             .withMotionMagicJerk(400);
   }
 
