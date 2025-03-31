@@ -86,6 +86,7 @@ public class RobotContainer {
 
   private boolean algaeCradleFlag = false;
   public static boolean m_climberBump = false;
+  public static boolean m_autoshootOnPostDection = false;
 
   private static boolean auton_start_position_ok = false;
 
@@ -180,6 +181,7 @@ public class RobotContainer {
         lightsSubsystem = new LightsSubsystem();
 
         SmartDashboard.putString("BumpMode", "ELEVATOR");
+        SmartDashboard.putString("AutoShoot", "OFF");
 
         break;
 
@@ -377,6 +379,15 @@ public class RobotContainer {
     //             () -> -m_xboxController.getLeftY(),
     //             () -> -m_xboxController.getLeftX(),
     //             () -> new Rotation2d(Units.degreesToRadians(0))));
+
+    m_xboxController
+        .a()
+        .onTrue(
+            Commands.runOnce(() -> m_autoshootOnPostDection = !m_autoshootOnPostDection)
+                .andThen(
+                    () ->
+                        SmartDashboard.putString(
+                            "AutoShoot", m_autoshootOnPostDection ? "ON" : "OFF")));
 
     // drive to nearest barge shotting location
     m_xboxController

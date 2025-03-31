@@ -205,7 +205,13 @@ public class ManipulatorCommands {
         Commands.either(
             Commands.sequence(
                 myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.L4, Constants.WRIST.L4),
-                Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(true))),
+                Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(true)),
+                Commands.runOnce(() -> shootCmd(myIntakeLow, myIntakeLow, myElevatorWrist))
+                    .onlyIf(
+                        (() -> {
+                          return ElevatorWristSubSystem.reefPostDetectedRaw
+                              && RobotContainer.m_autoshootOnPostDection;
+                        }))),
             Commands.none(),
             () -> {
               return ManipulatorCommands.havePiece || RobotContainer.m_climberBump;
