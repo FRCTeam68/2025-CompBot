@@ -86,6 +86,7 @@ public class RobotContainer {
 
   private boolean algaeCradleFlag = false;
   public static boolean m_climberBump = false;
+  //   public static boolean m_autoshootOnPostDection = false;
 
   private static boolean auton_start_position_ok = false;
 
@@ -180,6 +181,7 @@ public class RobotContainer {
         lightsSubsystem = new LightsSubsystem();
 
         SmartDashboard.putString("BumpMode", "ELEVATOR");
+        SmartDashboard.putString("AutoShoot", "OFF");
 
         break;
 
@@ -378,6 +380,15 @@ public class RobotContainer {
     //             () -> -m_xboxController.getLeftX(),
     //             () -> new Rotation2d(Units.degreesToRadians(0))));
 
+    m_xboxController
+        .a()
+        .onTrue(
+            Commands.runOnce(() -> elevatorWrist.setAutoShootOn(!elevatorWrist.isAutoShootOn()))
+                .andThen(
+                    () ->
+                        SmartDashboard.putString(
+                            "AutoShoot", elevatorWrist.isAutoShootOn() ? "ON" : "OFF")));
+
     // drive to nearest barge shotting location
     m_xboxController
         .b()
@@ -447,11 +458,26 @@ public class RobotContainer {
 
     m_xboxController
         .start()
-        .onTrue(Commands.runOnce(() -> intakeShooter.setSpeed(0)).andThen(elevatorWrist.haltCmd()));
+        .onTrue(
+            intakeShooter
+                .setSpeedCmd(0)
+                .andThen(intakeShooterLow.setSpeedCmd(0))
+                .andThen(elevatorWrist.haltCmd())
+                .andThen(Commands.runOnce(() -> System.out.printf("stop%n"))));
 
     m_ps4Controller
         .triangle()
         .onTrue(ManipulatorCommands.CoralL4Cmd(intakeShooterLow, elevatorWrist));
+    // .andThen(ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist)
+    // // Commands.runOnce(
+    // //         () ->
+    // //             Logger.recordOutput("Manipulator/IntakeShooterState",
+    // // "FakeShootCoral"))
+    // .onlyIf(
+    //     (() -> {
+    //     return elevatorWrist.isReefPostDetectedRaw()
+    //         && elevatorWrist.isAutoShootOn();
+    //     }))));
 
     m_ps4Controller
         .circle()

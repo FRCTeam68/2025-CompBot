@@ -33,6 +33,7 @@ import java.util.List;
 public final class Constants {
   public static final Mode simMode = Mode.SIM;
   public static final double loopPeriodSecs = 0.02;
+  public static final boolean bypassReefDetection = true;
   public static final boolean tuningMode = false;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
@@ -105,7 +106,7 @@ public final class Constants {
     public static final double CORAL_INTAKE_INDEX_REVERSE = 3; // revolutions to reverse
     public static final double CORAL_SHOOT_SPEED = 30; // 40
     public static final double CORAL_L1_SHOOT_SPEED = -10; // 40
-    public static final double CORAL_SHOOT_TIMEOUT = .4;
+    public static final double CORAL_SHOOT_TIMEOUT = .3;
     public static final double CORAL_L1_SHOOT_TIMEOUT = 1;
     // algae
     public static final double ALGAE_INTAKE_SPEED = -40;
@@ -388,15 +389,15 @@ public final class Constants {
     public static final List<Pose2d> blueBargePoses =
         new ArrayList<Pose2d>() {
           {
-            add(new Pose2d(8.06, 5, new Rotation2d(Units.degreesToRadians(181))));
-            add(new Pose2d(8.06, 6.5, new Rotation2d(Units.degreesToRadians(181))));
+            add(new Pose2d(8.187, 5, new Rotation2d(Units.degreesToRadians(181))));
+            add(new Pose2d(8.187, 6.5, new Rotation2d(Units.degreesToRadians(181))));
           }
         };
     public static final List<Pose2d> redBargePoses =
         new ArrayList<Pose2d>() {
           {
-            add(new Pose2d(9.490, 3, new Rotation2d(Units.degreesToRadians(1))));
-            add(new Pose2d(9.490, 1.5, new Rotation2d(Units.degreesToRadians(1))));
+            add(new Pose2d(9.363, 3, new Rotation2d(Units.degreesToRadians(1))));
+            add(new Pose2d(9.363, 1.5, new Rotation2d(Units.degreesToRadians(1))));
           }
         };
   }
