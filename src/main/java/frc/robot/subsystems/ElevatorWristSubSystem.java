@@ -56,6 +56,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   @Getter @AutoLogOutput private double reefPostAvgDistance = 0.0;
   private LinearFilter reefPostFilter;
   @Getter @Setter @AutoLogOutput private boolean lookingToShoot = false;
+  @Getter @Setter @AutoLogOutput private boolean autoShootOn = false;
   private boolean prevIndicateToShoot = false;
 
   @Getter private double wristAngle = 0.0;

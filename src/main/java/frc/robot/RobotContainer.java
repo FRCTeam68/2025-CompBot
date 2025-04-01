@@ -86,7 +86,7 @@ public class RobotContainer {
 
   private boolean algaeCradleFlag = false;
   public static boolean m_climberBump = false;
-  public static boolean m_autoshootOnPostDection = false;
+  //   public static boolean m_autoshootOnPostDection = false;
 
   private static boolean auton_start_position_ok = false;
 
@@ -383,11 +383,11 @@ public class RobotContainer {
     m_xboxController
         .a()
         .onTrue(
-            Commands.runOnce(() -> m_autoshootOnPostDection = !m_autoshootOnPostDection)
+            Commands.runOnce(() -> elevatorWrist.setAutoShootOn(!elevatorWrist.isAutoShootOn()))
                 .andThen(
                     () ->
                         SmartDashboard.putString(
-                            "AutoShoot", m_autoshootOnPostDection ? "ON" : "OFF")));
+                            "AutoShoot", elevatorWrist.isAutoShootOn() ? "ON" : "OFF")));
 
     // drive to nearest barge shotting location
     m_xboxController

@@ -203,8 +203,8 @@ public class ManipulatorCommands {
                 Commands.runOnce(() -> shootCmd(myIntakeLow, myIntakeLow, myElevatorWrist))
                     .onlyIf(
                         (() -> {
-                          return ElevatorWristSubSystem.reefPostDetectedRaw
-                              && RobotContainer.m_autoshootOnPostDection;
+                          return myElevatorWrist.isReefPostDetectedRaw()
+                              && myElevatorWrist.isAutoShootOn();
                         }))),
             Commands.none(),
             () -> {
