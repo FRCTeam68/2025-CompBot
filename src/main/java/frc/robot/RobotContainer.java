@@ -470,28 +470,36 @@ public class RobotContainer {
         .onTrue(
             ManipulatorCommands.CoralL4Cmd(intakeShooterLow, elevatorWrist)
                 .andThen(
-                    Commands.sequence(
-                            ManipulatorCommands.shootCmd(
-                                intakeShooter, intakeShooterLow, elevatorWrist),
-                            Commands.runOnce(
-                                () ->
-                                    Logger.recordOutput("Manipulator/AutoShootState", "AutoShoot")))
+                    ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist)
                         .onlyIf(
                             () -> {
                               return elevatorWrist.isReefPostDetectedRaw()
                                   && elevatorWrist.isAutoShootOn();
-                            }))
-                .andThen(
-                    Commands.runOnce(
-                        () -> Logger.recordOutput("Manipulator/AutoShootState", "After"))));
+                            })));
 
     m_ps4Controller
         .circle()
-        .onTrue(ManipulatorCommands.CoralL3Cmd(intakeShooterLow, elevatorWrist));
+        .onTrue(
+            ManipulatorCommands.CoralL3Cmd(intakeShooterLow, elevatorWrist)
+                .andThen(
+                    ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist)
+                        .onlyIf(
+                            () -> {
+                              return elevatorWrist.isReefPostDetectedRaw()
+                                  && elevatorWrist.isAutoShootOn();
+                            })));
 
     m_ps4Controller
         .square()
-        .onTrue(ManipulatorCommands.CoralL2Cmd(intakeShooterLow, elevatorWrist));
+        .onTrue(
+            ManipulatorCommands.CoralL2Cmd(intakeShooterLow, elevatorWrist)
+                .andThen(
+                    ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist)
+                        .onlyIf(
+                            () -> {
+                              return elevatorWrist.isReefPostDetectedRaw()
+                                  && elevatorWrist.isAutoShootOn();
+                            })));
 
     m_ps4Controller.cross().onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
 
