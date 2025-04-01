@@ -470,16 +470,20 @@ public class RobotContainer {
         .onTrue(
             ManipulatorCommands.CoralL4Cmd(intakeShooterLow, elevatorWrist)
                 .andThen(
-                    ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist)
-                        // Commands.runOnce(
-                        //         () ->
-                        //             Logger.recordOutput("Manipulator/IntakeShooterState",
-                        // "FakeShootCoral"))
+                    Commands.sequence(
+                            ManipulatorCommands.shootCmd(
+                                intakeShooter, intakeShooterLow, elevatorWrist),
+                            Commands.runOnce(
+                                () ->
+                                    Logger.recordOutput("Manipulator/AutoShootState", "AutoShoot")))
                         .onlyIf(
-                            (() -> {
+                            () -> {
                               return elevatorWrist.isReefPostDetectedRaw()
                                   && elevatorWrist.isAutoShootOn();
-                            }))));
+                            }))
+                .andThen(
+                    Commands.runOnce(
+                        () -> Logger.recordOutput("Manipulator/AutoShootState", "After"))));
 
     m_ps4Controller
         .circle()
