@@ -30,9 +30,9 @@ import org.littletonrobotics.junction.Logger;
 
 public class ManipulatorCommands {
 
-  @Getter @AutoLogOutput public static boolean indexing = false;
-  @Getter @AutoLogOutput public static boolean safeToMove = false;
-  public static boolean havePiece;
+  @Getter @AutoLogOutput private static boolean indexing = false;
+  @Getter @AutoLogOutput private static boolean safeToMove = false;
+  @Getter @AutoLogOutput private static boolean havePiece = false;
 
   private static final ElevatorWristSubSystem elevatorWrist = RobotContainer.elevatorWrist;
   private static final RollerSystem climber = RobotContainer.climber;
@@ -63,8 +63,7 @@ public class ManipulatorCommands {
               Commands.sequence(
                   Commands.runOnce(() -> indexing = false),
                   Commands.runOnce(() -> safeToMove = true),
-                  Commands.runOnce(() -> havePiece = true),
-                  Commands.waitUntil(() -> intake.atPosition()));
+                  Commands.runOnce(() -> havePiece = true));
           command = Commands.none();
 
           if (Constants.WRIST.POSITION_SCORING_ELEMENT == "Algae"
@@ -114,7 +113,7 @@ public class ManipulatorCommands {
                               intake.setPosition(
                                   intake.getPosition()
                                       - Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_REVERSE)),
-                      Commands.waitUntil(() -> intake.atPosition()));
+                      Commands.waitUntil(() -> (intake.atPosition() || intake.getSpeed() < 0.05)));
             }
           }
           // execute sequence
@@ -132,8 +131,8 @@ public class ManipulatorCommands {
               Commands.parallel(
                   Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
                   Commands.runOnce(() -> indexing = false),
-                  Commands.runOnce(() -> safeToMove = false));
-          // Commands.runOnce(() -> havePiece = false));
+                  Commands.runOnce(() -> safeToMove = false),
+                  Commands.runOnce(() -> havePiece = false));
           Command finalize =
               Commands.parallel(
                   Commands.runOnce(() -> LEDSegment.all.disableLEDs()),

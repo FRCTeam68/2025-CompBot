@@ -18,7 +18,9 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -52,7 +54,6 @@ import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.util.AllianceFlipUtil;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -532,12 +533,12 @@ public class RobotContainer {
     return autoChooser.get();
   }
 
-  public static void loadAutonPath() {
-    // autons.pathBuilder(autoChooser.get().getName());
-  }
+  // public static void loadAutonPath() {
+  //   // autons.pathBuilder(autoChooser.get().getName());
+  // }
 
   public static void putAutonPoseToDashboard() {
-    Pose2d curPose = AllianceFlipUtil.apply(drive.getPose());
+    Pose2d curPose;
     double autonX = 0;
     double autonY = 0;
     double autonR = 0;
@@ -548,24 +549,33 @@ public class RobotContainer {
     boolean offsetYOK = false;
     boolean offsetROK = false;
 
-    try {
-      m_autonName = autoChooser.get().getName();
-    } catch (Exception e) {
-      m_autonName = "";
-    }
+    // flip current pose if on the red side of the field
+    // otherwise set as current pose
+    curPose =
+        (drive.getPose().getX() > (FieldConstants.fieldLength / 2))
+            ? new Pose2d(
+                new Translation2d(
+                    FieldConstants.fieldLength - drive.getPose().getX(),
+                    FieldConstants.fieldWidth - drive.getPose().getY()),
+                drive.getPose().getRotation().rotateBy(Rotation2d.kPi))
+            : drive.getPose();
 
-    if (m_autonName.contains("LEFT")) {
-      autonX = Constants.AutonStartPositions.left.getX();
-      autonY = Constants.AutonStartPositions.left.getY();
-      autonR = Constants.AutonStartPositions.left.getRotation().getDegrees();
-    } else if (m_autonName.contains("CENTER")) {
+    if (Math.abs(curPose.getY() - Constants.AutonStartPositions.middle.getY())
+        < Math.abs(
+            (Constants.AutonStartPositions.middle.getY()
+                    - Constants.AutonStartPositions.right.getY())
+                / 2)) {
       autonX = Constants.AutonStartPositions.middle.getX();
       autonY = Constants.AutonStartPositions.middle.getY();
       autonR = Constants.AutonStartPositions.middle.getRotation().getDegrees();
-    } else if (m_autonName.contains("RIGHT")) {
+    } else if (curPose.getY() < Constants.AutonStartPositions.middle.getY()) {
       autonX = Constants.AutonStartPositions.right.getX();
       autonY = Constants.AutonStartPositions.right.getY();
       autonR = Constants.AutonStartPositions.right.getRotation().getDegrees();
+    } else {
+      autonX = Constants.AutonStartPositions.left.getX();
+      autonY = Constants.AutonStartPositions.left.getY();
+      autonR = Constants.AutonStartPositions.left.getRotation().getDegrees();
     }
 
     offsetX = curPose.getX() - autonX;

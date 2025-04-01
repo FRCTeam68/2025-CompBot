@@ -25,7 +25,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.ManipulatorCommands;
 import frc.robot.commands.auton.autons;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.LightsSubsystem;
@@ -151,7 +150,6 @@ public class Robot extends LoggedRobot {
     // the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
-    Logger.recordOutput("Manipulator/test", ManipulatorCommands.havePiece);
     // Return to normal thread priority
     Threads.setCurrentThreadPriority(false, 10);
 
@@ -191,7 +189,7 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
-    RobotContainer.loadAutonPath();
+    // RobotContainer.loadAutonPath();
     RobotContainer.putAutonPoseToDashboard();
     RobotContainer.autonReadyStatus();
   }
@@ -200,7 +198,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     autonomousCommand = robotContainer.getAutonomousCommand();
-    RobotContainer.loadAutonPath();
+    // RobotContainer.loadAutonPath();
 
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {
@@ -247,6 +245,6 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {
-    RobotContainer.loadAutonPath();
+    // RobotContainer.loadAutonPath();
   }
 }

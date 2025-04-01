@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R1_Start-E"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R1_E-Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R1_Source-D"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R1_D-Source"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R1_Source-C"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R2_C-CDAlgaeIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R2_CDAlgaeIntake-CDAlgae"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R2_CDAlgae-Net"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": false,
+  "folder": null,
+  "choreoAuto": false
+}

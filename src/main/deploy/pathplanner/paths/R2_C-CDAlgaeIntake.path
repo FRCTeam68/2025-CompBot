@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.175,
-        "y": 0.938
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 1.6810045241811005,
-        "y": 1.3364075829785889
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
         "x": 3.720710041863004,
         "y": 3.023848688734253
       },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.681817910570816,
+        "y": 2.7768924130019865
+      },
+      "isLocked": false,
+      "linkedName": "C"
+    },
+    {
+      "anchor": {
+        "x": 3.667769691780822,
+        "y": 2.605072773972604
+      },
       "prevControl": {
-        "x": 2.7935775915253798,
-        "y": 2.306420686282979
+        "x": 3.698851518381458,
+        "y": 2.853133089329914
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "C"
+      "linkedName": "CDAlgaeIntake"
     }
   ],
   "rotationTargets": [],
@@ -47,8 +47,8 @@
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0.0,
-    "rotation": 53.0
+    "velocity": 0,
+    "rotation": 59.99999999999999
   },
   "useDefaultConstraints": true
 }
