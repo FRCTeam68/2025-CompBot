@@ -84,7 +84,7 @@ public final class Constants {
     public static final double CORAL_STATION_WAIT = 0;
     public static final double CORAL_STATION_ELEVATOR_DELAY = 0.5;
     public static final double REEF_TIMEOUT = 0.4;
-    public static final double REEF_POST_TIMEOUT = 0.3;
+    public static final double REEF_POST_TIMEOUT = 1;
     public static final double INDEX_DELAY = 0.4;
   }
 

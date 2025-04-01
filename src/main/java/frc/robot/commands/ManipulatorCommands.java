@@ -30,9 +30,9 @@ import org.littletonrobotics.junction.Logger;
 
 public class ManipulatorCommands {
 
-  @Getter @AutoLogOutput private static boolean indexing = false;
-  @Getter @AutoLogOutput private static boolean safeToMove = false;
-  @Getter @AutoLogOutput private static boolean havePiece = false;
+  @Getter @AutoLogOutput public static boolean indexing = false;
+  @Getter @AutoLogOutput public static boolean safeToMove = false;
+  public static boolean havePiece;
 
   private static final ElevatorWristSubSystem elevatorWrist = RobotContainer.elevatorWrist;
   private static final RollerSystem climber = RobotContainer.climber;
@@ -60,10 +60,11 @@ public class ManipulatorCommands {
           Command ledHaveObject =
               Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue));
           Command finalize =
-              Commands.parallel(
+              Commands.sequence(
                   Commands.runOnce(() -> indexing = false),
                   Commands.runOnce(() -> safeToMove = true),
-                  Commands.runOnce(() -> havePiece = true));
+                  Commands.runOnce(() -> havePiece = true),
+                  Commands.waitUntil(() -> intake.atPosition()));
           command = Commands.none();
 
           if (Constants.WRIST.POSITION_SCORING_ELEMENT == "Algae"
@@ -131,8 +132,8 @@ public class ManipulatorCommands {
               Commands.parallel(
                   Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
                   Commands.runOnce(() -> indexing = false),
-                  Commands.runOnce(() -> safeToMove = false),
-                  Commands.runOnce(() -> havePiece = false));
+                  Commands.runOnce(() -> safeToMove = false));
+          // Commands.runOnce(() -> havePiece = false));
           Command finalize =
               Commands.parallel(
                   Commands.runOnce(() -> LEDSegment.all.disableLEDs()),
