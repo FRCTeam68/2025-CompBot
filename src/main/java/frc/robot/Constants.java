@@ -106,7 +106,7 @@ public final class Constants {
     public static final double CORAL_INTAKE_INDEX_REVERSE = 3; // revolutions to reverse
     public static final double CORAL_SHOOT_SPEED = 30; // 40
     public static final double CORAL_L1_SHOOT_SPEED = -10; // 40
-    public static final double CORAL_SHOOT_TIMEOUT = .4;
+    public static final double CORAL_SHOOT_TIMEOUT = .3;
     public static final double CORAL_L1_SHOOT_TIMEOUT = 1;
     // algae
     public static final double ALGAE_INTAKE_SPEED = -40;
