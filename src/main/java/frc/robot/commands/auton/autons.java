@@ -319,7 +319,7 @@ public class autons {
                   return (shot);
                   // do nothing if coral is still in the robot
                 })
-            .onlyIf(() -> (intaked && !shot)));
+            .onlyIf(() -> (!intaked || shot)));
   }
 
   public static Command centerProcessor() {
