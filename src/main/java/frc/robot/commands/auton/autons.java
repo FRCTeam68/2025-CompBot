@@ -34,7 +34,8 @@ public class autons {
   private static String pathGroupName;
   private static boolean intake = false;
   private static int i;
-  private static boolean triedToShoot;
+  private static boolean intaked;
+  private static boolean shot;
   @AutoLogOutput private static Timer timer1 = new Timer(); // from start of auto
   @AutoLogOutput private static Timer timer2 = new Timer();
 
@@ -239,7 +240,8 @@ public class autons {
     path = pathBuilder(leftSide ? "AUTON_LEFT2" : "AUTON_RIGHT2");
     ManipulatorCommands.setHavePiece(true);
     i = 0;
-    triedToShoot = false;
+    intaked = false;
+    shot = false;
 
     return Commands.sequence(
         // first coral
@@ -253,7 +255,8 @@ public class autons {
             .handleInterrupt(() -> RobotContainer.intakeShooter.setSpeedCmd(0)),
         // additional coral
         Commands.repeatingSequence(
-                Commands.runOnce(() -> triedToShoot = false),
+                Commands.runOnce(() -> intaked = false),
+                Commands.runOnce(() -> shot = false),
                 Commands.deadline(
                     Commands.sequence(
                         AutoBuilder.followPath(path[1 + i]), // to coral station
@@ -267,7 +270,6 @@ public class autons {
                             .withTimeout(Constants.AUTO.INDEX_DELAY)),
                     Commands.sequence(
                         Commands.waitUntil(() -> intake == true),
-                        Commands.runOnce(() -> intake = false),
                         ManipulatorCommands.intakeCmd()
                             .handleInterrupt(() -> RobotContainer.intakeShooter.setSpeedCmd(0))),
                     Commands.sequence(
@@ -277,40 +279,47 @@ public class autons {
                             () -> timer2.get() >= Constants.AUTO.CORAL_STATION_ELEVATOR_DELAY),
                         ManipulatorCommands.CoralL4Cmd())),
                 Commands.sequence(
-                        Commands.runOnce(() -> triedToShoot = true),
+                        Commands.runOnce(() -> intaked = true),
                         ManipulatorCommands.CoralL4Cmd(),
                         Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
                             .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
-                        ManipulatorCommands.shootCmd()
+                        Commands.parallel(
+                                ManipulatorCommands.shootCmd(),
+                                Commands.runOnce(() -> shot = false))
                             .withTimeout(Constants.AUTO.CORAL_SHOOT_TIMEOUT)
                             .handleInterrupt(() -> RobotContainer.intakeShooter.setSpeedCmd(0))
                             .onlyIf(() -> ElevatorWristSubSystem.reefPostDetected))
                     .onlyIf(() -> ManipulatorCommands.isHavePiece()),
                 Commands.runOnce(() -> stopTimer(timer2)),
+                Commands.runOnce(() -> intake = false),
                 Commands.runOnce(() -> i = i + 2))
             .onlyWhile(() -> i <= 2),
         Commands.either(
-            // get algae from reef
-            Commands.sequence(
+                // get algae from reef
+                Commands.sequence(
+                    Commands.parallel(
+                        AutoBuilder.followPath(path[5]), // to away from reef
+                        ManipulatorCommands.AlgaeAtA1()),
+                    Commands.sequence(
+                            Commands.parallel(
+                                AutoBuilder.followPath(path[6]), // to reef algae
+                                ManipulatorCommands.intakeCmd()),
+                            Commands.parallel(
+                                AutoBuilder.followPath(path[7]), // to away from reef
+                                Commands.waitSeconds(0.25)
+                                    .andThen(ManipulatorCommands.AlgaeCradle())))
+                        .onlyIf(() -> timer1.get() <= 14)),
+                // get 4th coral
                 Commands.parallel(
-                    AutoBuilder.followPath(path[5]), // to away from reef
-                    ManipulatorCommands.AlgaeAtA1()),
-                Commands.sequence(
-                        Commands.parallel(
-                            AutoBuilder.followPath(path[6]), // to reef algae
-                            ManipulatorCommands.intakeCmd()),
-                        Commands.parallel(
-                            AutoBuilder.followPath(path[7]), // to away from reef
-                            Commands.waitSeconds(0.25).andThen(ManipulatorCommands.AlgaeCradle())))
-                    .onlyIf(() -> timer1.get() <= 14)),
-            // get 4th coral
-            Commands.parallel(
-                AutoBuilder.followPath(thirdCoralToSource), // to coral station
-                Commands.sequence(
-                    ManipulatorCommands.CoralIntakePositionCmd(), ManipulatorCommands.intakeCmd())),
-            () -> {
-              return triedToShoot;
-            }));
+                    AutoBuilder.followPath(thirdCoralToSource), // to coral station
+                    Commands.sequence(
+                        ManipulatorCommands.CoralIntakePositionCmd(),
+                        ManipulatorCommands.intakeCmd())),
+                () -> {
+                  return (shot);
+                  // do nothing if coral is still in the robot
+                })
+            .onlyIf(() -> (intaked && !shot)));
   }
 
   public static Command centerProcessor() {

@@ -83,7 +83,6 @@ public class RobotContainer {
 
   private static LoggedDashboardChooser<Command> autoChooser;
   private static String m_autonName;
-  private static boolean autonready;
 
   public static boolean m_overideMode = false;
 
@@ -180,6 +179,11 @@ public class RobotContainer {
         lightsSubsystem = new LightsSubsystem();
 
         SmartDashboard.putString("BumpMode", "ELEVATOR");
+
+        // initalize intake havePiece
+        if (intakeCoralSensor.havePiece()) {
+          ManipulatorCommands.setHavePiece(true);
+        }
 
         break;
 
@@ -537,7 +541,7 @@ public class RobotContainer {
   //   // autons.pathBuilder(autoChooser.get().getName());
   // }
 
-  public static void putAutonPoseToDashboard() {
+  public static void autonReadyStatus() {
     Pose2d curPose;
     double autonX = 0;
     double autonY = 0;
@@ -548,6 +552,7 @@ public class RobotContainer {
     boolean offsetXOK = false;
     boolean offsetYOK = false;
     boolean offsetROK = false;
+    boolean robotStateOK = false;
 
     // flip current pose if on the red side of the field
     // otherwise set as current pose
@@ -602,51 +607,13 @@ public class RobotContainer {
     SmartDashboard.putBoolean("Auto/offset_Y_OK:", offsetYOK);
     SmartDashboard.putBoolean("Auto/offset_ROT_OK:", offsetROK);
 
-    if (offsetXOK && offsetYOK && offsetROK) {
-      auton_start_position_ok = true;
-    } else {
-      auton_start_position_ok = false;
-      if (offsetXOK) {
-        LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
-        LEDSegment.autonXRight.setColor(LightsSubsystem.green);
-      } else {
-        if (offsetX < 0) {
-          LEDSegment.autonXLeft.setColor(LightsSubsystem.red);
-          LEDSegment.autonXRight.setColor(LightsSubsystem.green);
-        } else {
-          LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
-          LEDSegment.autonXRight.setColor(LightsSubsystem.red);
-        }
-      }
-      if (offsetYOK) {
-        LEDSegment.autonYLeft.setColor(LightsSubsystem.green);
-        LEDSegment.autonYRight.setColor(LightsSubsystem.green);
-      } else {
-        if (offsetY < 0) {
-          LEDSegment.autonYLeft.setColor(LightsSubsystem.red);
-          LEDSegment.autonYRight.setColor(LightsSubsystem.green);
-        } else {
-          LEDSegment.autonYLeft.setColor(LightsSubsystem.green);
-          LEDSegment.autonYRight.setColor(LightsSubsystem.red);
-        }
-      }
-      if (offsetROK) {
-        LEDSegment.autonRLeft.setColor(LightsSubsystem.green);
-        LEDSegment.autonRRight.setColor(LightsSubsystem.green);
-      } else {
-        if (offsetR < 0) {
-          LEDSegment.autonRLeft.setColor(LightsSubsystem.red);
-          LEDSegment.autonRRight.setColor(LightsSubsystem.green);
-        } else {
-          LEDSegment.autonRLeft.setColor(LightsSubsystem.green);
-          LEDSegment.autonRRight.setColor(LightsSubsystem.red);
-        }
-      }
+    try {
+      m_autonName = autoChooser.get().getName();
+    } catch (Exception e) {
+      m_autonName = "";
     }
-  }
 
-  public static void autonReadyStatus() {
-    autonready =
+    robotStateOK =
         (m_autonName.contains("LEFT")
                 || m_autonName.contains("CENTER")
                 || m_autonName.contains("RIGHT"))
@@ -655,15 +622,6 @@ public class RobotContainer {
             && intakeCoralSensor.havePiece()
             && elevatorWrist.getWrist().getPosition() < 0.01
             && elevatorWrist.getElevator().getPosition() < 0.01;
-    if (autonready && auton_start_position_ok) {
-      LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4);
-    } else if (autonready) {
-      LEDSegment.leftside.setColor(LightsSubsystem.green);
-      LEDSegment.rightside.setColor(LightsSubsystem.green);
-    } else {
-      LEDSegment.leftside.setColor(LightsSubsystem.red);
-      LEDSegment.rightside.setColor(LightsSubsystem.red);
-    }
 
     SmartDashboard.putBoolean(
         "Match Ready/auton_selected",
@@ -677,6 +635,62 @@ public class RobotContainer {
         "Match Ready/wrist_zeroed", elevatorWrist.getWrist().getPosition() < 0.01);
     SmartDashboard.putBoolean(
         "Match Ready/elevator_zeroed", elevatorWrist.getElevator().getPosition() < 0.01);
+
+    // set LEDs
+    if (robotStateOK) {
+      LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4);
+    } else {
+      // all auton ready but position
+      if (robotStateOK) {
+        LEDSegment.leftside.setColor(LightsSubsystem.green);
+        LEDSegment.rightside.setColor(LightsSubsystem.green);
+      } else {
+        LEDSegment.leftside.setColor(LightsSubsystem.red);
+        LEDSegment.rightside.setColor(LightsSubsystem.red);
+      }
+
+      // X offset LEDs
+      if (offsetXOK) {
+        LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
+        LEDSegment.autonXRight.setColor(LightsSubsystem.green);
+      } else {
+        if (offsetX < 0) {
+          LEDSegment.autonXLeft.setColor(LightsSubsystem.red);
+          LEDSegment.autonXRight.setColor(LightsSubsystem.green);
+        } else {
+          LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
+          LEDSegment.autonXRight.setColor(LightsSubsystem.red);
+        }
+      }
+
+      // Y offset LEDs
+      if (offsetYOK) {
+        LEDSegment.autonYLeft.setColor(LightsSubsystem.green);
+        LEDSegment.autonYRight.setColor(LightsSubsystem.green);
+      } else {
+        if (offsetY < 0) {
+          LEDSegment.autonYLeft.setColor(LightsSubsystem.red);
+          LEDSegment.autonYRight.setColor(LightsSubsystem.green);
+        } else {
+          LEDSegment.autonYLeft.setColor(LightsSubsystem.green);
+          LEDSegment.autonYRight.setColor(LightsSubsystem.red);
+        }
+      }
+
+      // rotation offset LEDs
+      if (offsetROK) {
+        LEDSegment.autonRLeft.setColor(LightsSubsystem.green);
+        LEDSegment.autonRRight.setColor(LightsSubsystem.green);
+      } else {
+        if (offsetR < 0) {
+          LEDSegment.autonRLeft.setColor(LightsSubsystem.red);
+          LEDSegment.autonRRight.setColor(LightsSubsystem.green);
+        } else {
+          LEDSegment.autonRLeft.setColor(LightsSubsystem.green);
+          LEDSegment.autonRRight.setColor(LightsSubsystem.red);
+        }
+      }
+    }
   }
 
   public static void logClimberPose() {

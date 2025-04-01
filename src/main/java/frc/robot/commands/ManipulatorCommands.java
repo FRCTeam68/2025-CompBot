@@ -43,7 +43,7 @@ public class ManipulatorCommands {
   private ManipulatorCommands() {}
 
   public static void setHavePiece(boolean state) {
-    safeToMove = state;
+    havePiece = state;
   }
 
   public static Command intakeCmd() {
