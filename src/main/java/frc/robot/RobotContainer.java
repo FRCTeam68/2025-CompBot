@@ -383,11 +383,11 @@ public class RobotContainer {
     m_xboxController
         .a()
         .onTrue(
-            Commands.runOnce(() -> m_autoshootOnPostDection = !m_autoshootOnPostDection)
+            Commands.runOnce(() -> elevatorWrist.setAutoShootOn(!elevatorWrist.isAutoShootOn()))
                 .andThen(
                     () ->
                         SmartDashboard.putString(
-                            "AutoShoot", m_autoshootOnPostDection ? "ON" : "OFF")));
+                            "AutoShoot", elevatorWrist.isAutoShootOn() ? "ON" : "OFF")));
 
     // drive to nearest barge shotting location
     m_xboxController
@@ -467,7 +467,19 @@ public class RobotContainer {
 
     m_ps4Controller
         .triangle()
-        .onTrue(ManipulatorCommands.CoralL4Cmd(intakeShooterLow, elevatorWrist));
+        .onTrue(
+            ManipulatorCommands.CoralL4Cmd(intakeShooterLow, elevatorWrist)
+                .andThen(
+                    ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist)
+                        // Commands.runOnce(
+                        //         () ->
+                        //             Logger.recordOutput("Manipulator/IntakeShooterState",
+                        // "FakeShootCoral"))
+                        .onlyIf(
+                            (() -> {
+                              return elevatorWrist.isReefPostDetectedRaw()
+                                  && elevatorWrist.isAutoShootOn();
+                            }))));
 
     m_ps4Controller
         .circle()
