@@ -90,7 +90,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 true,
                 Constants.WRIST.REDUCTION));
     // init tunables in the parent roller system
-    wrist.setPID(Constants.WRIST.SLOT0_CONFIGS);
+    wrist.setPID(Constants.WRIST.SLOT0_CONFIGS, Constants.WRIST.SLOT1_CONFIGS);
     wrist.setMotionMagic(Constants.WRIST.MOTIONMAGIC_CONFIGS);
     wrist.setAtSetpointBand(.005);
     wrist.setPieceCurrentThreshold(
