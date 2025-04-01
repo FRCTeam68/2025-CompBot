@@ -49,7 +49,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   private final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
 
   //   @Getter @AutoLogOutput private double setpoint = 0.0;
-  @Getter @AutoLogOutput public static boolean reefPostDetectedRaw = false;
+  @Getter @AutoLogOutput private boolean reefPostDetectedRaw = false;
   @Getter @AutoLogOutput public static boolean reefPostDetected = false;
   @Getter @AutoLogOutput private boolean reefPostSensorDetected = false;
   @Getter @AutoLogOutput private double reefPostSensorDistance = 0.0;

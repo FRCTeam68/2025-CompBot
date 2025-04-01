@@ -200,7 +200,11 @@ public class ManipulatorCommands {
                 myElevatorWrist.setPositionCmdNew(
                     myIntakeLow, Constants.ELEVATOR.L4, Constants.WRIST.L4),
                 Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(true)),
-                Commands.runOnce(() -> shootCmd(myIntakeLow, myIntakeLow, myElevatorWrist))
+                shootCmd(myIntakeLow, myIntakeLow, myElevatorWrist)
+                    // Commands.runOnce(
+                    //         () ->
+                    //             Logger.recordOutput("Manipulator/IntakeShooterState",
+                    // "FakeShootCoral"))
                     .onlyIf(
                         (() -> {
                           return myElevatorWrist.isReefPostDetectedRaw()
