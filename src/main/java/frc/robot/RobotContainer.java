@@ -469,6 +469,7 @@ public class RobotContainer {
         .triangle()
         .onTrue(
             ManipulatorCommands.CoralL4Cmd(intakeShooterLow, elevatorWrist)
+                .andThen(Commands.waitSeconds(.18))
                 .andThen(
                     ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist)
                         .onlyIf(
@@ -481,6 +482,7 @@ public class RobotContainer {
         .circle()
         .onTrue(
             ManipulatorCommands.CoralL3Cmd(intakeShooterLow, elevatorWrist)
+                .andThen(Commands.waitSeconds(.18))
                 .andThen(
                     ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist)
                         .onlyIf(
@@ -493,6 +495,7 @@ public class RobotContainer {
         .square()
         .onTrue(
             ManipulatorCommands.CoralL2Cmd(intakeShooterLow, elevatorWrist)
+                .andThen(Commands.waitSeconds(.18))
                 .andThen(
                     ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist)
                         .onlyIf(
