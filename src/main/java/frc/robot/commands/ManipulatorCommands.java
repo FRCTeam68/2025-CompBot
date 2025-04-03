@@ -78,11 +78,13 @@ public class ManipulatorCommands {
                                   "Manipulator/IntakeShooterState", "AlreadyHasCoral")),
                       CoralIntakePositionCmd(myIntakeLow, myElevatorWrist),
                       myIntake.setSpeedCmd(0),
+                      myIntakeLow.setSpeedCmd(0),
                       Commands.runOnce(() -> indexing = true),
                       Commands.runOnce(() -> havePiece = true));
             } else {
               command =
                   Commands.sequence(
+                      myIntakeLow.setSpeedCmd(0),
                       Commands.runOnce(() -> havePiece = false),
                       Commands.runOnce(() -> indexing = false),
                       Commands.runOnce(
