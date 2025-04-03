@@ -594,8 +594,10 @@ public class RobotContainer {
     m_ps4Controller
         .options()
         .onTrue(
-            ManipulatorCommands.intakeCmd(
-                intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+            ManipulatorCommands.CoralIntakePositionCmd(intakeShooterLow, elevatorWrist)
+                .andThen(
+                    ManipulatorCommands.intakeCmd(
+                        intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)));
 
     // m_ps4Controller.PS().onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
 
@@ -643,6 +645,158 @@ public class RobotContainer {
     elevatorWrist.setAutoShootOn(state);
     SmartDashboard.putString("AutoShoot", state ? "ON" : "OFF");
   }
+
+  //   public static void autonReadyStatus() {
+  //     Pose2d curPose;
+  //     double autonX = 0;
+  //     double autonY = 0;
+  //     double autonR = 0;
+  //     double offsetX = 0;
+  //     double offsetY = 0;
+  //     double offsetR = 0;
+  //     boolean offsetXOK = false;
+  //     boolean offsetYOK = false;
+  //     boolean offsetROK = false;
+  //     boolean robotStateOK = false;
+
+  //     // flip current pose if on the red side of the field
+  //     // otherwise set as current pose
+  //     curPose =
+  //         (drive.getPose().getX() > (FieldConstants.fieldLength / 2))
+  //             ? new Pose2d(
+  //                 new Translation2d(
+  //                     FieldConstants.fieldLength - drive.getPose().getX(),
+  //                     FieldConstants.fieldWidth - drive.getPose().getY()),
+  //                 drive.getPose().getRotation().rotateBy(Rotation2d.kPi))
+  //             : drive.getPose();
+
+  //     if (Math.abs(curPose.getY() - Constants.AutonStartPositions.middle.getY())
+  //         < Math.abs(
+  //             (Constants.AutonStartPositions.middle.getY()
+  //                     - Constants.AutonStartPositions.right.getY())
+  //                 / 2)) {
+  //       autonX = Constants.AutonStartPositions.middle.getX();
+  //       autonY = Constants.AutonStartPositions.middle.getY();
+  //       autonR = Constants.AutonStartPositions.middle.getRotation().getDegrees();
+  //     } else if (curPose.getY() < Constants.AutonStartPositions.middle.getY()) {
+  //       autonX = Constants.AutonStartPositions.right.getX();
+  //       autonY = Constants.AutonStartPositions.right.getY();
+  //       autonR = Constants.AutonStartPositions.right.getRotation().getDegrees();
+  //     } else {
+  //       autonX = Constants.AutonStartPositions.left.getX();
+  //       autonY = Constants.AutonStartPositions.left.getY();
+  //       autonR = Constants.AutonStartPositions.left.getRotation().getDegrees();
+  //     }
+
+  //     offsetX = curPose.getX() - autonX;
+  //     offsetY = curPose.getY() - autonY;
+  //     offsetR = Math.abs(curPose.getRotation().getDegrees()) - autonR;
+
+  //     offsetXOK =
+  //         (Math.abs(offsetX) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR / 2))
+  //             ? true
+  //             : false;
+  //     offsetYOK =
+  //         (Math.abs(offsetY) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR / 2))
+  //             ? true
+  //             : false;
+  //     offsetROK =
+  //         (Math.abs(offsetR) < (Constants.AutonStartPositions.ROTATION_START_ERROR / 2))
+  //             ? true
+  //             : false;
+
+  //     SmartDashboard.putNumber("Auto/offset_X:", offsetX);
+  //     SmartDashboard.putNumber("Auto/offset_Y:", offsetY);
+  //     SmartDashboard.putNumber("Auto/offset_ROT:", offsetR);
+  //     SmartDashboard.putBoolean("Auto/offset_X_OK:", offsetXOK);
+  //     SmartDashboard.putBoolean("Auto/offset_Y_OK:", offsetYOK);
+  //     SmartDashboard.putBoolean("Auto/offset_ROT_OK:", offsetROK);
+
+  //     try {
+  //       m_autonName = autoChooser.get().getName();
+  //     } catch (Exception e) {
+  //       m_autonName = "";
+  //     }
+
+  //     robotStateOK =
+  //         (m_autonName.contains("LEFT")
+  //                 || m_autonName.contains("CENTER")
+  //                 || m_autonName.contains("RIGHT"))
+  //             && m_xboxController.isConnected()
+  //             && m_ps4Controller.isConnected()
+  //             && intakeCoralSensor.havePiece()
+  //             && elevatorWrist.getWrist().getPosition() < 0.01
+  //             && elevatorWrist.getElevator().getPosition() < 0.01;
+
+  //     SmartDashboard.putBoolean(
+  //         "Match Ready/auton_selected",
+  //         m_autonName.contains("LEFT")
+  //             || m_autonName.contains("CENTER")
+  //             || m_autonName.contains("RIGHT"));
+  //     SmartDashboard.putBoolean("Match Ready/xbox_connected", m_xboxController.isConnected());
+  //     SmartDashboard.putBoolean("Match Ready/ps4_connected", m_ps4Controller.isConnected());
+  //     SmartDashboard.putBoolean("Match Ready/coral_loaded", intakeCoralSensor.havePiece());
+  //     SmartDashboard.putBoolean(
+  //         "Match Ready/wrist_zeroed", elevatorWrist.getWrist().getPosition() < 0.01);
+  //     SmartDashboard.putBoolean(
+  //         "Match Ready/elevator_zeroed", elevatorWrist.getElevator().getPosition() < 0.01);
+
+  //     // set LEDs
+  //     if (robotStateOK) {
+  //       LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4);
+  //     } else {
+  //       // all auton ready but position
+  //       if (robotStateOK) {
+  //         LEDSegment.leftside.setColor(LightsSubsystem.green);
+  //         LEDSegment.rightside.setColor(LightsSubsystem.green);
+  //       } else {
+  //         LEDSegment.leftside.setColor(LightsSubsystem.red);
+  //         LEDSegment.rightside.setColor(LightsSubsystem.red);
+  //       }
+
+  //       // X offset LEDs
+  //       if (offsetXOK) {
+  //         LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
+  //         LEDSegment.autonXRight.setColor(LightsSubsystem.green);
+  //       } else {
+  //         if (offsetX < 0) {
+  //           LEDSegment.autonXLeft.setColor(LightsSubsystem.red);
+  //           LEDSegment.autonXRight.setColor(LightsSubsystem.green);
+  //         } else {
+  //           LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
+  //           LEDSegment.autonXRight.setColor(LightsSubsystem.red);
+  //         }
+  //       }
+
+  //       // Y offset LEDs
+  //       if (offsetYOK) {
+  //         LEDSegment.autonYLeft.setColor(LightsSubsystem.green);
+  //         LEDSegment.autonYRight.setColor(LightsSubsystem.green);
+  //       } else {
+  //         if (offsetY < 0) {
+  //           LEDSegment.autonYLeft.setColor(LightsSubsystem.red);
+  //           LEDSegment.autonYRight.setColor(LightsSubsystem.green);
+  //         } else {
+  //           LEDSegment.autonYLeft.setColor(LightsSubsystem.green);
+  //           LEDSegment.autonYRight.setColor(LightsSubsystem.red);
+  //         }
+  //       }
+
+  //       // rotation offset LEDs
+  //       if (offsetROK) {
+  //         LEDSegment.autonRLeft.setColor(LightsSubsystem.green);
+  //         LEDSegment.autonRRight.setColor(LightsSubsystem.green);
+  //       } else {
+  //         if (offsetR < 0) {
+  //           LEDSegment.autonRLeft.setColor(LightsSubsystem.red);
+  //           LEDSegment.autonRRight.setColor(LightsSubsystem.green);
+  //         } else {
+  //           LEDSegment.autonRLeft.setColor(LightsSubsystem.green);
+  //           LEDSegment.autonRRight.setColor(LightsSubsystem.red);
+  //         }
+  //       }
+  //     }
+  //   }
 
   public static void putAutonPoseToDashboard() {
     Pose2d curPose = AllianceFlipUtil.apply(drive.getPose());
