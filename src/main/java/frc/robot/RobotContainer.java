@@ -593,7 +593,9 @@ public class RobotContainer {
 
     m_ps4Controller
         .options()
-        .onTrue(ManipulatorCommands.CoralIntakePositionCmd(intakeShooterLow, elevatorWrist));
+        .onTrue(
+            ManipulatorCommands.intakeCmd(
+                intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
 
     // m_ps4Controller.PS().onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
 
@@ -635,6 +637,11 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  public void setAutonOn(boolean state) {
+    elevatorWrist.setAutoShootOn(state);
+    SmartDashboard.putString("AutoShoot", state ? "ON" : "OFF");
   }
 
   public static void putAutonPoseToDashboard() {
