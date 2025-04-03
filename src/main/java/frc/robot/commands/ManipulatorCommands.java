@@ -383,7 +383,7 @@ public class ManipulatorCommands {
         Commands.waitSeconds(0.5),
         DeployClimberCmd(myClimber),
         Commands.waitSeconds(0.5),
-        RetractClimberCmd(myClimber),
+        // RetractClimberCmd(myClimber),   // this will latch so we would not want to go to zero
         climberToZeroCmd(myClimber));
   }
 
