@@ -187,13 +187,15 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     robotContainer.StopSubSystems();
+    LEDSegment.all.disableLEDs();
   }
 
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
-    RobotContainer.putAutonPoseToDashboard();
-    RobotContainer.autonReadyStatus();
+    // RobotContainer.putAutonPoseToDashboard();
+    // RobotContainer.autonReadyStatus();
+    RobotContainer.autonReadyStatus2();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
