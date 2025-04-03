@@ -118,7 +118,11 @@ public class ManipulatorCommands {
           // initialization
           Command command;
           Command ledShooting =
-              Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.green));
+              Commands.sequence(
+                  // need to set false before setting LED green so elevatorWrist periodic does not
+                  // turn back to red during the shoot command
+                  Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(false)),
+                  Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.green)));
           Command afterShot =
               Commands.parallel(
                   Commands.runOnce(() -> havePiece = false),
@@ -182,8 +186,7 @@ public class ManipulatorCommands {
                     Commands.runOnce(
                         () -> Logger.recordOutput("Manipulator/IntakeShooterState", "ShootCoral")),
                     myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
-                    Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_SHOOT_TIMEOUT),
-                    Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(false)));
+                    Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_SHOOT_TIMEOUT));
           }
           // execute sequence
           return ledShooting.andThen(command).andThen(afterShot);

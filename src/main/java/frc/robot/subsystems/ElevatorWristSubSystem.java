@@ -67,7 +67,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
 
   public ElevatorWristSubSystem() {
 
-    reefPostFilter = LinearFilter.movingAverage(10);
+    reefPostFilter = LinearFilter.movingAverage(4);
     Logger.recordOutput(
         "ElevatorWristSubSystem/reefPostHighLimit", Constants.REEFPOSTSENSOR.HIGH_LIMIT);
 

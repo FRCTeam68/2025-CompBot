@@ -109,6 +109,7 @@ public final class Constants {
     public static final double CORAL_L1_SHOOT_SPEED = -10; // 40
     public static final double CORAL_SHOOT_TIMEOUT = .3;
     public static final double CORAL_L1_SHOOT_TIMEOUT = 1;
+    public static final double CORAL_AUTO_SHOOT_DELAY = 0.15;
     // algae
     public static final double ALGAE_INTAKE_SPEED = -40;
     public static final double ALGAE_HOLD_SPEED = -5;
