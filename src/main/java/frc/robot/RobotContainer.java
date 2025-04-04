@@ -477,7 +477,8 @@ public class RobotContainer {
                         .onlyIf(
                             () -> {
                               return elevatorWrist.isReefPostDetectedRaw()
-                                  && elevatorWrist.isAutoShootOn();
+                                  && elevatorWrist.isAutoShootOn()
+                                  && ManipulatorCommands.isHavePiece();
                             })));
 
     m_ps4Controller
@@ -490,7 +491,8 @@ public class RobotContainer {
                         .onlyIf(
                             () -> {
                               return elevatorWrist.isReefPostDetectedRaw()
-                                  && elevatorWrist.isAutoShootOn();
+                                  && elevatorWrist.isAutoShootOn()
+                                  && ManipulatorCommands.isHavePiece();
                             })));
 
     m_ps4Controller
@@ -503,7 +505,8 @@ public class RobotContainer {
                         .onlyIf(
                             () -> {
                               return elevatorWrist.isReefPostDetectedRaw()
-                                  && elevatorWrist.isAutoShootOn();
+                                  && elevatorWrist.isAutoShootOn()
+                                  && ManipulatorCommands.isHavePiece();
                             })));
 
     m_ps4Controller.cross().onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));

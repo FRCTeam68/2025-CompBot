@@ -224,7 +224,7 @@ public class Robot extends LoggedRobot {
       autonomousCommand.cancel();
     }
 
-    robotContainer.setAutonOn(true);
+    robotContainer.setAutonOn(false);
   }
 
   /** This function is called periodically during operator control. */

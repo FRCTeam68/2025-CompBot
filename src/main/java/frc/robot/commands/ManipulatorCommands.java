@@ -93,7 +93,6 @@ public class ManipulatorCommands {
                       CoralIntakePositionCmd(myIntakeLow, myElevatorWrist),
                       myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
                       Commands.waitUntil(() -> intake_sensor.havePiece()),
-                      ledHaveObject,
                       Commands.runOnce(() -> indexing = true),
                       Commands.waitSeconds(.03),
                       myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED),
@@ -104,7 +103,8 @@ public class ManipulatorCommands {
                           () ->
                               myIntake.setPosition(
                                   myIntake.getPosition()
-                                      - Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_REVERSE)));
+                                      - Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_REVERSE)),
+                      ledHaveObject);
             }
           }
           // execute sequence
