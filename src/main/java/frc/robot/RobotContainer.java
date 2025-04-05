@@ -308,6 +308,11 @@ public class RobotContainer {
             .centerNet(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
             .withName("CENTER_NET"));
     autoChooser.addOption(
+      "PLAYOFFS AUTON CENTER NET",
+      autons
+          .centerNet(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
+          .withName("PLAYOFFS_CENTER_NET"));
+    autoChooser.addOption(
         "AUTON RIGHT",
         autons
             .side(false, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)

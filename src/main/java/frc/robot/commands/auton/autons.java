@@ -230,8 +230,9 @@ public class autons {
       RollerSystem myIntake,
       RollerSystem myIntakeLow,
       ElevatorWristSubSystem myElevatorWrist,
-      RangeSensorSubSystem intake_sensor) {
-
+      RangeSensorSubSystem intake_sensor,
+      Boolean Playoff) {
+if{playoff}{PathPlannerPath[] path = pathBuilder("AUTON_CENTER_NET");}
     PathPlannerPath[] path = pathBuilder("AUTON_CENTER_NET");
 
     return Commands.sequence(
