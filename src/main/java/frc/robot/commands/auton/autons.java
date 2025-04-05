@@ -231,10 +231,14 @@ public class autons {
       RollerSystem myIntakeLow,
       ElevatorWristSubSystem myElevatorWrist,
       RangeSensorSubSystem intake_sensor,
-      Boolean Playoff) {
-if{playoff}{PathPlannerPath[] path = pathBuilder("AUTON_CENTER_NET");}
-    PathPlannerPath[] path = pathBuilder("AUTON_CENTER_NET");
-
+      Boolean playoff) {
+    // if (playoff) {
+    //   PathPlannerPath[] path = pathBuilder("PLAYOFFS_AUTON_CENTER_NET");
+    // } else {
+    //   PathPlannerPath[] path = pathBuilder("AUTON_CENTER_NET");
+    // }
+    PathPlannerPath[] path =
+        pathBuilder(playoff ? "PLAYOFFS_AUTON_CENTER_NET" : "AUTON_CENTER_NET");
     return Commands.sequence(
         Commands.runOnce(() -> ManipulatorCommands.havePiece = true),
         Commands.parallel(
