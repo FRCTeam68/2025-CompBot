@@ -311,7 +311,7 @@ public final class Constants {
     public static final Color GREEN = new Color(56, 209, 0, 0);
     public static final Color BLUE = new Color(0, 0, 255, 0);
     public static final Color RED = new Color(255, 0, 0, 0);
-      
+
     // game piece colors
     public static final Color YELLOW = new Color(242, 60, 0, 0);
     public static final Color PURPLE = new Color(184, 0, 185, 0);

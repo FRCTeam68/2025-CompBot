@@ -14,7 +14,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CANDLE;
 import frc.robot.Constants.LEDColor;
-
 import org.littletonrobotics.junction.Logger;
 
 public class LightsSubsystem extends SubsystemBase {
