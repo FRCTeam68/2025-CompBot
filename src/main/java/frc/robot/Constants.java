@@ -278,11 +278,11 @@ public final class Constants {
     public static final int CANID = 60;
     public static final String CANBUS = "rio";
     public static final double BRIGHTNESS_SCALAR = 1;
-    public static final boolean DISABLE_WHEN_LOS = false;
-    public static final boolean STATUS_OFF_WHEN_ACTIVE = false;
+    public static final boolean DISABLE_WHEN_LOS = false; // disable when loss of signal
+    public static final boolean STATUS_OFF_WHEN_ACTIVE = false; // disable onboard led when active
     public static final LEDStripType LED_STRIP_TYPE = LEDStripType.GRB;
-    public static final boolean V5_ENABLED = true;
-    public static final VBatOutputMode V_BAT_OUTPUT_MODE = VBatOutputMode.Off;
+    public static final boolean V5_ENABLED = true; // 5 volt output
+    public static final VBatOutputMode V_BAT_OUTPUT_MODE = VBatOutputMode.Off; // 12 volt output
   }
 
   public static final class LEDSegment {
