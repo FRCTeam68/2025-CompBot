@@ -34,12 +34,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.LEDSegment;
+import frc.robot.Constants.LEDColor;
 import frc.robot.commands.*;
 import frc.robot.commands.auton.autons;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorWristSubSystem;
 import frc.robot.subsystems.LightsSubsystem;
-import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.RangeSensorSubSystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -54,7 +55,6 @@ import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.util.AllianceFlipUtil;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -651,9 +651,7 @@ public class RobotContainer {
     SmartDashboard.putString("AutoShoot", state ? "ON" : "OFF");
   }
 
-  // ***************************************************************************
-
-  public static void autonReadyStatus2() {
+  public static void autonReadyStatus() {
     Pose2d curPose;
     double autonX = 0;
     double autonY = 0;
@@ -750,194 +748,59 @@ public class RobotContainer {
 
     // set LEDs
     if (robotStateOK && offsetXOK && offsetYOK && offsetROK) {
-      LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4);
+      LightsSubsystem.setBandAnimation(LEDColor.GREEN, 4, LEDSegment.ALL);
     } else {
       // all auton ready but position
       if (robotStateOK) {
-        LEDSegment.leftside.setColor(LightsSubsystem.green);
-        LEDSegment.rightside.setColor(LightsSubsystem.green);
+        LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.LEFT_SIDE);
+        LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.RIGHT_SIDE);
       } else {
-        LEDSegment.leftside.setColor(LightsSubsystem.red);
-        LEDSegment.rightside.setColor(LightsSubsystem.red);
+        LightsSubsystem.setColor(LEDColor.RED, LEDSegment.LEFT_SIDE);
+        LightsSubsystem.setColor(LEDColor.RED, LEDSegment.RIGHT_SIDE);
       }
 
       // X offset LEDs
       if (offsetXOK) {
-        LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
-        LEDSegment.autonXRight.setColor(LightsSubsystem.green);
+        LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
+        LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
       } else {
         if (offsetX < 0) {
-          LEDSegment.autonXLeft.setColor(LightsSubsystem.red);
-          LEDSegment.autonXRight.setColor(LightsSubsystem.green);
+          LightsSubsystem.setColor(LEDColor.RED, LEDSegment.AUTON_X_LEFT);
+          LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
         } else {
-          LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
-          LEDSegment.autonXRight.setColor(LightsSubsystem.red);
+          LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
+          LightsSubsystem.setColor(LEDColor.RED, LEDSegment.AUTON_X_RIGHT);
         }
       }
 
       // Y offset LEDs
       if (offsetYOK) {
-        LEDSegment.autonYLeft.setColor(LightsSubsystem.green);
-        LEDSegment.autonYRight.setColor(LightsSubsystem.green);
+        LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
+        LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
       } else {
         if (offsetY < 0) {
-          LEDSegment.autonYLeft.setColor(LightsSubsystem.red);
-          LEDSegment.autonYRight.setColor(LightsSubsystem.green);
+          LightsSubsystem.setColor(LEDColor.RED, LEDSegment.AUTON_Y_LEFT);
+          LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
         } else {
-          LEDSegment.autonYLeft.setColor(LightsSubsystem.green);
-          LEDSegment.autonYRight.setColor(LightsSubsystem.red);
+          LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
+          LightsSubsystem.setColor(LEDColor.RED, LEDSegment.AUTON_Y_RIGHT);
         }
       }
 
       // rotation offset LEDs
       if (offsetROK) {
-        LEDSegment.autonRLeft.setColor(LightsSubsystem.green);
-        LEDSegment.autonRRight.setColor(LightsSubsystem.green);
+        LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
+        LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
       } else {
         if (offsetR < 0) {
-          LEDSegment.autonRLeft.setColor(LightsSubsystem.red);
-          LEDSegment.autonRRight.setColor(LightsSubsystem.green);
+          LightsSubsystem.setColor(LEDColor.RED, LEDSegment.AUTON_R_LEFT);
+          LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
         } else {
-          LEDSegment.autonRLeft.setColor(LightsSubsystem.green);
-          LEDSegment.autonRRight.setColor(LightsSubsystem.red);
+          LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
+          LightsSubsystem.setColor(LEDColor.RED, LEDSegment.AUTON_R_RIGHT);
         }
       }
     }
-  }
-
-  // ***************************************************************************
-
-  public static void putAutonPoseToDashboard() {
-    Pose2d curPose = AllianceFlipUtil.apply(drive.getPose());
-    double autonX = 0;
-    double autonY = 0;
-    double autonR = 0;
-    double offsetX = 0;
-    double offsetY = 0;
-    double offsetR = 0;
-    boolean offsetXOK = false;
-    boolean offsetYOK = false;
-    boolean offsetROK = false;
-
-    try {
-      m_autonName = autoChooser.get().getName();
-    } catch (Exception e) {
-      m_autonName = "";
-    }
-
-    if (m_autonName.contains("LEFT")) {
-      autonX = Constants.AutonStartPositions.left.getX();
-      autonY = Constants.AutonStartPositions.left.getY();
-      autonR = Constants.AutonStartPositions.left.getRotation().getDegrees();
-    } else if (m_autonName.contains("CENTER")) {
-      autonX = Constants.AutonStartPositions.middle.getX();
-      autonY = Constants.AutonStartPositions.middle.getY();
-      autonR = Constants.AutonStartPositions.middle.getRotation().getDegrees();
-    } else if (m_autonName.contains("RIGHT")) {
-      autonX = Constants.AutonStartPositions.right.getX();
-      autonY = Constants.AutonStartPositions.right.getY();
-      autonR = Constants.AutonStartPositions.right.getRotation().getDegrees();
-    }
-
-    offsetX = curPose.getX() - autonX;
-    offsetY = curPose.getY() - autonY;
-    offsetR = Math.abs(curPose.getRotation().getDegrees()) - autonR;
-
-    offsetXOK =
-        (Math.abs(offsetX) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR / 2))
-            ? true
-            : false;
-    offsetYOK =
-        (Math.abs(offsetY) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR / 2))
-            ? true
-            : false;
-    offsetROK =
-        (Math.abs(offsetR) < (Constants.AutonStartPositions.ROTATION_START_ERROR / 2))
-            ? true
-            : false;
-
-    SmartDashboard.putNumber("Auto/offset_X:", offsetX);
-    SmartDashboard.putNumber("Auto/offset_Y:", offsetY);
-    SmartDashboard.putNumber("Auto/offset_ROT:", offsetR);
-    SmartDashboard.putBoolean("Auto/offset_X_OK:", offsetXOK);
-    SmartDashboard.putBoolean("Auto/offset_Y_OK:", offsetYOK);
-    SmartDashboard.putBoolean("Auto/offset_ROT_OK:", offsetROK);
-
-    if (offsetXOK && offsetYOK && offsetROK) {
-      auton_start_position_ok = true;
-    } else {
-      auton_start_position_ok = false;
-      if (offsetXOK) {
-        LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
-        LEDSegment.autonXRight.setColor(LightsSubsystem.green);
-      } else {
-        if (offsetX < 0) {
-          LEDSegment.autonXLeft.setColor(LightsSubsystem.red);
-          LEDSegment.autonXRight.setColor(LightsSubsystem.green);
-        } else {
-          LEDSegment.autonXLeft.setColor(LightsSubsystem.green);
-          LEDSegment.autonXRight.setColor(LightsSubsystem.red);
-        }
-      }
-      if (offsetYOK) {
-        LEDSegment.autonYLeft.setColor(LightsSubsystem.green);
-        LEDSegment.autonYRight.setColor(LightsSubsystem.green);
-      } else {
-        if (offsetY < 0) {
-          LEDSegment.autonYLeft.setColor(LightsSubsystem.red);
-          LEDSegment.autonYRight.setColor(LightsSubsystem.green);
-        } else {
-          LEDSegment.autonYLeft.setColor(LightsSubsystem.green);
-          LEDSegment.autonYRight.setColor(LightsSubsystem.red);
-        }
-      }
-      if (offsetROK) {
-        LEDSegment.autonRLeft.setColor(LightsSubsystem.green);
-        LEDSegment.autonRRight.setColor(LightsSubsystem.green);
-      } else {
-        if (offsetR < 0) {
-          LEDSegment.autonRLeft.setColor(LightsSubsystem.red);
-          LEDSegment.autonRRight.setColor(LightsSubsystem.green);
-        } else {
-          LEDSegment.autonRLeft.setColor(LightsSubsystem.green);
-          LEDSegment.autonRRight.setColor(LightsSubsystem.red);
-        }
-      }
-    }
-  }
-
-  public static void autonReadyStatus() {
-    autonready =
-        (m_autonName.contains("LEFT")
-                || m_autonName.contains("CENTER")
-                || m_autonName.contains("RIGHT"))
-            && m_xboxController.isConnected()
-            && m_ps4Controller.isConnected()
-            && intakeCoralSensor.havePiece()
-            && elevatorWrist.getWrist().getPosition() < 0.01
-            && elevatorWrist.getElevator().getPosition() < 0.01;
-    if (autonready && auton_start_position_ok) {
-      LEDSegment.all.setBandAnimation(LightsSubsystem.green, 4);
-    } else if (autonready) {
-      LEDSegment.leftside.setColor(LightsSubsystem.green);
-      LEDSegment.rightside.setColor(LightsSubsystem.green);
-    } else {
-      LEDSegment.leftside.setColor(LightsSubsystem.red);
-      LEDSegment.rightside.setColor(LightsSubsystem.red);
-    }
-
-    SmartDashboard.putBoolean(
-        "Match Ready/auton_selected",
-        m_autonName.contains("LEFT")
-            || m_autonName.contains("CENTER")
-            || m_autonName.contains("RIGHT"));
-    SmartDashboard.putBoolean("Match Ready/xbox_connected", m_xboxController.isConnected());
-    SmartDashboard.putBoolean("Match Ready/ps4_connected", m_ps4Controller.isConnected());
-    SmartDashboard.putBoolean("Match Ready/coral_loaded", intakeCoralSensor.havePiece());
-    SmartDashboard.putBoolean(
-        "Match Ready/wrist_zeroed", elevatorWrist.getWrist().getPosition() < 0.01);
-    SmartDashboard.putBoolean(
-        "Match Ready/elevator_zeroed", elevatorWrist.getElevator().getPosition() < 0.01);
   }
 
   public static void logClimberPose() {

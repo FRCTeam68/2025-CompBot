@@ -26,8 +26,6 @@ import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.LightsSubsystem;
-import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -168,18 +166,6 @@ public class Robot extends LoggedRobot {
     if (!canInfo2.Status.isOK())
       Logger.recordOutput("CANBUS/rio/Desc", canInfo2.Status.getDescription());
 
-    // led status lights
-    if (canInfo.Status.isOK()) {
-      LEDSegment.LED4.setColor(LightsSubsystem.green);
-    } else {
-      LEDSegment.LED4.setColor(LightsSubsystem.red);
-    }
-    if (canInfo2.Status.isOK()) {
-      LEDSegment.LED5.setColor(LightsSubsystem.green);
-    } else {
-      LEDSegment.LED5.setColor(LightsSubsystem.red);
-    }
-
     RobotContainer.logClimberPose();
   }
 
@@ -187,15 +173,12 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     robotContainer.StopSubSystems();
-    LEDSegment.all.disableLEDs();
   }
 
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
-    // RobotContainer.putAutonPoseToDashboard();
-    // RobotContainer.autonReadyStatus();
-    RobotContainer.autonReadyStatus2();
+    RobotContainer.autonReadyStatus();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */

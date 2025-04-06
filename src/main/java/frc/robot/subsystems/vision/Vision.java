@@ -25,8 +25,9 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.LEDColor;
 import frc.robot.subsystems.LightsSubsystem;
-import frc.robot.subsystems.LightsSubsystem.LEDSegment;
+import frc.robot.subsystems.LightsSubsystem.Segment;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,7 +60,7 @@ public class Vision extends SubsystemBase {
     }
 
     // initalize mega tag 1 light
-    LEDSegment.LED6.setColor(LightsSubsystem.red);
+    LightsSubsystem.setColor(LEDColor.RED, new Segment(6, 1, 0));
   }
 
   /**
@@ -145,26 +146,6 @@ public class Vision extends SubsystemBase {
           robotPosesAccepted.add(observation.pose());
         }
 
-        // led status lights
-        if (cameraIndex == 0) {
-          if (!rejectPose) {
-            LEDSegment.LED0.setColor(LightsSubsystem.blue);
-          } else if (inputs[cameraIndex].connected) {
-            LEDSegment.LED0.setColor(LightsSubsystem.green);
-          } else {
-            LEDSegment.LED0.setColor(LightsSubsystem.red);
-          }
-        }
-        if (cameraIndex == 1) {
-          if (!rejectPose) {
-            LEDSegment.LED1.setColor(LightsSubsystem.blue);
-          } else if (inputs[cameraIndex].connected) {
-            LEDSegment.LED1.setColor(LightsSubsystem.green);
-          } else {
-            LEDSegment.LED1.setColor(LightsSubsystem.red);
-          }
-        }
-
         // Skip if rejected
         if (rejectPose) {
           continue;
@@ -194,7 +175,7 @@ public class Vision extends SubsystemBase {
           megaTagCounter += 1;
           if (megaTagCounter > 50) {
             inputs[cameraIndex].skipMegaTag1 = true;
-            LEDSegment.LED6.setColor(LightsSubsystem.green);
+            LightsSubsystem.setColor(LEDColor.GREEN, new Segment(6, 1, 0));
           }
         }
       }

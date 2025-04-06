@@ -25,6 +25,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.subsystems.LightsSubsystem.Color;
+import frc.robot.subsystems.LightsSubsystem.Segment;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -281,6 +283,38 @@ public final class Constants {
     public static final LEDStripType LED_STRIP_TYPE = LEDStripType.GRB;
     public static final boolean V5_ENABLED = true;
     public static final VBatOutputMode V_BAT_OUTPUT_MODE = VBatOutputMode.Off;
+  }
+
+  public static final class LEDSegment {
+    // standard segments
+    public static final Segment LEFT_SIDE = new Segment(8, 37, 1);
+    public static final Segment MIDDLE = new Segment(45, 18, 2);
+    public static final Segment RIGHT_SIDE = new Segment(63, 36, 3);
+    public static final Segment ALL = new Segment(8, 92, 4);
+
+    // auton setup
+    public static final Segment AUTON_Y_LEFT = new Segment(45, 4, 0);
+    public static final Segment AUTON_R_LEFT = new Segment(49, 3, 0);
+    public static final Segment AUTON_X_LEFT = new Segment(52, 2, 0);
+    public static final Segment AUTON_X_RIGHT = new Segment(54, 2, 0);
+    public static final Segment AUTON_R_RIGHT = new Segment(56, 3, 0);
+    public static final Segment AUTON_Y_RIGHT = new Segment(59, 4, 0);
+  }
+
+  public static final class LEDColor {
+    // team colors
+    public static final Color ORANGE = new Color(255, 25, 0, 0);
+    public static final Color BLACK = new Color(0, 0, 0, 0);
+
+    // indicator colors
+    public static final Color WHITE = new Color(255, 230, 220, 0);
+    public static final Color GREEN = new Color(56, 209, 0, 0);
+    public static final Color BLUE = new Color(0, 0, 255, 0);
+    public static final Color RED = new Color(255, 0, 0, 0);
+      
+    // game piece colors
+    public static final Color YELLOW = new Color(242, 60, 0, 0);
+    public static final Color PURPLE = new Color(184, 0, 185, 0);
   }
 
   // Aim constants

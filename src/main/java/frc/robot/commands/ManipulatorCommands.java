@@ -17,10 +17,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import frc.robot.Constants;
+import frc.robot.Constants.LEDColor;
+import frc.robot.Constants.LEDSegment;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.ElevatorWristSubSystem;
 import frc.robot.subsystems.LightsSubsystem;
-import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import frc.robot.subsystems.RangeSensorSubSystem;
 import frc.robot.subsystems.rollers.RollerSystem;
 import java.util.Set;
@@ -45,9 +46,10 @@ public class ManipulatorCommands {
           // initialization
           Command command;
           Command ledIntaking =
-              Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4));
+              Commands.runOnce(
+                  () -> LightsSubsystem.setBandAnimation(LEDColor.BLUE, 4, LEDSegment.ALL));
           Command ledHaveObject =
-              Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue));
+              Commands.runOnce(() -> LightsSubsystem.setColor(LEDColor.BLUE, LEDSegment.ALL));
           Command haveObjectFlag =
               Commands.parallel(
                   Commands.runOnce(() -> havePiece = true),
@@ -124,12 +126,12 @@ public class ManipulatorCommands {
                   // need to set false before setting LED green so elevatorWrist periodic does not
                   // turn back to red during the shoot command
                   Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(false)),
-                  Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.green)));
+                  Commands.runOnce(() -> LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.ALL)));
           Command afterShot =
               Commands.parallel(
                   Commands.runOnce(() -> havePiece = false),
                   Commands.runOnce(() -> indexing = false),
-                  Commands.runOnce(() -> LEDSegment.all.disableLEDs()),
+                  Commands.runOnce(() -> LightsSubsystem.disableLEDs(LEDSegment.ALL)),
                   myIntake.setSpeedCmd(0),
                   myIntakeLow.setSpeedCmd(0));
           command = Commands.none();
@@ -170,7 +172,7 @@ public class ManipulatorCommands {
             ///// SHOOT CORAL L1 PIVOT /////
             // command =
             //     Commands.sequence(
-            //         Commands.parallel(
+            //         Commands.parALLel(
             //             Commands.runOnce(
             //                 () ->
             //                     Logger.recordOutput("Manipulator/IntakeShooterState",
@@ -310,32 +312,32 @@ public class ManipulatorCommands {
 
   public static Command DeployClimberCmd(RollerSystem myClimber) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.red, 4)),
+        Commands.runOnce(() -> LightsSubsystem.setFadeAnimation(LEDColor.RED, 4, LEDSegment.ALL)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "deploying")),
         Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.DEPLOY), myClimber),
         Commands.waitUntil(() -> myClimber.atPosition()),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "deployed")),
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)));
+        Commands.runOnce(() -> LightsSubsystem.setColor(LEDColor.RED, LEDSegment.ALL)));
   }
 
   public static Command RetractClimberCmd(RollerSystem myClimber) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.green, 4)),
+        Commands.runOnce(() -> LightsSubsystem.setFadeAnimation(LEDColor.GREEN, 4, LEDSegment.ALL)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "climbing")),
         Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.RETRACT), myClimber),
         Commands.waitUntil(() -> myClimber.atPosition()),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "CLIMBED")),
-        Commands.runOnce(() -> LEDSegment.all.setRainbowAnimation(4)));
+        Commands.runOnce(() -> LightsSubsystem.setRainbowAnimation(4, LEDSegment.ALL)));
   }
 
   public static Command climberToZeroCmd(RollerSystem myClimber) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setFadeAnimation(LightsSubsystem.red, 4)),
+        Commands.runOnce(() -> LightsSubsystem.setFadeAnimation(LEDColor.RED, 4, LEDSegment.ALL)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "to zero")),
         Commands.runOnce(() -> myClimber.setPosition(0), myClimber),
         Commands.waitUntil(() -> myClimber.atPosition()),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "at zero")),
-        Commands.runOnce(() -> LEDSegment.all.setRainbowAnimation(4)));
+        Commands.runOnce(() -> LightsSubsystem.setRainbowAnimation(4, LEDSegment.ALL)));
   }
 
   // NO CHECKS
