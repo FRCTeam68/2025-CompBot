@@ -15,6 +15,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import com.ctre.phoenix.led.CANdle.LEDStripType;
+import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
@@ -85,11 +87,6 @@ public final class Constants {
     public static final double REEF_TIMEOUT = 0.4;
     public static final double REEF_POST_TIMEOUT = 0.3;
     public static final double INDEX_DELAY = 0.4;
-  }
-
-  public static final class LED {
-    public static final int PWMPORT = 0;
-    public static final int BUFFERSIZE = 120;
   }
 
   public static final class ROLLER {
@@ -275,8 +272,15 @@ public final class Constants {
   //   public static final int[] stage = {14, 15, 16};
   // }
 
-  public static final class LightsConstants {
-    public static final int CANDLE_PORT = 60;
+  public static final class CANDLE {
+    public static final int CANID = 60;
+    public static final String CANBUS = "rio";
+    public static final double BRIGHTNESS_SCALAR = 1;
+    public static final boolean DISABLE_WHEN_LOS = false;
+    public static final boolean STATUS_OFF_WHEN_ACTIVE = false;
+    public static final LEDStripType LED_STRIP_TYPE = LEDStripType.GRB;
+    public static final boolean V5_ENABLED = true;
+    public static final VBatOutputMode V_BAT_OUTPUT_MODE = VBatOutputMode.Off;
   }
 
   // Aim constants

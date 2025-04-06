@@ -4,6 +4,7 @@ import com.ctre.phoenix.led.Animation;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdle.VBatOutputMode;
+import com.ctre.phoenix.led.CANdleConfiguration;
 import com.ctre.phoenix.led.ColorFlowAnimation;
 import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
 import com.ctre.phoenix.led.LarsonAnimation;
@@ -15,11 +16,12 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.LightsConstants;
+import frc.robot.Constants.CANDLE;
 import org.littletonrobotics.junction.Logger;
 
 public class LightsSubsystem extends SubsystemBase {
-  private static final CANdle candle = new CANdle(LightsConstants.CANDLE_PORT);
+  private static final CANdle candle = new CANdle(CANDLE.CANID, CANDLE.CANBUS);
+  private final CANdleConfiguration config = new CANdleConfiguration();
 
   // Team colors
   public static final Color orange = new Color(255, 25, 0);
@@ -32,56 +34,32 @@ public class LightsSubsystem extends SubsystemBase {
   // Indicator colors
   public static final Color white = new Color(255, 230, 220);
   public static final Color green = new Color(56, 209, 0);
-  // public static final Color blue = new Color(8, 32, 255);
   public static final Color blue = new Color(0, 0, 255);
   public static final Color red = new Color(255, 0, 0);
 
   private double m_current;
 
   public LightsSubsystem() {
-    candle.configFactoryDefault();
-    candle.configVBatOutput(VBatOutputMode.On);
-    candle.configLEDType(LEDStripType.GRB);
+    config.brightnessScalar = CANDLE.BRIGHTNESS_SCALAR;
+    config.disableWhenLOS = CANDLE.DISABLE_WHEN_LOS;
+    config.statusLedOffWhenActive = CANDLE.STATUS_OFF_WHEN_ACTIVE;
+    config.stripType = CANDLE.LED_STRIP_TYPE;
+    config.v5Enabled = CANDLE.V5_ENABLED;
+    config.vBatOutputMode = CANDLE.V_BAT_OUTPUT_MODE;
+
+    candle.configAllSettings(config, 100);
+
+    // clear animation slots
     candle.clearAnimation(0);
     candle.clearAnimation(1);
     candle.clearAnimation(2);
     candle.clearAnimation(3);
     candle.clearAnimation(4);
-    candle.configBrightnessScalar(1);
-
-    // CANdleConfiguration candleConfiguration = new CANdleConfiguration();
-    // // candleConfiguration.statusLedOffWhenActive = false; //true;
-    // // candleConfiguration.disableWhenLOS = false;
-    // candleConfiguration.stripType = LEDStripType.RGB;
-    // candleConfiguration.brightnessScalar = 1.0;
-    // // candleConfiguration.vBatOutputMode = VBatOutputMode.On; //VBatOutputMode.Modulated
-    // candle.configAllSettings(candleConfiguration, 100);
-
-    // setDefaultCommand(defaultCommand());
   }
 
   public void setBrightness(double percent) {
     candle.configBrightnessScalar(percent, 100);
   }
-
-  // public Command defaultCommand() {
-  //     return runOnce(() -> {
-  //         // LEDSegment.BatteryIndicator.fullClear();
-  //         // LEDSegment.PressureIndicator.fullClear();
-  //         // LEDSegment.MastEncoderIndicator.fullClear();
-  //         // LEDSegment.BoomEncoderIndicator.fullClear();
-  //         // LEDSegment.WristEncoderIndicator.fullClear();
-  //         LEDSegment.Do1to4.setColor(yellow);
-  //         LEDSegment.Do5to8.setColor(yellow);
-  //         LEDSegment.side1.setColor(orange);
-  //         LEDSegment.side1heading.setColor(orange);
-  //         LEDSegment.side1distance.setColor(orange);
-  //         LEDSegment.side1target.setColor(orange);
-  //         // LEDSegment.side2.setColor(blue);
-  //         // LEDSegment.side3.setColor(orange);
-  //         // LEDSegment.side4.setColor(blue);
-  //     });
-  // }
 
   public Command clearSegmentCommand(LEDSegment segment) {
     return runOnce(
@@ -92,14 +70,6 @@ public class LightsSubsystem extends SubsystemBase {
   }
 
   public static enum LEDSegment {
-    // BatteryIndicator(0, 2, 0),
-    // PressureIndicator(2, 2, 1),
-    // MastEncoderIndicator(4, 1, -1),
-    // BoomEncoderIndicator(5, 1, -1),
-    // WristEncoderIndicator(6, 1, -1),
-    // DriverStationIndicator(7, 1, -1),
-    // Do1to4(0, 4, 0),
-    // Do5to8(4, 4, 1),
     LED0(0, 1, 0), // camera - hopper
     LED1(1, 1, 0), // camera - reef
     LED2(2, 1, 0), // CANrange - intake
@@ -108,21 +78,6 @@ public class LightsSubsystem extends SubsystemBase {
     LED5(5, 1, 0), // CAnivore can bus
     LED6(6, 1, 0),
     LED7(7, 1, 0),
-    // side1(8, 7, 2),
-    // side1heading(15,1,3),
-    // side1distance(16,1,4),
-    // side1target(17,1,-1),
-    // side2(18, 7, 2),
-    // side3(28, 7, 2),
-    // side4(38, 7, 2);
-
-    // side1(8, 4, 2),
-    // side1heading(12,1,3),
-    // side1distance(13,1,4),
-    // side1target(14,1,-1),
-    // side2(15, 4, 5),
-    // side3(22, 4, 6),
-    // side4(29, 4, 7);
 
     // auton setup
     autonYLeft(45, 4, 0),
@@ -137,10 +92,6 @@ public class LightsSubsystem extends SubsystemBase {
     middle(45, 18, 2),
     rightside(63, 36, 3),
     all(8, 92, 4);
-    // side1target(33, 1, 3),
-    // side1distance(34, 1, 4),
-    // side1heading(35, 1, -1);
-    // side2(36, 28, 5);
 
     public final int startIndex;
     public final int segmentSize;
