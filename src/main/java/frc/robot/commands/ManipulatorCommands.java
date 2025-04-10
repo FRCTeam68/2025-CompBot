@@ -71,7 +71,7 @@ public class ManipulatorCommands {
                     myIntakeLow.setSpeedCmd(Constants.INTAKE_SHOOTER_LOW.ALGAE_HOLD_SPEED));
           } else {
             ///// INTAKE CORAL /////
-            if (intake_sensor.havePiece()) {
+            if (intake_sensor.isDetected()) {
               command =
                   Commands.parallel(
                       Commands.runOnce(
@@ -94,13 +94,13 @@ public class ManipulatorCommands {
                               Logger.recordOutput("Manipulator/IntakeShooterState", "IntakeCoral")),
                       CoralIntakePositionCmd(myIntakeLow, myElevatorWrist),
                       myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
-                      Commands.waitUntil(() -> intake_sensor.havePiece()),
+                      Commands.waitUntil(() -> intake_sensor.isDetected()),
                       Commands.runOnce(() -> indexing = true),
                       Commands.waitSeconds(.03),
                       myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED),
-                      Commands.waitUntil(() -> intake_sensor.havePiece() == false),
+                      Commands.waitUntil(() -> intake_sensor.isDetected() == false),
                       myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED * -1),
-                      Commands.waitUntil(() -> intake_sensor.havePiece()),
+                      Commands.waitUntil(() -> intake_sensor.isDetected()),
                       Commands.runOnce(
                           () ->
                               myIntake.setPosition(

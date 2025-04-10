@@ -149,11 +149,7 @@ public class RobotContainer {
         intakeShooterLow.setPieceCurrentThreshold(40);
 
         intakeCoralSensor =
-            new RangeSensorSubSystem(
-                "intakeCoral",
-                Constants.INTAKE_CORAL_SENSOR.CANID,
-                Constants.INTAKE_CORAL_SENSOR.CANBUS,
-                Constants.INTAKE_CORAL_SENSOR.THRESHOLD);
+            new RangeSensorSubSystem(Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
 
         elevatorWrist = new ElevatorWristSubSystem();
 
@@ -209,11 +205,7 @@ public class RobotContainer {
                 "IntakeShooterLow", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
         // TBD, this needs an actual simulated sensor.....
         intakeCoralSensor =
-            new RangeSensorSubSystem(
-                "intakeCoral",
-                Constants.INTAKE_CORAL_SENSOR.CANID,
-                Constants.INTAKE_CORAL_SENSOR.CANBUS,
-                Constants.INTAKE_CORAL_SENSOR.THRESHOLD);
+            new RangeSensorSubSystem(Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
 
         // TBD, this needs an actual simulated sensor.....
         elevatorWrist = new ElevatorWristSubSystem();
@@ -243,10 +235,7 @@ public class RobotContainer {
         intakeShooterLow = new RollerSystem("IntakeShooterLow", new RollerSystemIO() {});
         intakeCoralSensor =
             new RangeSensorSubSystem(
-                "intakeCoral",
-                Constants.INTAKE_CORAL_SENSOR.CANID,
-                Constants.INTAKE_CORAL_SENSOR.CANBUS,
-                Constants.INTAKE_CORAL_SENSOR.THRESHOLD); // TBD, need better dummy
+                Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS); // TBD, need better dummy
 
         // TBD, this needs an actual simulated sensor.....
         elevatorWrist = new ElevatorWristSubSystem();
@@ -359,7 +348,7 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    Trigger m_LaserCanTrigger = new Trigger(intakeCoralSensor::havePiece);
+    Trigger m_LaserCanTrigger = new Trigger(intakeCoralSensor::isDetected);
     m_LaserCanTrigger
         .onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("laserCanTrip", true)))
         .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("laserCanTrip", false)));
@@ -729,7 +718,7 @@ public class RobotContainer {
                 || m_autonName.contains("RIGHT"))
             && m_xboxController.isConnected()
             && m_ps4Controller.isConnected()
-            && intakeCoralSensor.havePiece()
+            && intakeCoralSensor.isDetected()
             && elevatorWrist.getWrist().getPosition() < 0.01
             && elevatorWrist.getElevator().getPosition() < 0.01;
 
@@ -740,7 +729,7 @@ public class RobotContainer {
             || m_autonName.contains("RIGHT"));
     SmartDashboard.putBoolean("Match Ready/xbox_connected", m_xboxController.isConnected());
     SmartDashboard.putBoolean("Match Ready/ps4_connected", m_ps4Controller.isConnected());
-    SmartDashboard.putBoolean("Match Ready/coral_loaded", intakeCoralSensor.havePiece());
+    SmartDashboard.putBoolean("Match Ready/coral_loaded", intakeCoralSensor.isDetected());
     SmartDashboard.putBoolean(
         "Match Ready/wrist_zeroed", elevatorWrist.getWrist().getPosition() < 0.01);
     SmartDashboard.putBoolean(

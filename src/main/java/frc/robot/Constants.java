@@ -17,9 +17,14 @@ import static edu.wpi.first.units.Units.Meters;
 
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdle.VBatOutputMode;
+import com.ctre.phoenix6.configs.CANrangeConfiguration;
+import com.ctre.phoenix6.configs.FovParamsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.ProximityParamsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.ToFParamsConfigs;
+import com.ctre.phoenix6.signals.UpdateModeValue;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -27,6 +32,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.subsystems.LightsSubsystem.Color;
 import frc.robot.subsystems.LightsSubsystem.Segment;
+import frc.robot.subsystems.RangeSensorSubSystem.CANrangeConstants;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -149,10 +155,28 @@ public final class Constants {
   }
 
   public static final class INTAKE_CORAL_SENSOR {
-    // LaserCAN distance sensor
-    public static final int CANID = 37;
-    public static final String CANBUS = "rio";
-    public static final double THRESHOLD = 20; // mm
+    public static final CANrangeConstants CONFIGURATION_CONFIGS =
+        new CANrangeConstants(
+            "Coral Sensor",
+            37,
+            "rio",
+            new Segment(2, 1, 0),
+            new CANrangeConfiguration()
+                .withFovParams(
+                    new FovParamsConfigs()
+                        .withFOVCenterX(0)
+                        .withFOVCenterY(0)
+                        .withFOVRangeX(6.75)
+                        .withFOVRangeY(6.75))
+                .withProximityParams(
+                    new ProximityParamsConfigs()
+                        .withProximityThreshold(400 / 1000)
+                        .withProximityHysteresis(10 / 1000)
+                        .withMinSignalStrengthForValidMeasurement(2500))
+                .withToFParams(
+                    new ToFParamsConfigs()
+                        .withUpdateMode(UpdateModeValue.ShortRange100Hz)
+                        .withUpdateFrequency(null)));
   }
 
   public static final class WRIST {
@@ -239,10 +263,28 @@ public final class Constants {
   }
 
   public static final class REEFPOSTSENSOR {
-    // distance sensor
-    public static final int CANID = 47;
-    public static final String CANBUS = "rio";
-    public static final double THRESHOLD = 50; // mm
+    public static final CANrangeConstants CONFIGURATION_CONFIGS =
+        new CANrangeConstants(
+            "Reef Post Sensor",
+            47,
+            "rio",
+            new Segment(3, 1, 0),
+            new CANrangeConfiguration()
+                .withFovParams(
+                    new FovParamsConfigs()
+                        .withFOVCenterX(0)
+                        .withFOVCenterY(0)
+                        .withFOVRangeX(6.75)
+                        .withFOVRangeY(6.75))
+                .withProximityParams(
+                    new ProximityParamsConfigs()
+                        .withProximityThreshold(400 / 1000)
+                        .withProximityHysteresis(10 / 1000)
+                        .withMinSignalStrengthForValidMeasurement(2500))
+                .withToFParams(
+                    new ToFParamsConfigs()
+                        .withUpdateMode(UpdateModeValue.LongRangeUserFreq)
+                        .withUpdateFrequency(25)));
     // must be up against reef for these limits
     public static final double LOW_LIMIT = 100; // mm
     public static final double HIGH_LIMIT = 340; // mm

@@ -131,12 +131,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 true,
                 1));
 
-    reefPostSensor =
-        new RangeSensorSubSystem(
-            "reefPostSensor",
-            Constants.REEFPOSTSENSOR.CANID,
-            Constants.REEFPOSTSENSOR.CANBUS,
-            Constants.REEFPOSTSENSOR.THRESHOLD);
+    reefPostSensor = new RangeSensorSubSystem(Constants.REEFPOSTSENSOR.CONFIGURATION_CONFIGS);
 
     zero();
   }
@@ -146,7 +141,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   }
 
   public void periodic() {
-    reefPostSensorDetected = reefPostSensor.havePiece();
+    reefPostSensorDetected = reefPostSensor.isDetected();
     reefPostSensorDistance = reefPostSensor.getDistance_mm();
     reefPostAvgDistance = reefPostFilter.calculate(reefPostSensorDistance);
     reefPostDetectedRaw =
