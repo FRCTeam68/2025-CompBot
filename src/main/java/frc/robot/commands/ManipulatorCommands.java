@@ -49,10 +49,10 @@ public class ManipulatorCommands {
           Command command;
           Command initialize =
               Commands.parallel(
-                Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4)),
-                Commands.runOnce(() -> indexing = false),
-                Commands.runOnce(() -> safeToMove = false),
-                Commands.runOnce(() -> havePiece = false));
+                  Commands.runOnce(() -> LEDSegment.all.setBandAnimation(LightsSubsystem.blue, 4)),
+                  Commands.runOnce(() -> indexing = false),
+                  Commands.runOnce(() -> safeToMove = false),
+                  Commands.runOnce(() -> havePiece = false));
           Command ledHaveObject =
               Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.blue));
           Command finalize =
@@ -109,7 +109,7 @@ public class ManipulatorCommands {
                               intake.setPosition(
                                   intake.getPosition()
                                       - Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_REVERSE)),
-                      Commands.waitUntil(() -> intake.atPosition()));
+                      Commands.waitUntil(() -> intake.atPosition() || intake.getSpeed() < 0.5));
             }
           }
           // execute sequence

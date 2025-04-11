@@ -453,9 +453,11 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                       Commands.runOnce(() -> elevator.setPosition(e_goal)));
             }
           } else { // fallback to failsafe sequence
-            Commands.sequence(
-                Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence1", "FAILSAFE")),
-                setPositionCmd(e_goal, w_goal));
+            sequence1 =
+                Commands.sequence(
+                    Commands.runOnce(
+                        () -> Logger.recordOutput("Manipulator/Sequence1", "FAILSAFE")),
+                    setPositionCmd(e_goal, w_goal));
           }
           // execute sequence
           return sequence0.andThen(sequence1).andThen(sequence2).andThen(sequenceFinal);
