@@ -176,7 +176,7 @@ public final class Constants {
                 .withToFParams(
                     new ToFParamsConfigs()
                         .withUpdateMode(UpdateModeValue.ShortRange100Hz)
-                        .withUpdateFrequency(null)));
+                        .withUpdateFrequency(50)));
   }
 
   public static final class WRIST {

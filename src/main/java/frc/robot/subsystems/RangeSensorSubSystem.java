@@ -117,18 +117,18 @@ public class RangeSensorSubSystem extends SubsystemBase {
     if (initialLog) initialLog = false;
   }
 
-  /** 
+  /**
    * Get the distance of the CANrange in millimeters.
-   * 
+   *
    * @return Distance in millimeters
    */
   public double getDistance_mm() {
     return distance_mm;
   }
 
-  /** 
+  /**
    * Get the detected status of the CANrange.
-   * 
+   *
    * @return Detected status
    */
   public boolean isDetected() {

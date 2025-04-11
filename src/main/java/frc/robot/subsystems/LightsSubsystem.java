@@ -38,21 +38,21 @@ public class LightsSubsystem extends SubsystemBase {
     }
   }
 
-  /** 
+  /**
    * Set brightness for all LEDs
-   * 
+   *
    * @param percent Value from [0, 1] that will scale the LED output.
-   * */
+   */
   public void setBrightness(double percent) {
     candle.configBrightnessScalar(percent, 100);
   }
 
   /**
-   * Set static color for LED segment 
-   * 
+   * Set static color for LED segment
+   *
    * @param color Color of the LED
    * @param segment LED segment to apply color change to
-   * */
+   */
   public static void setColor(Color color, Segment segment) {
     clearAnimation(segment);
     candle.setLEDs(
@@ -61,10 +61,11 @@ public class LightsSubsystem extends SubsystemBase {
 
   /**
    * Apply CANdle animation
-   * 
-   * @param animation The animation that CANdle will run. If this is null, it will clear the animation at the specified slot
+   *
+   * @param animation The animation that CANdle will run. If this is null, it will clear the
+   *     animation at the specified slot
    * @param segment LED segment to use animation slot
-   * */
+   */
   private static void setAnimation(Animation animation, Segment segment) {
     candle.animate(animation, segment.animationSlot);
   }
@@ -113,7 +114,6 @@ public class LightsSubsystem extends SubsystemBase {
             segment.startIndex),
         segment);
   }
-
 
   public static void setStrobeAnimation(Color color, double speed, Segment segment) {
     setAnimation(
