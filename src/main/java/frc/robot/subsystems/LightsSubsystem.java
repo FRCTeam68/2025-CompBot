@@ -20,7 +20,8 @@ public class LightsSubsystem extends SubsystemBase {
   private static final CANdle candle = new CANdle(CANDLE.CANID, CANDLE.CANBUS);
   private final CANdleConfiguration config = new CANdleConfiguration();
 
-  private double m_current;
+  private double m_current = 0;
+  private static double defaultAnimationSpeed = 4;
 
   public LightsSubsystem() {
     config.brightnessScalar = CANDLE.BRIGHTNESS_SCALAR;
@@ -41,26 +42,32 @@ public class LightsSubsystem extends SubsystemBase {
   /**
    * Set brightness for all LEDs
    *
-   * @param percent Value from [0, 1] that will scale the LED output.
+   * @param percent Value from [0, 1] that will scale the LED brightness
    */
   public void setBrightness(double percent) {
     candle.configBrightnessScalar(percent, 100);
   }
 
   /**
-   * Set static color for LED segment
+   * Set default animation speed. Used for all animations if speed is not specified
    *
-   * @param color Color of the LED
-   * @param segment LED segment to apply color change to
+   * @param speed How fast should the color travel the strip [0, 1]
    */
-  public static void setColor(Color color, Segment segment) {
-    clearAnimation(segment);
-    candle.setLEDs(
-        color.red, color.green, color.blue, color.white, segment.startIndex, segment.segmentSize);
+  public void setDefaultAnimationSpeed(double speed) {
+    defaultAnimationSpeed = speed;
   }
 
   /**
-   * Apply CANdle animation
+   * Clear animation of a segment
+   *
+   * @param segment LED segment to clear animation
+   */
+  public static void clearAnimation(Segment segment) {
+    candle.clearAnimation(segment.animationSlot);
+  }
+
+  /**
+   * Apply animation
    *
    * @param animation The animation that CANdle will run. If this is null, it will clear the
    *     animation at the specified slot
@@ -70,8 +77,49 @@ public class LightsSubsystem extends SubsystemBase {
     candle.animate(animation, segment.animationSlot);
   }
 
-  /** Set flowing animation for LED segment */
-  public static void setFlowAnimation(Color color, double speed, Segment segment) {
+  /**
+   * Turn off LEDs of a segment
+   *
+   * @param segment LED segment to turn off
+   */
+  public static void disableLEDs(Segment segment) {
+    setColor(LEDColor.BLACK, segment);
+  }
+
+  /**
+   * Set static color for LED segment
+   *
+   * @param color Color of the LED
+   * @param segment LED segment to apply color change
+   */
+  public static void setColor(Color color, Segment segment) {
+    clearAnimation(segment);
+    candle.setLEDs(
+        color.red, color.green, color.blue, color.white, segment.startIndex, segment.segmentSize);
+  }
+
+  /**
+   * Set flowing animation for LED segment
+   *
+   * <p>using default values
+   *
+   * @param color Color of the LED
+   * @param segment LED segment to apply animation
+   */
+  public static void setFlowAnimation(Color color, Segment segment) {
+    setFlowAnimation(color, segment, defaultAnimationSpeed, Direction.Forward);
+  }
+
+  /**
+   * Set flowing animation for LED segment
+   *
+   * @param color Color of the LED
+   * @param segment LED segment to apply animation
+   * @param speed How fast should the color travel the strip [0, 1]
+   * @param direction What direction should the color move in
+   */
+  public static void setFlowAnimation(
+      Color color, Segment segment, double speed, Direction direction) {
     setAnimation(
         new ColorFlowAnimation(
             color.red,
@@ -80,13 +128,31 @@ public class LightsSubsystem extends SubsystemBase {
             color.white,
             speed,
             segment.segmentSize,
-            Direction.Forward,
+            direction,
             segment.startIndex),
         segment);
   }
 
-  /** Set fading animation for LED segment */
-  public static void setFadeAnimation(Color color, double speed, Segment segment) {
+  /**
+   * Set fading animation for LED segment
+   *
+   * <p>using default values
+   *
+   * @param color Color of the LED
+   * @param segment LED segment to apply animation
+   */
+  public static void setFadeAnimation(Color color, Segment segment) {
+    setFadeAnimation(color, segment, defaultAnimationSpeed);
+  }
+
+  /**
+   * Set fading animation for LED segment
+   *
+   * @param color Color of the LED
+   * @param segment LED segment to apply animation
+   * @param speed How fast should the color travel the strip [0, 1]
+   */
+  public static void setFadeAnimation(Color color, Segment segment, double speed) {
     setAnimation(
         new SingleFadeAnimation(
             color.red,
@@ -99,8 +165,29 @@ public class LightsSubsystem extends SubsystemBase {
         segment);
   }
 
-  /** Set banding animation for LED segment */
-  public static void setBandAnimation(Color color, double speed, Segment segment) {
+  /**
+   * Set banding animation for LED segment
+   *
+   * <p>using default values
+   *
+   * @param color Color of the LED
+   * @param segment LED segment to apply animation
+   */
+  public static void setBandAnimation(Color color, Segment segment) {
+    setBandAnimation(color, segment, defaultAnimationSpeed, BounceMode.Front, 1);
+  }
+
+  /**
+   * Set banding animation for LED segment
+   *
+   * @param color Color of the LED
+   * @param segment LED segment to apply animation
+   * @param speed How fast should the color travel the strip [0, 1]
+   * @param mode How the pocket of LEDs will behave once it reaches the end of the strip
+   * @param size How large the pocket of LEDs are [0, 7]
+   */
+  public static void setBandAnimation(
+      Color color, Segment segment, double speed, BounceMode mode, int size) {
     setAnimation(
         new LarsonAnimation(
             color.red,
@@ -109,13 +196,32 @@ public class LightsSubsystem extends SubsystemBase {
             color.white,
             speed,
             segment.segmentSize,
-            BounceMode.Front,
-            1,
+            mode,
+            size,
             segment.startIndex),
         segment);
   }
 
-  public static void setStrobeAnimation(Color color, double speed, Segment segment) {
+  /**
+   * Set strobing animation for LED segment
+   *
+   * <p>using default values
+   *
+   * @param color Color of the LED
+   * @param segment LED segment to apply animation
+   */
+  public static void setStrobeAnimation(Color color, Segment segment) {
+    setStrobeAnimation(color, segment, defaultAnimationSpeed);
+  }
+
+  /**
+   * Set strobing animation for LED segment
+   *
+   * @param color Color of the LED
+   * @param segment LED segment to apply animation
+   * @param speed How fast should the color travel the strip [0, 1]
+   */
+  public static void setStrobeAnimation(Color color, Segment segment, double speed) {
     setAnimation(
         new StrobeAnimation(
             color.red,
@@ -128,17 +234,31 @@ public class LightsSubsystem extends SubsystemBase {
         segment);
   }
 
-  public static void setRainbowAnimation(double speed, Segment segment) {
+  /**
+   * Set rainbow animation for LED segment
+   *
+   * <p>using default values
+   *
+   * @param color Color of the LED
+   * @param segment LED segment to apply animation
+   */
+  public static void setRainbowAnimation(Segment segment) {
+    setRainbowAnimation(segment, defaultAnimationSpeed, false);
+  }
+
+  /**
+   * Set rainbow animation for LED segment
+   *
+   * @param color Color of the LED
+   * @param segment LED segment to apply animation
+   * @param speed How fast should the color travel the strip [0, 1]
+   * @param reverseDirection True to reverse the animation direction, so instead of going "toward"
+   *     the CANdle, it will go "away" from the CANdle.
+   */
+  public static void setRainbowAnimation(Segment segment, double speed, boolean reverseDirection) {
     setAnimation(
-        new RainbowAnimation(1, speed, segment.segmentSize, false, segment.startIndex), segment);
-  }
-
-  public static void clearAnimation(Segment segment) {
-    candle.clearAnimation(segment.animationSlot);
-  }
-
-  public static void disableLEDs(Segment segment) {
-    setColor(LEDColor.BLACK, segment);
+        new RainbowAnimation(1, speed, segment.segmentSize, reverseDirection, segment.startIndex),
+        segment);
   }
 
   public static class Segment {
@@ -146,6 +266,14 @@ public class LightsSubsystem extends SubsystemBase {
     public int segmentSize;
     public int animationSlot;
 
+    /**
+     * LED segment
+     *
+     * @param startIndex Where to start the LED segment
+     * @param segmentSize Number of LEds in the segment
+     * @param animationSlot The animation slot to use for the animation, range is [0,
+     *     getMaxSimultaneousAnimationCount()] exclusive
+     */
     public Segment(int startIndex, int segmentSize, int animationSlot) {
       this.startIndex = startIndex;
       this.segmentSize = segmentSize;
@@ -159,6 +287,15 @@ public class LightsSubsystem extends SubsystemBase {
     public int blue;
     public int white;
 
+    /**
+     * LED color
+     *
+     * @param red The amount of Red to set, range is [0, 255]
+     * @param green The amount of Green to set, range is [0, 255]
+     * @param blue The amount of Blue to set, range is [0, 255]
+     * @param white The amount of White to set, range is [0, 255]. This only applies for LED strips
+     *     with white in them
+     */
     public Color(int red, int green, int blue, int white) {
       this.red = red;
       this.green = green;
@@ -187,9 +324,5 @@ public class LightsSubsystem extends SubsystemBase {
   public void periodic() {
     m_current = candle.getCurrent();
     Logger.recordOutput("LED/current", m_current);
-  }
-
-  public double getCurrent() {
-    return m_current;
   }
 }

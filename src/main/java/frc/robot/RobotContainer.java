@@ -737,7 +737,7 @@ public class RobotContainer {
 
     // set LEDs
     if (robotStateOK && offsetXOK && offsetYOK && offsetROK) {
-      LightsSubsystem.setBandAnimation(LEDColor.GREEN, 4, LEDSegment.ALL);
+      LightsSubsystem.setBandAnimation(LEDColor.GREEN, LEDSegment.ALL);
     } else {
       // all auton ready but position
       if (robotStateOK) {
