@@ -48,6 +48,8 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.lights.LightSystem;
+import frc.robot.subsystems.lights.LightSystemIO;
+import frc.robot.subsystems.lights.LightSystemIOCANdle;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.rollers.RollerSystemIOSim;
@@ -176,7 +178,7 @@ public class RobotContainer {
 
         reefCentering = new ReefCentering(drive);
 
-        lightSystem = new LightSystem();
+        lightSystem = new LightSystem(new LightSystemIOCANdle());
 
         SmartDashboard.putString("BumpMode", "ELEVATOR");
         SmartDashboard.putString("AutoShoot", "OFF");
@@ -216,7 +218,7 @@ public class RobotContainer {
 
         reefCentering = new ReefCentering(drive);
 
-        lightSystem = new LightSystem();
+        lightSystem = new LightSystem(new LightSystemIOCANdle());
         break;
 
       default:
@@ -245,7 +247,7 @@ public class RobotContainer {
         reefCentering = new ReefCentering(drive);
 
         // TBD, this needs an actual simulated sensor.....
-        lightSystem = new LightSystem();
+        lightSystem = new LightSystem(new LightSystemIO() {});
         break;
     }
 

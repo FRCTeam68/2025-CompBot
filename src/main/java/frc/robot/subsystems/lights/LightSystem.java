@@ -1,7 +1,5 @@
 package frc.robot.subsystems.lights;
 
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix.led.Animation;
 import com.ctre.phoenix.led.ColorFlowAnimation;
 import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
@@ -14,9 +12,10 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LEDColor;
+import org.littletonrobotics.junction.Logger;
 
 public class LightSystem extends SubsystemBase {
-  private static final LightSystemIO io;
+  private static LightSystemIO io;
   protected final LightSystemIOInputsAutoLogged inputs = new LightSystemIOInputsAutoLogged();
   private final Alert disconnected;
 
@@ -24,6 +23,7 @@ public class LightSystem extends SubsystemBase {
 
   public LightSystem(LightSystemIO io) {
     this.io = io;
+    disconnected = new Alert(" CANdle disconnected!", Alert.AlertType.kWarning);
   }
 
   public void periodic() {

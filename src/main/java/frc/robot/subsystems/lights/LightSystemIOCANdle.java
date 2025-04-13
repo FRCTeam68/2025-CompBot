@@ -8,10 +8,12 @@ import frc.robot.subsystems.lights.LightSystem.Color;
 import frc.robot.subsystems.lights.LightSystem.Segment;
 
 public class LightSystemIOCANdle implements LightSystemIO {
-  private static final CANdle candle = new CANdle(CANDLE.CANID, CANDLE.CANBUS);
+  private final CANdle candle;
   private final CANdleConfiguration config = new CANdleConfiguration();
 
   public LightSystemIOCANdle() {
+    candle = new CANdle(CANDLE.CANID, CANDLE.CANBUS);
+
     config.brightnessScalar = CANDLE.BRIGHTNESS_SCALAR;
     config.disableWhenLOS = CANDLE.DISABLE_WHEN_LOS;
     config.statusLedOffWhenActive = CANDLE.STATUS_OFF_WHEN_ACTIVE;
@@ -25,6 +27,12 @@ public class LightSystemIOCANdle implements LightSystemIO {
     for (int i = 0; i < candle.getMaxSimultaneousAnimationCount(); i++) {
       candle.clearAnimation(i);
     }
+  }
+
+  @Override
+  public void updateInputs(LightSystemIOInputs inputs) {
+    inputs.connected = true;
+    inputs.current = candle.getCurrent();
   }
 
   @Override

@@ -7,26 +7,26 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface LightSystemIO {
   @AutoLog
-  static class RollerSystemIOInputs {
+  static class LightSystemIOInputs {
     public boolean connected = false;
     public double current = 0.0;
   }
 
-  // default void updateInputs(RollerSystemIOInputs inputs) {}
+  default void updateInputs(LightSystemIOInputs inputs) {}
 
   /**
    * Set brightness for all LEDs
    *
    * @param percent Value from [0, 1] that will scale the LED brightness
    */
-  public default void setBrightness(double percent) {}
+  default void setBrightness(double percent) {}
 
   /**
    * Clear animation of a segment
    *
    * @param segment LED segment to clear animation
    */
-  public default void clearAnimation(Segment segment) {}
+  default void clearAnimation(Segment segment) {}
 
   /**
    * Apply animation
@@ -43,5 +43,5 @@ public interface LightSystemIO {
    * @param color Color of the LED
    * @param segment LED segment to apply color change
    */
-  public default void setColor(Color color, Segment segment) {}
+  default void setColor(Color color, Segment segment) {}
 }
