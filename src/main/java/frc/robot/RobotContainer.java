@@ -40,7 +40,6 @@ import frc.robot.commands.*;
 import frc.robot.commands.auton.autons;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorWristSubsystem;
-import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.RangeSensorSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -48,6 +47,7 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.lights.LightSystem;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.rollers.RollerSystemIOSim;
@@ -73,7 +73,7 @@ public class RobotContainer {
   private final RollerSystem intakeShooterLow;
   private static RangeSensorSubsystem intakeCoralSensor;
   private static ElevatorWristSubsystem elevatorWrist;
-  private final LightsSubsystem lightsSubsystem;
+  private final LightSystem lightSystem;
   private ReefCentering reefCentering;
 
   public String selectedAutonName;
@@ -176,7 +176,7 @@ public class RobotContainer {
 
         reefCentering = new ReefCentering(drive);
 
-        lightsSubsystem = new LightsSubsystem();
+        lightSystem = new LightSystem();
 
         SmartDashboard.putString("BumpMode", "ELEVATOR");
         SmartDashboard.putString("AutoShoot", "OFF");
@@ -216,7 +216,7 @@ public class RobotContainer {
 
         reefCentering = new ReefCentering(drive);
 
-        lightsSubsystem = new LightsSubsystem();
+        lightSystem = new LightSystem();
         break;
 
       default:
@@ -245,7 +245,7 @@ public class RobotContainer {
         reefCentering = new ReefCentering(drive);
 
         // TBD, this needs an actual simulated sensor.....
-        lightsSubsystem = new LightsSubsystem();
+        lightSystem = new LightSystem();
         break;
     }
 
@@ -737,56 +737,56 @@ public class RobotContainer {
 
     // set LEDs
     if (robotStateOK && offsetXOK && offsetYOK && offsetROK) {
-      LightsSubsystem.setBandAnimation(LEDColor.GREEN, LEDSegment.ALL);
+      LightSystem.setBandAnimation(LEDColor.GREEN, LEDSegment.ALL);
     } else {
       // all auton ready but position
       if (robotStateOK) {
-        LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.LEFT_SIDE);
-        LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.RIGHT_SIDE);
+        LightSystem.setColor(LEDColor.GREEN, LEDSegment.LEFT_SIDE);
+        LightSystem.setColor(LEDColor.GREEN, LEDSegment.RIGHT_SIDE);
       } else {
-        LightsSubsystem.setColor(LEDColor.RED, LEDSegment.LEFT_SIDE);
-        LightsSubsystem.setColor(LEDColor.RED, LEDSegment.RIGHT_SIDE);
+        LightSystem.setColor(LEDColor.RED, LEDSegment.LEFT_SIDE);
+        LightSystem.setColor(LEDColor.RED, LEDSegment.RIGHT_SIDE);
       }
 
       // X offset LEDs
       if (offsetXOK) {
-        LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
-        LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
+        LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
+        LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
       } else {
         if (offsetX < 0) {
-          LightsSubsystem.setColor(LEDColor.RED, LEDSegment.AUTON_X_LEFT);
-          LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
+          LightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_X_LEFT);
+          LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
         } else {
-          LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
-          LightsSubsystem.setColor(LEDColor.RED, LEDSegment.AUTON_X_RIGHT);
+          LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
+          LightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_X_RIGHT);
         }
       }
 
       // Y offset LEDs
       if (offsetYOK) {
-        LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
-        LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
+        LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
+        LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
       } else {
         if (offsetY < 0) {
-          LightsSubsystem.setColor(LEDColor.RED, LEDSegment.AUTON_Y_LEFT);
-          LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
+          LightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_Y_LEFT);
+          LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
         } else {
-          LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
-          LightsSubsystem.setColor(LEDColor.RED, LEDSegment.AUTON_Y_RIGHT);
+          LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
+          LightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_Y_RIGHT);
         }
       }
 
       // rotation offset LEDs
       if (offsetROK) {
-        LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
-        LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
+        LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
+        LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
       } else {
         if (offsetR < 0) {
-          LightsSubsystem.setColor(LEDColor.RED, LEDSegment.AUTON_R_LEFT);
-          LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
+          LightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_R_LEFT);
+          LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
         } else {
-          LightsSubsystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
-          LightsSubsystem.setColor(LEDColor.RED, LEDSegment.AUTON_R_RIGHT);
+          LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
+          LightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_R_RIGHT);
         }
       }
     }

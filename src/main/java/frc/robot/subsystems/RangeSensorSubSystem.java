@@ -11,8 +11,9 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LEDColor;
-import frc.robot.subsystems.LightsSubsystem.Color;
-import frc.robot.subsystems.LightsSubsystem.Segment;
+import frc.robot.subsystems.lights.LightSystem;
+import frc.robot.subsystems.lights.LightSystem.Color;
+import frc.robot.subsystems.lights.LightSystem.Segment;
 import org.littletonrobotics.junction.Logger;
 
 public class RangeSensorSubsystem extends SubsystemBase {
@@ -110,7 +111,7 @@ public class RangeSensorSubsystem extends SubsystemBase {
 
     // set indicator
     if (indicatorColor != prevIndicatorColor || initialLog) {
-      LightsSubsystem.setColor(indicatorColor, indicator);
+      LightSystem.setColor(indicatorColor, indicator);
       prevIndicatorColor = indicatorColor;
     }
 

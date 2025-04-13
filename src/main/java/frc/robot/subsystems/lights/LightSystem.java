@@ -1,8 +1,8 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.lights;
+
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix.led.Animation;
-import com.ctre.phoenix.led.CANdle;
-import com.ctre.phoenix.led.CANdleConfiguration;
 import com.ctre.phoenix.led.ColorFlowAnimation;
 import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
 import com.ctre.phoenix.led.LarsonAnimation;
@@ -11,43 +11,25 @@ import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.SingleFadeAnimation;
 import com.ctre.phoenix.led.StrobeAnimation;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Constants.CANDLE;
 import frc.robot.Constants.LEDColor;
-import frc.robot.Constants.Mode;
-import org.littletonrobotics.junction.Logger;
 
-public class LightsSubsystem extends SubsystemBase {
-  private static final CANdle candle = new CANdle(CANDLE.CANID, CANDLE.CANBUS);
-  private final CANdleConfiguration config = new CANdleConfiguration();
+public class LightSystem extends SubsystemBase {
+  private static final LightSystemIO io;
+  protected final LightSystemIOInputsAutoLogged inputs = new LightSystemIOInputsAutoLogged();
+  private final Alert disconnected;
 
-  private double m_current = 0;
   private static double defaultAnimationSpeed = 4;
 
-  public LightsSubsystem() {
-    config.brightnessScalar = CANDLE.BRIGHTNESS_SCALAR;
-    config.disableWhenLOS = CANDLE.DISABLE_WHEN_LOS;
-    config.statusLedOffWhenActive = CANDLE.STATUS_OFF_WHEN_ACTIVE;
-    config.stripType = CANDLE.LED_STRIP_TYPE;
-    config.v5Enabled = CANDLE.V5_ENABLED;
-    config.vBatOutputMode = CANDLE.V_BAT_OUTPUT_MODE;
-
-    candle.configAllSettings(config, 100);
-
-    // clear animation slots
-    for (int i = 0; i < candle.getMaxSimultaneousAnimationCount(); i++) {
-      candle.clearAnimation(i);
-    }
+  public LightSystem(LightSystemIO io) {
+    this.io = io;
   }
 
-  /**
-   * Set brightness for all LEDs
-   *
-   * @param percent Value from [0, 1] that will scale the LED brightness
-   */
-  public void setBrightness(double percent) {
-    candle.configBrightnessScalar(percent, 100);
+  public void periodic() {
+    io.updateInputs(inputs);
+    Logger.processInputs("CANdle", inputs);
+    disconnected.set(!inputs.connected);
   }
 
   /**
@@ -60,12 +42,21 @@ public class LightsSubsystem extends SubsystemBase {
   }
 
   /**
+   * Set brightness for all LEDs
+   *
+   * @param percent Value from [0, 1] that will scale the LED brightness
+   */
+  public void setBrightness(double percent) {
+    io.setBrightness(percent);
+  }
+
+  /**
    * Clear animation of a segment
    *
    * @param segment LED segment to clear animation
    */
   public static void clearAnimation(Segment segment) {
-    candle.clearAnimation(segment.animationSlot);
+    io.clearAnimation(segment);
   }
 
   /**
@@ -76,7 +67,7 @@ public class LightsSubsystem extends SubsystemBase {
    * @param segment LED segment to use animation slot
    */
   private static void setAnimation(Animation animation, Segment segment) {
-    candle.animate(animation, segment.animationSlot);
+    io.setAnimation(animation, segment);
   }
 
   /**
@@ -95,9 +86,7 @@ public class LightsSubsystem extends SubsystemBase {
    * @param segment LED segment to apply color change
    */
   public static void setColor(Color color, Segment segment) {
-    clearAnimation(segment);
-    candle.setLEDs(
-        color.red, color.green, color.blue, color.white, segment.startIndex, segment.segmentSize);
+    io.setColor(color, segment);
   }
 
   /**
@@ -264,7 +253,7 @@ public class LightsSubsystem extends SubsystemBase {
   }
 
   public static class Segment {
-    private int startIndex;
+    public int startIndex;
     public int segmentSize;
     public int animationSlot;
 
@@ -320,11 +309,5 @@ public class LightsSubsystem extends SubsystemBase {
 
       return new Color(newRed, newGreen, newBlue, newWhite);
     }
-  }
-
-  @Override
-  public void periodic() {
-    m_current = Constants.currentMode == Mode.REAL ? candle.getCurrent() : 0;
-    Logger.recordOutput("LED/current", m_current);
   }
 }

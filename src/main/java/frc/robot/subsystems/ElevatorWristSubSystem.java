@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.LEDColor;
 import frc.robot.Constants.LEDSegment;
+import frc.robot.subsystems.lights.LightSystem;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
 import java.util.Set;
@@ -162,9 +163,9 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     boolean indicateToShoot = reefPostDetectedRaw && lookingToShoot;
     if (indicateToShoot != prevIndicateToShoot) {
       if (indicateToShoot) {
-        LightsSubsystem.setColor(LEDColor.RED, LEDSegment.ALL);
+        LightSystem.setColor(LEDColor.RED, LEDSegment.ALL);
       } else {
-        LightsSubsystem.disableLEDs(LEDSegment.ALL);
+        LightSystem.disableLEDs(LEDSegment.ALL);
       }
       prevIndicateToShoot = indicateToShoot;
     }

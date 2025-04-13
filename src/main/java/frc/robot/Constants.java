@@ -30,9 +30,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.subsystems.LightsSubsystem.Color;
-import frc.robot.subsystems.LightsSubsystem.Segment;
 import frc.robot.subsystems.RangeSensorSubsystem.CANrangeConstants;
+import frc.robot.subsystems.lights.LightSystem.Color;
+import frc.robot.subsystems.lights.LightSystem.Segment;
 import java.util.ArrayList;
 import java.util.List;
 
