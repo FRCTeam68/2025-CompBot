@@ -15,7 +15,7 @@ import frc.robot.subsystems.LightsSubsystem.Color;
 import frc.robot.subsystems.LightsSubsystem.Segment;
 import org.littletonrobotics.junction.Logger;
 
-public class RangeSensorSubSystem extends SubsystemBase {
+public class RangeSensorSubsystem extends SubsystemBase {
   private final String folderName = "CANrange/";
   private final String name;
   private final Segment indicator;
@@ -35,7 +35,7 @@ public class RangeSensorSubSystem extends SubsystemBase {
 
   private final Debouncer sensorConnectedDebounce = new Debouncer(0.5);
 
-  public RangeSensorSubSystem(CANrangeConstants constants) {
+  public RangeSensorSubsystem(CANrangeConstants constants) {
     this.name = constants.name;
     this.indicator = constants.indicator;
 
@@ -51,13 +51,13 @@ public class RangeSensorSubSystem extends SubsystemBase {
   }
 
   /**
-   * Creates the constants for a CANrange sensor.
+   * Creates the constants for a CANrange sensor
    *
-   * @param name Logged name of CANrange.
-   * @param canID CAN ID of CANrange.
-   * @param bus CAN bus name.
-   * @param indicator LED segment for indication.
-   * @param config Standard CANrange configuration.
+   * @param name Logged name of CANrange
+   * @param canID CAN ID of CANrange
+   * @param bus CAN bus name
+   * @param indicator LED segment for indication
+   * @param config Standard CANrange configuration
    */
   public static class CANrangeConstants {
     public String name;
@@ -118,7 +118,7 @@ public class RangeSensorSubSystem extends SubsystemBase {
   }
 
   /**
-   * Get the distance of the CANrange in millimeters.
+   * Get the distance of the CANrange in millimeters
    *
    * @return Distance in millimeters
    */
@@ -127,7 +127,7 @@ public class RangeSensorSubSystem extends SubsystemBase {
   }
 
   /**
-   * Get the detected status of the CANrange.
+   * Get the detected status of the CANrange
    *
    * @return Detected status
    */

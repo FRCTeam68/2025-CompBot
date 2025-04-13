@@ -35,7 +35,7 @@ import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class ElevatorWristSubSystem extends SubsystemBase {
+public class ElevatorWristSubsystem extends SubsystemBase {
 
   private final RollerSystem wrist;
   private final RollerSystem elevator;
@@ -44,7 +44,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   private final RollerSystem elevatorFollower;
 
   @SuppressWarnings("unused")
-  private final RangeSensorSubSystem reefPostSensor;
+  private final RangeSensorSubsystem reefPostSensor;
 
   private final CANcoder wristCANcoder;
   private final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
@@ -66,7 +66,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   private double e_bump_goal = 0;
   private double w_bump_goal = 0;
 
-  public ElevatorWristSubSystem() {
+  public ElevatorWristSubsystem() {
 
     reefPostFilter = LinearFilter.movingAverage(4);
     Logger.recordOutput(
@@ -131,7 +131,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                 true,
                 1));
 
-    reefPostSensor = new RangeSensorSubSystem(Constants.REEFPOSTSENSOR.CONFIGURATION_CONFIGS);
+    reefPostSensor = new RangeSensorSubsystem(Constants.REEFPOSTSENSOR.CONFIGURATION_CONFIGS);
 
     zero();
   }

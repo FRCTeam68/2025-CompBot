@@ -12,8 +12,10 @@ import com.ctre.phoenix.led.SingleFadeAnimation;
 import com.ctre.phoenix.led.StrobeAnimation;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.CANDLE;
 import frc.robot.Constants.LEDColor;
+import frc.robot.Constants.Mode;
 import org.littletonrobotics.junction.Logger;
 
 public class LightsSubsystem extends SubsystemBase {
@@ -322,7 +324,7 @@ public class LightsSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    m_current = candle.getCurrent();
+    m_current = Constants.currentMode == Mode.REAL ? candle.getCurrent() : 0;
     Logger.recordOutput("LED/current", m_current);
   }
 }

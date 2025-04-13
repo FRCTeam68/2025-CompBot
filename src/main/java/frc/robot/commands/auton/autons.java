@@ -21,8 +21,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.commands.ManipulatorCommands;
-import frc.robot.subsystems.ElevatorWristSubSystem;
-import frc.robot.subsystems.RangeSensorSubSystem;
+import frc.robot.subsystems.ElevatorWristSubsystem;
+import frc.robot.subsystems.RangeSensorSubsystem;
 import frc.robot.subsystems.rollers.RollerSystem;
 import java.util.List;
 
@@ -49,8 +49,8 @@ public class autons {
       Boolean leftSide,
       RollerSystem myIntake,
       RollerSystem myIntakeLow,
-      ElevatorWristSubSystem myElevatorWrist,
-      RangeSensorSubSystem intake_sensor) {
+      ElevatorWristSubsystem myElevatorWrist,
+      RangeSensorSubsystem intake_sensor) {
 
     String pathGroupName;
     pathGroupName = leftSide ? "AUTON_LEFT1" : "AUTON_RIGHT1";
@@ -80,13 +80,13 @@ public class autons {
         Commands.either(
             Commands.sequence(
                 ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
-                Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
+                Commands.waitUntil(() -> ElevatorWristSubsystem.reefPostDetected)
                     .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
                 Commands.either(
                     ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
                     Commands.none(),
                     () -> {
-                      return ElevatorWristSubSystem.reefPostDetected;
+                      return ElevatorWristSubsystem.reefPostDetected;
                     })),
             // second coral - second try
             Commands.sequence(
@@ -105,13 +105,13 @@ public class autons {
                 Commands.either(
                     Commands.sequence(
                         ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
-                        Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
+                        Commands.waitUntil(() -> ElevatorWristSubsystem.reefPostDetected)
                             .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
                         Commands.either(
                             ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
                             Commands.none(),
                             () -> {
-                              return ElevatorWristSubSystem.reefPostDetected;
+                              return ElevatorWristSubsystem.reefPostDetected;
                             })),
                     Commands.none(),
                     () -> {
@@ -135,13 +135,13 @@ public class autons {
         Commands.either(
             Commands.sequence(
                 ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
-                Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
+                Commands.waitUntil(() -> ElevatorWristSubsystem.reefPostDetected)
                     .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
                 Commands.either(
                     ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
                     Commands.none(),
                     () -> {
-                      return ElevatorWristSubSystem.reefPostDetected;
+                      return ElevatorWristSubsystem.reefPostDetected;
                     })),
             // third coral - second try
             Commands.sequence(
@@ -160,13 +160,13 @@ public class autons {
                 Commands.either(
                     Commands.sequence(
                         ManipulatorCommands.CoralL4Cmd(myIntakeLow, myElevatorWrist),
-                        Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
+                        Commands.waitUntil(() -> ElevatorWristSubsystem.reefPostDetected)
                             .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
                         Commands.either(
                             ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist),
                             Commands.none(),
                             () -> {
-                              return ElevatorWristSubSystem.reefPostDetected;
+                              return ElevatorWristSubsystem.reefPostDetected;
                             })),
                     Commands.none(),
                     () -> {
@@ -184,8 +184,8 @@ public class autons {
   public static Command centerProcessor(
       RollerSystem myIntake,
       RollerSystem myIntakeLow,
-      ElevatorWristSubSystem myElevatorWrist,
-      RangeSensorSubSystem intake_sensor) {
+      ElevatorWristSubsystem myElevatorWrist,
+      RangeSensorSubsystem intake_sensor) {
 
     PathPlannerPath[] path = pathBuilder("AUTON_CENTER_PROCESSOR");
 
@@ -229,8 +229,8 @@ public class autons {
   public static Command centerNet(
       RollerSystem myIntake,
       RollerSystem myIntakeLow,
-      ElevatorWristSubSystem myElevatorWrist,
-      RangeSensorSubSystem intake_sensor) {
+      ElevatorWristSubsystem myElevatorWrist,
+      RangeSensorSubsystem intake_sensor) {
 
     PathPlannerPath[] path = pathBuilder("AUTON_CENTER_NET");
 

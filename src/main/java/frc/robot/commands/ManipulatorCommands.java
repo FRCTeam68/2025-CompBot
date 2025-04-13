@@ -20,9 +20,9 @@ import frc.robot.Constants;
 import frc.robot.Constants.LEDColor;
 import frc.robot.Constants.LEDSegment;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.ElevatorWristSubSystem;
+import frc.robot.subsystems.ElevatorWristSubsystem;
 import frc.robot.subsystems.LightsSubsystem;
-import frc.robot.subsystems.RangeSensorSubSystem;
+import frc.robot.subsystems.RangeSensorSubsystem;
 import frc.robot.subsystems.rollers.RollerSystem;
 import java.util.Set;
 import lombok.Getter;
@@ -39,8 +39,8 @@ public class ManipulatorCommands {
   public static Command intakeCmd(
       RollerSystem myIntake,
       RollerSystem myIntakeLow,
-      ElevatorWristSubSystem myElevatorWrist,
-      RangeSensorSubSystem intake_sensor) {
+      ElevatorWristSubsystem myElevatorWrist,
+      RangeSensorSubsystem intake_sensor) {
     return new DeferredCommand(
         () -> {
           // initialization
@@ -116,7 +116,7 @@ public class ManipulatorCommands {
   }
 
   public static Command shootCmd(
-      RollerSystem myIntake, RollerSystem myIntakeLow, ElevatorWristSubSystem myElevatorWrist) {
+      RollerSystem myIntake, RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
     return new DeferredCommand(
         () -> {
           // initialization
@@ -199,7 +199,7 @@ public class ManipulatorCommands {
   }
 
   public static Command CoralL4Cmd(
-      RollerSystem myIntakeLow, ElevatorWristSubSystem myElevatorWrist) {
+      RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
     return Commands.parallel(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L4")),
@@ -214,7 +214,7 @@ public class ManipulatorCommands {
   }
 
   public static Command CoralL3Cmd(
-      RollerSystem myIntakeLow, ElevatorWristSubSystem myElevatorWrist) {
+      RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L3")),
@@ -229,7 +229,7 @@ public class ManipulatorCommands {
   }
 
   public static Command CoralL2Cmd(
-      RollerSystem myIntakeLow, ElevatorWristSubSystem myElevatorWrist) {
+      RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L2")),
@@ -244,7 +244,7 @@ public class ManipulatorCommands {
   }
 
   public static Command CoralL1Cmd(
-      RollerSystem myIntakeLow, ElevatorWristSubSystem myElevatorWrist) {
+      RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "CoralL1"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L1")),
@@ -257,7 +257,7 @@ public class ManipulatorCommands {
   }
 
   public static Command CoralIntakePositionCmd(
-      RollerSystem myIntakeLow, ElevatorWristSubSystem myElevatorWrist) {
+      RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "INTAKE")),
@@ -265,7 +265,7 @@ public class ManipulatorCommands {
   }
 
   public static Command AlgaeToNetCmd(
-      RollerSystem myIntakeLow, ElevatorWristSubSystem myElevatorWrist, Boolean algaeCradleFlag) {
+      RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist, Boolean algaeCradleFlag) {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "AlgaeNet"),
         Commands.waitUntil(() -> algaeCradleFlag == false),
@@ -274,7 +274,7 @@ public class ManipulatorCommands {
   }
 
   public static Command AlgaeToP1(
-      RollerSystem myIntakeLow, ElevatorWristSubSystem myElevatorWrist, Boolean algaeCradleFlag) {
+      RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist, Boolean algaeCradleFlag) {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Algae"),
         Commands.waitUntil(() -> algaeCradleFlag == false),
@@ -283,7 +283,7 @@ public class ManipulatorCommands {
   }
 
   public static Command AlgaeAtA2(
-      RollerSystem myIntakeLow, ElevatorWristSubSystem myElevatorWrist, Boolean algaeCradleFlag) {
+      RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist, Boolean algaeCradleFlag) {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Algae"),
         Commands.waitUntil(() -> algaeCradleFlag == false),
@@ -292,7 +292,7 @@ public class ManipulatorCommands {
   }
 
   public static Command AlgaeAtA1(
-      RollerSystem myIntakeLow, ElevatorWristSubSystem myElevatorWrist, Boolean algaeCradleFlag) {
+      RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist, Boolean algaeCradleFlag) {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Algae"),
         Commands.waitUntil(() -> algaeCradleFlag == false),
@@ -301,7 +301,7 @@ public class ManipulatorCommands {
   }
 
   public static Command AlgaeCradle(
-      RollerSystem myIntakeLow, ElevatorWristSubSystem myElevatorWrist) {
+      RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Algae"),
         Commands.runOnce(
@@ -350,7 +350,7 @@ public class ManipulatorCommands {
   }
 
   public static Command ElevatorWristZeroCmd(
-      RollerSystem myIntakeLow, ElevatorWristSubSystem myElevatorWrist) {
+      RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
     return Commands.sequence(
         Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Null"),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "ZERO")),
@@ -361,8 +361,8 @@ public class ManipulatorCommands {
   public static Command FunctionalTest(
       RollerSystem myIntake,
       RollerSystem myIntakeLow,
-      ElevatorWristSubSystem myElevatorWrist,
-      RangeSensorSubSystem intake_sensor,
+      ElevatorWristSubsystem myElevatorWrist,
+      RangeSensorSubsystem intake_sensor,
       RollerSystem myClimber) {
     return Commands.sequence(
         CoralIntakePositionCmd(myIntakeLow, myElevatorWrist),
@@ -390,7 +390,7 @@ public class ManipulatorCommands {
   }
 
   public static Command TestElevatorWristSequencing(
-      RollerSystem myIntakeLow, ElevatorWristSubSystem myElevatorWrist) {
+      RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
     return Commands.sequence(
         // home intake
         CoralIntakePositionCmd(myIntakeLow, myElevatorWrist),

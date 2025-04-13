@@ -32,7 +32,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.subsystems.LightsSubsystem.Color;
 import frc.robot.subsystems.LightsSubsystem.Segment;
-import frc.robot.subsystems.RangeSensorSubSystem.CANrangeConstants;
+import frc.robot.subsystems.RangeSensorSubsystem.CANrangeConstants;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -39,9 +39,9 @@ import frc.robot.Constants.LEDSegment;
 import frc.robot.commands.*;
 import frc.robot.commands.auton.autons;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.ElevatorWristSubSystem;
+import frc.robot.subsystems.ElevatorWristSubsystem;
 import frc.robot.subsystems.LightsSubsystem;
-import frc.robot.subsystems.RangeSensorSubSystem;
+import frc.robot.subsystems.RangeSensorSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -71,8 +71,8 @@ public class RobotContainer {
   private static RollerSystem climber;
   private final RollerSystem intakeShooter;
   private final RollerSystem intakeShooterLow;
-  private static RangeSensorSubSystem intakeCoralSensor;
-  private static ElevatorWristSubSystem elevatorWrist;
+  private static RangeSensorSubsystem intakeCoralSensor;
+  private static ElevatorWristSubsystem elevatorWrist;
   private final LightsSubsystem lightsSubsystem;
   private ReefCentering reefCentering;
 
@@ -149,9 +149,9 @@ public class RobotContainer {
         intakeShooterLow.setPieceCurrentThreshold(40);
 
         intakeCoralSensor =
-            new RangeSensorSubSystem(Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
+            new RangeSensorSubsystem(Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
 
-        elevatorWrist = new ElevatorWristSubSystem();
+        elevatorWrist = new ElevatorWristSubsystem();
 
         climber =
             new RollerSystem(
@@ -205,10 +205,10 @@ public class RobotContainer {
                 "IntakeShooterLow", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
         // TBD, this needs an actual simulated sensor.....
         intakeCoralSensor =
-            new RangeSensorSubSystem(Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
+            new RangeSensorSubsystem(Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
 
         // TBD, this needs an actual simulated sensor.....
-        elevatorWrist = new ElevatorWristSubSystem();
+        elevatorWrist = new ElevatorWristSubsystem();
 
         climber =
             new RollerSystem("Climber", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
@@ -234,11 +234,11 @@ public class RobotContainer {
         intakeShooter = new RollerSystem("IntakeShooter", new RollerSystemIO() {});
         intakeShooterLow = new RollerSystem("IntakeShooterLow", new RollerSystemIO() {});
         intakeCoralSensor =
-            new RangeSensorSubSystem(
+            new RangeSensorSubsystem(
                 Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS); // TBD, need better dummy
 
         // TBD, this needs an actual simulated sensor.....
-        elevatorWrist = new ElevatorWristSubSystem();
+        elevatorWrist = new ElevatorWristSubsystem();
 
         climber = new RollerSystem("Climber", new RollerSystemIO() {});
 
