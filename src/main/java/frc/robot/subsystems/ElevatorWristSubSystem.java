@@ -7,11 +7,6 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.util.PhoenixUtil.tryUntilOk;
-
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -28,8 +23,8 @@ import frc.robot.Constants;
 import frc.robot.Constants.LEDColor;
 import frc.robot.Constants.LEDSegment;
 import frc.robot.subsystems.lights.LightSystem;
-import frc.robot.subsystems.rollers.RollerSystem;
-import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
+import frc.robot.subsystems.superstructure.elevator.*;
+import frc.robot.subsystems.superstructure.wrist.*;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,17 +34,11 @@ import org.littletonrobotics.junction.Logger;
 public class ElevatorWristSubsystem extends SubsystemBase {
 
   private final LightSystem LED;
-  private final RollerSystem wrist;
-  private final RollerSystem elevator;
-
-  @SuppressWarnings("unused")
-  private final RollerSystem elevatorFollower;
+  private final Wrist wrist;
+  private final Elevator elevator;
 
   @SuppressWarnings("unused")
   private final RangeSensorSubsystem reefPostSensor;
-
-  private final CANcoder wristCANcoder;
-  private final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
 
   //   @Getter @AutoLogOutput private double setpoint = 0.0;
   @Getter @AutoLogOutput private boolean reefPostDetectedRaw = false;
@@ -62,84 +51,34 @@ public class ElevatorWristSubsystem extends SubsystemBase {
   @Getter @Setter @AutoLogOutput private boolean autoShootOn = false;
   private boolean prevIndicateToShoot = false;
 
-  @Getter private double wristAngle = 0.0;
-  private double e_goal = 0;
-  private double w_goal = 0;
-  private double e_bump_goal = 0;
-  private double w_bump_goal = 0;
-
   public ElevatorWristSubsystem(LightSystem LED) {
     this.LED = LED;
 
     reefPostFilter = LinearFilter.movingAverage(4);
     Logger.recordOutput(
-        "ElevatorWristSubSystem/reefPostHighLimit", Constants.REEFPOSTSENSOR.HIGH_LIMIT);
+        "ElevatorWristSubsystem/reefPostHighLimit", Constants.REEFPOSTSENSOR.HIGH_LIMIT);
 
-    wristCANcoder = new CANcoder(Constants.WRIST.CANCODER_CANID, Constants.WRIST.CANBUS);
-    cancoderConfig.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(0.9);
-    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-    cancoderConfig.MagnetSensor.MagnetOffset = Constants.WRIST.CANCODER_OFFSET;
-    tryUntilOk(5, () -> wristCANcoder.getConfigurator().apply(cancoderConfig));
-
-    wrist =
-        new RollerSystem(
-            "Wrist",
-            new RollerSystemIOTalonFX(
-                Constants.WRIST.CANID,
-                Constants.WRIST.CANBUS,
-                80,
-                true,
-                0,
-                false,
-                Constants.WRIST.CANCODER_CANID,
-                true,
-                Constants.WRIST.REDUCTION));
-    // init tunables in the parent roller system
-    wrist.setPID(Constants.WRIST.SLOT0_CONFIGS, Constants.WRIST.SLOT1_CONFIGS);
-    wrist.setMotionMagic(Constants.WRIST.MOTIONMAGIC_CONFIGS);
-    wrist.setAtSetpointBand(.005);
-    wrist.setPieceCurrentThreshold(
-        40); // does not have a piece but might want to use to detect overrun limits?
-
-    elevator =
-        new RollerSystem(
-            "Elevator",
-            new RollerSystemIOTalonFX(
-                Constants.ELEVATOR.RIGHT_CANID,
-                Constants.ELEVATOR.CANBUS,
-                80,
-                false,
-                0,
-                false,
-                0,
-                true,
-                1));
-    // init tunables in the parent roller system
-    elevator.setPID(Constants.ELEVATOR.SLOT0_CONFIGS);
-    elevator.setMotionMagic(Constants.ELEVATOR.MOTIONMAGIC_CONFIGS);
-    elevator.setAtSetpointBand(.3);
-    elevator.setPieceCurrentThreshold(
-        40); // does not have a piece but might want to use to detect overrun limits?
-    elevatorFollower =
-        new RollerSystem(
-            "ElevatorFollower",
-            new RollerSystemIOTalonFX(
-                Constants.ELEVATOR.LEFT_CANID,
-                Constants.ELEVATOR.CANBUS,
-                80,
-                false,
-                Constants.ELEVATOR.RIGHT_CANID,
-                true,
-                0,
-                true,
-                1));
+    switch (Constants.currentMode) {
+      case REAL:
+        wrist = new Wrist(new WristIOTalonFX());
+        elevator = new Elevator(new ElevatorIOTalonFX());
+        break;
+      case SIM:
+        wrist = new Wrist(new WristIOSim());
+        elevator = new Elevator(new ElevatorIOSim());
+        break;
+      default:
+        wrist = new Wrist(new WristIO() {});
+        elevator = new Elevator(new ElevatorIO() {});
+        break;
+    }
 
     reefPostSensor = new RangeSensorSubsystem(LED, Constants.REEFPOSTSENSOR.CONFIGURATION_CONFIGS);
 
     zero();
   }
 
-  public void zero() {
+  private void zero() {
     elevator.zero();
   }
 
@@ -172,24 +111,17 @@ public class ElevatorWristSubsystem extends SubsystemBase {
       prevIndicateToShoot = indicateToShoot;
     }
 
-    wristAngle = wristCANcoder.getPosition().getValueAsDouble();
-    SmartDashboard.putNumber("WristAngle", wristAngle);
-    SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
     // robot poses
     Logger.recordOutput(
         "RobotPose/Elevator Stage 1",
         new Pose3d[] {
           new Pose3d(
-              0, 0, Units.inchesToMeters(elevator.getPosition() / 5 * 5.5), new Rotation3d(0, 0, 0))
+              0, 0, Units.inchesToMeters(elevator.getPosition() / 2), new Rotation3d(0, 0, 0))
         });
     Logger.recordOutput(
         "RobotPose/Elevator Stage 2",
         new Pose3d[] {
-          new Pose3d(
-              0,
-              0,
-              Units.inchesToMeters((elevator.getPosition() / 5 * 5.5) * 2),
-              new Rotation3d(0, 0, 0))
+          new Pose3d(0, 0, Units.inchesToMeters(elevator.getPosition()), new Rotation3d(0, 0, 0))
         });
     Logger.recordOutput(
         "RobotPose/Wrist",
@@ -197,16 +129,16 @@ public class ElevatorWristSubsystem extends SubsystemBase {
           new Pose3d(
               0.28575,
               0,
-              0.411 + Units.inchesToMeters((elevator.getPosition() / 5 * 5.5) * 2),
+              0.411 + Units.inchesToMeters(elevator.getPosition()),
               new Rotation3d(0, Units.rotationsToRadians(wrist.getPosition()), 0))
         });
   }
 
-  public RollerSystem getElevator() {
+  public Elevator getElevator() {
     return elevator;
   }
 
-  public RollerSystem getWrist() {
+  public Wrist getWrist() {
     return wrist;
   }
 

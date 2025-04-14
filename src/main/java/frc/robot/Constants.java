@@ -224,42 +224,34 @@ public final class Constants {
     public static final int LEFT_CANID = 32;
     public static final int RIGHT_CANID = 33;
     public static final String CANBUS = "rio";
-    public static final double MAX_POSITION = 27; // 26.5; // MAX_BLOCK6
-    public static final double MAX_POSITION_BLOCK5 = 24; // ????
-    public static final double MAX_POSITION_BLOCK4 = 21; // ????
-    public static final double SAFE_IN_BLOCK4 = 12.5;
-    public static final double MIN_POSITION_BLOCK4 = 10.5; // ????
-    public static final double MAX_POSITION_BLOCK2 = 5.1; // ????
-    public static final double MIN_POSITION_AT_P1 = 3.4; // MIN_BLOCK2
-    public static final double MAX_POSITION_BLOCK0 = 1;
+    public static final double MAX_POSITION = 59.41; // 26.5; // MAX_BLOCK6
+    public static final double MAX_POSITION_BLOCK5 = 52.81; // ????
+    public static final double MAX_POSITION_BLOCK4 = 46.21; // ????
+    public static final double SAFE_IN_BLOCK4 = 27.5;
+    public static final double MIN_POSITION_BLOCK4 = 23.1; // ????
+    public static final double MAX_POSITION_BLOCK2 = 11.22; // ????
+    public static final double MIN_POSITION_AT_P1 = 7.48; // MIN_BLOCK2
+    public static final double MAX_POSITION_BLOCK0 = 2.2;
     public static final double MIN_POSITION = 0; // /MIN_BLOCK0
-    public static final double SHOOTNET = 26.5;
-    public static final double L4 = 23.0;
-    public static final double PRENET = 26.5;
-    public static final double A2 = 15.5;
-    public static final double L3 = 12;
-    public static final double A1 = 9;
-    public static final double L2 = 4.5;
-    public static final double P1 = 3.4;
-    public static final double L1 = 8;
-    public static final double L1_FINAL = 4; // used for pivoting L1 shoot
+    public static final double SHOOTNET = 58.31;
+    public static final double L4 = 50.61;
+    public static final double PRENET = 58.31;
+    public static final double A2 = 34.11;
+    public static final double L3 = 26.4;
+    public static final double A1 = 19.8;
+    public static final double L2 = 9.9;
+    public static final double P1 = 7.48;
+    public static final double L1 = 17.6;
+    public static final double L1_FINAL = 8.8; // used for pivoting L1 shoot
     public static final double INTAKE = 0;
-    public static final double BUMP_VALUE = .5; // rotations
+    public static final double BUMP_VALUE = 1.1; // rotations
     // sequencing contants
-    public static final double MAX_LOW_SAFE = 1;
-    public static final double MIN_MID_SAFE = 11.78;
-    public static final double MAX_MID_SAFE = 16;
-    public static final double MIN_HIGH_SAFE = 24;
+    public static final double MAX_LOW_SAFE = 2.2;
+    public static final double MIN_MID_SAFE = 25.92;
+    public static final double MAX_MID_SAFE = 35.21;
+    public static final double MIN_HIGH_SAFE = 52.81;
     public static final double MAX_LOW_WRIST_MOVE_FROM_SAFE =
-        3; // height to start wrist move if wrist is in safe position
-    //
-    public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(10).withKI(0).withKD(0).withKS(0.5).withKV(0.2).withKA(0);
-    public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
-        new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(40) // 40  5
-            .withMotionMagicAcceleration(120) // 120  60
-            .withMotionMagicJerk(400);
+        6.6; // height to start wrist move if wrist is in safe position
   }
 
   public static final class REEFPOSTSENSOR {

@@ -7,8 +7,8 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.hardware.CANrange;
-import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LEDColor;
 import frc.robot.subsystems.lights.LightSystem;
@@ -24,18 +24,13 @@ public class RangeSensorSubsystem extends SubsystemBase {
   private final LightSystem LED;
 
   private boolean isConnected = false;
-  private boolean prevIsConnected = false;
   private boolean isDetected = false;
-  private boolean prevIsDetected = false;
   private double distance_mm = 0;
   private Color indicatorColor = LEDColor.RED;
-  private Color prevIndicatorColor = LEDColor.RED;
-  private boolean initialLog = true;
 
   private final StatusSignal<Distance> distanceSignal;
   private final StatusSignal<Boolean> detectedSignal;
-
-  private final Debouncer sensorConnectedDebounce = new Debouncer(0.5);
+  private final Alert disconnected;
 
   public RangeSensorSubsystem(LightSystem LED, CANrangeConstants constants) {
     this.name = constants.name;
@@ -46,6 +41,8 @@ public class RangeSensorSubsystem extends SubsystemBase {
 
     distanceSignal = canrange.getDistance();
     detectedSignal = canrange.getIsDetected();
+
+    disconnected = new Alert(name + " motor disconnected!", Alert.AlertType.kWarning);
 
     tryUntilOk(5, () -> canrange.getConfigurator().apply(constants.config));
     tryUntilOk(
@@ -82,25 +79,11 @@ public class RangeSensorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-
     // Refresh all signals
-    var sensorStatus = BaseStatusSignal.refreshAll(distanceSignal, detectedSignal);
-    isConnected = sensorConnectedDebounce.calculate(sensorStatus.isOK());
+    isConnected = BaseStatusSignal.refreshAll(distanceSignal, detectedSignal).isOK();
+    disconnected.set(!isConnected);
     isDetected = detectedSignal.getValue();
     distance_mm = distanceSignal.getValue().in(Millimeters);
-
-    // log signals
-    if (isConnected != prevIsConnected || initialLog) {
-      Logger.recordOutput(folderName + name + "/connected", isConnected);
-      prevIsConnected = isConnected;
-    }
-
-    if (isDetected != prevIsDetected || initialLog) {
-      Logger.recordOutput(folderName + name + "/isDetected", isDetected);
-      prevIsDetected = isDetected;
-    }
-
-    Logger.recordOutput(folderName + name + "/distance_mm", distance_mm);
 
     // determine indicator color
     if (isDetected) {
@@ -111,13 +94,13 @@ public class RangeSensorSubsystem extends SubsystemBase {
       indicatorColor = LEDColor.RED;
     }
 
-    // set indicator
-    if (indicatorColor != prevIndicatorColor || initialLog) {
-      LED.setColor(indicatorColor, indicator);
-      prevIndicatorColor = indicatorColor;
-    }
+    // log signals
+    Logger.recordOutput(folderName + name + "/connected", isConnected);
+    Logger.recordOutput(folderName + name + "/isDetected", isDetected);
+    Logger.recordOutput(folderName + name + "/distance_mm", distance_mm);
 
-    if (initialLog) initialLog = false;
+    // set indicator
+    LED.setColor(indicatorColor, indicator);
   }
 
   /**
