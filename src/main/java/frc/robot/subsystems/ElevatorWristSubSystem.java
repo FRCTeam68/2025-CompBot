@@ -25,6 +25,8 @@ import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
+import frc.robot.Constants.LEDColor;
+import frc.robot.Constants.LEDSegment;
 import frc.robot.subsystems.lights.LightSystem;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
@@ -36,7 +38,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class ElevatorWristSubsystem extends SubsystemBase {
 
-  // private final LightSystem LED;
+  private final LightSystem LED;
   private final RollerSystem wrist;
   private final RollerSystem elevator;
 
@@ -67,7 +69,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
   private double w_bump_goal = 0;
 
   public ElevatorWristSubsystem(LightSystem LED) {
-    // this.LED = LED;
+    this.LED = LED;
 
     reefPostFilter = LinearFilter.movingAverage(4);
     Logger.recordOutput(
@@ -163,9 +165,9 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     boolean indicateToShoot = reefPostDetectedRaw && lookingToShoot;
     if (indicateToShoot != prevIndicateToShoot) {
       if (indicateToShoot) {
-        // LightSystem.setColor(LEDColor.RED, LEDSegment.ALL);
+        LED.setColor(LEDColor.RED, LEDSegment.ALL);
       } else {
-        // LightSystem.disableLEDs(LEDSegment.ALL);
+        LED.disableLEDs(LEDSegment.ALL);
       }
       prevIndicateToShoot = indicateToShoot;
     }

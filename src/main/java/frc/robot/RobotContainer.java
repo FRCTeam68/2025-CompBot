@@ -76,7 +76,7 @@ public class RobotContainer {
   private final RollerSystem intakeShooterLow;
   private static RangeSensorSubsystem intakeCoralSensor;
   private static ElevatorWristSubsystem elevatorWrist;
-  private static LightSystem lightSystem;
+  private static LightSystem LED;
   private ReefCentering reefCentering;
 
   public String selectedAutonName;
@@ -100,7 +100,7 @@ public class RobotContainer {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
-        lightSystem = new LightSystem(new LightSystemIOCANdle());
+        LED = new LightSystem(new LightSystemIOCANdle());
 
         drive =
             new Drive(
@@ -111,6 +111,7 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackRight));
         vision =
             new Vision(
+                LED,
                 drive::addVisionMeasurement,
                 new VisionIOLimelight(camera0Name, drive::getRotation),
                 new VisionIOLimelight(camera1Name, drive::getRotation));
@@ -154,10 +155,9 @@ public class RobotContainer {
         intakeShooterLow.setPieceCurrentThreshold(40);
 
         intakeCoralSensor =
-            new RangeSensorSubsystem(
-                lightSystem, Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
+            new RangeSensorSubsystem(LED, Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
 
-        elevatorWrist = new ElevatorWristSubsystem(lightSystem);
+        elevatorWrist = new ElevatorWristSubsystem(LED);
 
         climber =
             new RollerSystem(
@@ -189,7 +189,7 @@ public class RobotContainer {
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
-        lightSystem = new LightSystem(new LightSystemIOSim());
+        LED = new LightSystem(new LightSystemIOSim());
 
         drive =
             new Drive(
@@ -200,7 +200,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackRight));
         // (Use same number of dummy implementations as the real robot)
         // no sim for limelight????  use blank
-        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        vision = new Vision(LED, drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
         intakeShooter =
             new RollerSystem(
@@ -211,11 +211,10 @@ public class RobotContainer {
                 "IntakeShooterLow", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
         // TBD, this needs an actual simulated sensor.....
         intakeCoralSensor =
-            new RangeSensorSubsystem(
-                lightSystem, Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
+            new RangeSensorSubsystem(LED, Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
 
         // TBD, this needs an actual simulated sensor.....
-        elevatorWrist = new ElevatorWristSubsystem(lightSystem);
+        elevatorWrist = new ElevatorWristSubsystem(LED);
 
         climber =
             new RollerSystem("Climber", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
@@ -228,7 +227,7 @@ public class RobotContainer {
         // Replayed robot, disable IO implementations
 
         // TBD, this needs an actual simulated sensor.....
-        lightSystem = new LightSystem(new LightSystemIO() {});
+        LED = new LightSystem(new LightSystemIO() {});
 
         drive =
             new Drive(
@@ -238,17 +237,16 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
         // (Use same number of dummy implementations as the real robot)
-        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        vision = new Vision(LED, drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
         intakeShooter = new RollerSystem("IntakeShooter", new RollerSystemIO() {});
         intakeShooterLow = new RollerSystem("IntakeShooterLow", new RollerSystemIO() {});
         intakeCoralSensor =
             new RangeSensorSubsystem(
-                lightSystem,
-                Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS); // TBD, need better dummy
+                LED, Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS); // TBD, need better dummy
 
         // TBD, this needs an actual simulated sensor.....
-        elevatorWrist = new ElevatorWristSubsystem(lightSystem);
+        elevatorWrist = new ElevatorWristSubsystem(LED);
 
         climber = new RollerSystem("Climber", new RollerSystemIO() {});
 
@@ -744,56 +742,56 @@ public class RobotContainer {
 
     // set LEDs
     if (robotStateOK && offsetXOK && offsetYOK && offsetROK) {
-      lightSystem.setBandAnimation(LEDColor.GREEN, LEDSegment.ALL);
+      LED.setBandAnimation(LEDColor.GREEN, LEDSegment.ALL);
     } else {
       // all auton ready but position
       if (robotStateOK) {
-        lightSystem.setColor(LEDColor.GREEN, LEDSegment.LEFT_SIDE);
-        lightSystem.setColor(LEDColor.GREEN, LEDSegment.RIGHT_SIDE);
+        LED.setColor(LEDColor.GREEN, LEDSegment.LEFT_SIDE);
+        LED.setColor(LEDColor.GREEN, LEDSegment.RIGHT_SIDE);
       } else {
-        lightSystem.setColor(LEDColor.RED, LEDSegment.LEFT_SIDE);
-        lightSystem.setColor(LEDColor.RED, LEDSegment.RIGHT_SIDE);
+        LED.setColor(LEDColor.RED, LEDSegment.LEFT_SIDE);
+        LED.setColor(LEDColor.RED, LEDSegment.RIGHT_SIDE);
       }
 
       // X offset LEDs
       if (offsetXOK) {
-        lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
-        lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
+        LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
+        LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
       } else {
         if (offsetX < 0) {
-          lightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_X_LEFT);
-          lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
+          LED.setColor(LEDColor.RED, LEDSegment.AUTON_X_LEFT);
+          LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
         } else {
-          lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
-          lightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_X_RIGHT);
+          LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
+          LED.setColor(LEDColor.RED, LEDSegment.AUTON_X_RIGHT);
         }
       }
 
       // Y offset LEDs
       if (offsetYOK) {
-        lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
-        lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
+        LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
+        LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
       } else {
         if (offsetY < 0) {
-          lightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_Y_LEFT);
-          lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
+          LED.setColor(LEDColor.RED, LEDSegment.AUTON_Y_LEFT);
+          LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
         } else {
-          lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
-          lightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_Y_RIGHT);
+          LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
+          LED.setColor(LEDColor.RED, LEDSegment.AUTON_Y_RIGHT);
         }
       }
 
       // rotation offset LEDs
       if (offsetROK) {
-        lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
-        lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
+        LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
+        LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
       } else {
         if (offsetR < 0) {
-          lightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_R_LEFT);
-          lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
+          LED.setColor(LEDColor.RED, LEDSegment.AUTON_R_LEFT);
+          LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
         } else {
-          lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
-          lightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_R_RIGHT);
+          LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
+          LED.setColor(LEDColor.RED, LEDSegment.AUTON_R_RIGHT);
         }
       }
     }

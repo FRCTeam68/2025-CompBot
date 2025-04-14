@@ -29,7 +29,7 @@ public class LightSystemIOCANdle implements LightSystemIO {
 
   @Override
   public void updateInputs(LightSystemIOInputs inputs) {
-    inputs.connected = true;
+    inputs.connected = candle.getBusVoltage() != 0.0;
     inputs.current = candle.getCurrent();
   }
 

@@ -8,16 +8,4 @@ public class LightSystemIOSim implements LightSystemIO {
     inputs.connected = true;
     inputs.current = 0.0;
   }
-
-  //   @Override
-  //   public void setBrightness(double percent) {}
-
-  //   @Override
-  //   public void clearAnimation(Segment segment) {}
-
-  //   @Override
-  //   public void setAnimation(Animation animation, Segment segment) {}
-
-  //   @Override
-  //   public void setColor(Color color, Segment segment) {}
 }

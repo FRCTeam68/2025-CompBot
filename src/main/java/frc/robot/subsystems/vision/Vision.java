@@ -25,19 +25,24 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.LEDColor;
+import frc.robot.subsystems.lights.LightSystem;
+import frc.robot.subsystems.lights.LightSystem.Segment;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.LinkedList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
+  private final LightSystem LED;
   private final VisionConsumer consumer;
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
   private int megaTagCounter;
 
-  public Vision(VisionConsumer consumer, VisionIO... io) {
+  public Vision(LightSystem LED, VisionConsumer consumer, VisionIO... io) {
+    this.LED = LED;
     this.consumer = consumer;
     this.io = io;
     megaTagCounter = 0;
@@ -57,7 +62,7 @@ public class Vision extends SubsystemBase {
     }
 
     // initalize mega tag 1 light
-    // LightSystem.setColor(LEDColor.RED, new Segment(6, 1, 0));
+    LED.setColor(LEDColor.RED, new Segment(6, 1, 0));
   }
 
   /**
@@ -172,7 +177,7 @@ public class Vision extends SubsystemBase {
           megaTagCounter += 1;
           if (megaTagCounter > 50) {
             inputs[cameraIndex].skipMegaTag1 = true;
-            // LightSystem.setColor(LEDColor.GREEN, new Segment(6, 1, 0));
+            LED.setColor(LEDColor.GREEN, new Segment(6, 1, 0));
           }
         }
       }
