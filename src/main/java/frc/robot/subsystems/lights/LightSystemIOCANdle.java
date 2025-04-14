@@ -8,12 +8,10 @@ import frc.robot.subsystems.lights.LightSystem.Color;
 import frc.robot.subsystems.lights.LightSystem.Segment;
 
 public class LightSystemIOCANdle implements LightSystemIO {
-  private final CANdle candle;
+  private final CANdle candle = new CANdle(CANDLE.CANID, CANDLE.CANBUS);
   private final CANdleConfiguration config = new CANdleConfiguration();
 
   public LightSystemIOCANdle() {
-    candle = new CANdle(CANDLE.CANID, CANDLE.CANBUS);
-
     config.brightnessScalar = CANDLE.BRIGHTNESS_SCALAR;
     config.disableWhenLOS = CANDLE.DISABLE_WHEN_LOS;
     config.statusLedOffWhenActive = CANDLE.STATUS_OFF_WHEN_ACTIVE;
@@ -52,7 +50,7 @@ public class LightSystemIOCANdle implements LightSystemIO {
 
   @Override
   public void setColor(Color color, Segment segment) {
-    clearAnimation(segment);
+    // clearAnimation(segment);
     candle.setLEDs(
         color.red, color.green, color.blue, color.white, segment.startIndex, segment.segmentSize);
   }

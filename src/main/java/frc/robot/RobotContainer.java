@@ -50,6 +50,7 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.lights.LightSystem;
 import frc.robot.subsystems.lights.LightSystemIO;
 import frc.robot.subsystems.lights.LightSystemIOCANdle;
+import frc.robot.subsystems.lights.LightSystemIOSim;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.rollers.RollerSystemIOSim;
@@ -75,7 +76,7 @@ public class RobotContainer {
   private final RollerSystem intakeShooterLow;
   private static RangeSensorSubsystem intakeCoralSensor;
   private static ElevatorWristSubsystem elevatorWrist;
-  private final LightSystem lightSystem;
+  private static LightSystem lightSystem;
   private ReefCentering reefCentering;
 
   public String selectedAutonName;
@@ -99,6 +100,8 @@ public class RobotContainer {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
+        lightSystem = new LightSystem(new LightSystemIOCANdle());
+
         drive =
             new Drive(
                 new GyroIOPigeon2(),
@@ -151,9 +154,10 @@ public class RobotContainer {
         intakeShooterLow.setPieceCurrentThreshold(40);
 
         intakeCoralSensor =
-            new RangeSensorSubsystem(Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
+            new RangeSensorSubsystem(
+                lightSystem, Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
 
-        elevatorWrist = new ElevatorWristSubsystem();
+        elevatorWrist = new ElevatorWristSubsystem(lightSystem);
 
         climber =
             new RollerSystem(
@@ -178,8 +182,6 @@ public class RobotContainer {
 
         reefCentering = new ReefCentering(drive);
 
-        lightSystem = new LightSystem(new LightSystemIOCANdle());
-
         SmartDashboard.putString("BumpMode", "ELEVATOR");
         SmartDashboard.putString("AutoShoot", "OFF");
 
@@ -187,6 +189,8 @@ public class RobotContainer {
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
+        lightSystem = new LightSystem(new LightSystemIOSim());
+
         drive =
             new Drive(
                 new GyroIO() {},
@@ -207,22 +211,25 @@ public class RobotContainer {
                 "IntakeShooterLow", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
         // TBD, this needs an actual simulated sensor.....
         intakeCoralSensor =
-            new RangeSensorSubsystem(Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
+            new RangeSensorSubsystem(
+                lightSystem, Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
 
         // TBD, this needs an actual simulated sensor.....
-        elevatorWrist = new ElevatorWristSubsystem();
+        elevatorWrist = new ElevatorWristSubsystem(lightSystem);
 
         climber =
             new RollerSystem("Climber", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
         // TBD, this needs an actual simulated sensor.....
 
         reefCentering = new ReefCentering(drive);
-
-        lightSystem = new LightSystem(new LightSystemIOCANdle());
         break;
 
       default:
         // Replayed robot, disable IO implementations
+
+        // TBD, this needs an actual simulated sensor.....
+        lightSystem = new LightSystem(new LightSystemIO() {});
+
         drive =
             new Drive(
                 new GyroIO() {},
@@ -237,17 +244,15 @@ public class RobotContainer {
         intakeShooterLow = new RollerSystem("IntakeShooterLow", new RollerSystemIO() {});
         intakeCoralSensor =
             new RangeSensorSubsystem(
+                lightSystem,
                 Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS); // TBD, need better dummy
 
         // TBD, this needs an actual simulated sensor.....
-        elevatorWrist = new ElevatorWristSubsystem();
+        elevatorWrist = new ElevatorWristSubsystem(lightSystem);
 
         climber = new RollerSystem("Climber", new RollerSystemIO() {});
 
         reefCentering = new ReefCentering(drive);
-
-        // TBD, this needs an actual simulated sensor.....
-        lightSystem = new LightSystem(new LightSystemIO() {});
         break;
     }
 
@@ -739,56 +744,56 @@ public class RobotContainer {
 
     // set LEDs
     if (robotStateOK && offsetXOK && offsetYOK && offsetROK) {
-      LightSystem.setBandAnimation(LEDColor.GREEN, LEDSegment.ALL);
+      lightSystem.setBandAnimation(LEDColor.GREEN, LEDSegment.ALL);
     } else {
       // all auton ready but position
       if (robotStateOK) {
-        LightSystem.setColor(LEDColor.GREEN, LEDSegment.LEFT_SIDE);
-        LightSystem.setColor(LEDColor.GREEN, LEDSegment.RIGHT_SIDE);
+        lightSystem.setColor(LEDColor.GREEN, LEDSegment.LEFT_SIDE);
+        lightSystem.setColor(LEDColor.GREEN, LEDSegment.RIGHT_SIDE);
       } else {
-        LightSystem.setColor(LEDColor.RED, LEDSegment.LEFT_SIDE);
-        LightSystem.setColor(LEDColor.RED, LEDSegment.RIGHT_SIDE);
+        lightSystem.setColor(LEDColor.RED, LEDSegment.LEFT_SIDE);
+        lightSystem.setColor(LEDColor.RED, LEDSegment.RIGHT_SIDE);
       }
 
       // X offset LEDs
       if (offsetXOK) {
-        LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
-        LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
+        lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
+        lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
       } else {
         if (offsetX < 0) {
-          LightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_X_LEFT);
-          LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
+          lightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_X_LEFT);
+          lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
         } else {
-          LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
-          LightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_X_RIGHT);
+          lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
+          lightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_X_RIGHT);
         }
       }
 
       // Y offset LEDs
       if (offsetYOK) {
-        LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
-        LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
+        lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
+        lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
       } else {
         if (offsetY < 0) {
-          LightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_Y_LEFT);
-          LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
+          lightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_Y_LEFT);
+          lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
         } else {
-          LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
-          LightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_Y_RIGHT);
+          lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
+          lightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_Y_RIGHT);
         }
       }
 
       // rotation offset LEDs
       if (offsetROK) {
-        LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
-        LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
+        lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
+        lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
       } else {
         if (offsetR < 0) {
-          LightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_R_LEFT);
-          LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
+          lightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_R_LEFT);
+          lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
         } else {
-          LightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
-          LightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_R_RIGHT);
+          lightSystem.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
+          lightSystem.setColor(LEDColor.RED, LEDSegment.AUTON_R_RIGHT);
         }
       }
     }

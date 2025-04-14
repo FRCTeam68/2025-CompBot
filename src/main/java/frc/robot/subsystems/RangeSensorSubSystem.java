@@ -21,6 +21,7 @@ public class RangeSensorSubsystem extends SubsystemBase {
   private final String name;
   private final Segment indicator;
   private final CANrange canrange;
+  private final LightSystem LED;
 
   private boolean isConnected = false;
   private boolean prevIsConnected = false;
@@ -36,9 +37,10 @@ public class RangeSensorSubsystem extends SubsystemBase {
 
   private final Debouncer sensorConnectedDebounce = new Debouncer(0.5);
 
-  public RangeSensorSubsystem(CANrangeConstants constants) {
+  public RangeSensorSubsystem(LightSystem LED, CANrangeConstants constants) {
     this.name = constants.name;
     this.indicator = constants.indicator;
+    this.LED = LED;
 
     canrange = new CANrange(constants.canID, constants.bus);
 
@@ -111,7 +113,7 @@ public class RangeSensorSubsystem extends SubsystemBase {
 
     // set indicator
     if (indicatorColor != prevIndicatorColor || initialLog) {
-      LightSystem.setColor(indicatorColor, indicator);
+      LED.setColor(indicatorColor, indicator);
       prevIndicatorColor = indicatorColor;
     }
 

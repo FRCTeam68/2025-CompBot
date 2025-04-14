@@ -25,9 +25,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.LEDColor;
-import frc.robot.subsystems.lights.LightSystem;
-import frc.robot.subsystems.lights.LightSystem.Segment;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.LinkedList;
 import java.util.List;
@@ -60,7 +57,7 @@ public class Vision extends SubsystemBase {
     }
 
     // initalize mega tag 1 light
-    LightSystem.setColor(LEDColor.RED, new Segment(6, 1, 0));
+    // LightSystem.setColor(LEDColor.RED, new Segment(6, 1, 0));
   }
 
   /**
@@ -175,7 +172,7 @@ public class Vision extends SubsystemBase {
           megaTagCounter += 1;
           if (megaTagCounter > 50) {
             inputs[cameraIndex].skipMegaTag1 = true;
-            LightSystem.setColor(LEDColor.GREEN, new Segment(6, 1, 0));
+            // LightSystem.setColor(LEDColor.GREEN, new Segment(6, 1, 0));
           }
         }
       }

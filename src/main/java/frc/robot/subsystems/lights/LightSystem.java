@@ -15,7 +15,7 @@ import frc.robot.Constants.LEDColor;
 import org.littletonrobotics.junction.Logger;
 
 public class LightSystem extends SubsystemBase {
-  private static LightSystemIO io;
+  private final LightSystemIO io;
   protected final LightSystemIOInputsAutoLogged inputs = new LightSystemIOInputsAutoLogged();
   private final Alert disconnected;
 
@@ -55,8 +55,8 @@ public class LightSystem extends SubsystemBase {
    *
    * @param segment LED segment to clear animation
    */
-  public static void clearAnimation(Segment segment) {
-    io.clearAnimation(segment);
+  public void clearAnimation(Segment segment) {
+    // io.clearAnimation(segment);
   }
 
   /**
@@ -66,8 +66,8 @@ public class LightSystem extends SubsystemBase {
    *     animation at the specified slot
    * @param segment LED segment to use animation slot
    */
-  private static void setAnimation(Animation animation, Segment segment) {
-    io.setAnimation(animation, segment);
+  private void setAnimation(Animation animation, Segment segment) {
+    // io.setAnimation(animation, segment);
   }
 
   /**
@@ -75,7 +75,7 @@ public class LightSystem extends SubsystemBase {
    *
    * @param segment LED segment to turn off
    */
-  public static void disableLEDs(Segment segment) {
+  public void disableLEDs(Segment segment) {
     setColor(LEDColor.BLACK, segment);
   }
 
@@ -85,7 +85,7 @@ public class LightSystem extends SubsystemBase {
    * @param color Color of the LED
    * @param segment LED segment to apply color change
    */
-  public static void setColor(Color color, Segment segment) {
+  public void setColor(Color color, Segment segment) {
     io.setColor(color, segment);
   }
 
@@ -97,7 +97,7 @@ public class LightSystem extends SubsystemBase {
    * @param color Color of the LED
    * @param segment LED segment to apply animation
    */
-  public static void setFlowAnimation(Color color, Segment segment) {
+  public void setFlowAnimation(Color color, Segment segment) {
     setFlowAnimation(color, segment, defaultAnimationSpeed, Direction.Forward);
   }
 
@@ -109,8 +109,7 @@ public class LightSystem extends SubsystemBase {
    * @param speed How fast should the color travel the strip [0, 1]
    * @param direction What direction should the color move in
    */
-  public static void setFlowAnimation(
-      Color color, Segment segment, double speed, Direction direction) {
+  public void setFlowAnimation(Color color, Segment segment, double speed, Direction direction) {
     setAnimation(
         new ColorFlowAnimation(
             color.red,
@@ -132,7 +131,7 @@ public class LightSystem extends SubsystemBase {
    * @param color Color of the LED
    * @param segment LED segment to apply animation
    */
-  public static void setFadeAnimation(Color color, Segment segment) {
+  public void setFadeAnimation(Color color, Segment segment) {
     setFadeAnimation(color, segment, defaultAnimationSpeed);
   }
 
@@ -143,7 +142,7 @@ public class LightSystem extends SubsystemBase {
    * @param segment LED segment to apply animation
    * @param speed How fast should the color travel the strip [0, 1]
    */
-  public static void setFadeAnimation(Color color, Segment segment, double speed) {
+  public void setFadeAnimation(Color color, Segment segment, double speed) {
     setAnimation(
         new SingleFadeAnimation(
             color.red,
@@ -164,7 +163,7 @@ public class LightSystem extends SubsystemBase {
    * @param color Color of the LED
    * @param segment LED segment to apply animation
    */
-  public static void setBandAnimation(Color color, Segment segment) {
+  public void setBandAnimation(Color color, Segment segment) {
     setBandAnimation(color, segment, defaultAnimationSpeed, BounceMode.Front, 1);
   }
 
@@ -177,7 +176,7 @@ public class LightSystem extends SubsystemBase {
    * @param mode How the pocket of LEDs will behave once it reaches the end of the strip
    * @param size How large the pocket of LEDs are [0, 7]
    */
-  public static void setBandAnimation(
+  public void setBandAnimation(
       Color color, Segment segment, double speed, BounceMode mode, int size) {
     setAnimation(
         new LarsonAnimation(
@@ -201,7 +200,7 @@ public class LightSystem extends SubsystemBase {
    * @param color Color of the LED
    * @param segment LED segment to apply animation
    */
-  public static void setStrobeAnimation(Color color, Segment segment) {
+  public void setStrobeAnimation(Color color, Segment segment) {
     setStrobeAnimation(color, segment, defaultAnimationSpeed);
   }
 
@@ -212,7 +211,7 @@ public class LightSystem extends SubsystemBase {
    * @param segment LED segment to apply animation
    * @param speed How fast should the color travel the strip [0, 1]
    */
-  public static void setStrobeAnimation(Color color, Segment segment, double speed) {
+  public void setStrobeAnimation(Color color, Segment segment, double speed) {
     setAnimation(
         new StrobeAnimation(
             color.red,
@@ -233,7 +232,7 @@ public class LightSystem extends SubsystemBase {
    * @param color Color of the LED
    * @param segment LED segment to apply animation
    */
-  public static void setRainbowAnimation(Segment segment) {
+  public void setRainbowAnimation(Segment segment) {
     setRainbowAnimation(segment, defaultAnimationSpeed, false);
   }
 
@@ -246,7 +245,7 @@ public class LightSystem extends SubsystemBase {
    * @param reverseDirection True to reverse the animation direction, so instead of going "toward"
    *     the CANdle, it will go "away" from the CANdle.
    */
-  public static void setRainbowAnimation(Segment segment, double speed, boolean reverseDirection) {
+  public void setRainbowAnimation(Segment segment, double speed, boolean reverseDirection) {
     setAnimation(
         new RainbowAnimation(1, speed, segment.segmentSize, reverseDirection, segment.startIndex),
         segment);
