@@ -23,7 +23,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.Constants.ELEVATOR;
 
 /** Generic roller IO implementation for a roller or series of rollers using a Kraken. */
 public class ElevatorIOTalonFX implements ElevatorIO {
@@ -59,8 +58,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public ElevatorIOTalonFX() {
-    talon = new TalonFX(ELEVATOR.RIGHT_CANID, ELEVATOR.CANBUS);
-    followerTalon = new TalonFX(ELEVATOR.LEFT_CANID, ELEVATOR.CANBUS);
+    talon = new TalonFX(33, "rio");
+    followerTalon = new TalonFX(32, "rio");
     followerTalon.setControl(new Follower(talon.getDeviceID(), true));
 
     // Configure Motor

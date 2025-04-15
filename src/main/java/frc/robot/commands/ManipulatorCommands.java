@@ -22,21 +22,33 @@ import frc.robot.Constants.LEDSegment;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.ElevatorWristSubsystem;
 import frc.robot.subsystems.RangeSensorSubsystem;
-import frc.robot.subsystems.lights.LightSystem;
+import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.rollers.RollerSystem;
 import java.util.Set;
 import lombok.Getter;
+import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class ManipulatorCommands {
-  private static LightSystem LED;
+  private static Lights LED;
 
-  @Getter @AutoLogOutput public static boolean havePiece = false;
-  @Getter @AutoLogOutput public static boolean indexing = false;
+  @Getter @AutoLogOutput private static ScoringPosition scoringPosition = ScoringPosition.CoralL2_4;
+  @Getter @Setter @AutoLogOutput private static boolean havePiece = false;
+  @Getter @AutoLogOutput private static boolean indexing = false;
 
-  private ManipulatorCommands(LightSystem LED) {
+  private ManipulatorCommands(Lights LED) {
     this.LED = LED;
+  }
+
+  private static enum ScoringPosition {
+    Algae,
+
+    AlgaeNet,
+
+    CoralL1,
+
+    CoralL2_4
   }
 
   public static Command intakeCmd(
@@ -57,8 +69,8 @@ public class ManipulatorCommands {
                   Commands.runOnce(() -> havePiece = true),
                   Commands.runOnce(() -> indexing = false));
           command = Commands.none();
-          if (Constants.WRIST.POSITION_SCORING_ELEMENT == "Algae"
-              || Constants.WRIST.POSITION_SCORING_ELEMENT == "AlgaeNet") {
+          if (scoringPosition == ScoringPosition.Algae
+              || scoringPosition == ScoringPosition.AlgaeNet) {
             ///// INTAKE ALGAE /////
             command =
                 Commands.sequence(
@@ -137,7 +149,7 @@ public class ManipulatorCommands {
                   myIntake.setSpeedCmd(0),
                   myIntakeLow.setSpeedCmd(0));
           command = Commands.none();
-          if (Constants.WRIST.POSITION_SCORING_ELEMENT == "Algae") {
+          if (scoringPosition == ScoringPosition.Algae) {
             ///// SHOOT ALGAE PROCESSOR /////
             command =
                 Commands.sequence(
@@ -148,7 +160,7 @@ public class ManipulatorCommands {
                     myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_SPEED),
                     myIntakeLow.setSpeedCmd(Constants.INTAKE_SHOOTER_LOW.ALGAE_SHOOT_SPEED),
                     Commands.waitSeconds(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_TIMEOUT));
-          } else if (Constants.WRIST.POSITION_SCORING_ELEMENT == "AlgaeNet") {
+          } else if (scoringPosition == ScoringPosition.AlgaeNet) {
             ///// SHOOT ALGAE NET /////
             command =
                 Commands.parallel(
@@ -161,7 +173,7 @@ public class ManipulatorCommands {
                         myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_NET_SHOOT_SPEED),
                         myIntakeLow.setSpeedCmd(Constants.INTAKE_SHOOTER_LOW.ALGAE_NET_SHOOT_SPEED),
                         Commands.waitSeconds(Constants.INTAKE_SHOOTER.ALGAE_SHOOT_TIMEOUT)));
-          } else if (Constants.WRIST.POSITION_SCORING_ELEMENT == "CoralL1") {
+          } else if (scoringPosition == ScoringPosition.CoralL1) {
             ///// SHOOT CORAL L1 /////
             command =
                 Commands.sequence(
@@ -203,7 +215,7 @@ public class ManipulatorCommands {
   public static Command CoralL4Cmd(
       RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
     return Commands.parallel(
-        Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
+        Commands.runOnce(() -> scoringPosition = ScoringPosition.CoralL2_4),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L4")),
         Commands.either(
             Commands.sequence(
@@ -218,7 +230,7 @@ public class ManipulatorCommands {
   public static Command CoralL3Cmd(
       RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
     return Commands.sequence(
-        Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
+        Commands.runOnce(() -> scoringPosition = ScoringPosition.CoralL2_4),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L3")),
         Commands.either(
             Commands.sequence(
@@ -233,7 +245,7 @@ public class ManipulatorCommands {
   public static Command CoralL2Cmd(
       RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
     return Commands.sequence(
-        Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
+        Commands.runOnce(() -> scoringPosition = ScoringPosition.CoralL2_4),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L2")),
         Commands.either(
             Commands.sequence(
@@ -248,7 +260,7 @@ public class ManipulatorCommands {
   public static Command CoralL1Cmd(
       RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
     return Commands.sequence(
-        Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "CoralL1"),
+        Commands.runOnce(() -> scoringPosition = ScoringPosition.CoralL1),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L1")),
         Commands.either(
             myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.L1, Constants.WRIST.L1, 1),
@@ -261,7 +273,7 @@ public class ManipulatorCommands {
   public static Command CoralIntakePositionCmd(
       RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
     return Commands.sequence(
-        Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Coral"),
+        Commands.runOnce(() -> scoringPosition = ScoringPosition.CoralL2_4),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "INTAKE")),
         myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.INTAKE, Constants.WRIST.INTAKE));
   }
@@ -269,7 +281,7 @@ public class ManipulatorCommands {
   public static Command AlgaeToNetCmd(
       RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist, Boolean algaeCradleFlag) {
     return Commands.sequence(
-        Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "AlgaeNet"),
+        Commands.runOnce(() -> scoringPosition = ScoringPosition.AlgaeNet),
         Commands.waitUntil(() -> algaeCradleFlag == false),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "NET")),
         myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.PRENET, Constants.WRIST.PRENET, 1));
@@ -278,7 +290,7 @@ public class ManipulatorCommands {
   public static Command AlgaeToP1(
       RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist, Boolean algaeCradleFlag) {
     return Commands.sequence(
-        Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Algae"),
+        Commands.runOnce(() -> scoringPosition = ScoringPosition.Algae),
         Commands.waitUntil(() -> algaeCradleFlag == false),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "P1")),
         myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.P1, Constants.WRIST.P1));
@@ -287,7 +299,7 @@ public class ManipulatorCommands {
   public static Command AlgaeAtA2(
       RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist, Boolean algaeCradleFlag) {
     return Commands.sequence(
-        Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Algae"),
+        Commands.runOnce(() -> scoringPosition = ScoringPosition.Algae),
         Commands.waitUntil(() -> algaeCradleFlag == false),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "A2")),
         myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.A2, Constants.WRIST.A2));
@@ -296,7 +308,7 @@ public class ManipulatorCommands {
   public static Command AlgaeAtA1(
       RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist, Boolean algaeCradleFlag) {
     return Commands.sequence(
-        Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Algae"),
+        Commands.runOnce(() -> scoringPosition = ScoringPosition.Algae),
         Commands.waitUntil(() -> algaeCradleFlag == false),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "A1")),
         myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.A1, Constants.WRIST.A1));
@@ -305,7 +317,7 @@ public class ManipulatorCommands {
   public static Command AlgaeCradle(
       RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
     return Commands.sequence(
-        Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Algae"),
+        Commands.runOnce(() -> scoringPosition = ScoringPosition.Algae),
         Commands.runOnce(
             () -> Logger.recordOutput("Manipulator/ElevatorWristState", "AlgaeCradle")),
         myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.SAFE),
@@ -354,7 +366,7 @@ public class ManipulatorCommands {
   public static Command ElevatorWristZeroCmd(
       RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
     return Commands.sequence(
-        Commands.runOnce(() -> Constants.WRIST.POSITION_SCORING_ELEMENT = "Null"),
+        Commands.runOnce(() -> scoringPosition = ScoringPosition.CoralL2_4),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "ZERO")),
         myElevatorWrist.setPositionCmdNew(
             Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.MIN_POSITION));

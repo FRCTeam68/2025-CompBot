@@ -1,5 +1,6 @@
 package frc.robot.subsystems.superstructure.wrist;
 
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -32,6 +33,8 @@ public class WristIOSim implements WristIO {
     inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() * 60;
     inputs.appliedVoltage = appliedVoltage;
     inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();
+    inputs.CANcoderConnected = true;
+    inputs.CANcoderMagnetHealth = MagnetHealthValue.Magnet_Green;
   }
 
   @Override

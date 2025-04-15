@@ -14,14 +14,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LEDColor;
 import org.littletonrobotics.junction.Logger;
 
-public class LightSystem extends SubsystemBase {
-  private final LightSystemIO io;
-  protected final LightSystemIOInputsAutoLogged inputs = new LightSystemIOInputsAutoLogged();
+public class Lights extends SubsystemBase {
+  private final LightsIO io;
+  protected final LightsIOInputsAutoLogged inputs = new LightsIOInputsAutoLogged();
   private final Alert disconnected;
 
   private static double defaultAnimationSpeed = 4;
 
-  public LightSystem(LightSystemIO io) {
+  public Lights(LightsIO io) {
     this.io = io;
     disconnected = new Alert(" CANdle disconnected!", Alert.AlertType.kWarning);
   }

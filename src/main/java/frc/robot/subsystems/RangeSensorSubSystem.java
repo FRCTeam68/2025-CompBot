@@ -11,9 +11,9 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LEDColor;
-import frc.robot.subsystems.lights.LightSystem;
-import frc.robot.subsystems.lights.LightSystem.Color;
-import frc.robot.subsystems.lights.LightSystem.Segment;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.Lights.Color;
+import frc.robot.subsystems.lights.Lights.Segment;
 import org.littletonrobotics.junction.Logger;
 
 public class RangeSensorSubsystem extends SubsystemBase {
@@ -21,7 +21,7 @@ public class RangeSensorSubsystem extends SubsystemBase {
   private final String name;
   private final Segment indicator;
   private final CANrange canrange;
-  private final LightSystem LED;
+  private final Lights LED;
 
   private boolean isConnected = false;
   private boolean isDetected = false;
@@ -32,7 +32,7 @@ public class RangeSensorSubsystem extends SubsystemBase {
   private final StatusSignal<Boolean> detectedSignal;
   private final Alert disconnected;
 
-  public RangeSensorSubsystem(LightSystem LED, CANrangeConstants constants) {
+  public RangeSensorSubsystem(Lights LED, CANrangeConstants constants) {
     this.name = constants.name;
     this.indicator = constants.indicator;
     this.LED = LED;

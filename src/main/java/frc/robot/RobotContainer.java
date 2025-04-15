@@ -15,6 +15,7 @@ package frc.robot;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
+import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -46,10 +47,10 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.lights.LightSystem;
-import frc.robot.subsystems.lights.LightSystemIO;
-import frc.robot.subsystems.lights.LightSystemIOCANdle;
-import frc.robot.subsystems.lights.LightSystemIOSim;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.LightsIO;
+import frc.robot.subsystems.lights.LightsIOCANdle;
+import frc.robot.subsystems.lights.LightsIOSim;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.rollers.RollerSystemIOSim;
@@ -75,7 +76,7 @@ public class RobotContainer {
   private final RollerSystem intakeShooterLow;
   private static RangeSensorSubsystem intakeCoralSensor;
   private static ElevatorWristSubsystem elevatorWrist;
-  private static LightSystem LED;
+  private static Lights LED;
   private ReefCentering reefCentering;
 
   public String selectedAutonName;
@@ -99,7 +100,7 @@ public class RobotContainer {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
-        LED = new LightSystem(new LightSystemIOCANdle());
+        LED = new Lights(new LightsIOCANdle());
 
         drive =
             new Drive(
@@ -188,7 +189,7 @@ public class RobotContainer {
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
-        LED = new LightSystem(new LightSystemIOSim());
+        LED = new Lights(new LightsIOSim());
 
         drive =
             new Drive(
@@ -226,7 +227,7 @@ public class RobotContainer {
         // Replayed robot, disable IO implementations
 
         // TBD, this needs an actual simulated sensor.....
-        LED = new LightSystem(new LightSystemIO() {});
+        LED = new Lights(new LightsIO() {});
 
         drive =
             new Drive(
@@ -259,11 +260,12 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
+    // warp up path following command
+    FollowPathCommand.warmupCommand().schedule();
+
     SmartDashboard.putBoolean("HaveCoral", false);
     SmartDashboard.putString("atPosition", "--");
     SmartDashboard.putBoolean("CLIMB", false);
-
-    // LEDSegment.all.setRainbowAnimation(2);
   }
 
   /**

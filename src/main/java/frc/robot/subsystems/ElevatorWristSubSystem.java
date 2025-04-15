@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.LEDColor;
 import frc.robot.Constants.LEDSegment;
-import frc.robot.subsystems.lights.LightSystem;
+import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.superstructure.elevator.*;
 import frc.robot.subsystems.superstructure.wrist.*;
 import java.util.Set;
@@ -33,7 +33,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class ElevatorWristSubsystem extends SubsystemBase {
 
-  private final LightSystem LED;
+  private final Lights LED;
   private final Wrist wrist;
   private final Elevator elevator;
 
@@ -51,7 +51,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
   @Getter @Setter @AutoLogOutput private boolean autoShootOn = false;
   private boolean prevIndicateToShoot = false;
 
-  public ElevatorWristSubsystem(LightSystem LED) {
+  public ElevatorWristSubsystem(Lights LED) {
     this.LED = LED;
 
     reefPostFilter = LinearFilter.movingAverage(4);
@@ -113,16 +113,20 @@ public class ElevatorWristSubsystem extends SubsystemBase {
 
     // robot poses
     Logger.recordOutput(
-        "RobotPose/Elevator Stage 1",
-        new Pose3d[] {
-          new Pose3d(
-              0, 0, Units.inchesToMeters(elevator.getPosition() / 2), new Rotation3d(0, 0, 0))
-        });
-    Logger.recordOutput(
-        "RobotPose/Elevator Stage 2",
-        new Pose3d[] {
-          new Pose3d(0, 0, Units.inchesToMeters(elevator.getPosition()), new Rotation3d(0, 0, 0))
-        });
+        "RobotPose/Elevator",
+        new Pose3d(0, 0, Units.inchesToMeters(elevator.getPosition() / 2), new Rotation3d(0, 0, 0)),
+        new Pose3d(0, 0, Units.inchesToMeters(elevator.getPosition()), new Rotation3d(0, 0, 0)));
+    // Logger.recordOutput(
+    //     "RobotPose/Elevator Stage 1",
+    //     new Pose3d[] {
+    //       new Pose3d(
+    //           0, 0, Units.inchesToMeters(elevator.getPosition() / 2), new Rotation3d(0, 0, 0))
+    //     });
+    // Logger.recordOutput(
+    //     "RobotPose/Elevator Stage 2",
+    //     new Pose3d[] {
+    //       new Pose3d(0, 0, Units.inchesToMeters(elevator.getPosition()), new Rotation3d(0, 0, 0))
+    //     });
     Logger.recordOutput(
         "RobotPose/Wrist",
         new Pose3d[] {

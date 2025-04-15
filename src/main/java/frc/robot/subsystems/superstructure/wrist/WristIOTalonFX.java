@@ -17,6 +17,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
@@ -26,11 +27,10 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.Constants.WRIST;
 
 /** Generic roller IO implementation for a roller or series of rollers using a Kraken. */
 public class WristIOTalonFX implements WristIO {
-  public static final double reduction = WRIST.REDUCTION;
+  public static final double reduction = 62.5;
   private final GravityTypeValue gravityType = GravityTypeValue.Arm_Cosine;
 
   // Hardware
@@ -48,8 +48,10 @@ public class WristIOTalonFX implements WristIO {
   private final StatusSignal<Current> supplyCurrent;
   private final StatusSignal<Current> torqueCurrent;
   private final StatusSignal<Temperature> tempCelsius;
+  private final StatusSignal<MagnetHealthValue> magnetHealth;
 
   private final Debouncer connectedDebouncer = new Debouncer(0.5);
+  private final Debouncer cancoderConnectedDebouncer = new Debouncer(0.5);
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true).withUpdateFreqHz(0);
@@ -57,13 +59,13 @@ public class WristIOTalonFX implements WristIO {
   private final NeutralOut neutralOut = new NeutralOut();
 
   public WristIOTalonFX() {
-    talon = new TalonFX(WRIST.CANID, WRIST.CANBUS);
-    cancoder = new CANcoder(WRIST.CANCODER_CANID, WRIST.CANBUS);
+    talon = new TalonFX(31, "rio");
+    cancoder = new CANcoder(36, "rio");
 
     // configure sensor
     cancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.9;
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-    cancoderConfig.MagnetSensor.MagnetOffset = WRIST.CANCODER_OFFSET;
+    cancoderConfig.MagnetSensor.MagnetOffset = -0.056640625;
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
 
     // Configure Motor
@@ -88,15 +90,16 @@ public class WristIOTalonFX implements WristIO {
     supplyCurrent = talon.getSupplyCurrent();
     torqueCurrent = talon.getTorqueCurrent();
     tempCelsius = talon.getDeviceTemp();
+    magnetHealth = cancoder.getMagnetHealth();
 
     tryUntilOk(
         5,
         () ->
             BaseStatusSignal.setUpdateFrequencyForAll(
-                50.0, position, velocity, appliedVoltage, torqueCurrent));
+                50.0, position, velocity, appliedVoltage, torqueCurrent, magnetHealth));
     tryUntilOk(
         5, () -> BaseStatusSignal.setUpdateFrequencyForAll(250.0, supplyCurrent, tempCelsius));
-    tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon));
+    tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon, cancoder));
   }
 
   @Override
@@ -110,6 +113,9 @@ public class WristIOTalonFX implements WristIO {
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
     inputs.torqueCurrentAmps = torqueCurrent.getValueAsDouble();
     inputs.tempCelsius = tempCelsius.getValueAsDouble();
+    inputs.CANcoderConnected =
+        cancoderConnectedDebouncer.calculate(BaseStatusSignal.isAllGood(magnetHealth));
+    inputs.CANcoderMagnetHealth = magnetHealth.getValue();
   }
 
   @Override

@@ -15,14 +15,11 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Meters;
 
-import com.ctre.phoenix.led.CANdle.LEDStripType;
-import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.FovParamsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.ProximityParamsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.ToFParamsConfigs;
 import com.ctre.phoenix6.signals.UpdateModeValue;
 import com.pathplanner.lib.path.PathConstraints;
@@ -31,8 +28,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.subsystems.RangeSensorSubsystem.CANrangeConstants;
-import frc.robot.subsystems.lights.LightSystem.Color;
-import frc.robot.subsystems.lights.LightSystem.Segment;
+import frc.robot.subsystems.lights.Lights.Color;
+import frc.robot.subsystems.lights.Lights.Segment;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -180,10 +177,6 @@ public final class Constants {
   }
 
   public static final class WRIST {
-    public static final int CANID = 31; // old shooterSubSystem right, top
-    public static final int CANCODER_CANID = 36;
-    public static final String CANBUS = "rio";
-    public static String POSITION_SCORING_ELEMENT = "NULL";
     public static final double REDUCTION = 62.5;
     public static final double MIN_POSITION = 0;
     public static final double MIN_SLOT1_TO_ELEVATE = 0.059; // .0606;
@@ -207,23 +200,9 @@ public final class Constants {
     public static final double BUMP_VALUE = 0.008; // rotations
     public static final double SAFE = 0.232; // minimum position to move full elevator travel
     public static final double ERROR = 0.008;
-    public static final double CANCODER_OFFSET = -0.056640625; // 0.064453125;
-    // public static final double CANCODER_FACTOR = 1.4634 / 0.02197;
-    public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(120).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
-    public static final Slot1Configs SLOT1_CONFIGS =
-        new Slot1Configs().withKP(50).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
-    public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
-        new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(50) // 60  5
-            .withMotionMagicAcceleration(70) // 240  15
-            .withMotionMagicJerk(400);
   }
 
-  public static final class ELEVATOR { // old AngleSubSystem
-    public static final int LEFT_CANID = 32;
-    public static final int RIGHT_CANID = 33;
-    public static final String CANBUS = "rio";
+  public static final class ELEVATOR {
     public static final double MAX_POSITION = 59.41; // 26.5; // MAX_BLOCK6
     public static final double MAX_POSITION_BLOCK5 = 52.81; // ????
     public static final double MAX_POSITION_BLOCK4 = 46.21; // ????
@@ -298,25 +277,6 @@ public final class Constants {
             .withMotionMagicCruiseVelocity(70)
             .withMotionMagicAcceleration(140)
             .withMotionMagicJerk(500);
-  }
-
-  // public static final class RED_TAGS {
-  //   public static final int[] stage = {11, 12, 13};
-  // }
-
-  // public static final class BLUE_TAGS {
-  //   public static final int[] stage = {14, 15, 16};
-  // }
-
-  public static final class CANDLE {
-    public static final int CANID = 60;
-    public static final String CANBUS = "rio";
-    public static final double BRIGHTNESS_SCALAR = 1;
-    public static final boolean DISABLE_WHEN_LOS = false; // disable when loss of signal
-    public static final boolean STATUS_OFF_WHEN_ACTIVE = false; // disable onboard led when active
-    public static final LEDStripType LED_STRIP_TYPE = LEDStripType.GRB;
-    public static final boolean V5_ENABLED = true; // 5 volt output
-    public static final VBatOutputMode V_BAT_OUTPUT_MODE = VBatOutputMode.Off; // 12 volt output
   }
 
   public static final class LEDSegment {

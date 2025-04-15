@@ -2,6 +2,7 @@ package frc.robot.subsystems.superstructure.wrist;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface WristIO {
@@ -14,6 +15,8 @@ public interface WristIO {
     public double supplyCurrentAmps = 0.0;
     public double torqueCurrentAmps = 0.0;
     public double tempCelsius = 0.0;
+    public boolean CANcoderConnected = false;
+    public MagnetHealthValue CANcoderMagnetHealth = MagnetHealthValue.Magnet_Invalid;
   }
 
   default void updateInputs(WristIOInputs inputs) {}

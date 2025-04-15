@@ -1,18 +1,18 @@
 package frc.robot.subsystems.lights;
 
 import com.ctre.phoenix.led.Animation;
-import frc.robot.subsystems.lights.LightSystem.Color;
-import frc.robot.subsystems.lights.LightSystem.Segment;
+import frc.robot.subsystems.lights.Lights.Color;
+import frc.robot.subsystems.lights.Lights.Segment;
 import org.littletonrobotics.junction.AutoLog;
 
-public interface LightSystemIO {
+public interface LightsIO {
   @AutoLog
-  static class LightSystemIOInputs {
+  static class LightsIOInputs {
     public boolean connected = false;
     public double current = 0.0;
   }
 
-  default void updateInputs(LightSystemIOInputs inputs) {}
+  default void updateInputs(LightsIOInputs inputs) {}
 
   /**
    * Set brightness for all LEDs

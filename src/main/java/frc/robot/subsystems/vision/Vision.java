@@ -26,22 +26,22 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LEDColor;
-import frc.robot.subsystems.lights.LightSystem;
-import frc.robot.subsystems.lights.LightSystem.Segment;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.Lights.Segment;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.LinkedList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
-  private final LightSystem LED;
+  private final Lights LED;
   private final VisionConsumer consumer;
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
   private int megaTagCounter;
 
-  public Vision(LightSystem LED, VisionConsumer consumer, VisionIO... io) {
+  public Vision(Lights LED, VisionConsumer consumer, VisionIO... io) {
     this.LED = LED;
     this.consumer = consumer;
     this.io = io;

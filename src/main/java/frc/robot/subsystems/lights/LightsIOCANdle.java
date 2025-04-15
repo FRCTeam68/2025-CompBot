@@ -2,23 +2,26 @@ package frc.robot.subsystems.lights;
 
 import com.ctre.phoenix.led.Animation;
 import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.led.CANdle.LEDStripType;
+import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 import com.ctre.phoenix.led.CANdleConfiguration;
-import frc.robot.Constants.CANDLE;
-import frc.robot.subsystems.lights.LightSystem.Color;
-import frc.robot.subsystems.lights.LightSystem.Segment;
+import frc.robot.subsystems.lights.Lights.Color;
+import frc.robot.subsystems.lights.Lights.Segment;
 
-public class LightSystemIOCANdle implements LightSystemIO {
-  private final CANdle candle = new CANdle(CANDLE.CANID, CANDLE.CANBUS);
+public class LightsIOCANdle implements LightsIO {
+  // Hardware
+  private final CANdle candle = new CANdle(60, "rio");
+
+  // Config
   private final CANdleConfiguration config = new CANdleConfiguration();
 
-  public LightSystemIOCANdle() {
-    config.brightnessScalar = CANDLE.BRIGHTNESS_SCALAR;
-    config.disableWhenLOS = CANDLE.DISABLE_WHEN_LOS;
-    config.statusLedOffWhenActive = CANDLE.STATUS_OFF_WHEN_ACTIVE;
-    config.stripType = CANDLE.LED_STRIP_TYPE;
-    config.v5Enabled = CANDLE.V5_ENABLED;
-    config.vBatOutputMode = CANDLE.V_BAT_OUTPUT_MODE;
-
+  public LightsIOCANdle() {
+    config.brightnessScalar = 1;
+    config.disableWhenLOS = false;
+    config.statusLedOffWhenActive = false;
+    config.stripType = LEDStripType.GRB;
+    config.v5Enabled = true; // 5 volt output
+    config.vBatOutputMode = VBatOutputMode.Off; // 12 volt output
     candle.configAllSettings(config, 100);
 
     // clear animation slots
@@ -28,7 +31,7 @@ public class LightSystemIOCANdle implements LightSystemIO {
   }
 
   @Override
-  public void updateInputs(LightSystemIOInputs inputs) {
+  public void updateInputs(LightsIOInputs inputs) {
     inputs.connected = candle.getBusVoltage() != 0.0;
     inputs.current = candle.getCurrent();
   }
