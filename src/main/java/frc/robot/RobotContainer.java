@@ -15,7 +15,6 @@ package frc.robot;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
-import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -254,87 +253,9 @@ public class RobotContainer {
         break;
     }
 
-    NamedCommands.registerCommand(
-        "shoot", ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist));
-    NamedCommands.registerCommand(
-        "intake",
-        ManipulatorCommands.intakeCmd(
-            intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
-    NamedCommands.registerCommand(
-        "coralToL4", ManipulatorCommands.CoralL4Cmd(intakeShooterLow, elevatorWrist));
-    NamedCommands.registerCommand(
-        "coralToL3", ManipulatorCommands.CoralL3Cmd(intakeShooterLow, elevatorWrist));
-    NamedCommands.registerCommand(
-        "coralToL2", ManipulatorCommands.CoralL2Cmd(intakeShooterLow, elevatorWrist));
-    NamedCommands.registerCommand(
-        "toIntakeCoral",
-        ManipulatorCommands.CoralIntakePositionCmd(intakeShooterLow, elevatorWrist));
-    NamedCommands.registerCommand(
-        "coralToL1", ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
-    NamedCommands.registerCommand(
-        "algaeFromA2",
-        ManipulatorCommands.AlgaeAtA2(intakeShooterLow, elevatorWrist, algaeCradleFlag));
-    NamedCommands.registerCommand(
-        "algaeFromA1",
-        ManipulatorCommands.AlgaeAtA1(intakeShooterLow, elevatorWrist, algaeCradleFlag));
-    NamedCommands.registerCommand(
-        "algaeToP1",
-        ManipulatorCommands.AlgaeToP1(intakeShooterLow, elevatorWrist, algaeCradleFlag));
-    NamedCommands.registerCommand(
-        "algaeToPreNet",
-        ManipulatorCommands.AlgaeToNetCmd(intakeShooterLow, elevatorWrist, algaeCradleFlag));
     // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto/Auto Choices");
-    // Set up autos
-    autoChooser.addOption(
-        "AUTON LEFT",
-        autons
-            .side(true, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
-            .withName("LEFT"));
-    autoChooser.addOption(
-        "AUTON CENTER PROCESSOR",
-        autons
-            .centerProcessor(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
-            .withName("CENTER_PROCESSOR"));
-    autoChooser.addOption(
-        "AUTON CENTER NET",
-        autons
-            .centerNet(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
-            .withName("CENTER_NET"));
-    autoChooser.addOption(
-        "AUTON RIGHT",
-        autons
-            .side(false, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
-            .withName("RIGHT"));
-    autoChooser.addOption("NONE", Commands.none());
-    // Set up testing routines
-    autoChooser.addOption(
-        "Functional Test",
-        ManipulatorCommands.FunctionalTest(
-            intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, climber));
-    autoChooser.addOption(
-        "Elevator Sequencing Test",
-        ManipulatorCommands.TestElevatorWristSequencing(intakeShooterLow, elevatorWrist));
-    // Set up SysId routines
-    if (Constants.tuningMode) {
-      autoChooser.addOption(
-          "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-      autoChooser.addOption(
-          "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-      autoChooser.addOption(
-          "Drive SysId (Quasistatic Forward)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      autoChooser.addOption(
-          "Drive SysId (Quasistatic Reverse)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-      autoChooser.addOption(
-          "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      autoChooser.addOption(
-          "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-      autoChooser.addOption("Elevator static", elevatorWrist.staticElevatorCharacterization(2.0));
-      autoChooser.addOption("Wrist static", elevatorWrist.staticWristCharacterization(2.0));
-      autoChooser.addOption("Climber static", staticClimberCharacterization(2.0));
-    }
+    configureAutonChooser();
+
     // Configure the button bindings
     configureButtonBindings();
 
@@ -629,6 +550,60 @@ public class RobotContainer {
     //             () -> {
     //               return Math.abs(m_ps4Controller.getLeftY()) < .05;
     //             }));
+  }
+
+  private void configureAutonChooser() {
+    autoChooser = new LoggedDashboardChooser<>("Auto/Auto Choices");
+    // Set up autos
+    autoChooser.addOption(
+        "AUTON LEFT",
+        autons
+            .side(true, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
+            .withName("LEFT"));
+    autoChooser.addOption(
+        "AUTON CENTER PROCESSOR",
+        autons
+            .centerProcessor(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
+            .withName("CENTER_PROCESSOR"));
+    autoChooser.addOption(
+        "AUTON CENTER NET",
+        autons
+            .centerNet(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
+            .withName("CENTER_NET"));
+    autoChooser.addOption(
+        "AUTON RIGHT",
+        autons
+            .side(false, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
+            .withName("RIGHT"));
+    autoChooser.addOption("NONE", Commands.none());
+    // Set up testing routines
+    autoChooser.addOption(
+        "Functional Test",
+        ManipulatorCommands.FunctionalTest(
+            intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, climber));
+    autoChooser.addOption(
+        "Elevator Sequencing Test",
+        ManipulatorCommands.TestElevatorWristSequencing(intakeShooterLow, elevatorWrist));
+    // Set up SysId routines
+    if (Constants.tuningMode) {
+      autoChooser.addOption(
+          "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+      autoChooser.addOption(
+          "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+      autoChooser.addOption(
+          "Drive SysId (Quasistatic Forward)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+      autoChooser.addOption(
+          "Drive SysId (Quasistatic Reverse)",
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+      autoChooser.addOption(
+          "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+      autoChooser.addOption(
+          "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+      autoChooser.addOption("Elevator static", elevatorWrist.staticElevatorCharacterization(2.0));
+      autoChooser.addOption("Wrist static", elevatorWrist.staticWristCharacterization(2.0));
+      autoChooser.addOption("Climber static", staticClimberCharacterization(2.0));
+    }
   }
 
   /**
