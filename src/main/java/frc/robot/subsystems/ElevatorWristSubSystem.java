@@ -111,22 +111,15 @@ public class ElevatorWristSubsystem extends SubsystemBase {
       prevIndicateToShoot = indicateToShoot;
     }
 
+    SmartDashboard.putNumber("E pos", elevator.getPosition());
+    SmartDashboard.putNumber("E goal", elevator.getSetpoint());
+    SmartDashboard.putBoolean("E at pos", elevator.atPosition());
+
     // robot poses
     Logger.recordOutput(
         "RobotPose/Elevator",
         new Pose3d(0, 0, Units.inchesToMeters(elevator.getPosition() / 2), new Rotation3d(0, 0, 0)),
         new Pose3d(0, 0, Units.inchesToMeters(elevator.getPosition()), new Rotation3d(0, 0, 0)));
-    // Logger.recordOutput(
-    //     "RobotPose/Elevator Stage 1",
-    //     new Pose3d[] {
-    //       new Pose3d(
-    //           0, 0, Units.inchesToMeters(elevator.getPosition() / 2), new Rotation3d(0, 0, 0))
-    //     });
-    // Logger.recordOutput(
-    //     "RobotPose/Elevator Stage 2",
-    //     new Pose3d[] {
-    //       new Pose3d(0, 0, Units.inchesToMeters(elevator.getPosition()), new Rotation3d(0, 0, 0))
-    //     });
     Logger.recordOutput(
         "RobotPose/Wrist",
         new Pose3d[] {

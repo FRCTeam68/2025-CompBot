@@ -42,7 +42,7 @@ public class RangeSensorSubsystem extends SubsystemBase {
     distanceSignal = canrange.getDistance();
     detectedSignal = canrange.getIsDetected();
 
-    disconnected = new Alert(name + " motor disconnected!", Alert.AlertType.kWarning);
+    disconnected = new Alert(name + " CANrange disconnected!", Alert.AlertType.kWarning);
 
     tryUntilOk(5, () -> canrange.getConfigurator().apply(constants.config));
     tryUntilOk(

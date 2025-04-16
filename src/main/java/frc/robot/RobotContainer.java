@@ -23,6 +23,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS4Controller.Axis;
 import edu.wpi.first.wpilibj.Timer;
@@ -79,21 +81,19 @@ public class RobotContainer {
   private static Lights LED;
   private ReefCentering reefCentering;
 
-  public String selectedAutonName;
-
   // Controller
   private static final CommandXboxController m_xboxController = new CommandXboxController(0);
   private static final CommandPS4Controller m_ps4Controller = new CommandPS4Controller(1);
+  private static final Alert xboxDisconnectedAlert =
+      new Alert("Xbox controller disconnected.", AlertType.kError);
+  private static final Alert ps4DisconnectedAlert =
+      new Alert("Ps4 controller disconnected.", AlertType.kError);
 
   private static LoggedDashboardChooser<Command> autoChooser;
   private static String m_autonName;
-  private static boolean autonready;
 
-  private boolean algaeCradleFlag = false;
   public static boolean m_climberBump = false;
   public static boolean m_autoshootOnPostDection = false;
-
-  private static boolean auton_start_position_ok = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -263,6 +263,13 @@ public class RobotContainer {
     // warp up path following command
     FollowPathCommand.warmupCommand().schedule();
 
+    SmartDashboard.putData(
+        "Testing/Run Functional Test",
+        ManipulatorCommands.FunctionalTest(
+            intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, climber));
+    SmartDashboard.putData(
+        "Testing/Run Elevator Sequencing Test",
+        ManipulatorCommands.TestElevatorWristSequencing(elevatorWrist));
     SmartDashboard.putBoolean("HaveCoral", false);
     SmartDashboard.putString("atPosition", "--");
     SmartDashboard.putBoolean("CLIMB", false);
@@ -387,7 +394,7 @@ public class RobotContainer {
     m_ps4Controller
         .triangle()
         .onTrue(
-            ManipulatorCommands.CoralL4Cmd(intakeShooterLow, elevatorWrist)
+            ManipulatorCommands.CoralL4Cmd(elevatorWrist)
                 .andThen(Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_AUTO_SHOOT_DELAY))
                 .andThen(
                     ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist)
@@ -401,7 +408,7 @@ public class RobotContainer {
     m_ps4Controller
         .circle()
         .onTrue(
-            ManipulatorCommands.CoralL3Cmd(intakeShooterLow, elevatorWrist)
+            ManipulatorCommands.CoralL3Cmd(elevatorWrist)
                 .andThen(Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_AUTO_SHOOT_DELAY))
                 .andThen(
                     ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist)
@@ -415,7 +422,7 @@ public class RobotContainer {
     m_ps4Controller
         .square()
         .onTrue(
-            ManipulatorCommands.CoralL2Cmd(intakeShooterLow, elevatorWrist)
+            ManipulatorCommands.CoralL2Cmd(elevatorWrist)
                 .andThen(Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_AUTO_SHOOT_DELAY))
                 .andThen(
                     ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist)
@@ -426,22 +433,13 @@ public class RobotContainer {
                                   && ManipulatorCommands.isHavePiece();
                             })));
 
-    m_ps4Controller.cross().onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
+    m_ps4Controller.cross().onTrue(ManipulatorCommands.CoralL1Cmd(elevatorWrist));
 
-    m_ps4Controller
-        .L1()
-        .onTrue(ManipulatorCommands.AlgaeToP1(intakeShooterLow, elevatorWrist, algaeCradleFlag));
-    m_ps4Controller
-        .L2()
-        .onTrue(
-            ManipulatorCommands.AlgaeToNetCmd(intakeShooterLow, elevatorWrist, algaeCradleFlag));
+    m_ps4Controller.L1().onTrue(ManipulatorCommands.AlgaeToP1(elevatorWrist));
+    m_ps4Controller.L2().onTrue(ManipulatorCommands.AlgaeToNetCmd(elevatorWrist));
 
-    m_ps4Controller
-        .R1()
-        .onTrue(ManipulatorCommands.AlgaeAtA1(intakeShooterLow, elevatorWrist, algaeCradleFlag));
-    m_ps4Controller
-        .R2()
-        .onTrue(ManipulatorCommands.AlgaeAtA2(intakeShooterLow, elevatorWrist, algaeCradleFlag));
+    m_ps4Controller.R1().onTrue(ManipulatorCommands.AlgaeAtA1(elevatorWrist));
+    m_ps4Controller.R2().onTrue(ManipulatorCommands.AlgaeAtA2(elevatorWrist));
 
     // m_ps4Controller.options().onTrue(Commands.runOnce(() -> putAutonPoseToDashboard()));
 
@@ -516,7 +514,7 @@ public class RobotContainer {
     m_ps4Controller
         .options()
         .onTrue(
-            ManipulatorCommands.CoralIntakePositionCmd(intakeShooterLow, elevatorWrist)
+            ManipulatorCommands.CoralIntakePositionCmd(elevatorWrist)
                 .andThen(
                     ManipulatorCommands.intakeCmd(
                         intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)));
@@ -542,9 +540,7 @@ public class RobotContainer {
     // Left Joystick Y
     m_ps4Controller
         .axisGreaterThan(Axis.kLeftY.value, 0.7)
-        .onTrue(ManipulatorCommands.AlgaeCradle(intakeShooterLow, elevatorWrist))
-        .onTrue(Commands.runOnce(() -> algaeCradleFlag = true))
-        .onFalse(Commands.runOnce(() -> algaeCradleFlag = false));
+        .onTrue(ManipulatorCommands.AlgaeCradle(elevatorWrist));
 
     // climber.setDefaultCommand(
     //     Commands.run(() -> climber.setVolts(-m_ps4Controller.getLeftY() * 12), climber)
@@ -578,14 +574,6 @@ public class RobotContainer {
             .side(false, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
             .withName("RIGHT"));
     autoChooser.addOption("NONE", Commands.none());
-    // Set up testing routines
-    autoChooser.addOption(
-        "Functional Test",
-        ManipulatorCommands.FunctionalTest(
-            intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, climber));
-    autoChooser.addOption(
-        "Elevator Sequencing Test",
-        ManipulatorCommands.TestElevatorWristSequencing(intakeShooterLow, elevatorWrist));
     // Set up SysId routines
     if (Constants.tuningMode) {
       autoChooser.addOption(
@@ -622,7 +610,7 @@ public class RobotContainer {
     SmartDashboard.putString("AutoShoot", state ? "ON" : "OFF");
   }
 
-  public static void autonReadyStatus() {
+  public void autonReadyStatus() {
     Pose2d curPose;
     double autonX = 0;
     double autonY = 0;
@@ -668,18 +656,9 @@ public class RobotContainer {
     offsetY = curPose.getY() - autonY;
     offsetR = Math.abs(curPose.getRotation().getDegrees()) - autonR;
 
-    offsetXOK =
-        (Math.abs(offsetX) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR / 2))
-            ? true
-            : false;
-    offsetYOK =
-        (Math.abs(offsetY) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR / 2))
-            ? true
-            : false;
-    offsetROK =
-        (Math.abs(offsetR) < (Constants.AutonStartPositions.ROTATION_START_ERROR / 2))
-            ? true
-            : false;
+    offsetXOK = (Math.abs(offsetX) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR / 2));
+    offsetYOK = (Math.abs(offsetY) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR / 2));
+    offsetROK = (Math.abs(offsetR) < (Constants.AutonStartPositions.ROTATION_START_ERROR / 2));
 
     SmartDashboard.putNumber("Auto/offset_X:", offsetX);
     SmartDashboard.putNumber("Auto/offset_Y:", offsetY);
@@ -709,8 +688,6 @@ public class RobotContainer {
         m_autonName.contains("LEFT")
             || m_autonName.contains("CENTER")
             || m_autonName.contains("RIGHT"));
-    SmartDashboard.putBoolean("Match Ready/xbox_connected", m_xboxController.isConnected());
-    SmartDashboard.putBoolean("Match Ready/ps4_connected", m_ps4Controller.isConnected());
     SmartDashboard.putBoolean("Match Ready/coral_loaded", intakeCoralSensor.isDetected());
     SmartDashboard.putBoolean(
         "Match Ready/wrist_zeroed", elevatorWrist.getWrist().getPosition() < 0.01);
@@ -774,7 +751,12 @@ public class RobotContainer {
     }
   }
 
-  public static void logClimberPose() {
+  public void updateAlerts() {
+    xboxDisconnectedAlert.set(!m_xboxController.isConnected());
+    ps4DisconnectedAlert.set(!m_ps4Controller.isConnected());
+  }
+
+  public void logClimberPose() {
     Logger.recordOutput(
         "RobotPose/Climber",
         new Pose3d[] {

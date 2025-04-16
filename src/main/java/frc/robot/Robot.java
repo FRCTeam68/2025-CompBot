@@ -132,6 +132,8 @@ public class Robot extends LoggedRobot {
     // Return to normal thread priority
     Threads.setCurrentThreadPriority(false, 10);
 
+    robotContainer.updateAlerts();
+
     CANBusStatus canInfo = rioBus.getStatus();
     Logger.recordOutput("CANBUS/DRIVEbus/Util", canInfo.BusUtilization);
     Logger.recordOutput("CANBUS/DRIVEbus/Status", canInfo.Status.getName());
@@ -144,7 +146,7 @@ public class Robot extends LoggedRobot {
     if (!canInfo2.Status.isOK())
       Logger.recordOutput("CANBUS/rio/Desc", canInfo2.Status.getDescription());
 
-    RobotContainer.logClimberPose();
+    robotContainer.logClimberPose();
   }
 
   /** This function is called once when the robot is disabled. */
@@ -156,7 +158,7 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
-    RobotContainer.autonReadyStatus();
+    robotContainer.autonReadyStatus();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */

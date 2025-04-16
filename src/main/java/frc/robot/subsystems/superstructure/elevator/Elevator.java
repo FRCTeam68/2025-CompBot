@@ -27,7 +27,8 @@ public class Elevator extends SubsystemBase {
   private LoggedTunableNumber mmA = new LoggedTunableNumber(pathName + "/mmA", 120);
   private LoggedTunableNumber mmJ = new LoggedTunableNumber(pathName + "/mmJ", 400);
 
-  private LoggedTunableNumber setpointBand = new LoggedTunableNumber(pathName + "/setpointBand", 0);
+  private LoggedTunableNumber setpointBand =
+      new LoggedTunableNumber(pathName + "/setpointBand", 0.005);
 
   @Getter private double setpoint = 0.0;
 

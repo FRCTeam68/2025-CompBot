@@ -53,7 +53,7 @@ public class LightsIOCANdle implements LightsIO {
 
   @Override
   public void setColor(Color color, Segment segment) {
-    // clearAnimation(segment);
+    clearAnimation(segment);
     candle.setLEDs(
         color.red, color.green, color.blue, color.white, segment.startIndex, segment.segmentSize);
   }

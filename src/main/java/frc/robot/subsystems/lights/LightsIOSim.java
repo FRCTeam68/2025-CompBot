@@ -6,6 +6,5 @@ public class LightsIOSim implements LightsIO {
   @Override
   public void updateInputs(LightsIOInputs inputs) {
     inputs.connected = true;
-    inputs.current = 0.0;
   }
 }
