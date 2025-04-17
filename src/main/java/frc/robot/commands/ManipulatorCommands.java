@@ -31,15 +31,12 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class ManipulatorCommands {
-  private static Lights LED;
 
   @Getter @AutoLogOutput private static ScoringPosition scoringPosition = ScoringPosition.CoralL2_4;
   @Getter @Setter @AutoLogOutput private static boolean havePiece = false;
   @Getter @AutoLogOutput private static boolean indexing = false;
 
-  private ManipulatorCommands(Lights LED) {
-    this.LED = LED;
-  }
+  private ManipulatorCommands(Lights LED) {}
 
   private static enum ScoringPosition {
     Algae,
@@ -55,7 +52,8 @@ public class ManipulatorCommands {
       RollerSystem myIntake,
       RollerSystem myIntakeLow,
       ElevatorWristSubsystem myElevatorWrist,
-      RangeSensorSubsystem intake_sensor) {
+      RangeSensorSubsystem intake_sensor,
+      Lights LED) {
     return new DeferredCommand(
         () -> {
           // initialization
@@ -130,7 +128,10 @@ public class ManipulatorCommands {
   }
 
   public static Command shootCmd(
-      RollerSystem myIntake, RollerSystem myIntakeLow, ElevatorWristSubsystem myElevatorWrist) {
+      RollerSystem myIntake,
+      RollerSystem myIntakeLow,
+      ElevatorWristSubsystem myElevatorWrist,
+      Lights LED) {
     return new DeferredCommand(
         () -> {
           // initialization
@@ -310,7 +311,7 @@ public class ManipulatorCommands {
         myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.CRADLE));
   }
 
-  public static Command DeployClimberCmd(RollerSystem myClimber) {
+  public static Command DeployClimberCmd(RollerSystem myClimber, Lights LED) {
     return Commands.sequence(
         Commands.runOnce(() -> LED.setFadeAnimation(LEDColor.RED, LEDSegment.ALL)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "deploying")),
@@ -320,7 +321,7 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> LED.setColor(LEDColor.RED, LEDSegment.ALL)));
   }
 
-  public static Command RetractClimberCmd(RollerSystem myClimber) {
+  public static Command RetractClimberCmd(RollerSystem myClimber, Lights LED) {
     return Commands.sequence(
         Commands.runOnce(() -> LED.setFadeAnimation(LEDColor.GREEN, LEDSegment.ALL)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "climbing")),
@@ -330,7 +331,7 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> LED.setRainbowAnimation(LEDSegment.ALL)));
   }
 
-  public static Command climberToZeroCmd(RollerSystem myClimber) {
+  public static Command climberToZeroCmd(RollerSystem myClimber, Lights LED) {
     return Commands.sequence(
         Commands.runOnce(() -> LED.setFadeAnimation(LEDColor.RED, LEDSegment.ALL)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "to zero")),
@@ -362,30 +363,31 @@ public class ManipulatorCommands {
       RollerSystem myIntakeLow,
       ElevatorWristSubsystem myElevatorWrist,
       RangeSensorSubsystem intake_sensor,
-      RollerSystem myClimber) {
+      RollerSystem myClimber,
+      Lights LED) {
     return Commands.sequence(
         CoralIntakePositionCmd(myElevatorWrist),
-        intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor),
+        intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED),
         CoralL4Cmd(myElevatorWrist),
         Commands.waitSeconds(0.5),
         CoralL1Cmd(myElevatorWrist),
         Commands.waitSeconds(0.5),
-        shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+        shootCmd(myIntake, myIntakeLow, myElevatorWrist, LED),
         Commands.waitSeconds(1),
         AlgaeToP1(myElevatorWrist),
-        intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor),
+        intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED),
         AlgaeToNetCmd(myElevatorWrist),
         Commands.waitSeconds(0.5),
         AlgaeToP1(myElevatorWrist),
         Commands.waitSeconds(0.5),
-        shootCmd(myIntake, myIntakeLow, myElevatorWrist),
+        shootCmd(myIntake, myIntakeLow, myElevatorWrist, LED),
         Commands.waitSeconds(1),
         ElevatorWristZeroCmd(myElevatorWrist),
         Commands.waitSeconds(0.5),
-        DeployClimberCmd(myClimber),
+        DeployClimberCmd(myClimber, LED),
         Commands.waitSeconds(0.5),
         // RetractClimberCmd(myClimber),   // this will latch so we would not want to go to zero
-        climberToZeroCmd(myClimber));
+        climberToZeroCmd(myClimber, LED));
   }
 
   public static Command TestElevatorWristSequencing(ElevatorWristSubsystem myElevatorWrist) {

@@ -266,7 +266,7 @@ public class RobotContainer {
     SmartDashboard.putData(
         "Testing/Run Functional Test",
         ManipulatorCommands.FunctionalTest(
-            intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, climber));
+            intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, climber, LED));
     SmartDashboard.putData(
         "Testing/Run Elevator Sequencing Test",
         ManipulatorCommands.TestElevatorWristSequencing(elevatorWrist));
@@ -372,11 +372,11 @@ public class RobotContainer {
         .leftTrigger()
         .onTrue(
             ManipulatorCommands.intakeCmd(
-                intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor));
+                intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED));
 
     m_xboxController
         .rightTrigger()
-        .onTrue(ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist));
+        .onTrue(ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist, LED));
 
     // Reef alignment
     m_xboxController.leftBumper().onTrue(new AlignToReefTagRelative(false, drive).withTimeout(3));
@@ -397,7 +397,8 @@ public class RobotContainer {
             ManipulatorCommands.CoralL4Cmd(elevatorWrist)
                 .andThen(Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_AUTO_SHOOT_DELAY))
                 .andThen(
-                    ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist)
+                    ManipulatorCommands.shootCmd(
+                            intakeShooter, intakeShooterLow, elevatorWrist, LED)
                         .onlyIf(
                             () -> {
                               return elevatorWrist.isReefPostDetectedRaw()
@@ -411,7 +412,8 @@ public class RobotContainer {
             ManipulatorCommands.CoralL3Cmd(elevatorWrist)
                 .andThen(Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_AUTO_SHOOT_DELAY))
                 .andThen(
-                    ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist)
+                    ManipulatorCommands.shootCmd(
+                            intakeShooter, intakeShooterLow, elevatorWrist, LED)
                         .onlyIf(
                             () -> {
                               return elevatorWrist.isReefPostDetectedRaw()
@@ -425,7 +427,8 @@ public class RobotContainer {
             ManipulatorCommands.CoralL2Cmd(elevatorWrist)
                 .andThen(Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_AUTO_SHOOT_DELAY))
                 .andThen(
-                    ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist)
+                    ManipulatorCommands.shootCmd(
+                            intakeShooter, intakeShooterLow, elevatorWrist, LED)
                         .onlyIf(
                             () -> {
                               return elevatorWrist.isReefPostDetectedRaw()
@@ -517,7 +520,7 @@ public class RobotContainer {
             ManipulatorCommands.CoralIntakePositionCmd(elevatorWrist)
                 .andThen(
                     ManipulatorCommands.intakeCmd(
-                        intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)));
+                        intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)));
 
     // m_ps4Controller.PS().onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
 
@@ -525,17 +528,17 @@ public class RobotContainer {
         .touchpad()
         .onTrue(
             Commands.either(
-                ManipulatorCommands.climberToZeroCmd(climber),
+                ManipulatorCommands.climberToZeroCmd(climber, LED),
                 Commands.none(),
                 () -> m_climberBump));
 
     // Right Joystick Y
     m_ps4Controller
         .axisGreaterThan(Axis.kRightY.value, 0.7)
-        .onTrue(ManipulatorCommands.RetractClimberCmd(climber));
+        .onTrue(ManipulatorCommands.RetractClimberCmd(climber, LED));
     m_ps4Controller
         .axisLessThan(Axis.kRightY.value, -0.7)
-        .onTrue(ManipulatorCommands.DeployClimberCmd(climber));
+        .onTrue(ManipulatorCommands.DeployClimberCmd(climber, LED));
 
     // Left Joystick Y
     m_ps4Controller
@@ -556,22 +559,22 @@ public class RobotContainer {
     autoChooser.addOption(
         "AUTON LEFT",
         autons
-            .side(true, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
+            .side(true, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)
             .withName("LEFT"));
     autoChooser.addOption(
         "AUTON CENTER PROCESSOR",
         autons
-            .centerProcessor(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
+            .centerProcessor(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)
             .withName("CENTER_PROCESSOR"));
     autoChooser.addOption(
         "AUTON CENTER NET",
         autons
-            .centerNet(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
+            .centerNet(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)
             .withName("CENTER_NET"));
     autoChooser.addOption(
         "AUTON RIGHT",
         autons
-            .side(false, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor)
+            .side(false, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)
             .withName("RIGHT"));
     autoChooser.addOption("NONE", Commands.none());
     // Set up SysId routines

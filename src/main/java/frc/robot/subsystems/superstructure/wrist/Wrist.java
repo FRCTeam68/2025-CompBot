@@ -15,27 +15,31 @@ public class Wrist extends SubsystemBase {
   protected final WristIOInputsAutoLogged inputs = new WristIOInputsAutoLogged();
   private final Alert disconnected;
 
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber(pathName + "/kP-0", 120);
-  private LoggedTunableNumber kI0 = new LoggedTunableNumber(pathName + "/kI-0", 0);
-  private LoggedTunableNumber kD0 = new LoggedTunableNumber(pathName + "/kD-0", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber(pathName + "/kS-0", 0);
-  private LoggedTunableNumber kV0 = new LoggedTunableNumber(pathName + "/kV-0", 0);
-  private LoggedTunableNumber kA0 = new LoggedTunableNumber(pathName + "/kA-0", 0);
-  private LoggedTunableNumber kG0 = new LoggedTunableNumber(pathName + "/kG-0", 0);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kP", 120);
+  private LoggedTunableNumber kI0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kI", 0);
+  private LoggedTunableNumber kD0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kD", 0);
+  private LoggedTunableNumber kS0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kS", 0);
+  private LoggedTunableNumber kV0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kV", 0);
+  private LoggedTunableNumber kA0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kA", 0);
+  private LoggedTunableNumber kG0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kG", 0);
 
-  private LoggedTunableNumber kP1 = new LoggedTunableNumber(pathName + "/kP-1", 50);
-  private LoggedTunableNumber kI1 = new LoggedTunableNumber(pathName + "/kI-1", 0);
-  private LoggedTunableNumber kD1 = new LoggedTunableNumber(pathName + "/kD-1", 0);
-  private LoggedTunableNumber kS1 = new LoggedTunableNumber(pathName + "/kS-1", 0);
-  private LoggedTunableNumber kV1 = new LoggedTunableNumber(pathName + "/kV-1", 0);
-  private LoggedTunableNumber kA1 = new LoggedTunableNumber(pathName + "/kA-1", 0);
-  private LoggedTunableNumber kG1 = new LoggedTunableNumber(pathName + "/kG-1", 0);
+  private LoggedTunableNumber kP1 = new LoggedTunableNumber(pathName + "/Slot 1 Configs/kP", 50);
+  private LoggedTunableNumber kI1 = new LoggedTunableNumber(pathName + "/Slot 1 Configs/kI", 0);
+  private LoggedTunableNumber kD1 = new LoggedTunableNumber(pathName + "/Slot 1 Configs/kD", 0);
+  private LoggedTunableNumber kS1 = new LoggedTunableNumber(pathName + "/Slot 1 Configs/kS", 0);
+  private LoggedTunableNumber kV1 = new LoggedTunableNumber(pathName + "/Slot 1 Configs/kV", 0);
+  private LoggedTunableNumber kA1 = new LoggedTunableNumber(pathName + "/Slot 1 Configs/kA", 0);
+  private LoggedTunableNumber kG1 = new LoggedTunableNumber(pathName + "/Slot 1 Configs/kG", 0);
 
-  private LoggedTunableNumber mmV = new LoggedTunableNumber(pathName + "/mmV", 50);
-  private LoggedTunableNumber mmA = new LoggedTunableNumber(pathName + "/mmA", 70);
-  private LoggedTunableNumber mmJ = new LoggedTunableNumber(pathName + "/mmJ", 400);
+  private LoggedTunableNumber mmV =
+      new LoggedTunableNumber(pathName + "/Motion Magic Configs/Velocity", 50);
+  private LoggedTunableNumber mmA =
+      new LoggedTunableNumber(pathName + "/Motion Magic Configs/Acceleration", 70);
+  private LoggedTunableNumber mmJ =
+      new LoggedTunableNumber(pathName + "/Motion Magic Configs/Jerk", 400);
 
-  private LoggedTunableNumber setpointBand = new LoggedTunableNumber(pathName + "/setpointBand", 0);
+  private LoggedTunableNumber setpointBand =
+      new LoggedTunableNumber(pathName + "/setpointBand", 0.005);
 
   @Getter private double setpoint = 0.0;
 
