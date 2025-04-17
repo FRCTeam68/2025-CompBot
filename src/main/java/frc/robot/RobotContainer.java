@@ -43,6 +43,7 @@ import frc.robot.commands.auton.autons;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorWristSubsystem;
 import frc.robot.subsystems.RangeSensorSubsystem;
+import frc.robot.subsystems.ShotVisualizer;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -79,6 +80,7 @@ public class RobotContainer {
   private static RangeSensorSubsystem intakeCoralSensor;
   private static ElevatorWristSubsystem elevatorWrist;
   private static Lights LED;
+  private final ShotVisualizer shotVisualizer;
   private ReefCentering reefCentering;
 
   // Controller
@@ -262,6 +264,9 @@ public class RobotContainer {
 
     // warp up path following command
     FollowPathCommand.warmupCommand().schedule();
+
+    shotVisualizer = new ShotVisualizer();
+    SmartDashboard.putData("Shoot", ShotVisualizer.shootParabula());
 
     SmartDashboard.putData(
         "Testing/Run Functional Test",
