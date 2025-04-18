@@ -8,7 +8,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -55,7 +55,8 @@ public class WristIOTalonFX implements WristIO {
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true).withUpdateFreqHz(0);
-  private final MotionMagicTorqueCurrentFOC mmtPosition = new MotionMagicTorqueCurrentFOC(0);
+  // private final MotionMagicTorqueCurrentFOC mmtPosition = new MotionMagicTorqueCurrentFOC(0);
+  private final MotionMagicVoltage mmvPosition = new MotionMagicVoltage(0);
   private final NeutralOut neutralOut = new NeutralOut();
 
   public WristIOTalonFX() {
@@ -69,7 +70,7 @@ public class WristIOTalonFX implements WristIO {
     tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 0.25));
 
     // Configure Motor
-    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.StatorCurrentLimit = 120;
@@ -106,7 +107,7 @@ public class WristIOTalonFX implements WristIO {
   public void updateInputs(WristIOInputs inputs) {
     inputs.connected =
         connectedDebouncer.calculate(
-            BaseStatusSignal.isAllGood(position, velocity, appliedVoltage, torqueCurrent));
+            BaseStatusSignal.refreshAll(position, velocity, appliedVoltage, torqueCurrent).isOK());
     inputs.positionRotations = position.getValueAsDouble();
     inputs.velocityRotsPerSec = velocity.getValueAsDouble();
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
@@ -125,7 +126,8 @@ public class WristIOTalonFX implements WristIO {
 
   @Override
   public void setPosition(double position, int slot) {
-    talon.setControl(mmtPosition.withPosition(position).withSlot(slot));
+    // talon.setControl(mmtPosition.withPosition(position).withSlot(slot));
+    talon.setControl(mmvPosition.withPosition(position).withSlot(slot));
   }
 
   @Override
@@ -141,27 +143,27 @@ public class WristIOTalonFX implements WristIO {
 
   @Override
   public void setPID(SlotConfigs... newconfig) {
-    config.Slot0.GravityType = gravityType;
+    // config.Slot0.GravityType = gravityType;
     config.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
     config.Slot0.kP = newconfig[0].kP;
     config.Slot0.kI = newconfig[0].kI;
     config.Slot0.kD = newconfig[0].kD;
     config.Slot0.kV = newconfig[0].kV;
     config.Slot0.kA = newconfig[0].kA;
-    config.Slot0.kG = newconfig[0].kG;
+    // config.Slot0.kG = newconfig[0].kG;
     config.Slot0.kS = newconfig[0].kS;
-    if (newconfig.length >= 1) {
-      config.Slot1.GravityType = gravityType;
+    if (newconfig.length > 1) {
+      // config.Slot1.GravityType = gravityType;
       config.Slot1.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
       config.Slot1.kP = newconfig[1].kP;
       config.Slot1.kI = newconfig[1].kI;
       config.Slot1.kD = newconfig[1].kD;
       config.Slot1.kV = newconfig[1].kV;
       config.Slot1.kA = newconfig[1].kA;
-      config.Slot1.kG = newconfig[1].kG;
+      // config.Slot1.kG = newconfig[1].kG;
       config.Slot1.kS = newconfig[1].kS;
     }
-    if (newconfig.length >= 2) {
+    if (newconfig.length > 2) {
       config.Slot2.GravityType = gravityType;
       config.Slot2.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
       config.Slot2.kP = newconfig[2].kP;

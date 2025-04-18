@@ -9,6 +9,7 @@ import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
@@ -55,6 +56,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true).withUpdateFreqHz(0);
   private final MotionMagicTorqueCurrentFOC mmtPosition = new MotionMagicTorqueCurrentFOC(0);
+  private final MotionMagicVoltage mmvPosition = new MotionMagicVoltage(0);
   private final NeutralOut neutralOut = new NeutralOut();
 
   public ElevatorIOTalonFX() {
@@ -109,7 +111,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   public void updateInputs(ElevatorIOInputs inputs) {
     inputs.connected =
         connectedDebouncer.calculate(
-            BaseStatusSignal.isAllGood(position, velocity, appliedVoltage, torqueCurrent));
+            BaseStatusSignal.refreshAll(position, velocity, appliedVoltage, torqueCurrent).isOK());
     inputs.positionInches = position.getValueAsDouble() * Math.PI * pitchDiameter * 2;
     inputs.positionRotations = position.getValueAsDouble();
     inputs.velocityInchesPerSec = velocity.getValueAsDouble() * Math.PI * pitchDiameter * 2;
@@ -134,7 +136,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void setPosition(double position, int slot) {
-    talon.setControl(mmtPosition.withPosition(position / (Math.PI * pitchDiameter)).withSlot(slot));
+    // talon.setControl(mmtPosition.withPosition(position / (Math.PI *
+    // pitchDiameter)).withSlot(slot));
+    talon.setControl(
+        mmvPosition.withPosition(position / (Math.PI * pitchDiameter * 2)).withSlot(slot));
   }
 
   @Override
@@ -159,7 +164,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.Slot0.kA = newconfig[0].kA;
     config.Slot0.kG = newconfig[0].kG;
     config.Slot0.kS = newconfig[0].kS;
-    if (newconfig.length >= 1) {
+    if (newconfig.length > 1) {
       config.Slot1.GravityType = gravityType;
       config.Slot1.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
       config.Slot1.kP = newconfig[1].kP;
@@ -170,7 +175,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
       config.Slot1.kG = newconfig[1].kG;
       config.Slot1.kS = newconfig[1].kS;
     }
-    if (newconfig.length >= 2) {
+    if (newconfig.length > 2) {
       config.Slot2.GravityType = gravityType;
       config.Slot2.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
       config.Slot2.kP = newconfig[2].kP;

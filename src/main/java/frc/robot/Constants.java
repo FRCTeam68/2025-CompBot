@@ -167,9 +167,9 @@ public final class Constants {
                         .withFOVRangeY(6.75))
                 .withProximityParams(
                     new ProximityParamsConfigs()
-                        .withProximityThreshold(400 / 1000)
-                        .withProximityHysteresis(10 / 1000)
-                        .withMinSignalStrengthForValidMeasurement(2500))
+                        .withProximityThreshold(400 / 1000.0)
+                        .withProximityHysteresis(10 / 1000.0)
+                        .withMinSignalStrengthForValidMeasurement(9000))
                 .withToFParams(
                     new ToFParamsConfigs()
                         .withUpdateMode(UpdateModeValue.ShortRange100Hz)
@@ -192,7 +192,7 @@ public final class Constants {
     public static final double L3 = 0.0672; // 3.9; // SEQUENCING LOGIC
     public static final double L4 = 0.0672; // 3.9; // all 3 of these must be the same value
     public static final double CRADLE = 0.192;
-    public static final double SHOOTNET = 0.08;
+    public static final double SHOOTNET = 0.1;
     public static final double PRENET = 0.352;
     public static final double A2 = 0.44;
     public static final double A1 = 0.44;

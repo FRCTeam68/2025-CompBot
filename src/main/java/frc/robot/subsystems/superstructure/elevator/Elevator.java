@@ -15,20 +15,20 @@ public class Elevator extends SubsystemBase {
   protected final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
   private final Alert disconnected;
 
-  private LoggedTunableNumber kP = new LoggedTunableNumber(pathName + "/kP", 10);
+  private LoggedTunableNumber kP = new LoggedTunableNumber(pathName + "/kP", 5);
   private LoggedTunableNumber kI = new LoggedTunableNumber(pathName + "/kI", 0);
   private LoggedTunableNumber kD = new LoggedTunableNumber(pathName + "/kD", 0);
   private LoggedTunableNumber kS = new LoggedTunableNumber(pathName + "/kS", 0.5);
   private LoggedTunableNumber kV = new LoggedTunableNumber(pathName + "/kV", 0.2);
   private LoggedTunableNumber kA = new LoggedTunableNumber(pathName + "/kA", 0);
-  private LoggedTunableNumber kG = new LoggedTunableNumber(pathName + "/kG", 0);
+  private LoggedTunableNumber kG = new LoggedTunableNumber(pathName + "/kG", 0.5);
 
   private LoggedTunableNumber mmV = new LoggedTunableNumber(pathName + "/mmV", 40);
   private LoggedTunableNumber mmA = new LoggedTunableNumber(pathName + "/mmA", 120);
   private LoggedTunableNumber mmJ = new LoggedTunableNumber(pathName + "/mmJ", 400);
 
   private LoggedTunableNumber setpointBand =
-      new LoggedTunableNumber(pathName + "/setpointBand", 0.005);
+      new LoggedTunableNumber(pathName + "/setpointBand", 0.5);
 
   @Getter private double setpoint = 0.0;
 
@@ -57,6 +57,8 @@ public class Elevator extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
     disconnected.set(!inputs.connected);
+    Logger.recordOutput(
+        "test/e at", Math.abs(setpoint - getPosition()) < setpointBand.getAsDouble());
 
     // Update tunable numbers
     if (Constants.tuningMode) {

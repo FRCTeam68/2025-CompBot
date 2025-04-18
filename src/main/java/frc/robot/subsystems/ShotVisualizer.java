@@ -32,10 +32,13 @@ public class ShotVisualizer {
   private static final Translation3d blueSpeaker = new Translation3d(0.225, 5.55, 2.1);
   private static final Translation3d redSpeaker = new Translation3d(16.317, 5.55, 2.1);
 
-  private static LoggedTunableNumber tunePitch = new LoggedTunableNumber("Shot Visualizer/Pitch", 45);
-  private static LoggedTunableNumber tuneShotSpeed = new LoggedTunableNumber("Shot Visualizer/Speed", 5);
+  private static LoggedTunableNumber tunePitch =
+      new LoggedTunableNumber("Shot Visualizer/Pitch", 45);
+  private static LoggedTunableNumber tuneShotSpeed =
+      new LoggedTunableNumber("Shot Visualizer/Speed", 5);
   private static LoggedTunableNumber tuneYaw = new LoggedTunableNumber("Shot Visualizer/Yaw", 0);
-  private static LoggedTunableNumber tuneTargetHeight = new LoggedTunableNumber("Shot Visualizer/Target Height", 0);
+  private static LoggedTunableNumber tuneTargetHeight =
+      new LoggedTunableNumber("Shot Visualizer/Target Height", 0);
 
   public static Command shoot() {
     return new ScheduleCommand( // Branch off and exit immediately
