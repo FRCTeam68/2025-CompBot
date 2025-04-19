@@ -13,38 +13,31 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import frc.robot.FieldConstants;
-import frc.robot.util.LoggedTunableNumber;
 import java.util.Set;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class ShotVisualizer {
   private static final Transform3d launcherTransform =
-      new Transform3d(0.35, 0, 0.8, new Rotation3d(0.0, Units.degreesToRadians(-55.0), 0.0));
-  // private static final double shotSpeed = 5.0; // Meters per sec
+      new Transform3d(0.24, 0, 2.17, new Rotation3d());
+  private static final double shotSpeed = 3.5; // Meters per sec
+  private static final double shotPitch = Units.degreesToRadians(50); // Degrees from horizontal
   private static final double gravity = 9.8; // Meters per sec²
+  private static final double targetHeight = 2.2; // Meters: height from ground to end visualization
+
   private static Supplier<Pose2d> robotPoseSupplier = () -> new Pose2d();
+
+  private static final Translation3d blueSpeaker = new Translation3d(0.225, 5.55, 2.1);
+  private static final Translation3d redSpeaker = new Translation3d(16.317, 5.55, 2.1);
 
   public static void setRobotPoseSupplier(Supplier<Pose2d> supplier) {
     robotPoseSupplier = supplier;
   }
 
-  private static final Translation3d blueSpeaker = new Translation3d(0.225, 5.55, 2.1);
-  private static final Translation3d redSpeaker = new Translation3d(16.317, 5.55, 2.1);
-
-  private static LoggedTunableNumber tunePitch =
-      new LoggedTunableNumber("Shot Visualizer/Pitch", 45);
-  private static LoggedTunableNumber tuneShotSpeed =
-      new LoggedTunableNumber("Shot Visualizer/Speed", 5);
-  private static LoggedTunableNumber tuneYaw = new LoggedTunableNumber("Shot Visualizer/Yaw", 0);
-  private static LoggedTunableNumber tuneTargetHeight =
-      new LoggedTunableNumber("Shot Visualizer/Target Height", 0);
-
   public static Command shoot() {
     return new ScheduleCommand( // Branch off and exit immediately
         Commands.defer(
                 () -> {
-                  final double shotSpeed = tuneShotSpeed.get();
                   final Pose3d startPose =
                       new Pose3d(robotPoseSupplier.get()).transformBy(launcherTransform);
                   final boolean isRed =
@@ -79,41 +72,40 @@ public class ShotVisualizer {
     return new ScheduleCommand( // Branch off and exit immediately
         Commands.defer(
                 () -> {
-                  final double shotSpeed = tuneShotSpeed.get();
-                  final Pose3d startPose = new Pose3d(1, 1, 0.5, new Rotation3d());
-                  final double initalYaw =
-                      Units.degreesToRadians(
-                          tuneYaw.get()); // degrees: 0 is away from blue drive station
-                  final double initalPitch =
-                      Units.degreesToRadians(tunePitch.get()); // degrees from horizontal
-                  final double targetHeight =
-                      tuneTargetHeight.get(); // height to stop visualization
+                  final Pose3d startPose =
+                      new Pose3d(robotPoseSupplier.get()).transformBy(launcherTransform);
+                  final double shotYaw =
+                      startPose.getRotation().getZ()
+                          + Math.PI; // Degrees: 0 is away from blue drive station
                   final Timer timer = new Timer();
-                  final double Vx = shotSpeed * Math.cos(initalPitch) * Math.cos(initalYaw);
-                  final double Vy = shotSpeed * Math.cos(initalPitch) * Math.sin(initalYaw);
-                  final double Vz0 = shotSpeed * Math.sin(initalPitch);
+                  final double Vx = shotSpeed * Math.cos(shotPitch) * Math.cos(shotYaw);
+                  final double Vy = shotSpeed * Math.cos(shotPitch) * Math.sin(shotYaw);
+                  final double Vz0 = shotSpeed * Math.sin(shotPitch);
                   final double duration =
                       getDurationParabula(startPose, Vx, Vy, Vz0, targetHeight, EndType.falling);
-                  timer.start();
-                  return Commands.run(
-                          () -> {
-                            Logger.recordOutput(
-                                "ShotVisualizer",
-                                new Pose3d[] {
-                                  startPose.transformBy(
-                                      new Transform3d(
-                                          Vx * timer.get(),
-                                          Vy * timer.get(),
-                                          (Vz0 * timer.get())
-                                              - (0.5 * gravity * Math.pow(timer.get(), 2)),
-                                          new Rotation3d()))
-                                });
-                          })
-                      .until(() -> timer.hasElapsed(duration))
-                      .finallyDo(
-                          () -> {
-                            Logger.recordOutput("ShotVisualizer", new Pose3d[] {});
-                          });
+
+                  return Commands.sequence(
+                      Commands.waitSeconds(0.15),
+                      Commands.runOnce(() -> timer.start()),
+                      Commands.run(
+                              () -> {
+                                Logger.recordOutput(
+                                    "ShotVisualizer",
+                                    new Pose3d[] {
+                                      new Pose3d(
+                                          startPose.getX() + (Vx * timer.get()),
+                                          startPose.getY() + (Vy * timer.get()),
+                                          startPose.getZ()
+                                              + ((Vz0 * timer.get())
+                                                  - (0.5 * gravity * Math.pow(timer.get(), 2))),
+                                          startPose.getRotation())
+                                    });
+                              })
+                          .until(() -> timer.hasElapsed(duration))
+                          .finallyDo(
+                              () -> {
+                                Logger.recordOutput("ShotVisualizer", new Pose3d[] {});
+                              }));
                 },
                 Set.of())
             .ignoringDisable(true));
@@ -127,7 +119,6 @@ public class ShotVisualizer {
     falling
   }
 
-  @SuppressWarnings("unused")
   private static double getDurationParabula(
       Pose3d startPose, double Vx, double Vy, double Vz0, double targetHeight, EndType endType) {
     // If starting height is less then 0

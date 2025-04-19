@@ -61,6 +61,8 @@ import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.util.AllianceFlipUtil;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -94,7 +96,7 @@ public class RobotContainer {
   private static LoggedDashboardChooser<Command> autoChooser;
   private static String m_autonName;
 
-  public static boolean m_climberBump = false;
+  @Getter private static boolean m_overideMode = false;
   public static boolean m_autoshootOnPostDection = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -159,7 +161,7 @@ public class RobotContainer {
         intakeCoralSensor =
             new RangeSensorSubsystem(LED, Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
 
-        elevatorWrist = new ElevatorWristSubsystem(LED);
+        elevatorWrist = new ElevatorWristSubsystem(LED, drive::getPose);
 
         climber =
             new RollerSystem(
@@ -216,7 +218,7 @@ public class RobotContainer {
             new RangeSensorSubsystem(LED, Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
 
         // TBD, this needs an actual simulated sensor.....
-        elevatorWrist = new ElevatorWristSubsystem(LED);
+        elevatorWrist = new ElevatorWristSubsystem(LED, drive::getPose);
 
         climber =
             new RollerSystem("Climber", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
@@ -248,7 +250,7 @@ public class RobotContainer {
                 LED, Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS); // TBD, need better dummy
 
         // TBD, this needs an actual simulated sensor.....
-        elevatorWrist = new ElevatorWristSubsystem(LED);
+        elevatorWrist = new ElevatorWristSubsystem(LED, drive::getPose);
 
         climber = new RollerSystem("Climber", new RollerSystemIO() {});
 
@@ -265,7 +267,9 @@ public class RobotContainer {
     // warp up path following command
     FollowPathCommand.warmupCommand().schedule();
 
+    // Configure shot visualizer
     shotVisualizer = new ShotVisualizer();
+    ShotVisualizer.setRobotPoseSupplier(drive::getPose);
     SmartDashboard.putData("Shoot", ShotVisualizer.shootParabula());
 
     SmartDashboard.putData(
@@ -486,7 +490,7 @@ public class RobotContainer {
             Commands.either(
                 ManipulatorCommands.BumpClimberCmd(Constants.CLIMBER.BUMP_VALUE, climber),
                 elevatorWrist.BumpElevatorPosition(Constants.ELEVATOR.BUMP_VALUE),
-                () -> m_climberBump));
+                () -> m_overideMode));
 
     m_ps4Controller
         .povDown()
@@ -494,16 +498,13 @@ public class RobotContainer {
             Commands.either(
                 ManipulatorCommands.BumpClimberCmd(-Constants.CLIMBER.BUMP_VALUE, climber),
                 elevatorWrist.BumpElevatorPosition(-Constants.ELEVATOR.BUMP_VALUE),
-                () -> m_climberBump));
+                () -> m_overideMode));
 
     m_ps4Controller
         .share()
         .onTrue(
-            Commands.runOnce(() -> m_climberBump = !m_climberBump)
-                .andThen(
-                    () ->
-                        SmartDashboard.putString(
-                            "BumpMode", m_climberBump ? "CLIMBER" : "ELEVATOR")));
+            Commands.runOnce(() -> m_overideMode = !m_overideMode)
+                .andThen(() -> SmartDashboard.putBoolean("Overide Mode", m_overideMode)));
 
     m_ps4Controller.povLeft().onTrue(elevatorWrist.BumpWristPosition(Constants.WRIST.BUMP_VALUE));
 
@@ -535,7 +536,7 @@ public class RobotContainer {
             Commands.either(
                 ManipulatorCommands.climberToZeroCmd(climber, LED),
                 Commands.none(),
-                () -> m_climberBump));
+                () -> m_overideMode));
 
     // Right Joystick Y
     m_ps4Controller
@@ -567,20 +568,20 @@ public class RobotContainer {
             .side(true, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)
             .withName("LEFT"));
     autoChooser.addOption(
-        "AUTON CENTER PROCESSOR",
-        autons
-            .centerProcessor(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)
-            .withName("CENTER_PROCESSOR"));
-    autoChooser.addOption(
-        "AUTON CENTER NET",
-        autons
-            .centerNet(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)
-            .withName("CENTER_NET"));
-    autoChooser.addOption(
         "AUTON RIGHT",
         autons
             .side(false, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)
             .withName("RIGHT"));
+    autoChooser.addOption(
+        "AUTON CENTER PROCESSOR",
+        autons
+            .centerProcessor(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)
+            .withName("CENTER PROCESSOR"));
+    autoChooser.addOption(
+        "AUTON CENTER NET",
+        autons
+            .centerNet(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)
+            .withName("CENTER NET"));
     autoChooser.addOption("NONE", Commands.none());
     // Set up SysId routines
     if (Constants.tuningMode) {
@@ -611,6 +612,28 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  public void setSimulatedStartingPose() {
+    elevatorWrist.getElevator().zero();
+    elevatorWrist.getWrist().zero();
+
+    AllianceFlipUtil.apply(drive.getPose());
+
+    switch (autoChooser.get().getName()) {
+      case "LEFT":
+        drive.setPose(AllianceFlipUtil.apply(Constants.AutonStartPositions.left));
+        break;
+
+      case "RIGHT":
+        drive.setPose(AllianceFlipUtil.apply(Constants.AutonStartPositions.right));
+        break;
+
+      case "CENTER PROCESSOR":
+      case "CENTER NET":
+        drive.setPose(AllianceFlipUtil.apply(Constants.AutonStartPositions.middle));
+        break;
+    }
   }
 
   public void setAutonOn(boolean state) {

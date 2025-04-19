@@ -14,21 +14,25 @@ public class Elevator extends SubsystemBase {
   private final ElevatorIO io;
   protected final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
   private final Alert disconnected;
+  private final Alert followerDisconnected;
 
-  private LoggedTunableNumber kP = new LoggedTunableNumber(pathName + "/kP", 5);
-  private LoggedTunableNumber kI = new LoggedTunableNumber(pathName + "/kI", 0);
-  private LoggedTunableNumber kD = new LoggedTunableNumber(pathName + "/kD", 0);
-  private LoggedTunableNumber kS = new LoggedTunableNumber(pathName + "/kS", 0.5);
-  private LoggedTunableNumber kV = new LoggedTunableNumber(pathName + "/kV", 0.2);
-  private LoggedTunableNumber kA = new LoggedTunableNumber(pathName + "/kA", 0);
-  private LoggedTunableNumber kG = new LoggedTunableNumber(pathName + "/kG", 0.5);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kP", 5);
+  private LoggedTunableNumber kI0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kI", 0);
+  private LoggedTunableNumber kD0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kD", 0);
+  private LoggedTunableNumber kS0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kS", 0.5);
+  private LoggedTunableNumber kV0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kV", 0.2);
+  private LoggedTunableNumber kA0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kA", 0);
+  private LoggedTunableNumber kG0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kG", 0.5);
 
-  private LoggedTunableNumber mmV = new LoggedTunableNumber(pathName + "/mmV", 40);
-  private LoggedTunableNumber mmA = new LoggedTunableNumber(pathName + "/mmA", 120);
-  private LoggedTunableNumber mmJ = new LoggedTunableNumber(pathName + "/mmJ", 400);
+  private LoggedTunableNumber mmV =
+      new LoggedTunableNumber(pathName + "/Motion Magic Configs/Velocity", 40);
+  private LoggedTunableNumber mmA =
+      new LoggedTunableNumber(pathName + "/Motion Magic Configs/Acceleration", 120);
+  private LoggedTunableNumber mmJ =
+      new LoggedTunableNumber(pathName + "/Motion Magic Configs/Jerk", 400);
 
   private LoggedTunableNumber setpointBand =
-      new LoggedTunableNumber(pathName + "/setpointBand", 0.5);
+      new LoggedTunableNumber(pathName + "/setpointBand", 0.005);
 
   @Getter private double setpoint = 0.0;
 
@@ -37,46 +41,48 @@ public class Elevator extends SubsystemBase {
 
     io.setPID(
         new SlotConfigs()
-            .withKP(kP.get())
-            .withKI(kI.get())
-            .withKD(kD.get())
-            .withKS(kS.get())
-            .withKV(kV.get())
-            .withKA(kA.get())
-            .withKG(kG.get()));
+            .withKP(kP0.get())
+            .withKI(kI0.get())
+            .withKD(kD0.get())
+            .withKS(kS0.get())
+            .withKV(kV0.get())
+            .withKA(kA0.get())
+            .withKG(kG0.get()));
     io.setMotionMagic(
         new MotionMagicConfigs()
             .withMotionMagicCruiseVelocity(mmV.get())
             .withMotionMagicAcceleration(mmA.get())
             .withMotionMagicJerk(mmJ.get()));
 
-    disconnected = new Alert("Elevator" + " motor disconnected!", Alert.AlertType.kWarning);
+    disconnected = new Alert("Lead elevator motor disconnected!", Alert.AlertType.kWarning);
+    followerDisconnected =
+        new Alert("Follower elevator motor disconnected!", Alert.AlertType.kWarning);
   }
 
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
     disconnected.set(!inputs.connected);
-    Logger.recordOutput(
-        "test/e at", Math.abs(setpoint - getPosition()) < setpointBand.getAsDouble());
+    followerDisconnected.set(!inputs.followerConnected);
+    Logger.recordOutput("Elevator/At position", atPosition());
 
     // Update tunable numbers
     if (Constants.tuningMode) {
-      if (kP.hasChanged(hashCode())
-          || kI.hasChanged(hashCode())
-          || kD.hasChanged(hashCode())
-          || kS.hasChanged(hashCode())
-          || kV.hasChanged(hashCode())
-          || kA.hasChanged(hashCode())
-          || kG.hasChanged(hashCode())) {
+      if (kP0.hasChanged(hashCode())
+          || kI0.hasChanged(hashCode())
+          || kD0.hasChanged(hashCode())
+          || kS0.hasChanged(hashCode())
+          || kV0.hasChanged(hashCode())
+          || kA0.hasChanged(hashCode())
+          || kG0.hasChanged(hashCode())) {
         SlotConfigs newconfig = new SlotConfigs();
-        newconfig.kP = kP.get();
-        newconfig.kI = kI.get();
-        newconfig.kD = kD.get();
-        newconfig.kS = kS.get();
-        newconfig.kV = kV.get();
-        newconfig.kA = kA.get();
-        newconfig.kG = kG.get();
+        newconfig.kP = kP0.get();
+        newconfig.kI = kI0.get();
+        newconfig.kD = kD0.get();
+        newconfig.kS = kS0.get();
+        newconfig.kV = kV0.get();
+        newconfig.kA = kA0.get();
+        newconfig.kG = kG0.get();
         io.setPID(newconfig);
       }
 
@@ -106,9 +112,9 @@ public class Elevator extends SubsystemBase {
   }
 
   /**
-   * Set goal position of the mechanism in inches
+   * Set goal position of the mechanism in rotations
    *
-   * @param position goal position
+   * @param position Goal position
    */
   public void setPosition(double position) {
     setpoint = position;
@@ -117,21 +123,21 @@ public class Elevator extends SubsystemBase {
   }
 
   /**
-   * Velocity of the mechanism in inches per second
+   * Velocity of the mechanism in rotations per second
    *
    * @return Velocity
    */
   public double getSpeed() {
-    return inputs.velocityInchesPerSec;
+    return inputs.velocityRotsPerSec;
   }
 
   /**
-   * Position of the mechanism in inches
+   * Position of the mechanism in rotations
    *
    * @return Position
    */
   public double getPosition() {
-    return inputs.positionInches;
+    return inputs.positionRotations;
   }
 
   /**

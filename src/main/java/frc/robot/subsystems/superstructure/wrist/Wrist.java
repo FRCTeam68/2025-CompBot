@@ -60,6 +60,7 @@ public class Wrist extends SubsystemBase {
     io.updateInputs(inputs);
     Logger.processInputs("Wrist", inputs);
     disconnected.set(!inputs.connected);
+    Logger.recordOutput("Wrist/At position", atPosition());
 
     // Update tunable numbers
     if (Constants.tuningMode) {

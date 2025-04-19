@@ -8,8 +8,10 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,17 +24,20 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.LEDColor;
 import frc.robot.Constants.LEDSegment;
+import frc.robot.commands.ManipulatorCommands;
+import frc.robot.commands.ManipulatorCommands.ScoringPosition;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.superstructure.elevator.*;
 import frc.robot.subsystems.superstructure.wrist.*;
 import java.util.Set;
+import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class ElevatorWristSubsystem extends SubsystemBase {
-
+  private static Supplier<Pose2d> robotPoseSupplier = () -> new Pose2d();
   private final Lights LED;
   private final Wrist wrist;
   private final Elevator elevator;
@@ -51,8 +56,14 @@ public class ElevatorWristSubsystem extends SubsystemBase {
   @Getter @Setter @AutoLogOutput private boolean autoShootOn = false;
   private boolean prevIndicateToShoot = false;
 
-  public ElevatorWristSubsystem(Lights LED) {
+  private Pose3d[] elevatorPose;
+  private Pose3d wristPose;
+  private Pose3d[] coralPose;
+  private Pose3d[] AlgaePose;
+
+  public ElevatorWristSubsystem(Lights LED, Supplier<Pose2d> supplier) {
     this.LED = LED;
+    this.robotPoseSupplier = supplier;
 
     reefPostFilter = LinearFilter.movingAverage(4);
     Logger.recordOutput(
@@ -111,24 +122,69 @@ public class ElevatorWristSubsystem extends SubsystemBase {
       prevIndicateToShoot = indicateToShoot;
     }
 
-    SmartDashboard.putNumber("E pos", elevator.getPosition());
-    SmartDashboard.putNumber("E goal", elevator.getSetpoint());
-    SmartDashboard.putBoolean("E at pos", elevator.atPosition());
-
     // robot poses
-    Logger.recordOutput(
-        "RobotPose/Elevator",
-        new Pose3d(0, 0, Units.inchesToMeters(elevator.getPosition() / 2), new Rotation3d(0, 0, 0)),
-        new Pose3d(0, 0, Units.inchesToMeters(elevator.getPosition()), new Rotation3d(0, 0, 0)));
-    Logger.recordOutput(
-        "RobotPose/Wrist",
+    elevatorPose =
         new Pose3d[] {
           new Pose3d(
-              0.28575,
               0,
-              0.411 + Units.inchesToMeters(elevator.getPosition()),
-              new Rotation3d(0, Units.rotationsToRadians(wrist.getPosition()), 0))
-        });
+              0,
+              Units.inchesToMeters(elevator.getPosition() * 1.751 * Math.PI),
+              Rotation3d.kZero),
+          new Pose3d(
+              0,
+              0,
+              Units.inchesToMeters(elevator.getPosition() * 1.751 * Math.PI * 2),
+              Rotation3d.kZero),
+        };
+    wristPose =
+        new Pose3d(
+            0.28575,
+            0,
+            0.411 + Units.inchesToMeters(elevator.getPosition() * 1.751 * Math.PI * 2),
+            new Rotation3d(0, Units.rotationsToRadians(wrist.getPosition()), 0));
+    coralPose =
+        (ManipulatorCommands.getScoringPosition() == ScoringPosition.CoralL1
+                    || ManipulatorCommands.getScoringPosition() == ScoringPosition.CoralL2_4)
+                && ManipulatorCommands.isHavePiece()
+            ? new Pose3d[] {
+              new Pose3d(
+                      robotPoseSupplier.get().getX() + 0.18575,
+                      robotPoseSupplier.get().getY() + Units.inchesToMeters(-.4),
+                      0.69 + Units.inchesToMeters(elevator.getPosition() * 1.751 * Math.PI * 2),
+                      new Rotation3d(0, Units.degreesToRadians(19), 0))
+                  .rotateAround(
+                      new Translation3d(robotPoseSupplier.get().getTranslation())
+                          .plus(wristPose.getTranslation()),
+                      wristPose.getRotation())
+                  .rotateAround(
+                      new Translation3d(robotPoseSupplier.get().getTranslation()),
+                      new Rotation3d(robotPoseSupplier.get().getRotation()))
+            }
+            : new Pose3d[] {};
+    AlgaePose =
+        (ManipulatorCommands.getScoringPosition() == ScoringPosition.Algae
+                    || ManipulatorCommands.getScoringPosition() == ScoringPosition.AlgaeNet)
+                && ManipulatorCommands.isHavePiece()
+            ? new Pose3d[] {
+              new Pose3d(
+                      robotPoseSupplier.get().getX() + 0.01075,
+                      robotPoseSupplier.get().getY() + Units.inchesToMeters(-.4),
+                      0.445 + Units.inchesToMeters(elevator.getPosition() * 1.751 * Math.PI * 2),
+                      new Rotation3d(0, Units.degreesToRadians(19), 0))
+                  .rotateAround(
+                      new Translation3d(robotPoseSupplier.get().getTranslation())
+                          .plus(wristPose.getTranslation()),
+                      wristPose.getRotation())
+                  .rotateAround(
+                      new Translation3d(robotPoseSupplier.get().getTranslation()),
+                      new Rotation3d(robotPoseSupplier.get().getRotation()))
+            }
+            : new Pose3d[] {};
+
+    Logger.recordOutput("RobotPose/Elevator", elevatorPose);
+    Logger.recordOutput("RobotPose/Wrist", wristPose);
+    Logger.recordOutput("RobotPose/Coral", coralPose);
+    Logger.recordOutput("RobotPose/Algae", AlgaePose);
   }
 
   public Elevator getElevator() {
@@ -357,8 +413,9 @@ public class ElevatorWristSubsystem extends SubsystemBase {
                       Commands.runOnce(
                           () ->
                               elevator.setPosition(
-                                  Constants.ELEVATOR.MAX_MID_SAFE
-                                      - Constants.ELEVATOR.MIN_MID_SAFE
+                                  ((Constants.ELEVATOR.MAX_MID_SAFE
+                                              - Constants.ELEVATOR.MIN_MID_SAFE)
+                                          / 2)
                                       + Constants.ELEVATOR.MIN_MID_SAFE)),
                       Commands.waitUntil(
                           () ->
@@ -392,14 +449,15 @@ public class ElevatorWristSubsystem extends SubsystemBase {
                       Commands.runOnce(
                           () ->
                               elevator.setPosition(
-                                  Constants.ELEVATOR.MAX_MID_SAFE
-                                      - Constants.ELEVATOR.MIN_MID_SAFE
+                                  ((Constants.ELEVATOR.MAX_MID_SAFE
+                                              - Constants.ELEVATOR.MIN_MID_SAFE)
+                                          / 2)
                                       + Constants.ELEVATOR.MIN_MID_SAFE)),
                       Commands.waitUntil(
                           () ->
                               (elevator.getPosition() <= Constants.ELEVATOR.MAX_MID_SAFE)
                                   && (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE)),
-                      Commands.waitSeconds(.3),
+                      // Commands.waitSeconds(.05),
                       Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
                       Commands.runOnce(() -> elevator.setPosition(e_goal)));
             }

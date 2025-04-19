@@ -203,34 +203,34 @@ public final class Constants {
   }
 
   public static final class ELEVATOR {
-    public static final double MAX_POSITION = 59.41; // 26.5; // MAX_BLOCK6
-    public static final double MAX_POSITION_BLOCK5 = 52.81; // ????
-    public static final double MAX_POSITION_BLOCK4 = 46.21; // ????
-    public static final double SAFE_IN_BLOCK4 = 27.5;
-    public static final double MIN_POSITION_BLOCK4 = 23.1; // ????
-    public static final double MAX_POSITION_BLOCK2 = 11.22; // ????
-    public static final double MIN_POSITION_AT_P1 = 7.48; // MIN_BLOCK2
-    public static final double MAX_POSITION_BLOCK0 = 2.2;
+    public static final double MAX_POSITION = 5.4; // 26.5; // MAX_BLOCK6
+    public static final double MAX_POSITION_BLOCK5 = 4.8; // ????
+    public static final double MAX_POSITION_BLOCK4 = 4.2; // ????
+    public static final double SAFE_IN_BLOCK4 = 2.5;
+    public static final double MIN_POSITION_BLOCK4 = 2.1; // ????
+    public static final double MAX_POSITION_BLOCK2 = 1.02; // ????
+    public static final double MIN_POSITION_AT_P1 = 0.68; // MIN_BLOCK2
+    public static final double MAX_POSITION_BLOCK0 = 0.2;
     public static final double MIN_POSITION = 0; // /MIN_BLOCK0
-    public static final double SHOOTNET = 58.31;
-    public static final double L4 = 50.61;
-    public static final double PRENET = 58.31;
-    public static final double A2 = 34.11;
-    public static final double L3 = 26.4;
-    public static final double A1 = 19.8;
-    public static final double L2 = 9.9;
-    public static final double P1 = 7.48;
-    public static final double L1 = 17.6;
-    public static final double L1_FINAL = 8.8; // used for pivoting L1 shoot
+    public static final double SHOOTNET = 5.3;
+    public static final double L4 = 4.6;
+    public static final double PRENET = 5.3;
+    public static final double A2 = 3.1;
+    public static final double L3 = 2.4;
+    public static final double A1 = 1.8;
+    public static final double L2 = 0.9;
+    public static final double P1 = 0.68;
+    public static final double L1 = 1.6;
+    public static final double L1_FINAL = 0.8; // used for pivoting L1 shoot
     public static final double INTAKE = 0;
-    public static final double BUMP_VALUE = 1.1; // rotations
+    public static final double BUMP_VALUE = 0.1; // rotations
     // sequencing contants
-    public static final double MAX_LOW_SAFE = 2.2;
-    public static final double MIN_MID_SAFE = 25.92;
-    public static final double MAX_MID_SAFE = 35.21;
-    public static final double MIN_HIGH_SAFE = 52.81;
+    public static final double MAX_LOW_SAFE = 0.2;
+    public static final double MIN_MID_SAFE = 2.356;
+    public static final double MAX_MID_SAFE = 3.2;
+    public static final double MIN_HIGH_SAFE = 4.8;
     public static final double MAX_LOW_WRIST_MOVE_FROM_SAFE =
-        6.6; // height to start wrist move if wrist is in safe position
+        0.6; // height to start wrist move if wrist is in safe position
   }
 
   public static final class REEFPOSTSENSOR {

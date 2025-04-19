@@ -17,7 +17,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
@@ -36,7 +35,7 @@ public class autons {
    * @param pathGroupName The name of the path group to load
    * @return Array of paths
    */
-  public static PathPlannerPath[] pathBuilder(String pathGroupName) {
+  private static PathPlannerPath[] pathBuilder(String pathGroupName) {
     try {
       List<PathPlannerPath> pathGroup = PathPlannerAuto.getPathGroupFromAutoFile(pathGroupName);
 
@@ -59,7 +58,7 @@ public class autons {
    * @param pathName The name of the path to load
    * @return A path following command with for the given path
    */
-  public static Command followPath(String pathName) {
+  private static Command followPath(String pathName) {
     try {
       PathPlannerPath pathIndividual = PathPlannerPath.fromPathFile(pathName);
 
@@ -77,7 +76,7 @@ public class autons {
    * @param pathName The path to follow
    * @return A path following command with for the given path
    */
-  public static Command followPath(PathPlannerPath path) {
+  private static Command followPath(PathPlannerPath path) {
     try {
       return AutoBuilder.followPath(path);
     } catch (Exception e) {
@@ -85,45 +84,6 @@ public class autons {
 
       return Commands.none();
     }
-  }
-
-  public static Command side2(
-      Boolean leftSide,
-      RollerSystem myIntake,
-      RollerSystem myIntakeLow,
-      ElevatorWristSubsystem myElevatorWrist,
-      RangeSensorSubsystem intake_sensor,
-      Lights LED) {
-
-    PathPlannerPath[] path = pathBuilder(leftSide ? "AUTON_LEFT1" : "AUTON_RIGHT1");
-    SmartDashboard.putNumber("auto sig", 99);
-
-    return Commands.sequence(
-        // first coral
-        Commands.parallel(
-            Commands.runOnce(() -> SmartDashboard.putNumber("auto sig", 10)),
-            followPath(path[0]), // to reef post
-            Commands.sequence(
-                Commands.runOnce(() -> ManipulatorCommands.setHavePiece(true)),
-                Commands.waitSeconds(Constants.AUTO.START_ELEVATOR_DELAY),
-                ManipulatorCommands.CoralL4Cmd(myElevatorWrist),
-                Commands.runOnce(() -> SmartDashboard.putNumber("auto sig", 80)))),
-        Commands.runOnce(() -> SmartDashboard.putNumber("auto sig", 1)),
-        ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist, LED),
-        Commands.runOnce(() -> SmartDashboard.putNumber("auto sig", 2)),
-        // second coral
-        Commands.deadline(
-            Commands.sequence(
-                followPath(path[1]), // to coral station
-                Commands.waitSeconds(Constants.AUTO.CORAL_STATION_WAIT),
-                followPath(path[2]), // to reef coral 2
-                Commands.waitUntil(() -> ManipulatorCommands.isHavePiece())
-                    .withTimeout(Constants.AUTO.REEF_TIMEOUT),
-                Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
-                    .onlyWhile(() -> ManipulatorCommands.isIndexing())),
-            ManipulatorCommands.intakeCmd(
-                    myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED)
-                .handleInterrupt(() -> myIntake.setSpeedCmd(0))));
   }
 
   public static Command side(
@@ -135,7 +95,6 @@ public class autons {
       Lights LED) {
 
     PathPlannerPath[] path = pathBuilder(leftSide ? "AUTON_LEFT1" : "AUTON_RIGHT1");
-    SmartDashboard.putNumber("auto sig", 99);
 
     return Commands.sequence(
         // first coral
@@ -144,11 +103,8 @@ public class autons {
             Commands.sequence(
                 Commands.runOnce(() -> ManipulatorCommands.setHavePiece(true)),
                 Commands.waitSeconds(Constants.AUTO.START_ELEVATOR_DELAY),
-                ManipulatorCommands.CoralL4Cmd(myElevatorWrist),
-                Commands.runOnce(() -> SmartDashboard.putNumber("auto sig", 80)))),
-        Commands.runOnce(() -> SmartDashboard.putNumber("auto sig", 1)),
+                ManipulatorCommands.CoralL4Cmd(myElevatorWrist))),
         ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist, LED),
-        Commands.runOnce(() -> SmartDashboard.putNumber("auto sig", 2)),
         // second coral
         Commands.deadline(
             Commands.sequence(

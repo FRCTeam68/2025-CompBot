@@ -28,7 +28,6 @@ import edu.wpi.first.units.measure.Voltage;
 /** Generic roller IO implementation for a roller or series of rollers using a Kraken. */
 public class ElevatorIOTalonFX implements ElevatorIO {
   public static final double reduction = 5;
-  public static final double pitchDiameter = 1.751;
   private final GravityTypeValue gravityType = GravityTypeValue.Elevator_Static;
 
   // Hardware
@@ -55,7 +54,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true).withUpdateFreqHz(0);
-  private final MotionMagicTorqueCurrentFOC mmtPosition = new MotionMagicTorqueCurrentFOC(0);
+  private final MotionMagicTorqueCurrentFOC mmtPosition =
+      new MotionMagicTorqueCurrentFOC(0).withUpdateFreqHz(0);
   private final MotionMagicVoltage mmvPosition = new MotionMagicVoltage(0);
   private final NeutralOut neutralOut = new NeutralOut();
 
@@ -67,12 +67,19 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     // Configure Motor
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    // Current limits
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.StatorCurrentLimit = 120;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.SupplyCurrentLimit = 70;
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
+    // Motion limits
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 5.4;
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
+    // Feedback
     config.Feedback.SensorToMechanismRatio = reduction;
     tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
 
@@ -112,9 +119,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     inputs.connected =
         connectedDebouncer.calculate(
             BaseStatusSignal.refreshAll(position, velocity, appliedVoltage, torqueCurrent).isOK());
-    inputs.positionInches = position.getValueAsDouble() * Math.PI * pitchDiameter * 2;
     inputs.positionRotations = position.getValueAsDouble();
-    inputs.velocityInchesPerSec = velocity.getValueAsDouble() * Math.PI * pitchDiameter * 2;
     inputs.velocityRotsPerSec = velocity.getValueAsDouble();
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();
@@ -122,7 +127,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     inputs.tempCelsius = tempCelsius.getValueAsDouble();
     inputs.followerConnected =
         followerConnectedDebouncer.calculate(
-            BaseStatusSignal.isAllGood(followerAppliedVoltage, followerTorqueCurrent));
+            BaseStatusSignal.refreshAll(followerAppliedVoltage, followerTorqueCurrent).isOK());
     inputs.followerAppliedVoltage = followerAppliedVoltage.getValueAsDouble();
     inputs.followerSupplyCurrentAmps = followerSupplyCurrent.getValueAsDouble();
     inputs.followerTorqueCurrentAmps = followerTorqueCurrent.getValueAsDouble();
@@ -136,21 +141,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void setPosition(double position, int slot) {
-    // talon.setControl(mmtPosition.withPosition(position / (Math.PI *
-    // pitchDiameter)).withSlot(slot));
-    talon.setControl(
-        mmvPosition.withPosition(position / (Math.PI * pitchDiameter * 2)).withSlot(slot));
-  }
-
-  @Override
-  public void stop() {
-    talon.setControl(neutralOut);
-  }
-
-  @Override
-  public void zero() {
-    setVolts(0);
-    talon.setPosition(0);
+    // talon.setControl(mmtPosition.withPosition(position).withSlot(slot));
+    talon.setControl(mmvPosition.withPosition(position).withSlot(slot));
   }
 
   @Override
@@ -195,5 +187,16 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.MotionMagic.MotionMagicAcceleration = newconfig.MotionMagicAcceleration;
     config.MotionMagic.MotionMagicJerk = newconfig.MotionMagicJerk;
     tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
+  }
+
+  @Override
+  public void stop() {
+    talon.setControl(neutralOut);
+  }
+
+  @Override
+  public void zero() {
+    setVolts(0);
+    talon.setPosition(0);
   }
 }

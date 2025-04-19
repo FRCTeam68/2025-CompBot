@@ -8,9 +8,7 @@ public interface ElevatorIO {
   @AutoLog
   static class ElevatorIOInputs {
     public boolean connected = false;
-    public double positionInches = 0.0;
     public double positionRotations = 0.0;
-    public double velocityInchesPerSec = 0.0;
     public double velocityRotsPerSec = 0.0;
     public double appliedVoltage = 0.0;
     public double supplyCurrentAmps = 0.0;
