@@ -59,6 +59,8 @@ public class Module {
   private final Alert driveDisconnectedAlert;
   private final Alert turnDisconnectedAlert;
   private final Alert turnEncoderDisconnectedAlert;
+  private final Alert driveTempAlert;
+  private final Alert turnTempAlert;
   private SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
 
   public Module(
@@ -80,6 +82,12 @@ public class Module {
         new Alert(
             "Disconnected turn encoder on module " + Integer.toString(index) + ".",
             AlertType.kError);
+    driveTempAlert =
+        new Alert(
+            "Drive motor over temp on module" + Integer.toString(index) + ".", AlertType.kWarning);
+    turnTempAlert =
+        new Alert(
+            "turn motor over temp on module" + Integer.toString(index) + ".", AlertType.kWarning);
   }
 
   public void updateInputs() {
@@ -108,6 +116,8 @@ public class Module {
     driveDisconnectedAlert.set(!inputs.driveConnected);
     turnDisconnectedAlert.set(!inputs.turnConnected);
     turnEncoderDisconnectedAlert.set(!inputs.turnEncoderConnected);
+    driveTempAlert.set(inputs.driveTemp > 50);
+    turnTempAlert.set(inputs.turnTemp > 50);
   }
 
   /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */

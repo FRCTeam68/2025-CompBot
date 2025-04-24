@@ -24,10 +24,12 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import lombok.Getter;
 
 /** Generic roller IO implementation for a roller or series of rollers using a Kraken. */
 public class ElevatorIOTalonFX implements ElevatorIO {
-  public static final double reduction = 5;
+  @Getter private static final double reduction = 5;
+  @Getter private static final double spoolDiameter = 1.751; // inches
   private final GravityTypeValue gravityType = GravityTypeValue.Elevator_Static;
 
   // Hardware
@@ -110,7 +112,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         5,
         () ->
             BaseStatusSignal.setUpdateFrequencyForAll(
-                250.0, supplyCurrent, tempCelsius, followerSupplyCurrent, followerTempCelsius));
+                4, supplyCurrent, tempCelsius, followerSupplyCurrent, followerTempCelsius));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon, followerTalon));
   }
 
@@ -119,7 +121,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     inputs.connected =
         connectedDebouncer.calculate(
             BaseStatusSignal.refreshAll(position, velocity, appliedVoltage, torqueCurrent).isOK());
-    inputs.positionRotations = position.getValueAsDouble();
+    inputs.position = position.getValueAsDouble();
     inputs.velocityRotsPerSec = velocity.getValueAsDouble();
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
     inputs.supplyCurrentAmps = supplyCurrent.getValueAsDouble();

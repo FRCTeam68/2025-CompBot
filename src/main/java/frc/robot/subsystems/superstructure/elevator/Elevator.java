@@ -2,6 +2,7 @@ package frc.robot.subsystems.superstructure.elevator;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -134,10 +135,20 @@ public class Elevator extends SubsystemBase {
   /**
    * Position of the mechanism in rotations
    *
-   * @return Position
+   * @return Position rotations
    */
-  public double getPosition() {
-    return inputs.positionRotations;
+  public double getPositionRotations() {
+    return inputs.position;
+  }
+
+  /**
+   * Position of the mechanism in meters
+   *
+   * @return Position meters
+   */
+  public double getPositionMeters() {
+    return Units.inchesToMeters(
+        inputs.position * ElevatorIOTalonFX.getSpoolDiameter() * Math.PI * 2);
   }
 
   /**
@@ -172,7 +183,7 @@ public class Elevator extends SubsystemBase {
    * @return True if mechanism is at goal position, false otherwise
    */
   public boolean atPosition() {
-    return Math.abs(setpoint - getPosition()) < setpointBand.getAsDouble();
+    return Math.abs(setpoint - inputs.position) < setpointBand.getAsDouble();
   }
 
   /** Stop motor */

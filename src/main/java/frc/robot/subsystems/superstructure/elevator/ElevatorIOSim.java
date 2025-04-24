@@ -20,7 +20,7 @@ public class ElevatorIOSim implements ElevatorIO {
     sim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                DCMotor.getKrakenX60Foc(2), .001, ElevatorIOTalonFX.reduction),
+                DCMotor.getKrakenX60Foc(2), .001, ElevatorIOTalonFX.getReduction()),
             DCMotor.getKrakenX60Foc(2));
   }
 
@@ -34,7 +34,7 @@ public class ElevatorIOSim implements ElevatorIO {
 
     inputs.connected = true;
     sim.update(Constants.loopPeriodSecs);
-    inputs.positionRotations = sim.getAngularPositionRotations();
+    inputs.position = sim.getAngularPositionRotations();
     inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() * 60;
     inputs.appliedVoltage = appliedVoltage;
     inputs.supplyCurrentAmps = sim.getCurrentDrawAmps();

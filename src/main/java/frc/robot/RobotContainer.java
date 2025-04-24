@@ -58,6 +58,7 @@ import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.rollers.RollerSystemIOSim;
 import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
+import frc.robot.subsystems.superstructure.SuperstructureVisualizer;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
@@ -82,7 +83,7 @@ public class RobotContainer {
   private static RangeSensorSubsystem intakeCoralSensor;
   private static ElevatorWristSubsystem elevatorWrist;
   private static Lights LED;
-  private final ShotVisualizer shotVisualizer;
+  // private final ShotVisualizer shotVisualizer;
   private ReefCentering reefCentering;
 
   // Controller
@@ -267,8 +268,10 @@ public class RobotContainer {
     // warp up path following command
     FollowPathCommand.warmupCommand().schedule();
 
+    SuperstructureVisualizer.setRobotPoseSupplier(drive::getPose);
+
     // Configure shot visualizer
-    shotVisualizer = new ShotVisualizer();
+    // shotVisualizer = new ShotVisualizer();
     ShotVisualizer.setRobotPoseSupplier(drive::getPose);
     SmartDashboard.putData("Shoot", ShotVisualizer.shootParabula());
 
@@ -712,7 +715,7 @@ public class RobotContainer {
             && m_ps4Controller.isConnected()
             && intakeCoralSensor.isDetected()
             && elevatorWrist.getWrist().getPosition() < 0.01
-            && elevatorWrist.getElevator().getPosition() < 0.01;
+            && elevatorWrist.getElevator().getPositionRotations() < 0.01;
 
     SmartDashboard.putBoolean(
         "Match Ready/auton_selected",
@@ -723,7 +726,7 @@ public class RobotContainer {
     SmartDashboard.putBoolean(
         "Match Ready/wrist_zeroed", elevatorWrist.getWrist().getPosition() < 0.01);
     SmartDashboard.putBoolean(
-        "Match Ready/elevator_zeroed", elevatorWrist.getElevator().getPosition() < 0.01);
+        "Match Ready/elevator_zeroed", elevatorWrist.getElevator().getPositionRotations() < 0.01);
 
     // set LEDs
     if (robotStateOK && offsetXOK && offsetYOK && offsetROK) {

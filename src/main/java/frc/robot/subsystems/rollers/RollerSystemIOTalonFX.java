@@ -112,8 +112,7 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
         () ->
             BaseStatusSignal.setUpdateFrequencyForAll(
                 50.0, position, velocity, appliedVoltage, torqueCurrent));
-    tryUntilOk(
-        5, () -> BaseStatusSignal.setUpdateFrequencyForAll(250.0, supplyCurrent, tempCelsius));
+    tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(4, supplyCurrent, tempCelsius));
     tryUntilOk(5, () -> talon.optimizeBusUtilization(0, 1.0));
   }
 
