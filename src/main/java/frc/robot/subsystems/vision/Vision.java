@@ -108,7 +108,7 @@ public class Vision extends SubsystemBase {
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
       inputs[cameraIndex].skipMegaTag1 = false;
     }
-    LED.setColor(LEDColor.GREEN, rotationInitalizedIndicator);
+    LED.setSolidColor(LEDColor.GREEN, rotationInitalizedIndicator);
     rotationNotInitalizedAlert.set(true);
   }
 
@@ -116,7 +116,7 @@ public class Vision extends SubsystemBase {
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
       inputs[cameraIndex].skipMegaTag1 = true;
     }
-    LED.setColor(LEDColor.GREEN, rotationInitalizedIndicator);
+    LED.setSolidColor(LEDColor.GREEN, rotationInitalizedIndicator);
     rotationNotInitalizedAlert.set(false);
   }
 

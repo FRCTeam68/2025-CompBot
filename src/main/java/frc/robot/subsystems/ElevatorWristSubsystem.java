@@ -110,7 +110,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
     boolean indicateToShoot = reefPostDetectedRaw && lookingToShoot;
     if (indicateToShoot != prevIndicateToShoot) {
       if (indicateToShoot) {
-        LED.setColor(LEDColor.RED, LEDSegment.ALL);
+        LED.setSolidColor(LEDColor.RED, LEDSegment.ALL);
       } else {
         LED.disableLEDs(LEDSegment.ALL);
       }

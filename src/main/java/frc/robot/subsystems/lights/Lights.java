@@ -1,14 +1,15 @@
 package frc.robot.subsystems.lights;
 
-import com.ctre.phoenix.led.Animation;
-import com.ctre.phoenix.led.ColorFlowAnimation;
-import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
-import com.ctre.phoenix.led.LarsonAnimation;
-import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
-import com.ctre.phoenix.led.RainbowAnimation;
-import com.ctre.phoenix.led.SingleFadeAnimation;
-import com.ctre.phoenix.led.StrobeAnimation;
-import edu.wpi.first.math.MathUtil;
+import com.ctre.phoenix6.controls.ColorFlowAnimation;
+import com.ctre.phoenix6.controls.EmptyAnimation;
+import com.ctre.phoenix6.controls.LarsonAnimation;
+import com.ctre.phoenix6.controls.RainbowAnimation;
+import com.ctre.phoenix6.controls.SingleFadeAnimation;
+import com.ctre.phoenix6.controls.SolidColor;
+import com.ctre.phoenix6.controls.StrobeAnimation;
+import com.ctre.phoenix6.signals.AnimationDirectionValue;
+import com.ctre.phoenix6.signals.LarsonBounceValue;
+import com.ctre.phoenix6.signals.RGBWColor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LEDColor;
@@ -20,6 +21,8 @@ public class Lights extends SubsystemBase {
   private final Alert disconnected;
 
   private static double defaultAnimationSpeed = 4;
+  private static AnimationDirectionValue defaultAnimationDirection =
+      AnimationDirectionValue.Forward;
 
   public Lights(LightsIO io) {
     this.io = io;
@@ -56,18 +59,11 @@ public class Lights extends SubsystemBase {
    * @param segment LED segment to clear animation
    */
   public void clearAnimation(Segment segment) {
-    // io.clearAnimation(segment);
-  }
+    io.setControl(new EmptyAnimation(segment.animationSlot));
 
-  /**
-   * Apply animation
-   *
-   * @param animation The animation that CANdle will run. If this is null, it will clear the
-   *     animation at the specified slot
-   * @param segment LED segment to use animation slot
-   */
-  private void setAnimation(Animation animation, Segment segment) {
-    // io.setAnimation(animation, segment);
+    for (int i = 0; i < segment.overlappingAnimationSlots.length; i++) {
+      io.setControl(new EmptyAnimation(segment.overlappingAnimationSlots[i]));
+    }
   }
 
   /**
@@ -76,7 +72,7 @@ public class Lights extends SubsystemBase {
    * @param segment LED segment to turn off
    */
   public void disableLEDs(Segment segment) {
-    setColor(LEDColor.BLACK, segment);
+    setSolidColor(LEDColor.BLACK, segment);
   }
 
   /**
@@ -85,8 +81,9 @@ public class Lights extends SubsystemBase {
    * @param color Color of the LED
    * @param segment LED segment to apply color change
    */
-  public void setColor(Color color, Segment segment) {
-    io.setColor(color, segment);
+  public void setSolidColor(RGBWColor color, Segment segment) {
+    clearAnimation(segment);
+    io.setControl(new SolidColor(segment.startIndex, segment.endIndex).withColor(color));
   }
 
   /**
@@ -97,8 +94,8 @@ public class Lights extends SubsystemBase {
    * @param color Color of the LED
    * @param segment LED segment to apply animation
    */
-  public void setFlowAnimation(Color color, Segment segment) {
-    setFlowAnimation(color, segment, defaultAnimationSpeed, Direction.Forward);
+  public void setFlowAnimation(RGBWColor color, Segment segment) {
+    setFlowAnimation(color, segment, defaultAnimationSpeed, defaultAnimationDirection);
   }
 
   /**
@@ -109,18 +106,15 @@ public class Lights extends SubsystemBase {
    * @param speed How fast should the color travel the strip [0, 1]
    * @param direction What direction should the color move in
    */
-  public void setFlowAnimation(Color color, Segment segment, double speed, Direction direction) {
-    setAnimation(
-        new ColorFlowAnimation(
-            color.red,
-            color.green,
-            color.blue,
-            color.white,
-            speed,
-            segment.segmentSize,
-            direction,
-            segment.startIndex),
-        segment);
+  public void setFlowAnimation(
+      RGBWColor color, Segment segment, double speed, AnimationDirectionValue direction) {
+    clearAnimation(segment);
+    io.setControl(
+        new ColorFlowAnimation(segment.startIndex, segment.endIndex)
+            .withColor(color)
+            .withDirection(direction)
+            .withFrameRate(speed)
+            .withSlot(segment.animationSlot));
   }
 
   /**
@@ -131,8 +125,8 @@ public class Lights extends SubsystemBase {
    * @param color Color of the LED
    * @param segment LED segment to apply animation
    */
-  public void setFadeAnimation(Color color, Segment segment) {
-    setFadeAnimation(color, segment, defaultAnimationSpeed);
+  public void setSingleFadeAnimation(RGBWColor color, Segment segment) {
+    setSingleFadeAnimation(color, segment, defaultAnimationSpeed);
   }
 
   /**
@@ -142,17 +136,13 @@ public class Lights extends SubsystemBase {
    * @param segment LED segment to apply animation
    * @param speed How fast should the color travel the strip [0, 1]
    */
-  public void setFadeAnimation(Color color, Segment segment, double speed) {
-    setAnimation(
-        new SingleFadeAnimation(
-            color.red,
-            color.green,
-            color.blue,
-            color.white,
-            speed,
-            segment.segmentSize,
-            segment.startIndex),
-        segment);
+  public void setSingleFadeAnimation(RGBWColor color, Segment segment, double speed) {
+    clearAnimation(segment);
+    io.setControl(
+        new SingleFadeAnimation(segment.startIndex, segment.endIndex)
+            .withColor(color)
+            .withFrameRate(speed)
+            .withSlot(segment.animationSlot));
   }
 
   /**
@@ -163,8 +153,8 @@ public class Lights extends SubsystemBase {
    * @param color Color of the LED
    * @param segment LED segment to apply animation
    */
-  public void setBandAnimation(Color color, Segment segment) {
-    setBandAnimation(color, segment, defaultAnimationSpeed, BounceMode.Front, 1);
+  public void setBandAnimation(RGBWColor color, Segment segment) {
+    setBandAnimation(color, segment, defaultAnimationSpeed, LarsonBounceValue.Front, 4);
   }
 
   /**
@@ -174,22 +164,18 @@ public class Lights extends SubsystemBase {
    * @param segment LED segment to apply animation
    * @param speed How fast should the color travel the strip [0, 1]
    * @param mode How the pocket of LEDs will behave once it reaches the end of the strip
-   * @param size How large the pocket of LEDs are [0, 7]
+   * @param size How large the pocket of LEDs are [0, 15]
    */
   public void setBandAnimation(
-      Color color, Segment segment, double speed, BounceMode mode, int size) {
-    setAnimation(
-        new LarsonAnimation(
-            color.red,
-            color.green,
-            color.blue,
-            color.white,
-            speed,
-            segment.segmentSize,
-            mode,
-            size,
-            segment.startIndex),
-        segment);
+      RGBWColor color, Segment segment, double speed, LarsonBounceValue bounceMode, int size) {
+    clearAnimation(segment);
+    io.setControl(
+        new LarsonAnimation(segment.startIndex, segment.endIndex)
+            .withBounceMode(bounceMode)
+            .withColor(color)
+            .withFrameRate(speed)
+            .withSize(size)
+            .withSlot(segment.animationSlot));
   }
 
   /**
@@ -200,7 +186,7 @@ public class Lights extends SubsystemBase {
    * @param color Color of the LED
    * @param segment LED segment to apply animation
    */
-  public void setStrobeAnimation(Color color, Segment segment) {
+  public void setStrobeAnimation(RGBWColor color, Segment segment) {
     setStrobeAnimation(color, segment, defaultAnimationSpeed);
   }
 
@@ -211,17 +197,13 @@ public class Lights extends SubsystemBase {
    * @param segment LED segment to apply animation
    * @param speed How fast should the color travel the strip [0, 1]
    */
-  public void setStrobeAnimation(Color color, Segment segment, double speed) {
-    setAnimation(
-        new StrobeAnimation(
-            color.red,
-            color.green,
-            color.blue,
-            color.white,
-            speed,
-            segment.segmentSize,
-            segment.startIndex),
-        segment);
+  public void setStrobeAnimation(RGBWColor color, Segment segment, double speed) {
+    clearAnimation(segment);
+    io.setControl(
+        new StrobeAnimation(segment.startIndex, segment.startIndex)
+            .withColor(color)
+            .withFrameRate(speed)
+            .withSlot(segment.animationSlot));
   }
 
   /**
@@ -233,7 +215,7 @@ public class Lights extends SubsystemBase {
    * @param segment LED segment to apply animation
    */
   public void setRainbowAnimation(Segment segment) {
-    setRainbowAnimation(segment, defaultAnimationSpeed, false);
+    setRainbowAnimation(segment, defaultAnimationSpeed, defaultAnimationDirection);
   }
 
   /**
@@ -245,68 +227,46 @@ public class Lights extends SubsystemBase {
    * @param reverseDirection True to reverse the animation direction, so instead of going "toward"
    *     the CANdle, it will go "away" from the CANdle.
    */
-  public void setRainbowAnimation(Segment segment, double speed, boolean reverseDirection) {
-    setAnimation(
-        new RainbowAnimation(1, speed, segment.segmentSize, reverseDirection, segment.startIndex),
-        segment);
+  public void setRainbowAnimation(
+      Segment segment, double speed, AnimationDirectionValue direction) {
+    clearAnimation(segment);
+    io.setControl(
+        new RainbowAnimation(segment.startIndex, segment.endIndex)
+            .withDirection(direction)
+            .withFrameRate(speed)
+            .withSlot(segment.animationSlot));
   }
 
   public static class Segment {
     public int startIndex;
-    public int segmentSize;
+    public int endIndex;
     public int animationSlot;
+    public int[] overlappingAnimationSlots = {};
 
     /**
      * LED segment
      *
      * @param startIndex Where to start the LED segment
-     * @param segmentSize Number of LEds in the segment
+     * @param endSize Where to end the LED segment (inclusive)
      * @param animationSlot The animation slot to use for the animation, range is [0,
      *     getMaxSimultaneousAnimationCount()] exclusive
      */
-    public Segment(int startIndex, int segmentSize, int animationSlot) {
+    public Segment(int startIndex, int endIndex, int animationSlot) {
       this.startIndex = startIndex;
-      this.segmentSize = segmentSize;
+      this.endIndex = endIndex;
       this.animationSlot = animationSlot;
     }
-  }
-
-  public static class Color {
-    public int red;
-    public int green;
-    public int blue;
-    public int white;
 
     /**
-     * LED color
+     * Overlapping animation slots to clear with segment
      *
-     * @param red The amount of Red to set, range is [0, 255]
-     * @param green The amount of Green to set, range is [0, 255]
-     * @param blue The amount of Blue to set, range is [0, 255]
-     * @param white The amount of White to set, range is [0, 255]. This only applies for LED strips
-     *     with white in them
+     * @param overlappingAnimationSlots Animation slots of segments which contain overlapping LEDs
+     *     with the current segment. Clears animations of overlapping to avoid multiple animations
+     *     playing simultaneously.
      */
-    public Color(int red, int green, int blue, int white) {
-      this.red = red;
-      this.green = green;
-      this.blue = blue;
-      this.white = white;
-    }
-
-    /**
-     * Highly imperfect way of dimming the LEDs. It does not maintain color or accurately adjust
-     * perceived brightness.
-     *
-     * @param dimFactor
-     * @return The dimmed color
-     */
-    public Color dim(double dimFactor) {
-      int newRed = (int) (MathUtil.clamp(red * dimFactor, 0, 255));
-      int newGreen = (int) (MathUtil.clamp(green * dimFactor, 0, 255));
-      int newBlue = (int) (MathUtil.clamp(blue * dimFactor, 0, 255));
-      int newWhite = (int) (MathUtil.clamp(white * dimFactor, 0, 255));
-
-      return new Color(newRed, newGreen, newBlue, newWhite);
+    public Segment withOverlappingAnimationSlots(int... overlappingAnimationSlots) {
+      this.overlappingAnimationSlots = overlappingAnimationSlots;
+      return this;
     }
   }
 }
