@@ -281,18 +281,25 @@ public final class Constants {
 
   public static final class LEDSegment {
     // standard segments
-    public static final Segment LEFT_SIDE = new Segment(8, 37, 1);
-    public static final Segment MIDDLE = new Segment(45, 18, 2);
-    public static final Segment RIGHT_SIDE = new Segment(63, 36, 3);
-    public static final Segment ALL = new Segment(8, 92, 4);
+    public static final Segment LEFT_SIDE = new Segment(8, 37, 1).withOverlappingAnimationSlots(4);
+    public static final Segment MIDDLE = new Segment(45, 18, 2).withOverlappingAnimationSlots(4);
+    public static final Segment RIGHT_SIDE =
+        new Segment(63, 36, 3).withOverlappingAnimationSlots(4);
+    public static final Segment ALL = new Segment(8, 92, 4).withOverlappingAnimationSlots(1, 2, 3);
 
     // auton setup
-    public static final Segment AUTON_Y_LEFT = new Segment(45, 4, 0);
-    public static final Segment AUTON_R_LEFT = new Segment(49, 3, 0);
-    public static final Segment AUTON_X_LEFT = new Segment(52, 2, 0);
-    public static final Segment AUTON_X_RIGHT = new Segment(54, 2, 0);
-    public static final Segment AUTON_R_RIGHT = new Segment(56, 3, 0);
-    public static final Segment AUTON_Y_RIGHT = new Segment(59, 4, 0);
+    public static final Segment AUTON_Y_LEFT =
+        new Segment(45, 4, 0).withOverlappingAnimationSlots(2, 4);
+    public static final Segment AUTON_R_LEFT =
+        new Segment(49, 3, 0).withOverlappingAnimationSlots(2, 4);
+    public static final Segment AUTON_X_LEFT =
+        new Segment(52, 2, 0).withOverlappingAnimationSlots(2, 4);
+    public static final Segment AUTON_X_RIGHT =
+        new Segment(54, 2, 0).withOverlappingAnimationSlots(2, 4);
+    public static final Segment AUTON_R_RIGHT =
+        new Segment(56, 3, 0).withOverlappingAnimationSlots(2, 4);
+    public static final Segment AUTON_Y_RIGHT =
+        new Segment(59, 4, 0).withOverlappingAnimationSlots(2, 4);
   }
 
   public static final class LEDColor {
@@ -305,10 +312,6 @@ public final class Constants {
     public static final RGBWColor WHITE = new RGBWColor(255, 230, 220);
     public static final RGBWColor GREEN = new RGBWColor(56, 209, 0);
     public static final RGBWColor RED = new RGBWColor(255, 0, 0);
-
-    // game piece colors
-    public static final RGBWColor YELLOW = new RGBWColor(242, 60, 0);
-    public static final RGBWColor PURPLE = new RGBWColor(184, 0, 185);
   }
 
   // Aim constants

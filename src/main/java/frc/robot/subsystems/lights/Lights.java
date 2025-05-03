@@ -1,6 +1,7 @@
 package frc.robot.subsystems.lights;
 
 import com.ctre.phoenix6.controls.ColorFlowAnimation;
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.EmptyAnimation;
 import com.ctre.phoenix6.controls.LarsonAnimation;
 import com.ctre.phoenix6.controls.RainbowAnimation;
@@ -13,35 +14,32 @@ import com.ctre.phoenix6.signals.RGBWColor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LEDColor;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class Lights extends SubsystemBase {
   private final LightsIO io;
   protected final LightsIOInputsAutoLogged inputs = new LightsIOInputsAutoLogged();
-  private final Alert disconnected;
 
-  private static double defaultAnimationSpeed = 4;
-  private static AnimationDirectionValue defaultAnimationDirection =
-      AnimationDirectionValue.Forward;
+  // Alerts
+  private final Alert disconnectedAlert =
+      new Alert("CANdle disconnected!", Alert.AlertType.kWarning);
+  private final Alert tempAlert = new Alert("CANdle over temp.", Alert.AlertType.kWarning);
+
+  // Default values
+  @Getter private static final double onboardLEDBrightness = 0.5;
+  private final double defaultAnimationSpeed = 4;
+  private final AnimationDirectionValue defaultAnimationDirection = AnimationDirectionValue.Forward;
 
   public Lights(LightsIO io) {
     this.io = io;
-    disconnected = new Alert(" CANdle disconnected!", Alert.AlertType.kWarning);
   }
 
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("CANdle", inputs);
-    disconnected.set(!inputs.connected);
-  }
-
-  /**
-   * Set default animation speed. Used for all animations if speed is not specified
-   *
-   * @param speed How fast should the color travel the strip [0, 1]
-   */
-  public void setDefaultAnimationSpeed(double speed) {
-    defaultAnimationSpeed = speed;
+    disconnectedAlert.set(!inputs.connected);
+    tempAlert.set(inputs.tempCelsius > 50);
   }
 
   /**
@@ -54,7 +52,7 @@ public class Lights extends SubsystemBase {
   }
 
   /**
-   * Clear animation of a segment
+   * Clear animation of a segment and all overlapping animation slots
    *
    * @param segment LED segment to clear animation
    */
@@ -235,6 +233,15 @@ public class Lights extends SubsystemBase {
             .withDirection(direction)
             .withFrameRate(speed)
             .withSlot(segment.animationSlot));
+  }
+
+  /**
+   * Control LEDs with generic control request object
+   *
+   * @param request Abstract Control Request class that other control requests extend for use
+   */
+  public void setControlRequest(ControlRequest request) {
+    io.setControl(request);
   }
 
   public static class Segment {

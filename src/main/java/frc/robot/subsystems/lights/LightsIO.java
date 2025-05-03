@@ -21,18 +21,9 @@ public interface LightsIO {
   default void setBrightness(double percent) {}
 
   /**
-   * Clear animation of a segment
+   * Control LEDs with generic control request object
    *
-   * @param segment LED segment to clear animation
-   */
-  default void clearAnimation(int animationSlot) {}
-
-  /**
-   * Apply animation
-   *
-   * @param animation The animation that CANdle will run. If this is null, it will clear the
-   *     animation at the specified slot
-   * @param segment LED segment to use animation slot
+   * @param request Abstract Control Request class that other control requests extend for use
    */
   default void setControl(ControlRequest request) {}
 }

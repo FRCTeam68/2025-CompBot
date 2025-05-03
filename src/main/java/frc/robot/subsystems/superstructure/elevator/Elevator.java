@@ -55,9 +55,9 @@ public class Elevator extends SubsystemBase {
             .withMotionMagicAcceleration(mmA.get())
             .withMotionMagicJerk(mmJ.get()));
 
-    disconnected = new Alert("Lead elevator motor disconnected!", Alert.AlertType.kWarning);
+    disconnected = new Alert("Lead elevator motor disconnected!", Alert.AlertType.kError);
     followerDisconnected =
-        new Alert("Follower elevator motor disconnected!", Alert.AlertType.kWarning);
+        new Alert("Follower elevator motor disconnected!", Alert.AlertType.kError);
   }
 
   public void periodic() {
