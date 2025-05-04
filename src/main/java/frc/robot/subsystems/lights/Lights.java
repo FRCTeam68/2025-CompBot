@@ -264,16 +264,18 @@ public class Lights extends SubsystemBase {
       this.animationSlot = animationSlot;
     }
 
-    /**
-     * Overlapping animation slots to clear with segment
-     *
-     * @param overlappingAnimationSlots Animation slots of segments which contain overlapping LEDs
-     *     with the current segment. Clears animations of overlapping to avoid multiple animations
-     *     playing simultaneously.
-     */
-    public Segment withOverlappingAnimationSlots(int... overlappingAnimationSlots) {
-      this.overlappingAnimationSlots = overlappingAnimationSlots;
-      return this;
-    }
+    // /**
+    //  * Overlapping animation slots to clear with segment
+    //  *
+    //  * @param overlappingAnimationSlots Animation slots of segments which contain overlapping
+    // LEDs
+    //  *     with the current segment. Clears animations of overlapping to avoid multiple
+    // animations
+    //  *     playing simultaneously.
+    //  */
+    // public Segment withOverlappingAnimationSlots(int... overlappingAnimationSlots) {
+    //   this.overlappingAnimationSlots = overlappingAnimationSlots;
+    //   return this;
+    // }
   }
 }
