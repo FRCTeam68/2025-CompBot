@@ -734,52 +734,52 @@ public class RobotContainer {
     } else {
       // all auton ready but position
       if (robotStateOK) {
-        LED.setColor(LEDColor.GREEN, LEDSegment.LEFT_SIDE);
-        LED.setColor(LEDColor.GREEN, LEDSegment.RIGHT_SIDE);
+        LED.setSolidColor(LEDColor.GREEN, LEDSegment.LEFT_SIDE);
+        LED.setSolidColor(LEDColor.GREEN, LEDSegment.RIGHT_SIDE);
       } else {
-        LED.setColor(LEDColor.RED, LEDSegment.LEFT_SIDE);
-        LED.setColor(LEDColor.RED, LEDSegment.RIGHT_SIDE);
+        LED.setSolidColor(LEDColor.RED, LEDSegment.LEFT_SIDE);
+        LED.setSolidColor(LEDColor.RED, LEDSegment.RIGHT_SIDE);
       }
 
       // X offset LEDs
       if (offsetXOK) {
-        LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
-        LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
+        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
+        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
       } else {
         if (offsetX < 0) {
-          LED.setColor(LEDColor.RED, LEDSegment.AUTON_X_LEFT);
-          LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
+          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_X_LEFT);
+          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
         } else {
-          LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
-          LED.setColor(LEDColor.RED, LEDSegment.AUTON_X_RIGHT);
+          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
+          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_X_RIGHT);
         }
       }
 
       // Y offset LEDs
       if (offsetYOK) {
-        LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
-        LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
+        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
+        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
       } else {
         if (offsetY < 0) {
-          LED.setColor(LEDColor.RED, LEDSegment.AUTON_Y_LEFT);
-          LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
+          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_Y_LEFT);
+          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
         } else {
-          LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
-          LED.setColor(LEDColor.RED, LEDSegment.AUTON_Y_RIGHT);
+          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
+          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_Y_RIGHT);
         }
       }
 
       // rotation offset LEDs
       if (offsetROK) {
-        LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
-        LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
+        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
+        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
       } else {
         if (offsetR < 0) {
-          LED.setColor(LEDColor.RED, LEDSegment.AUTON_R_LEFT);
-          LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
+          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_R_LEFT);
+          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
         } else {
-          LED.setColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
-          LED.setColor(LEDColor.RED, LEDSegment.AUTON_R_RIGHT);
+          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
+          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_R_RIGHT);
         }
       }
     }

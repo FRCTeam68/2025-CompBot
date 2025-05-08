@@ -1,15 +1,14 @@
 package frc.robot.subsystems.lights;
 
-import com.ctre.phoenix.led.Animation;
-import frc.robot.subsystems.lights.Lights.Color;
-import frc.robot.subsystems.lights.Lights.Segment;
+import com.ctre.phoenix6.controls.ControlRequest;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface LightsIO {
   @AutoLog
   static class LightsIOInputs {
     public boolean connected = false;
-    public double current = 0.0;
+    public double outputCurrent = 0.0;
+    public double tempCelsius = 0.0;
   }
 
   default void updateInputs(LightsIOInputs inputs) {}
@@ -22,26 +21,9 @@ public interface LightsIO {
   default void setBrightness(double percent) {}
 
   /**
-   * Clear animation of a segment
+   * Control LEDs with generic control request object
    *
-   * @param segment LED segment to clear animation
+   * @param request Abstract Control Request class that other control requests extend for use
    */
-  default void clearAnimation(Segment segment) {}
-
-  /**
-   * Apply animation
-   *
-   * @param animation The animation that CANdle will run. If this is null, it will clear the
-   *     animation at the specified slot
-   * @param segment LED segment to use animation slot
-   */
-  default void setAnimation(Animation animation, Segment segment) {}
-
-  /**
-   * Set static color for LED segment
-   *
-   * @param color Color of the LED
-   * @param segment LED segment to apply color change
-   */
-  default void setColor(Color color, Segment segment) {}
+  default void setControl(ControlRequest request) {}
 }

@@ -7,12 +7,12 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.hardware.CANrange;
+import com.ctre.phoenix6.signals.RGBWColor;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LEDColor;
 import frc.robot.subsystems.lights.Lights;
-import frc.robot.subsystems.lights.Lights.Color;
 import frc.robot.subsystems.lights.Lights.Segment;
 import org.littletonrobotics.junction.Logger;
 
@@ -26,7 +26,7 @@ public class RangeSensorSubsystem extends SubsystemBase {
   private boolean isConnected = false;
   private boolean isDetected = false;
   private double distance_mm = 0;
-  private Color indicatorColor = LEDColor.RED;
+  private RGBWColor indicatorColor = LEDColor.RED;
 
   private final StatusSignal<Distance> distanceSignal;
   private final StatusSignal<Boolean> detectedSignal;
@@ -100,7 +100,7 @@ public class RangeSensorSubsystem extends SubsystemBase {
     Logger.recordOutput(folderName + name + "/distance_mm", distance_mm);
 
     // set indicator
-    LED.setColor(indicatorColor, indicator);
+    LED.setSolidColor(indicatorColor, indicator);
   }
 
   /**

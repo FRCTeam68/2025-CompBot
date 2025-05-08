@@ -1,12 +1,22 @@
 package frc.robot.subsystems.lights;
 
-import com.ctre.phoenix.led.Animation;
-import com.ctre.phoenix.led.CANdle;
-import com.ctre.phoenix.led.CANdle.LEDStripType;
-import com.ctre.phoenix.led.CANdle.VBatOutputMode;
-import com.ctre.phoenix.led.CANdleConfiguration;
-import frc.robot.subsystems.lights.Lights.Color;
-import frc.robot.subsystems.lights.Lights.Segment;
+import static frc.robot.util.PhoenixUtil.tryUntilOk;
+
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANdleConfiguration;
+import com.ctre.phoenix6.controls.ControlRequest;
+import com.ctre.phoenix6.controls.EmptyAnimation;
+import com.ctre.phoenix6.hardware.CANdle;
+import com.ctre.phoenix6.hardware.ParentDevice;
+import com.ctre.phoenix6.signals.Enable5VRailValue;
+import com.ctre.phoenix6.signals.LossOfSignalBehaviorValue;
+import com.ctre.phoenix6.signals.StatusLedWhenActiveValue;
+import com.ctre.phoenix6.signals.StripTypeValue;
+import com.ctre.phoenix6.signals.VBatOutputModeValue;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
 
 public class LightsIOCANdle implements LightsIO {
   // Hardware
@@ -15,46 +25,53 @@ public class LightsIOCANdle implements LightsIO {
   // Config
   private final CANdleConfiguration config = new CANdleConfiguration();
 
+  // Status signals
+  private final StatusSignal<Current> outputCurrent;
+  private final StatusSignal<Temperature> tempCelsius;
+
+  private final Debouncer connectedDebouncer = new Debouncer(0.5);
+
   public LightsIOCANdle() {
-    config.brightnessScalar = 1;
-    config.disableWhenLOS = false;
-    config.statusLedOffWhenActive = false;
-    config.stripType = LEDStripType.GRB;
-    config.v5Enabled = true; // 5 volt output
-    config.vBatOutputMode = VBatOutputMode.Off; // 12 volt output
-    candle.configAllSettings(config, 100);
+    // Configure hardware
+    config.CANdleFeatures.Enable5VRail = Enable5VRailValue.Enabled;
+    config.CANdleFeatures.VBatOutputMode = VBatOutputModeValue.Off;
+    config.CANdleFeatures.StatusLedWhenActive = StatusLedWhenActiveValue.Enabled;
+    config.LED.BrightnessScalar = 1;
+    config.LED.LossOfSignalBehavior = LossOfSignalBehaviorValue.DisableLEDs;
+    config.LED.StripType = StripTypeValue.GRB;
+    tryUntilOk(5, () -> candle.getConfigurator().apply(config, 0.25));
+
+    // Configure status signals
+    outputCurrent = candle.getOutputCurrent();
+    tempCelsius = candle.getDeviceTemp();
+
+    tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(10.0, outputCurrent));
+    tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(4, tempCelsius));
+    tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(candle));
 
     // clear animation slots
-    for (int i = 0; i < candle.getMaxSimultaneousAnimationCount(); i++) {
-      candle.clearAnimation(i);
+    for (int i = 0; i < candle.getMaxSimultaneousAnimationCount().getValue(); i++) {
+      setControl(new EmptyAnimation(i));
     }
   }
 
   @Override
   public void updateInputs(LightsIOInputs inputs) {
-    inputs.connected = candle.getBusVoltage() != 0.0;
-    inputs.current = candle.getCurrent();
+    inputs.connected =
+        connectedDebouncer.calculate(
+            BaseStatusSignal.refreshAll(outputCurrent, tempCelsius).isOK());
+    inputs.outputCurrent = outputCurrent.getValueAsDouble();
+    inputs.tempCelsius = tempCelsius.getValueAsDouble();
   }
 
   @Override
   public void setBrightness(double percent) {
-    candle.configBrightnessScalar(percent, 100);
+    config.LED.BrightnessScalar = percent;
+    tryUntilOk(5, () -> candle.getConfigurator().apply(config, 0.25));
   }
 
   @Override
-  public void clearAnimation(Segment segment) {
-    candle.clearAnimation(segment.animationSlot);
-  }
-
-  @Override
-  public void setAnimation(Animation animation, Segment segment) {
-    candle.animate(animation, segment.animationSlot);
-  }
-
-  @Override
-  public void setColor(Color color, Segment segment) {
-    clearAnimation(segment);
-    candle.setLEDs(
-        color.red, color.green, color.blue, color.white, segment.startIndex, segment.segmentSize);
+  public void setControl(ControlRequest request) {
+    candle.setControl(request);
   }
 }

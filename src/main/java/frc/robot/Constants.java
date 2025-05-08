@@ -21,6 +21,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.ProximityParamsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.ToFParamsConfigs;
+import com.ctre.phoenix6.signals.RGBWColor;
 import com.ctre.phoenix6.signals.UpdateModeValue;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -28,7 +29,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.subsystems.RangeSensorSubsystem.CANrangeConstants;
-import frc.robot.subsystems.lights.Lights.Color;
 import frc.robot.subsystems.lights.Lights.Segment;
 import java.util.ArrayList;
 import java.util.List;
@@ -157,7 +157,7 @@ public final class Constants {
             "Coral Sensor",
             37,
             "rio",
-            new Segment(2, 1, 0),
+            new Segment(2, 2, 0),
             new CANrangeConfiguration()
                 .withFovParams(
                     new FovParamsConfigs()
@@ -239,7 +239,7 @@ public final class Constants {
             "Reef Post Sensor",
             47,
             "rio",
-            new Segment(3, 1, 0),
+            new Segment(3, 4, 0),
             new CANrangeConfiguration()
                 .withFovParams(
                     new FovParamsConfigs()
@@ -297,18 +297,14 @@ public final class Constants {
 
   public static final class LEDColor {
     // team colors
-    public static final Color ORANGE = new Color(255, 25, 0, 0);
-    public static final Color BLACK = new Color(0, 0, 0, 0);
+    public static final RGBWColor ORANGE = new RGBWColor(255, 142, 36);
+    public static final RGBWColor BLUE = new RGBWColor(0, 0, 255);
 
     // indicator colors
-    public static final Color WHITE = new Color(255, 230, 220, 0);
-    public static final Color GREEN = new Color(56, 209, 0, 0);
-    public static final Color BLUE = new Color(0, 0, 255, 0);
-    public static final Color RED = new Color(255, 0, 0, 0);
-
-    // game piece colors
-    public static final Color YELLOW = new Color(242, 60, 0, 0);
-    public static final Color PURPLE = new Color(184, 0, 185, 0);
+    public static final RGBWColor BLACK = new RGBWColor(0, 0, 0);
+    public static final RGBWColor WHITE = new RGBWColor(255, 230, 220);
+    public static final RGBWColor GREEN = new RGBWColor(56, 209, 0);
+    public static final RGBWColor RED = new RGBWColor(255, 0, 0);
   }
 
   // Aim constants

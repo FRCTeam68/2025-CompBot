@@ -32,8 +32,9 @@ public class ElevatorIOSim implements ElevatorIO {
       setVolts(controller.calculate(sim.getAngularPositionRotations()));
     }
 
-    inputs.connected = true;
     sim.update(Constants.loopPeriodSecs);
+    inputs.connected = true;
+    inputs.followerConnected = true;
     inputs.position = sim.getAngularPositionRotations();
     inputs.velocityRotsPerSec = sim.getAngularVelocityRPM() * 60;
     inputs.appliedVoltage = appliedVoltage;

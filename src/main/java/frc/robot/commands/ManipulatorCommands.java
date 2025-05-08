@@ -62,7 +62,7 @@ public class ManipulatorCommands {
           Command ledIntaking =
               Commands.runOnce(() -> LED.setBandAnimation(LEDColor.BLUE, LEDSegment.ALL));
           Command ledHaveObject =
-              Commands.runOnce(() -> LED.setColor(LEDColor.BLUE, LEDSegment.ALL));
+              Commands.runOnce(() -> LED.setSolidColor(LEDColor.BLUE, LEDSegment.ALL));
           Command haveObjectFlag =
               Commands.parallel(
                   Commands.runOnce(() -> havePiece = true),
@@ -158,7 +158,7 @@ public class ManipulatorCommands {
                   Commands.runOnce(() -> havePiece = false),
                   Commands.runOnce(() -> indexing = false),
                   Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(false)),
-                  Commands.runOnce(() -> LED.setColor(LEDColor.GREEN, LEDSegment.ALL)));
+                  Commands.runOnce(() -> LED.setSolidColor(LEDColor.GREEN, LEDSegment.ALL)));
           Command afterShot =
               Commands.parallel(
                   Commands.runOnce(() -> LED.disableLEDs(LEDSegment.ALL)),
@@ -329,17 +329,17 @@ public class ManipulatorCommands {
 
   public static Command DeployClimberCmd(RollerSystem myClimber, Lights LED) {
     return Commands.sequence(
-        Commands.runOnce(() -> LED.setFadeAnimation(LEDColor.RED, LEDSegment.ALL)),
+        Commands.runOnce(() -> LED.setSingleFadeAnimation(LEDColor.RED, LEDSegment.ALL)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "deploying")),
         Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.DEPLOY), myClimber),
         Commands.waitUntil(() -> myClimber.atPosition()),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "deployed")),
-        Commands.runOnce(() -> LED.setColor(LEDColor.RED, LEDSegment.ALL)));
+        Commands.runOnce(() -> LED.setSolidColor(LEDColor.RED, LEDSegment.ALL)));
   }
 
   public static Command RetractClimberCmd(RollerSystem myClimber, Lights LED) {
     return Commands.sequence(
-        Commands.runOnce(() -> LED.setFadeAnimation(LEDColor.GREEN, LEDSegment.ALL)),
+        Commands.runOnce(() -> LED.setSingleFadeAnimation(LEDColor.GREEN, LEDSegment.ALL)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "climbing")),
         Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.RETRACT), myClimber),
         Commands.waitUntil(() -> myClimber.atPosition()),
@@ -349,7 +349,7 @@ public class ManipulatorCommands {
 
   public static Command climberToZeroCmd(RollerSystem myClimber, Lights LED) {
     return Commands.sequence(
-        Commands.runOnce(() -> LED.setFadeAnimation(LEDColor.RED, LEDSegment.ALL)),
+        Commands.runOnce(() -> LED.setSingleFadeAnimation(LEDColor.RED, LEDSegment.ALL)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "to zero")),
         Commands.runOnce(() -> myClimber.setPosition(0), myClimber),
         Commands.waitUntil(() -> myClimber.atPosition()),

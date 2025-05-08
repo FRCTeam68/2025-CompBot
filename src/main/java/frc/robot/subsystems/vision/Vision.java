@@ -42,7 +42,7 @@ public class Vision extends SubsystemBase {
   private final Alert[] disconnectedAlert;
   private boolean anyConnected;
   private final Alert allDisconnectedAlert =
-      new Alert("All vision cameras disconnected.", AlertType.kWarning);
+      new Alert("All vision cameras disconnected.", AlertType.kError);
   private Double[] rotationSamples = new Double[10]; // Amount of rotation samples to use
   private final double maxRotationError = 3; // Acceptable error in degrees
   private int megaTag1Counter;
@@ -58,14 +58,11 @@ public class Vision extends SubsystemBase {
     megaTag1Counter = 0;
 
     // Initialize inputs
+    // and disconnected alerts
     this.inputs = new VisionIOInputsAutoLogged[io.length];
-    for (int i = 0; i < inputs.length; i++) {
-      inputs[i] = new VisionIOInputsAutoLogged();
-    }
-
-    // Initialize disconnected alerts
     this.disconnectedAlert = new Alert[io.length];
     for (int i = 0; i < inputs.length; i++) {
+      inputs[i] = new VisionIOInputsAutoLogged();
       disconnectedAlert[i] = new Alert(inputs[i].name + " is disconnected.", AlertType.kWarning);
     }
 
@@ -103,12 +100,12 @@ public class Vision extends SubsystemBase {
     for (int sampleIndex = 0; sampleIndex < rotationSamples.length; sampleIndex++) {
       rotationSamples[sampleIndex] = null;
     }
-    // FIXME does this work?
+    // TODO does this work?
     // rotationSamples = null;
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
       inputs[cameraIndex].skipMegaTag1 = false;
     }
-    LED.setColor(LEDColor.GREEN, rotationInitalizedIndicator);
+    LED.setSolidColor(LEDColor.GREEN, rotationInitalizedIndicator);
     rotationNotInitalizedAlert.set(true);
   }
 
@@ -116,7 +113,7 @@ public class Vision extends SubsystemBase {
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
       inputs[cameraIndex].skipMegaTag1 = true;
     }
-    LED.setColor(LEDColor.GREEN, rotationInitalizedIndicator);
+    LED.setSolidColor(LEDColor.GREEN, rotationInitalizedIndicator);
     rotationNotInitalizedAlert.set(false);
   }
 
