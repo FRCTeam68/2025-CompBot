@@ -59,14 +59,14 @@ public class ManipulatorCommands {
         () -> {
           // initialization
           Command command;
-          Command ledIntaking =
+          Command initialize =
               Commands.runOnce(() -> LED.setBandAnimation(LEDColor.BLUE, LEDSegment.ALL));
           Command ledHaveObject =
               Commands.runOnce(() -> LED.setSolidColor(LEDColor.BLUE, LEDSegment.ALL));
-          Command haveObjectFlag =
+          Command finalize =
               Commands.parallel(
                   Commands.runOnce(() -> indexing = false),
-                  Commands.runOnce(() -> safeToMove = true),
+                  // Commands.runOnce(() -> safeToMove = true),
                   Commands.runOnce(() -> havePiece = true));
           command = Commands.none();
           if (Constants.currentMode != Mode.SIM) {
@@ -140,7 +140,7 @@ public class ManipulatorCommands {
           // execute sequence
           return initialize.andThen(command).andThen(finalize);
         },
-        Set.of(intake, intakeLow));
+        Set.of(myIntake, myIntakeLow));
   }
 
   public static Command shootCmd(
@@ -200,21 +200,6 @@ public class ManipulatorCommands {
                             Logger.recordOutput("Manipulator/IntakeShooterState", "ShootCoralL1")),
                     myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_L1_SHOOT_SPEED),
                     Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_L1_SHOOT_TIMEOUT));
-
-            ///// SHOOT CORAL L1 PIVOT /////
-            // command =
-            //     Commands.sequence(
-            //         Commands.parALLel(
-            //             Commands.runOnce(
-            //                 () ->
-            //                     Logger.recordOutput("Manipulator/IntakeShooterState",
-            // "ShootCoralL1")),
-            //             myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_SHOOT_SPEED),
-            //             myElevatorWrist.setPositionCmdNew(Constants.ELEVATOR.L1_FINAL,
-            // Constants.WRIST.L1)),
-            //         Commands.waitSeconds(Constants.INTAKE_SHOOTER.CORAL_L1_SHOOT_TIMEOUT),
-            //         myIntake.setSpeedCmd(0),
-            //         myIntakeLow.setSpeedCmd(0));
           } else {
             ///// SHOOT CORAL L2 - L4 /////
             command =
@@ -227,7 +212,7 @@ public class ManipulatorCommands {
           // execute sequence
           return ledShooting.andThen(command).andThen(afterShot);
         },
-        Set.of(intake, intakeLow));
+        Set.of(myIntake, myIntakeLow));
   }
 
   public static Command CoralL4Cmd(ElevatorWristSubsystem myElevatorWrist) {
@@ -332,8 +317,8 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.runOnce(() -> LED.setSingleFadeAnimation(LEDColor.RED, LEDSegment.ALL)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "deploying")),
-        Commands.runOnce(() -> climber.setPosition(Constants.CLIMBER.DEPLOY), climber),
-        Commands.waitUntil(() -> climber.atPosition()),
+        Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.DEPLOY), myClimber),
+        Commands.waitUntil(() -> myClimber.atPosition()),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "deployed")),
         Commands.runOnce(() -> LED.setSolidColor(LEDColor.RED, LEDSegment.ALL)));
   }
@@ -342,8 +327,8 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.runOnce(() -> LED.setSingleFadeAnimation(LEDColor.GREEN, LEDSegment.ALL)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "climbing")),
-        Commands.runOnce(() -> climber.setPosition(Constants.CLIMBER.RETRACT), climber),
-        Commands.waitUntil(() -> climber.atPosition()),
+        Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.RETRACT), myClimber),
+        Commands.waitUntil(() -> myClimber.atPosition()),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "CLIMBED")),
         Commands.runOnce(() -> LED.setRainbowAnimation(LEDSegment.ALL)));
   }
@@ -352,19 +337,20 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.runOnce(() -> LED.setSingleFadeAnimation(LEDColor.RED, LEDSegment.ALL)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "to zero")),
-        Commands.runOnce(() -> climber.setPosition(0), climber),
-        Commands.waitUntil(() -> climber.atPosition()),
+        Commands.runOnce(() -> myClimber.setPosition(0), myClimber),
+        Commands.waitUntil(() -> myClimber.atPosition()),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "at zero")),
         Commands.runOnce(() -> LED.setRainbowAnimation(LEDSegment.ALL)));
   }
 
   // NO CHECKS
-  public static Command BumpClimberCmd(double bumpValue) {
+  public static Command BumpClimberCmd(RollerSystem myClimber, double bumpValue) {
     return Commands.sequence(
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "bumping")),
-        Commands.runOnce(() -> climber.setPosition(climber.getPosition() + bumpValue), climber),
-        Commands.waitUntil(() -> climber.atPosition()),
-        Commands.runOnce(() -> climber.zero()));
+        Commands.runOnce(
+            () -> myClimber.setPosition(myClimber.getPosition() + bumpValue), myClimber),
+        Commands.waitUntil(() -> myClimber.atPosition()),
+        Commands.runOnce(() -> myClimber.zero()));
   }
 
   public static Command ElevatorWristZeroCmd(ElevatorWristSubsystem myElevatorWrist) {
@@ -403,7 +389,6 @@ public class ManipulatorCommands {
         Commands.waitSeconds(0.5),
         DeployClimberCmd(myClimber, LED),
         Commands.waitSeconds(0.5),
-        // RetractClimberCmd(myClimber),   // this will latch so we would not want to go to zero
         climberToZeroCmd(myClimber, LED));
   }
 

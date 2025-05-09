@@ -20,16 +20,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
 import frc.robot.commands.ManipulatorCommands;
-<<<<<<< HEAD
-import frc.robot.subsystems.ElevatorWristSubSystem;
-=======
 import frc.robot.subsystems.ElevatorWristSubsystem;
 import frc.robot.subsystems.RangeSensorSubsystem;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.rollers.RollerSystem;
->>>>>>> offseason-cleanup
 import java.util.List;
 
 public class autons {
@@ -57,9 +52,6 @@ public class autons {
     }
   }
 
-<<<<<<< HEAD
-  public static Command side(Boolean leftSide) {
-=======
   /**
    * Builds a command to follow a path
    *
@@ -101,7 +93,6 @@ public class autons {
       ElevatorWristSubsystem myElevatorWrist,
       RangeSensorSubsystem intake_sensor,
       Lights LED) {
->>>>>>> offseason-cleanup
 
     PathPlannerPath[] path = pathBuilder(leftSide ? "AUTON_LEFT1" : "AUTON_RIGHT1");
 
@@ -112,13 +103,8 @@ public class autons {
             Commands.sequence(
                 Commands.runOnce(() -> ManipulatorCommands.setHavePiece(true)),
                 Commands.waitSeconds(Constants.AUTO.START_ELEVATOR_DELAY),
-<<<<<<< HEAD
-                ManipulatorCommands.CoralL4Cmd())),
-        ManipulatorCommands.shootCmd(),
-=======
                 ManipulatorCommands.CoralL4Cmd(myElevatorWrist))),
         ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist, LED),
->>>>>>> offseason-cleanup
         // second coral
         Commands.deadline(
             Commands.sequence(
@@ -128,18 +114,6 @@ public class autons {
                 Commands.waitUntil(() -> ManipulatorCommands.isHavePiece())
                     .withTimeout(Constants.AUTO.REEF_TIMEOUT),
                 Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
-<<<<<<< HEAD
-                    .onlyWhile(() -> ManipulatorCommands.indexing)),
-            ManipulatorCommands.intakeCmd()
-                .handleInterrupt(() -> RobotContainer.intakeShooter.setSpeedCmd(0))),
-        Commands.either(
-            Commands.sequence(
-                ManipulatorCommands.CoralL4Cmd(),
-                Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
-                    .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
-                Commands.either(
-                    ManipulatorCommands.shootCmd(),
-=======
                     .onlyWhile(() -> ManipulatorCommands.isIndexing())),
             ManipulatorCommands.intakeCmd(
                     myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED)
@@ -151,7 +125,6 @@ public class autons {
                     .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
                 Commands.either(
                     ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist, LED),
->>>>>>> offseason-cleanup
                     Commands.none(),
                     () -> {
                       return ElevatorWristSubsystem.reefPostDetected;
@@ -166,18 +139,6 @@ public class autons {
                         Commands.waitUntil(() -> ManipulatorCommands.isHavePiece())
                             .withTimeout(Constants.AUTO.REEF_TIMEOUT),
                         Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
-<<<<<<< HEAD
-                            .onlyWhile(() -> ManipulatorCommands.indexing)),
-                    ManipulatorCommands.intakeCmd()
-                        .handleInterrupt(() -> RobotContainer.intakeShooter.setSpeedCmd(0))),
-                Commands.either(
-                    Commands.sequence(
-                        ManipulatorCommands.CoralL4Cmd(),
-                        Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
-                            .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
-                        Commands.either(
-                            ManipulatorCommands.shootCmd(),
-=======
                             .onlyWhile(() -> ManipulatorCommands.isIndexing())),
                     ManipulatorCommands.intakeCmd(
                             myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED)
@@ -190,7 +151,6 @@ public class autons {
                         Commands.either(
                             ManipulatorCommands.shootCmd(
                                 myIntake, myIntakeLow, myElevatorWrist, LED),
->>>>>>> offseason-cleanup
                             Commands.none(),
                             () -> {
                               return ElevatorWristSubsystem.reefPostDetected;
@@ -211,18 +171,6 @@ public class autons {
                 Commands.waitUntil(() -> ManipulatorCommands.isHavePiece())
                     .withTimeout(Constants.AUTO.REEF_TIMEOUT),
                 Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
-<<<<<<< HEAD
-                    .onlyWhile(() -> ManipulatorCommands.indexing)),
-            ManipulatorCommands.intakeCmd()
-                .handleInterrupt(() -> RobotContainer.intakeShooter.setSpeedCmd(0))),
-        Commands.either(
-            Commands.sequence(
-                ManipulatorCommands.CoralL4Cmd(),
-                Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
-                    .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
-                Commands.either(
-                    ManipulatorCommands.shootCmd(),
-=======
                     .onlyWhile(() -> ManipulatorCommands.isIndexing())),
             ManipulatorCommands.intakeCmd(
                     myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED)
@@ -234,7 +182,6 @@ public class autons {
                     .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
                 Commands.either(
                     ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist, LED),
->>>>>>> offseason-cleanup
                     Commands.none(),
                     () -> {
                       return ElevatorWristSubsystem.reefPostDetected;
@@ -249,18 +196,6 @@ public class autons {
                         Commands.waitUntil(() -> ManipulatorCommands.isHavePiece())
                             .withTimeout(Constants.AUTO.REEF_TIMEOUT),
                         Commands.waitSeconds(Constants.AUTO.INDEX_DELAY)
-<<<<<<< HEAD
-                            .onlyWhile(() -> ManipulatorCommands.indexing)),
-                    ManipulatorCommands.intakeCmd()
-                        .handleInterrupt(() -> RobotContainer.intakeShooter.setSpeedCmd(0))),
-                Commands.either(
-                    Commands.sequence(
-                        ManipulatorCommands.CoralL4Cmd(),
-                        Commands.waitUntil(() -> ElevatorWristSubSystem.reefPostDetected)
-                            .withTimeout(Constants.AUTO.REEF_POST_TIMEOUT),
-                        Commands.either(
-                            ManipulatorCommands.shootCmd(),
-=======
                             .onlyWhile(() -> ManipulatorCommands.isIndexing())),
                     ManipulatorCommands.intakeCmd(
                             myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED)
@@ -273,7 +208,6 @@ public class autons {
                         Commands.either(
                             ManipulatorCommands.shootCmd(
                                 myIntake, myIntakeLow, myElevatorWrist, LED),
->>>>>>> offseason-cleanup
                             Commands.none(),
                             () -> {
                               return ElevatorWristSubsystem.reefPostDetected;
@@ -286,13 +220,6 @@ public class autons {
               return ManipulatorCommands.isHavePiece();
             }),
         Commands.parallel(
-<<<<<<< HEAD
-            ManipulatorCommands.intakeCmd(), AutoBuilder.followPath(path[5]) // to coral station
-            ));
-  }
-
-  public static Command centerProcessor() {
-=======
             ManipulatorCommands.intakeCmd(
                 myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED),
             followPath(path[5]) // to coral station
@@ -305,70 +232,42 @@ public class autons {
       ElevatorWristSubsystem myElevatorWrist,
       RangeSensorSubsystem intake_sensor,
       Lights LED) {
->>>>>>> offseason-cleanup
 
     PathPlannerPath[] path = pathBuilder("AUTON_CENTER_PROCESSOR");
 
     return Commands.sequence(
         Commands.runOnce(() -> ManipulatorCommands.setHavePiece(true)),
         Commands.parallel(
-<<<<<<< HEAD
-            AutoBuilder.followPath(path[0]), // to reef post
-            ManipulatorCommands.CoralL4Cmd()),
-        ManipulatorCommands.shootCmd(),
-=======
             followPath(path[0]), // to reef post
             ManipulatorCommands.CoralL4Cmd(myElevatorWrist)),
         ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist, LED),
->>>>>>> offseason-cleanup
         Commands.parallel(
             Commands.sequence(
                 followPath(path[1]), // away from reef
                 Commands.waitSeconds(Constants.AUTO.H4_GH_PATH_DELAY),
                 followPath(path[2]) // to reef algae
                 ),
-<<<<<<< HEAD
-            Commands.sequence(ManipulatorCommands.AlgaeAtA1(), ManipulatorCommands.intakeCmd())),
-=======
             Commands.sequence(
                 ManipulatorCommands.AlgaeAtA1(myElevatorWrist),
                 ManipulatorCommands.intakeCmd(
                     myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED))),
->>>>>>> offseason-cleanup
         Commands.parallel(
             followPath(path[3]), // to processor
             Commands.sequence(
                 Commands.waitSeconds(Constants.AUTO.GH_PROC_ELEVATOR_DELAY),
-<<<<<<< HEAD
-                ManipulatorCommands.AlgaeToP1())),
-        ManipulatorCommands.shootCmd(),
-=======
                 ManipulatorCommands.AlgaeToP1(myElevatorWrist))),
         ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist, LED),
->>>>>>> offseason-cleanup
         Commands.parallel(
             followPath(path[4]), // to reef algae 2
             Commands.sequence(
                 Commands.waitSeconds(Constants.AUTO.PROC_EF_ELEVATOR_DELAY),
-<<<<<<< HEAD
-                ManipulatorCommands.AlgaeAtA2(),
-                ManipulatorCommands.intakeCmd())),
-=======
                 ManipulatorCommands.AlgaeAtA2(myElevatorWrist),
                 ManipulatorCommands.intakeCmd(
                     myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED))),
->>>>>>> offseason-cleanup
         Commands.parallel(
             followPath(path[5]), // to processor
             Commands.sequence(
                 Commands.waitSeconds(Constants.AUTO.EF_PROC_ELEVATOR_DELAY),
-<<<<<<< HEAD
-                ManipulatorCommands.AlgaeToP1())),
-        ManipulatorCommands.shootCmd());
-  }
-
-  public static Command centerNet() {
-=======
                 ManipulatorCommands.AlgaeToP1(myElevatorWrist))),
         ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist, LED));
   }
@@ -379,50 +278,28 @@ public class autons {
       ElevatorWristSubsystem myElevatorWrist,
       RangeSensorSubsystem intake_sensor,
       Lights LED) {
->>>>>>> offseason-cleanup
 
     PathPlannerPath[] path = pathBuilder("AUTON_CENTER_NET");
 
     return Commands.sequence(
         Commands.runOnce(() -> ManipulatorCommands.setHavePiece(true)),
         Commands.parallel(
-<<<<<<< HEAD
-            AutoBuilder.followPath(path[0]), // to reef post
-            ManipulatorCommands.CoralL4Cmd()),
-        ManipulatorCommands.shootCmd(),
-=======
             followPath(path[0]), // to reef post
             ManipulatorCommands.CoralL4Cmd(myElevatorWrist)),
         ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist, LED),
->>>>>>> offseason-cleanup
         Commands.parallel(
             Commands.sequence(
                 followPath(path[1]), // away from reef
                 Commands.waitSeconds(Constants.AUTO.H4_GH_PATH_DELAY),
-<<<<<<< HEAD
-                AutoBuilder.followPath(path[2])), // to reef algae
-            Commands.sequence(ManipulatorCommands.AlgaeAtA1(), ManipulatorCommands.intakeCmd())),
-=======
                 followPath(path[2])), // to reef algae
             Commands.sequence(
                 ManipulatorCommands.AlgaeAtA1(myElevatorWrist),
                 ManipulatorCommands.intakeCmd(
                     myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED))),
->>>>>>> offseason-cleanup
         Commands.parallel(
             followPath(path[3]), // to net
             Commands.sequence(
                 Commands.waitSeconds(Constants.AUTO.GH_NET_ELEVATOR_DELAY),
-<<<<<<< HEAD
-                ManipulatorCommands.AlgaeToNetCmd())),
-        ManipulatorCommands.shootCmd(),
-        Commands.parallel(
-            AutoBuilder.followPath(path[4]), // to away from reef algae 2
-            ManipulatorCommands.AlgaeAtA2()),
-        Commands.parallel(
-            AutoBuilder.followPath(path[5]), // to reef algae 2
-            ManipulatorCommands.intakeCmd()),
-=======
                 ManipulatorCommands.AlgaeToNetCmd(myElevatorWrist))),
         ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist, LED),
         Commands.parallel(
@@ -432,19 +309,10 @@ public class autons {
             followPath(path[5]), // to reef algae 2
             ManipulatorCommands.intakeCmd(
                 myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED)),
->>>>>>> offseason-cleanup
         Commands.parallel(
             followPath(path[6]), // to net
             Commands.sequence(
                 Commands.waitSeconds(Constants.AUTO.IJ_NET_ELEVATOR_DELAY),
-<<<<<<< HEAD
-                ManipulatorCommands.AlgaeToNetCmd())),
-        ManipulatorCommands.shootCmd(),
-        Commands.parallel(
-            AutoBuilder.followPath(path[7]),
-            ManipulatorCommands.CoralIntakePositionCmd())); // to away from reef algae 3
-    //     ManipulatorCommands.AlgaeAtA2(myIntakeLow, myElevatorWrist, false)),
-=======
                 ManipulatorCommands.AlgaeToNetCmd(myElevatorWrist))),
         ManipulatorCommands.shootCmd(myIntake, myIntakeLow, myElevatorWrist, LED),
         Commands.parallel(
@@ -452,7 +320,6 @@ public class autons {
             ManipulatorCommands.CoralIntakePositionCmd(
                 myElevatorWrist))); // to away from reef algae 3
     //     ManipulatorCommands.AlgaeAtA2(myElevatorWrist)),
->>>>>>> offseason-cleanup
     // Commands.parallel(
     //     followPath(path[8]), // to reef algae 3
     //     ManipulatorCommands.intakeCmd(myIntake, myIntakeLow, myElevatorWrist, intake_sensor)),

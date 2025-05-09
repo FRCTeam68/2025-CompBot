@@ -491,7 +491,7 @@ public class RobotContainer {
         .povUp()
         .onTrue(
             Commands.either(
-                ManipulatorCommands.BumpClimberCmd(Constants.CLIMBER.BUMP_VALUE),
+                ManipulatorCommands.BumpClimberCmd(climber, Constants.CLIMBER.BUMP_VALUE),
                 elevatorWrist.BumpElevatorPosition(Constants.ELEVATOR.BUMP_VALUE),
                 () -> m_overideMode));
 
@@ -499,7 +499,7 @@ public class RobotContainer {
         .povDown()
         .onTrue(
             Commands.either(
-                ManipulatorCommands.BumpClimberCmd(-Constants.CLIMBER.BUMP_VALUE),
+                ManipulatorCommands.BumpClimberCmd(climber, -Constants.CLIMBER.BUMP_VALUE),
                 elevatorWrist.BumpElevatorPosition(-Constants.ELEVATOR.BUMP_VALUE),
                 () -> m_overideMode));
 

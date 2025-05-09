@@ -79,69 +79,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
         break;
     }
 
-<<<<<<< HEAD:src/main/java/frc/robot/subsystems/ElevatorWristSubSystem.java
-    wrist =
-        new RollerSystem(
-            "Wrist",
-            new RollerSystemIOTalonFX(
-                Constants.WRIST.CANID,
-                Constants.WRIST.CANBUS,
-                80,
-                true,
-                0,
-                false,
-                Constants.WRIST.CANCODER_CANID,
-                true,
-                Constants.WRIST.REDUCTION));
-    // init tunables in the parent roller system
-    wrist.setPID(Constants.WRIST.SLOT0_CONFIGS, Constants.WRIST.SLOT1_CONFIGS);
-    wrist.setMotionMagic(Constants.WRIST.MOTIONMAGIC_CONFIGS);
-    wrist.setAtSetpointBand(.005);
-    wrist.setPieceCurrentThreshold(
-        40); // does not have a piece but might want to use to detect overrun limits?
-
-    elevator =
-        new RollerSystem(
-            "Elevator",
-            new RollerSystemIOTalonFX(
-                Constants.ELEVATOR.RIGHT_CANID,
-                Constants.ELEVATOR.CANBUS,
-                80,
-                false,
-                0,
-                false,
-                0,
-                true,
-                1));
-    // init tunables in the parent roller system
-    elevator.setPID(Constants.ELEVATOR.SLOT0_CONFIGS);
-    elevator.setMotionMagic(Constants.ELEVATOR.MOTIONMAGIC_CONFIGS);
-    elevator.setAtSetpointBand(.3);
-    elevator.setPieceCurrentThreshold(
-        40); // does not have a piece but might want to use to detect overrun limits?
-    elevatorFollower =
-        new RollerSystem(
-            "ElevatorFollower",
-            new RollerSystemIOTalonFX(
-                Constants.ELEVATOR.LEFT_CANID,
-                Constants.ELEVATOR.CANBUS,
-                80,
-                false,
-                Constants.ELEVATOR.RIGHT_CANID,
-                true,
-                0,
-                true,
-                1));
-
-    reefPostSensor =
-        new RangeSensorSubSystem(
-            "reefPostSensor",
-            Constants.REEFPOSTSENSOR.CANID,
-            Constants.REEFPOSTSENSOR.CANBUS,
-            Constants.REEFPOSTSENSOR.THRESHOLD);
-=======
     reefPostSensor = new RangeSensorSubsystem(LED, Constants.REEFPOSTSENSOR.CONFIGURATION_CONFIGS);
->>>>>>> offseason-cleanup:src/main/java/frc/robot/subsystems/ElevatorWristSubsystem.java
 
     zero();
   }
@@ -269,19 +207,11 @@ public class ElevatorWristSubsystem extends SubsystemBase {
             }));
   }
 
-<<<<<<< HEAD:src/main/java/frc/robot/subsystems/ElevatorWristSubSystem.java
-  public Command setPositionCmdNew(double e_goal, double w_goal) {
-    return setPositionCmdNew(e_goal, w_goal, 0);
-  }
-
-  public Command setPositionCmdNew(double e_goal, double w_goal, int wristSlot) {
-=======
   public Command setPositionCmd(double e_goal, double w_goal) {
     return setPositionCmd(e_goal, w_goal, 0);
   }
 
   public Command setPositionCmd(double e_goal, double w_goal, int wristSlot) {
->>>>>>> offseason-cleanup:src/main/java/frc/robot/subsystems/ElevatorWristSubsystem.java
     return new DeferredCommand(
         () -> {
           // initialization
@@ -328,17 +258,12 @@ public class ElevatorWristSubsystem extends SubsystemBase {
                     Commands.runOnce(() -> elevator.setPosition(e_goal)),
                     Commands.waitUntil(
                         () ->
-<<<<<<< HEAD:src/main/java/frc/robot/subsystems/ElevatorWristSubSystem.java
-                            (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE)
-                                || elevator.atPosition()));
-=======
                             (elevator.getPositionRotations() >= Constants.ELEVATOR.MIN_MID_SAFE)
                                 || elevator.atPosition()));
 
             // MAX_LOW_WRIST_MOVE_FROM_SAFE
 
             // Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)));
->>>>>>> offseason-cleanup:src/main/java/frc/robot/subsystems/ElevatorWristSubsystem.java
             // Commands.waitUntil(() -> wrist.atPosition()),
             // Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)));
 
@@ -387,11 +312,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
                           () -> wrist.setPosition(Constants.WRIST.SLOT1_TO_ELEVATE, wristSlot)),
                       Commands.runOnce(() -> elevator.setPosition(e_goal)),
                       Commands.waitUntil(
-<<<<<<< HEAD:src/main/java/frc/robot/subsystems/ElevatorWristSubSystem.java
-                          () -> elevator.getPosition() <= Constants.ELEVATOR.MAX_LOW_SAFE),
-=======
                           () -> elevator.getPositionRotations() <= Constants.ELEVATOR.MAX_LOW_SAFE),
->>>>>>> offseason-cleanup:src/main/java/frc/robot/subsystems/ElevatorWristSubsystem.java
                       Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
                       Commands.waitUntil(() -> elevator.atPosition()));
             } else {
@@ -473,16 +394,10 @@ public class ElevatorWristSubsystem extends SubsystemBase {
                                       / 2)),
                       Commands.waitUntil(
                           () ->
-<<<<<<< HEAD:src/main/java/frc/robot/subsystems/ElevatorWristSubSystem.java
-                              (elevator.getPosition() <= Constants.ELEVATOR.MAX_MID_SAFE)
-                                  && (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE)),
-                      Commands.waitSeconds(.3),
-=======
                               (elevator.getPositionRotations() <= Constants.ELEVATOR.MAX_MID_SAFE)
                                   && (elevator.getPositionRotations()
                                       >= Constants.ELEVATOR.MIN_MID_SAFE)),
                       // Commands.waitSeconds(.05),
->>>>>>> offseason-cleanup:src/main/java/frc/robot/subsystems/ElevatorWristSubsystem.java
                       Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
                       Commands.runOnce(() -> elevator.setPosition(e_goal)));
             }
