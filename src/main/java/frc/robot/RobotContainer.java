@@ -17,12 +17,9 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -34,7 +31,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.LEDColor;
 import frc.robot.Constants.LEDSegment;
@@ -44,6 +40,10 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorWristSubsystem;
 import frc.robot.subsystems.RangeSensorSubsystem;
 import frc.robot.subsystems.ShotVisualizer;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberIOSim;
+import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -77,16 +77,15 @@ public class RobotContainer {
   // Subsystems
   private static Drive drive;
   private final Vision vision;
-  private static RollerSystem climber;
+  private final Climber climber;
   private final RollerSystem intakeShooter;
   private final RollerSystem intakeShooterLow;
-  private static RangeSensorSubsystem intakeCoralSensor;
-  private static ElevatorWristSubsystem elevatorWrist;
-  private static Lights LED;
-  // private final ShotVisualizer shotVisualizer;
+  private final RangeSensorSubsystem intakeCoralSensor;
+  private final ElevatorWristSubsystem elevatorWrist;
+  private final Lights LED;
   private ReefCentering reefCentering;
 
-  // Controller
+  // Controllers
   private static final CommandXboxController m_xboxController = new CommandXboxController(0);
   private static final CommandPS4Controller m_ps4Controller = new CommandPS4Controller(1);
   private static final Alert xboxDisconnectedAlert =
@@ -94,6 +93,7 @@ public class RobotContainer {
   private static final Alert ps4DisconnectedAlert =
       new Alert("Ps4 controller disconnected.", AlertType.kError);
 
+  // Autons
   private static LoggedDashboardChooser<Command> autoChooser;
   private static String m_autonName;
 
@@ -114,6 +114,7 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+
         vision =
             new Vision(
                 LED,
@@ -164,32 +165,10 @@ public class RobotContainer {
 
         elevatorWrist = new ElevatorWristSubsystem(LED, drive::getPose);
 
-        climber =
-            new RollerSystem(
-                "Climber",
-                new RollerSystemIOTalonFX(
-                    Constants.CLIMBER.CANID,
-                    Constants.CLIMBER.CANBUS,
-                    80,
-                    true,
-                    0,
-                    false,
-                    0,
-                    true,
-                    1));
-        // init tunables in the parent roller system
-        climber.setPID(Constants.CLIMBER.SLOT0_CONFIGS);
-        climber.setMotionMagic(Constants.CLIMBER.MOTIONMAGIC_CONFIGS);
-        climber.setAtSetpointBand(.3);
-        climber.setPieceCurrentThreshold(
-            40); // does not have a piece but might want to use to detect overrun limits?
+        climber = new Climber(new ClimberIOTalonFX());
         climber.zero();
 
         reefCentering = new ReefCentering(drive);
-
-        SmartDashboard.putString("BumpMode", "ELEVATOR");
-        SmartDashboard.putString("AutoShoot", "OFF");
-
         break;
 
       case SIM:
@@ -221,8 +200,7 @@ public class RobotContainer {
         // TBD, this needs an actual simulated sensor.....
         elevatorWrist = new ElevatorWristSubsystem(LED, drive::getPose);
 
-        climber =
-            new RollerSystem("Climber", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
+        climber = new Climber(new ClimberIOSim());
         // TBD, this needs an actual simulated sensor.....
 
         reefCentering = new ReefCentering(drive);
@@ -253,27 +231,27 @@ public class RobotContainer {
         // TBD, this needs an actual simulated sensor.....
         elevatorWrist = new ElevatorWristSubsystem(LED, drive::getPose);
 
-        climber = new RollerSystem("Climber", new RollerSystemIO() {});
+        climber = new Climber(new ClimberIO() {});
 
         reefCentering = new ReefCentering(drive);
         break;
     }
 
-    // Set up auto routines
+    SmartDashboard.putString("BumpMode", "ELEVATOR");
+    SmartDashboard.putString("AutoShoot", "OFF");
+
+    // Set up auton chooser
     configureAutonChooser();
 
     // Configure the button bindings
     configureButtonBindings();
 
-    // warp up path following command
+    // Warm up path following command
     FollowPathCommand.warmupCommand().schedule();
 
+    // Configure visualizers
     SuperstructureVisualizer.setRobotPoseSupplier(drive::getPose);
-
-    // Configure shot visualizer
-    // shotVisualizer = new ShotVisualizer();
     ShotVisualizer.setRobotPoseSupplier(drive::getPose);
-    SmartDashboard.putData("Shoot", ShotVisualizer.shootParabula());
 
     SmartDashboard.putData(
         "Testing/Run Functional Test",
@@ -294,12 +272,6 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-
-    Trigger m_LaserCanTrigger = new Trigger(intakeCoralSensor::isDetected);
-    m_LaserCanTrigger
-        .onTrue(Commands.runOnce(() -> SmartDashboard.putBoolean("laserCanTrip", true)))
-        .onFalse(Commands.runOnce(() -> SmartDashboard.putBoolean("laserCanTrip", false)));
-
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
@@ -403,6 +375,35 @@ public class RobotContainer {
                 .andThen(elevatorWrist.haltCmd())
                 .andThen(Commands.runOnce(() -> System.out.printf("stop%n"))));
 
+    m_xboxController
+        .povDown()
+        .whileTrue(
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Back)
+                .until(() -> reefCentering.haveConditionsChanged())
+                .repeatedly());
+    m_xboxController
+        .povUp()
+        .whileTrue(
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Middle)
+                .until(() -> reefCentering.haveConditionsChanged())
+                .repeatedly());
+    m_xboxController
+        .povLeft()
+        .whileTrue(
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Left)
+                .until(() -> reefCentering.haveConditionsChanged())
+                .repeatedly());
+    m_xboxController
+        .povRight()
+        .whileTrue(
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Right)
+                .until(() -> reefCentering.haveConditionsChanged())
+                .repeatedly());
+
     m_ps4Controller
         .triangle()
         .onTrue(
@@ -456,37 +457,6 @@ public class RobotContainer {
     m_ps4Controller.R1().onTrue(ManipulatorCommands.AlgaeAtA1(elevatorWrist));
     m_ps4Controller.R2().onTrue(ManipulatorCommands.AlgaeAtA2(elevatorWrist));
 
-    // m_ps4Controller.options().onTrue(Commands.runOnce(() -> putAutonPoseToDashboard()));
-
-    m_xboxController
-        .povDown()
-        .whileTrue(
-            reefCentering
-                .createPathCommand(ReefCentering.Side.Back)
-                .until(() -> reefCentering.haveConditionsChanged())
-                .repeatedly());
-    m_xboxController
-        .povUp()
-        .whileTrue(
-            reefCentering
-                .createPathCommand(ReefCentering.Side.Middle)
-                .until(() -> reefCentering.haveConditionsChanged())
-                .repeatedly());
-    m_xboxController
-        .povLeft()
-        .whileTrue(
-            reefCentering
-                .createPathCommand(ReefCentering.Side.Left)
-                .until(() -> reefCentering.haveConditionsChanged())
-                .repeatedly());
-    m_xboxController
-        .povRight()
-        .whileTrue(
-            reefCentering
-                .createPathCommand(ReefCentering.Side.Right)
-                .until(() -> reefCentering.haveConditionsChanged())
-                .repeatedly());
-
     m_ps4Controller
         .povUp()
         .onTrue(
@@ -530,8 +500,6 @@ public class RobotContainer {
                 .andThen(
                     ManipulatorCommands.intakeCmd(
                         intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)));
-
-    // m_ps4Controller.PS().onTrue(ManipulatorCommands.CoralL1Cmd(intakeShooterLow, elevatorWrist));
 
     m_ps4Controller
         .touchpad()
@@ -592,6 +560,7 @@ public class RobotContainer {
             .centerNet(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED, true)
             .withName("CENTER NET PLAYOFF"));
     autoChooser.addOption("NONE", Commands.none());
+
     // Set up SysId routines
     if (Constants.tuningMode) {
       autoChooser.addOption(
@@ -794,21 +763,6 @@ public class RobotContainer {
   public void updateAlerts() {
     xboxDisconnectedAlert.set(!m_xboxController.isConnected());
     ps4DisconnectedAlert.set(!m_ps4Controller.isConnected());
-  }
-
-  public void logClimberPose() {
-    Logger.recordOutput(
-        "RobotPose/Climber",
-        new Pose3d[] {
-          new Pose3d(
-              -0.2921,
-              0,
-              0.4398003396,
-              new Rotation3d(
-                  0,
-                  Units.degreesToRadians(47.559917 - (climber.getPosition() / 125 * (12 / 32))),
-                  0))
-        });
   }
 
   public Command staticClimberCharacterization(double outputRampRate) {

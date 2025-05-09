@@ -24,6 +24,7 @@ import frc.robot.RobotContainer;
 import frc.robot.subsystems.ElevatorWristSubsystem;
 import frc.robot.subsystems.RangeSensorSubsystem;
 import frc.robot.subsystems.ShotVisualizer;
+import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.rollers.RollerSystem;
 import java.util.Set;
@@ -313,7 +314,7 @@ public class ManipulatorCommands {
         myElevatorWrist.setPositionCmd(Constants.ELEVATOR.MIN_POSITION, Constants.WRIST.CRADLE));
   }
 
-  public static Command DeployClimberCmd(RollerSystem myClimber, Lights LED) {
+  public static Command DeployClimberCmd(Climber myClimber, Lights LED) {
     return Commands.sequence(
         Commands.runOnce(() -> LED.setSingleFadeAnimation(LEDColor.RED, LEDSegment.ALL)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "deploying")),
@@ -323,7 +324,7 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> LED.setSolidColor(LEDColor.RED, LEDSegment.ALL)));
   }
 
-  public static Command RetractClimberCmd(RollerSystem myClimber, Lights LED) {
+  public static Command RetractClimberCmd(Climber myClimber, Lights LED) {
     return Commands.sequence(
         Commands.runOnce(() -> LED.setSingleFadeAnimation(LEDColor.GREEN, LEDSegment.ALL)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "climbing")),
@@ -333,7 +334,7 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> LED.setRainbowAnimation(LEDSegment.ALL)));
   }
 
-  public static Command climberToZeroCmd(RollerSystem myClimber, Lights LED) {
+  public static Command climberToZeroCmd(Climber myClimber, Lights LED) {
     return Commands.sequence(
         Commands.runOnce(() -> LED.setSingleFadeAnimation(LEDColor.RED, LEDSegment.ALL)),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "to zero")),
@@ -344,7 +345,7 @@ public class ManipulatorCommands {
   }
 
   // NO CHECKS
-  public static Command BumpClimberCmd(RollerSystem myClimber, double bumpValue) {
+  public static Command BumpClimberCmd(Climber myClimber, double bumpValue) {
     return Commands.sequence(
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "bumping")),
         Commands.runOnce(
@@ -366,7 +367,7 @@ public class ManipulatorCommands {
       RollerSystem myIntakeLow,
       ElevatorWristSubsystem myElevatorWrist,
       RangeSensorSubsystem intake_sensor,
-      RollerSystem myClimber,
+      Climber myClimber,
       Lights LED) {
     return Commands.sequence(
         CoralIntakePositionCmd(myElevatorWrist),

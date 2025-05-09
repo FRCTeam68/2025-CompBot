@@ -262,21 +262,11 @@ public final class Constants {
   }
 
   public static final class CLIMBER {
-    public static final int CANID = 40;
-    public static final String CANBUS = "rio";
-    public static final double DEPLOY = 51;
-    public static final double RETRACT = -58;
-    // public static final double MAX_HEIGHT = 60;
-    public static final double BUMP_VALUE = 2;
+    public static final double DEPLOY = 0.15;
+    public static final double RETRACT = -0.17;
+    public static final double BUMP_VALUE = 0.05;
     public static final double ZEROING_SPEED = -70; // speed when zeroing
     public static final double ZEROING_CURRENT_LIMIT = 45; // current limit when zeroing
-    public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(10).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
-    public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
-        new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(70)
-            .withMotionMagicAcceleration(140)
-            .withMotionMagicJerk(500);
   }
 
   public static final class LEDSegment {

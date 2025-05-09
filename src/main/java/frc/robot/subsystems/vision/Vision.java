@@ -40,12 +40,11 @@ public class Vision extends SubsystemBase {
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlert;
-  private boolean anyConnected;
+  private boolean anyConnected = false;
   private final Alert allDisconnectedAlert =
       new Alert("All vision cameras disconnected.", AlertType.kError);
   private Double[] rotationSamples = new Double[10]; // Amount of rotation samples to use
   private final double maxRotationError = 3; // Acceptable error in degrees
-  private int megaTag1Counter;
   private final Segment rotationInitalizedIndicator = new Segment(6, 1, 0);
   private final Alert rotationNotInitalizedAlert =
       new Alert("Robot rotation not initalized. Face robot toward april tag.", AlertType.kError);
@@ -54,8 +53,6 @@ public class Vision extends SubsystemBase {
     this.LED = LED;
     this.consumer = consumer;
     this.io = io;
-    anyConnected = false;
-    megaTag1Counter = 0;
 
     // Initialize inputs
     // and disconnected alerts
@@ -105,7 +102,7 @@ public class Vision extends SubsystemBase {
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
       inputs[cameraIndex].skipMegaTag1 = false;
     }
-    LED.setSolidColor(LEDColor.GREEN, rotationInitalizedIndicator);
+    LED.setSolidColor(LEDColor.RED, rotationInitalizedIndicator);
     rotationNotInitalizedAlert.set(true);
   }
 
@@ -219,16 +216,6 @@ public class Vision extends SubsystemBase {
             }
           }
         }
-
-        // // Disable Megatag 1
-        // if (observation.type() == PoseObservationType.MEGATAG_1) {
-        //   megaTag1Counter += 1;
-        //   if (megaTag1Counter > 50) {
-        //     inputs[cameraIndex].skipMegaTag1 = true;
-        //     LED.setColor(LEDColor.GREEN, rotationInitalizedIndicator);
-        //     rotationNotInitalizedAlert.set(false);
-        //   }
-        // }
       }
 
       // Log camera datadata

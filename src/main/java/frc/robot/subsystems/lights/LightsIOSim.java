@@ -69,9 +69,11 @@ public class LightsIOSim implements LightsIO {
     if (name != "EmptyAnimation") {
       int startIndex = Integer.parseInt(request.getControlInfo().get("LEDStartIndex"));
       int endIndex = Integer.parseInt(request.getControlInfo().get("LEDEndIndex"));
-      String colorHex = stringToHex(request.getControlInfo().get("Color"));
-      for (int i = startIndex; i <= Math.min(7, endIndex); i++) {
-        LEDValues[i][0] = colorHex;
+      if (controlInfo.containsKey("Color")) {
+        String colorHex = stringToHex(request.getControlInfo().get("Color"));
+        for (int i = startIndex; i <= Math.min(7, endIndex); i++) {
+          LEDValues[i][0] = colorHex;
+        }
       }
     }
   }
