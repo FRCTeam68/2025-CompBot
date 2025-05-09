@@ -20,8 +20,8 @@ public class ElevatorIOSim implements ElevatorIO {
     sim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                DCMotor.getKrakenX60Foc(2), .001, ElevatorIOTalonFX.getReduction()),
-            DCMotor.getKrakenX60Foc(2));
+                DCMotor.getFalcon500(2), .001, ElevatorIOTalonFX.getReduction()),
+            DCMotor.getFalcon500(2));
   }
 
   @Override

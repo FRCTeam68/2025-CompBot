@@ -21,8 +21,8 @@ public class WristIOSim implements WristIO {
     sim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                DCMotor.getKrakenX60Foc(1), .1, WristIOTalonFX.reduction),
-            DCMotor.getKrakenX60Foc(1));
+                DCMotor.getFalcon500(1), .1, WristIOTalonFX.reduction),
+            DCMotor.getFalcon500(1));
   }
 
   @Override

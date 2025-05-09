@@ -20,8 +20,8 @@ public class ClimberIOSim implements ClimberIO {
     sim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
-                DCMotor.getKrakenX60Foc(1), .1, ClimberIOTalonFX.reduction),
-            DCMotor.getKrakenX60Foc(1));
+                DCMotor.getFalcon500(1), .1, ClimberIOTalonFX.reduction),
+            DCMotor.getFalcon500(1));
   }
 
   @Override

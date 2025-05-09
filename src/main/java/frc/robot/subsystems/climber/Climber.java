@@ -67,7 +67,7 @@ public class Climber extends SubsystemBase {
               0.4398003396,
               new Rotation3d(
                   0,
-                  Units.degreesToRadians(47.559917 - 55)
+                  Units.degreesToRadians(-47.3)
                       - Units.rotationsToRadians(inputs.positionRotations),
                   0))
         });
