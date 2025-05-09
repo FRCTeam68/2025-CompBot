@@ -15,14 +15,21 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import com.ctre.phoenix6.configs.CANrangeConfiguration;
+import com.ctre.phoenix6.configs.FovParamsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.ProximityParamsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.ToFParamsConfigs;
+import com.ctre.phoenix6.signals.RGBWColor;
+import com.ctre.phoenix6.signals.UpdateModeValue;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.subsystems.RangeSensorSubsystem.CANrangeConstants;
+import frc.robot.subsystems.lights.Lights.Segment;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +41,7 @@ import java.util.List;
 public final class Constants {
   public static final Mode simMode = Mode.SIM;
   public static final double loopPeriodSecs = 0.02;
+  public static final boolean bypassReefDetection = true;
   public static final boolean tuningMode = true;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
@@ -86,11 +94,6 @@ public final class Constants {
     public static final double INDEX_DELAY = 0.4;
   }
 
-  public static final class LED {
-    public static final int PWMPORT = 0;
-    public static final int BUFFERSIZE = 120;
-  }
-
   public static final class ROLLER {
     public static final double MAX_SPEED = 100;
     public static final double MAX_VOLTAGE = 12;
@@ -106,8 +109,9 @@ public final class Constants {
     public static final double CORAL_INTAKE_INDEX_REVERSE = 3; // revolutions to reverse
     public static final double CORAL_SHOOT_SPEED = 30; // 40
     public static final double CORAL_L1_SHOOT_SPEED = -10; // 40
-    public static final double CORAL_SHOOT_TIMEOUT = .4;
+    public static final double CORAL_SHOOT_TIMEOUT = .3;
     public static final double CORAL_L1_SHOOT_TIMEOUT = 1;
+    public static final double CORAL_AUTO_SHOOT_DELAY = 0.15;
     // algae
     public static final double ALGAE_INTAKE_SPEED = -40;
     public static final double ALGAE_HOLD_SPEED = -5;
@@ -148,17 +152,31 @@ public final class Constants {
   }
 
   public static final class INTAKE_CORAL_SENSOR {
-    // LaserCAN distance sensor
-    public static final int CANID = 37;
-    public static final String CANBUS = "rio";
-    public static final double THRESHOLD = 20; // mm
+    public static final CANrangeConstants CONFIGURATION_CONFIGS =
+        new CANrangeConstants(
+            "Coral Sensor",
+            37,
+            "rio",
+            new Segment(2, 2, 0),
+            new CANrangeConfiguration()
+                .withFovParams(
+                    new FovParamsConfigs()
+                        .withFOVCenterX(0)
+                        .withFOVCenterY(0)
+                        .withFOVRangeX(6.75)
+                        .withFOVRangeY(6.75))
+                .withProximityParams(
+                    new ProximityParamsConfigs()
+                        .withProximityThreshold(400 / 1000.0)
+                        .withProximityHysteresis(10 / 1000.0)
+                        .withMinSignalStrengthForValidMeasurement(9000))
+                .withToFParams(
+                    new ToFParamsConfigs()
+                        .withUpdateMode(UpdateModeValue.ShortRange100Hz)
+                        .withUpdateFrequency(50)));
   }
 
   public static final class WRIST {
-    public static final int CANID = 31; // old shooterSubSystem right, top
-    public static final int CANCODER_CANID = 36;
-    public static final String CANBUS = "rio";
-    public static String POSITION_SCORING_ELEMENT = "NULL";
     public static final double REDUCTION = 62.5;
     public static final double MIN_POSITION = 0;
     public static final double MIN_SLOT1_TO_ELEVATE = 0.059; // .0606;
@@ -174,7 +192,7 @@ public final class Constants {
     public static final double L3 = 0.0672; // 3.9; // SEQUENCING LOGIC
     public static final double L4 = 0.0672; // 3.9; // all 3 of these must be the same value
     public static final double CRADLE = 0.192;
-    public static final double SHOOTNET = 0.08;
+    public static final double SHOOTNET = 0.1;
     public static final double PRENET = 0.352;
     public static final double A2 = 0.44;
     public static final double A1 = 0.44;
@@ -182,66 +200,62 @@ public final class Constants {
     public static final double BUMP_VALUE = 0.008; // rotations
     public static final double SAFE = 0.232; // minimum position to move full elevator travel
     public static final double ERROR = 0.008;
-    public static final double CANCODER_OFFSET = -0.056640625; // 0.064453125;
-    // public static final double CANCODER_FACTOR = 1.4634 / 0.02197;
-    public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(120).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
-    public static final Slot1Configs SLOT1_CONFIGS =
-        new Slot1Configs().withKP(50).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
-    public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
-        new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(50) // 60  5
-            .withMotionMagicAcceleration(70) // 240  15
-            .withMotionMagicJerk(400);
   }
 
-  public static final class ELEVATOR { // old AngleSubSystem
-    public static final int LEFT_CANID = 32;
-    public static final int RIGHT_CANID = 33;
-    public static final String CANBUS = "rio";
-    public static final double MAX_POSITION = 27; // 26.5; // MAX_BLOCK6
-    public static final double MAX_POSITION_BLOCK5 = 24; // ????
-    public static final double MAX_POSITION_BLOCK4 = 21; // ????
-    public static final double SAFE_IN_BLOCK4 = 12.5;
-    public static final double MIN_POSITION_BLOCK4 = 10.5; // ????
-    public static final double MAX_POSITION_BLOCK2 = 5.1; // ????
-    public static final double MIN_POSITION_AT_P1 = 3.4; // MIN_BLOCK2
-    public static final double MAX_POSITION_BLOCK0 = 1;
+  public static final class ELEVATOR {
+    public static final double MAX_POSITION = 5.4; // 26.5; // MAX_BLOCK6
+    public static final double MAX_POSITION_BLOCK5 = 4.8; // ????
+    public static final double MAX_POSITION_BLOCK4 = 4.2; // ????
+    public static final double SAFE_IN_BLOCK4 = 2.5;
+    public static final double MIN_POSITION_BLOCK4 = 2.1; // ????
+    public static final double MAX_POSITION_BLOCK2 = 1.02; // ????
+    public static final double MIN_POSITION_AT_P1 = 0.68; // MIN_BLOCK2
+    public static final double MAX_POSITION_BLOCK0 = 0.2;
     public static final double MIN_POSITION = 0; // /MIN_BLOCK0
-    public static final double SHOOTNET = 26.5;
-    public static final double L4 = 23.0;
-    public static final double PRENET = 26.5;
-    public static final double A2 = 15.5;
-    public static final double L3 = 12;
-    public static final double A1 = 9;
-    public static final double L2 = 4.5;
-    public static final double P1 = 3.4;
-    public static final double L1 = 8;
-    public static final double L1_FINAL = 4; // used for pivoting L1 shoot
+    public static final double SHOOTNET = 5.3;
+    public static final double L4 = 4.6;
+    public static final double PRENET = 5.3;
+    public static final double A2 = 3.1;
+    public static final double L3 = 2.4;
+    public static final double A1 = 1.8;
+    public static final double L2 = 0.9;
+    public static final double P1 = 0.68;
+    public static final double L1 = 1.6;
+    public static final double L1_FINAL = 0.8; // used for pivoting L1 shoot
     public static final double INTAKE = 0;
-    public static final double BUMP_VALUE = .5; // rotations
+    public static final double BUMP_VALUE = 0.1; // rotations
     // sequencing contants
-    public static final double MAX_LOW_SAFE = 1;
-    public static final double MIN_MID_SAFE = 11.78;
-    public static final double MAX_MID_SAFE = 16;
-    public static final double MIN_HIGH_SAFE = 24;
+    public static final double MAX_LOW_SAFE = 0.2;
+    public static final double MIN_MID_SAFE = 2.356;
+    public static final double MAX_MID_SAFE = 3.2;
+    public static final double MIN_HIGH_SAFE = 4.8;
     public static final double MAX_LOW_WRIST_MOVE_FROM_SAFE =
-        3; // height to start wrist move if wrist is in safe position
-    //
-    public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(10).withKI(0).withKD(0).withKS(0.5).withKV(0.2).withKA(0);
-    public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
-        new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(40) // 40  5
-            .withMotionMagicAcceleration(120) // 120  60
-            .withMotionMagicJerk(400);
+        0.6; // height to start wrist move if wrist is in safe position
   }
 
   public static final class REEFPOSTSENSOR {
-    // distance sensor
-    public static final int CANID = 47;
-    public static final String CANBUS = "rio";
-    public static final double THRESHOLD = 50; // mm
+    public static final CANrangeConstants CONFIGURATION_CONFIGS =
+        new CANrangeConstants(
+            "Reef Post Sensor",
+            47,
+            "rio",
+            new Segment(3, 3, 0),
+            new CANrangeConfiguration()
+                .withFovParams(
+                    new FovParamsConfigs()
+                        .withFOVCenterX(0)
+                        .withFOVCenterY(0)
+                        .withFOVRangeX(6.75)
+                        .withFOVRangeY(6.75))
+                .withProximityParams(
+                    new ProximityParamsConfigs()
+                        .withProximityThreshold(400 / 1000)
+                        .withProximityHysteresis(10 / 1000)
+                        .withMinSignalStrengthForValidMeasurement(2500))
+                .withToFParams(
+                    new ToFParamsConfigs()
+                        .withUpdateMode(UpdateModeValue.LongRangeUserFreq)
+                        .withUpdateFrequency(25)));
     // must be up against reef for these limits
     public static final double LOW_LIMIT = 100; // mm
     public static final double HIGH_LIMIT = 340; // mm
@@ -265,16 +279,32 @@ public final class Constants {
             .withMotionMagicJerk(500);
   }
 
-  // public static final class RED_TAGS {
-  //   public static final int[] stage = {11, 12, 13};
-  // }
+  public static final class LEDSegment {
+    // standard segments
+    public static final Segment LEFT_SIDE = new Segment(8, 44, 1);
+    public static final Segment MIDDLE = new Segment(45, 62, 2);
+    public static final Segment RIGHT_SIDE = new Segment(63, 98, 3);
+    public static final Segment ALL = new Segment(8, 98, 4);
 
-  // public static final class BLUE_TAGS {
-  //   public static final int[] stage = {14, 15, 16};
-  // }
+    // auton setup
+    public static final Segment AUTON_Y_LEFT = new Segment(45, 8, 0);
+    public static final Segment AUTON_R_LEFT = new Segment(49, 51, 0);
+    public static final Segment AUTON_X_LEFT = new Segment(52, 53, 0);
+    public static final Segment AUTON_X_RIGHT = new Segment(54, 55, 0);
+    public static final Segment AUTON_R_RIGHT = new Segment(56, 58, 0);
+    public static final Segment AUTON_Y_RIGHT = new Segment(59, 62, 0);
+  }
 
-  public static final class LightsConstants {
-    public static final int CANDLE_PORT = 60;
+  public static final class LEDColor {
+    // team colors
+    public static final RGBWColor ORANGE = new RGBWColor(255, 142, 36);
+    public static final RGBWColor BLUE = new RGBWColor(0, 0, 255);
+
+    // indicator colors
+    public static final RGBWColor BLACK = new RGBWColor(0, 0, 0);
+    public static final RGBWColor WHITE = new RGBWColor(255, 230, 220);
+    public static final RGBWColor GREEN = new RGBWColor(56, 209, 0);
+    public static final RGBWColor RED = new RGBWColor(255, 0, 0);
   }
 
   // Aim constants

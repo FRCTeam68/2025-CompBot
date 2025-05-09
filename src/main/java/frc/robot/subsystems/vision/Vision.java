@@ -24,42 +24,49 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.LightsSubsystem;
-import frc.robot.subsystems.LightsSubsystem.LEDSegment;
+import frc.robot.Constants.LEDColor;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.Lights.Segment;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import java.util.LinkedList;
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 
 public class Vision extends SubsystemBase {
+  private final Lights LED;
   private final VisionConsumer consumer;
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
-  private final Alert[] disconnectedAlerts;
-  private int megaTagCounter;
+  private final Alert[] disconnectedAlert;
+  private boolean anyConnected;
+  private final Alert allDisconnectedAlert =
+      new Alert("All vision cameras disconnected.", AlertType.kError);
+  private Double[] rotationSamples = new Double[10]; // Amount of rotation samples to use
+  private final double maxRotationError = 3; // Acceptable error in degrees
+  private int megaTag1Counter;
+  private final Segment rotationInitalizedIndicator = new Segment(6, 1, 0);
+  private final Alert rotationNotInitalizedAlert =
+      new Alert("Robot rotation not initalized. Face robot toward april tag.", AlertType.kError);
 
-  public Vision(VisionConsumer consumer, VisionIO... io) {
+  public Vision(Lights LED, VisionConsumer consumer, VisionIO... io) {
+    this.LED = LED;
     this.consumer = consumer;
     this.io = io;
-    megaTagCounter = 0;
+    anyConnected = false;
+    megaTag1Counter = 0;
 
     // Initialize inputs
+    // and disconnected alerts
     this.inputs = new VisionIOInputsAutoLogged[io.length];
+    this.disconnectedAlert = new Alert[io.length];
     for (int i = 0; i < inputs.length; i++) {
       inputs[i] = new VisionIOInputsAutoLogged();
+      disconnectedAlert[i] = new Alert(inputs[i].name + " is disconnected.", AlertType.kWarning);
     }
 
-    // Initialize disconnected alerts
-    this.disconnectedAlerts = new Alert[io.length];
-    for (int i = 0; i < inputs.length; i++) {
-      disconnectedAlerts[i] =
-          new Alert(
-              "Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
-    }
-
-    // initalize mega tag 1 light
-    LEDSegment.LED6.setColor(LightsSubsystem.red);
+    enableMegaTag1();
   }
 
   /**
@@ -89,11 +96,32 @@ public class Vision extends SubsystemBase {
     return tagPose2d;
   }
 
+  public void enableMegaTag1() {
+    for (int sampleIndex = 0; sampleIndex < rotationSamples.length; sampleIndex++) {
+      rotationSamples[sampleIndex] = null;
+    }
+    // TODO does this work?
+    // rotationSamples = null;
+    for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
+      inputs[cameraIndex].skipMegaTag1 = false;
+    }
+    LED.setSolidColor(LEDColor.GREEN, rotationInitalizedIndicator);
+    rotationNotInitalizedAlert.set(true);
+  }
+
+  public void disableMegaTag1() {
+    for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
+      inputs[cameraIndex].skipMegaTag1 = true;
+    }
+    LED.setSolidColor(LEDColor.GREEN, rotationInitalizedIndicator);
+    rotationNotInitalizedAlert.set(false);
+  }
+
   @Override
   public void periodic() {
     for (int i = 0; i < io.length; i++) {
       io[i].updateInputs(inputs[i]);
-      Logger.processInputs("Vision/Camera" + Integer.toString(i), inputs[i]);
+      Logger.processInputs("Vision/" + inputs[i].name, inputs[i]);
     }
 
     // Initialize logging values
@@ -105,7 +133,8 @@ public class Vision extends SubsystemBase {
     // Loop over cameras
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
       // Update disconnected alert
-      disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
+      disconnectedAlert[cameraIndex].set(!inputs[cameraIndex].connected);
+      if (inputs[cameraIndex].connected) anyConnected = true;
 
       // Initialize logging values
       List<Pose3d> tagPoses = new LinkedList<>();
@@ -145,26 +174,6 @@ public class Vision extends SubsystemBase {
           robotPosesAccepted.add(observation.pose());
         }
 
-        // led status lights
-        if (cameraIndex == 0) {
-          if (!rejectPose) {
-            LEDSegment.LED0.setColor(LightsSubsystem.blue);
-          } else if (inputs[cameraIndex].connected) {
-            LEDSegment.LED0.setColor(LightsSubsystem.green);
-          } else {
-            LEDSegment.LED0.setColor(LightsSubsystem.red);
-          }
-        }
-        if (cameraIndex == 1) {
-          if (!rejectPose) {
-            LEDSegment.LED1.setColor(LightsSubsystem.blue);
-          } else if (inputs[cameraIndex].connected) {
-            LEDSegment.LED1.setColor(LightsSubsystem.green);
-          } else {
-            LEDSegment.LED1.setColor(LightsSubsystem.red);
-          }
-        }
-
         // Skip if rejected
         if (rejectPose) {
           continue;
@@ -190,33 +199,59 @@ public class Vision extends SubsystemBase {
             observation.timestamp(),
             VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
 
+        // Disable Megatag 1
         if (observation.type() == PoseObservationType.MEGATAG_1) {
-          megaTagCounter += 1;
-          if (megaTagCounter > 50) {
-            inputs[cameraIndex].skipMegaTag1 = true;
-            LEDSegment.LED6.setColor(LightsSubsystem.green);
+          for (int sampleIndex = rotationSamples.length - 1; sampleIndex > 0; sampleIndex--) {
+            rotationSamples[sampleIndex] = rotationSamples[sampleIndex - 1];
+          }
+          rotationSamples[0] = Math.toDegrees(observation.pose().getRotation().getAngle());
+          // testing logged value
+          SmartDashboard.putNumber("Testing/MT1 rotation", rotationSamples[0]);
+          if (rotationSamples[rotationSamples.length - 1] != null) {
+            double max = rotationSamples[0];
+            double min = rotationSamples[0];
+            for (int sampleIndex = rotationSamples.length - 1; sampleIndex > 0; sampleIndex--) {
+              max = (rotationSamples[sampleIndex] > max) ? rotationSamples[sampleIndex] : max;
+              min = (rotationSamples[sampleIndex] < min) ? rotationSamples[sampleIndex] : min;
+            }
+            if (max - min < maxRotationError) {
+              disableMegaTag1();
+            }
           }
         }
+
+        // // Disable Megatag 1
+        // if (observation.type() == PoseObservationType.MEGATAG_1) {
+        //   megaTag1Counter += 1;
+        //   if (megaTag1Counter > 50) {
+        //     inputs[cameraIndex].skipMegaTag1 = true;
+        //     LED.setColor(LEDColor.GREEN, rotationInitalizedIndicator);
+        //     rotationNotInitalizedAlert.set(false);
+        //   }
+        // }
       }
 
       // Log camera datadata
       Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/TagPoses",
-          tagPoses.toArray(new Pose3d[tagPoses.size()]));
+          inputs[cameraIndex].name + "/TagPoses", tagPoses.toArray(new Pose3d[tagPoses.size()]));
       Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPoses",
+          inputs[cameraIndex].name + "/RobotPoses",
           robotPoses.toArray(new Pose3d[robotPoses.size()]));
       Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesAccepted",
+          inputs[cameraIndex].name + "/RobotPosesAccepted",
           robotPosesAccepted.toArray(new Pose3d[robotPosesAccepted.size()]));
       Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesRejected",
+          inputs[cameraIndex].name + "/RobotPosesRejected",
           robotPosesRejected.toArray(new Pose3d[robotPosesRejected.size()]));
       allTagPoses.addAll(tagPoses);
       allRobotPoses.addAll(robotPoses);
       allRobotPosesAccepted.addAll(robotPosesAccepted);
       allRobotPosesRejected.addAll(robotPosesRejected);
     }
+
+    // update disconnected alert for all cameras
+    allDisconnectedAlert.set(!anyConnected);
+    anyConnected = false;
 
     // Log summary data
     Logger.recordOutput(

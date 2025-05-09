@@ -15,18 +15,16 @@ package frc.robot;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.CANBus.CANBusStatus;
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.net.WebServer;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.LightsSubsystem;
-import frc.robot.subsystems.LightsSubsystem.LEDSegment;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -87,6 +85,10 @@ public class Robot extends LoggedRobot {
         break;
     }
 
+    // uncomment the line below to log CTRE devices to usb stick
+    SignalLogger.setPath("//media/sda1/logs");
+    // do not call the setPath and will be logged to rio at "/home/lvuser/logs"
+
     // Start AdvantageKit logger
     Logger.start();
 
@@ -113,24 +115,10 @@ public class Robot extends LoggedRobot {
     rioBus = new CANBus("rio");
     CANivoreBus = new CANBus("DRIVEbus");
 
-    // initialize robot poses
-    Logger.recordOutput(
-        "RobotPose/Elevator Stage 1", new Pose3d[] {new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0))});
-    Logger.recordOutput(
-        "RobotPose/Elevator Stage 2", new Pose3d[] {new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0))});
-    Logger.recordOutput(
-        "RobotPose/Wrist", new Pose3d[] {new Pose3d(0.28575, 0, 0.411, new Rotation3d(0, 0, 0))});
-    Logger.recordOutput(
-        "RobotPose/Climber",
-        new Pose3d[] {
-          new Pose3d(
-              -0.2921, 0, 0.4398003396, new Rotation3d(0, Units.degreesToRadians(47.559917), 0))
-        });
-    // use for robot model setup in AdvantageScope
-    // Logger.recordOutput("RobotPose/Zero2d", new Pose2d[] {new Pose2d(0, 0, new Rotation2d(0,
-    // 0))});
-    // Logger.recordOutput(
-    //    "RobotPose/Zero3d", new Pose3d[] {new Pose3d(0, 0, 0, new Rotation3d(0, 0, 0))});
+    // Elasic remote downloading
+    WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
+
+    SignalLogger.start();
   }
 
   /** This function is called periodically during all modes. */
@@ -149,6 +137,8 @@ public class Robot extends LoggedRobot {
     // Return to normal thread priority
     Threads.setCurrentThreadPriority(false, 10);
 
+    robotContainer.updateAlerts();
+
     CANBusStatus canInfo = rioBus.getStatus();
     Logger.recordOutput("CANBUS/DRIVEbus/Util", canInfo.BusUtilization);
     Logger.recordOutput("CANBUS/DRIVEbus/Status", canInfo.Status.getName());
@@ -161,19 +151,7 @@ public class Robot extends LoggedRobot {
     if (!canInfo2.Status.isOK())
       Logger.recordOutput("CANBUS/rio/Desc", canInfo2.Status.getDescription());
 
-    // led status lights
-    if (canInfo.Status.isOK()) {
-      LEDSegment.LED4.setColor(LightsSubsystem.green);
-    } else {
-      LEDSegment.LED4.setColor(LightsSubsystem.red);
-    }
-    if (canInfo2.Status.isOK()) {
-      LEDSegment.LED5.setColor(LightsSubsystem.green);
-    } else {
-      LEDSegment.LED5.setColor(LightsSubsystem.red);
-    }
-
-    RobotContainer.logClimberPose();
+    robotContainer.logClimberPose();
   }
 
   /** This function is called once when the robot is disabled. */
@@ -185,14 +163,15 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
-    RobotContainer.putAutonPoseToDashboard();
-    RobotContainer.autonReadyStatus();
+    robotContainer.autonReadyStatus();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
     autonomousCommand = robotContainer.getAutonomousCommand();
+
+    if (Constants.currentMode == Constants.Mode.SIM) robotContainer.setSimulatedStartingPose();
 
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {
@@ -214,6 +193,8 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+
+    robotContainer.setAutonOn(false);
   }
 
   /** This function is called periodically during operator control. */

@@ -7,15 +7,8 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.util.PhoenixUtil.tryUntilOk;
-
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,53 +18,68 @@ import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
-import frc.robot.subsystems.LightsSubsystem.LEDSegment;
-import frc.robot.subsystems.rollers.RollerSystem;
-import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
+import frc.robot.Constants.LEDColor;
+import frc.robot.Constants.LEDSegment;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.superstructure.SuperstructureVisualizer;
+import frc.robot.subsystems.superstructure.elevator.*;
+import frc.robot.subsystems.superstructure.wrist.*;
 import java.util.Set;
+import java.util.function.Supplier;
 import lombok.Getter;
+import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class ElevatorWristSubSystem extends SubsystemBase {
-
-  private final RollerSystem wrist;
-  private final RollerSystem elevator;
-
-  @SuppressWarnings("unused")
-  private final RollerSystem elevatorFollower;
+public class ElevatorWristSubsystem extends SubsystemBase {
+  private static Supplier<Pose2d> robotPoseSupplier = () -> new Pose2d();
+  private final Lights LED;
+  private final Wrist wrist;
+  private final Elevator elevator;
 
   @SuppressWarnings("unused")
-  private final RangeSensorSubSystem reefPostSensor;
-
-  private final CANcoder wristCANcoder;
-  private final CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
+  private final RangeSensorSubsystem reefPostSensor;
 
   //   @Getter @AutoLogOutput private double setpoint = 0.0;
+  @Getter @AutoLogOutput private boolean reefPostDetectedRaw = false;
   @Getter @AutoLogOutput public static boolean reefPostDetected = false;
   @Getter @AutoLogOutput private boolean reefPostSensorDetected = false;
   @Getter @AutoLogOutput private double reefPostSensorDistance = 0.0;
   @Getter @AutoLogOutput private double reefPostAvgDistance = 0.0;
   private LinearFilter reefPostFilter;
+  @Getter @Setter @AutoLogOutput private boolean lookingToShoot = false;
+  @Getter @Setter @AutoLogOutput private boolean autoShootOn = false;
+  private boolean prevIndicateToShoot = false;
 
-  @Getter private double wristAngle = 0.0;
-  private double e_goal = 0;
-  private double w_goal = 0;
-  private double e_bump_goal = 0;
-  private double w_bump_goal = 0;
+  private final SuperstructureVisualizer measuredVisualizer =
+      new SuperstructureVisualizer("Measured");
+  private final SuperstructureVisualizer setpointVisualizer =
+      new SuperstructureVisualizer("Setpoint");
 
-  public ElevatorWristSubSystem() {
+  public ElevatorWristSubsystem(Lights LED, Supplier<Pose2d> supplier) {
+    this.LED = LED;
+    this.robotPoseSupplier = supplier;
 
-    reefPostFilter = LinearFilter.movingAverage(10);
+    reefPostFilter = LinearFilter.movingAverage(4);
     Logger.recordOutput(
-        "ElevatorWristSubSystem/reefPostHighLimit", Constants.REEFPOSTSENSOR.HIGH_LIMIT);
+        "ElevatorWristSubsystem/reefPostHighLimit", Constants.REEFPOSTSENSOR.HIGH_LIMIT);
 
-    wristCANcoder = new CANcoder(Constants.WRIST.CANCODER_CANID, Constants.WRIST.CANBUS);
-    cancoderConfig.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(0.9);
-    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-    cancoderConfig.MagnetSensor.MagnetOffset = Constants.WRIST.CANCODER_OFFSET;
-    tryUntilOk(5, () -> wristCANcoder.getConfigurator().apply(cancoderConfig));
+    switch (Constants.currentMode) {
+      case REAL:
+        wrist = new Wrist(new WristIOTalonFX());
+        elevator = new Elevator(new ElevatorIOTalonFX());
+        break;
+      case SIM:
+        wrist = new Wrist(new WristIOSim());
+        elevator = new Elevator(new ElevatorIOSim());
+        break;
+      default:
+        wrist = new Wrist(new WristIO() {});
+        elevator = new Elevator(new ElevatorIO() {});
+        break;
+    }
 
+<<<<<<< HEAD:src/main/java/frc/robot/subsystems/ElevatorWristSubSystem.java
     wrist =
         new RollerSystem(
             "Wrist",
@@ -131,21 +139,29 @@ public class ElevatorWristSubSystem extends SubsystemBase {
             Constants.REEFPOSTSENSOR.CANID,
             Constants.REEFPOSTSENSOR.CANBUS,
             Constants.REEFPOSTSENSOR.THRESHOLD);
+=======
+    reefPostSensor = new RangeSensorSubsystem(LED, Constants.REEFPOSTSENSOR.CONFIGURATION_CONFIGS);
+>>>>>>> offseason-cleanup:src/main/java/frc/robot/subsystems/ElevatorWristSubsystem.java
 
     zero();
   }
 
-  public void zero() {
+  private void zero() {
     elevator.zero();
   }
 
   public void periodic() {
-    reefPostSensorDetected = reefPostSensor.havePiece();
+    reefPostSensorDetected = reefPostSensor.isDetected();
     reefPostSensorDistance = reefPostSensor.getDistance_mm();
     reefPostAvgDistance = reefPostFilter.calculate(reefPostSensorDistance);
-    reefPostDetected =
+    reefPostDetectedRaw =
         (reefPostAvgDistance > Constants.REEFPOSTSENSOR.LOW_LIMIT)
             && (reefPostAvgDistance < Constants.REEFPOSTSENSOR.HIGH_LIMIT);
+    if (Constants.bypassReefDetection) {
+      reefPostDetected = true;
+    } else {
+      reefPostDetected = reefPostDetectedRaw;
+    }
     if (Constants.tuningMode) {
       SmartDashboard.putNumber("Reef Post Sensor Avg Distance", reefPostAvgDistance);
       SmartDashboard.putNumber("Reef Post Sensor Distance", reefPostSensorDistance);
@@ -153,48 +169,34 @@ public class ElevatorWristSubSystem extends SubsystemBase {
     }
     SmartDashboard.putBoolean("Reef Post Detected", reefPostDetected);
 
-    wristAngle = wristCANcoder.getPosition().getValueAsDouble();
-    SmartDashboard.putNumber("WristAngle", wristAngle);
-    SmartDashboard.putBoolean("Wrist Zeroed", wristAngle < 0.001);
+    boolean indicateToShoot = reefPostDetectedRaw && lookingToShoot;
+    if (indicateToShoot != prevIndicateToShoot) {
+      if (indicateToShoot) {
+        LED.setSolidColor(LEDColor.RED, LEDSegment.ALL);
+      } else {
+        LED.disableLEDs(LEDSegment.ALL);
+      }
+      prevIndicateToShoot = indicateToShoot;
+    }
+
     // robot poses
-    Logger.recordOutput(
-        "RobotPose/Elevator Stage 1",
-        new Pose3d[] {
-          new Pose3d(
-              0, 0, Units.inchesToMeters(elevator.getPosition() / 5 * 5.5), new Rotation3d(0, 0, 0))
-        });
-    Logger.recordOutput(
-        "RobotPose/Elevator Stage 2",
-        new Pose3d[] {
-          new Pose3d(
-              0,
-              0,
-              Units.inchesToMeters((elevator.getPosition() / 5 * 5.5) * 2),
-              new Rotation3d(0, 0, 0))
-        });
-    Logger.recordOutput(
-        "RobotPose/Wrist",
-        new Pose3d[] {
-          new Pose3d(
-              0.28575,
-              0,
-              0.411 + Units.inchesToMeters((elevator.getPosition() / 5 * 5.5) * 2),
-              new Rotation3d(0, Units.rotationsToRadians(wrist.getPosition()), 0))
-        });
+    measuredVisualizer.update(
+        elevator.getPositionMeters(), wrist.getPosition(), indicateToShoot, indicateToShoot);
+    setpointVisualizer.update(
+        elevator.getPositionMeters(), wrist.getPosition(), indicateToShoot, indicateToShoot);
   }
 
-  public RollerSystem getElevator() {
+  public Elevator getElevator() {
     return elevator;
   }
 
-  public RollerSystem getWrist() {
+  public Wrist getWrist() {
     return wrist;
   }
 
   @AutoLogOutput
-  public Command setPositionCmd(double e_goal, double w_goal) {
+  public Command setPositionCmdFailsafe(double e_goal, double w_goal) {
     return Commands.sequence(
-        Commands.runOnce(() -> LEDSegment.all.setColor(LightsSubsystem.red)),
         new ConditionalCommand(
             runOnce(() -> elevator.setPosition(Constants.ELEVATOR.SAFE_IN_BLOCK4))
                 .andThen(new WaitUntilCommand(() -> elevator.atPosition())),
@@ -207,10 +209,10 @@ public class ElevatorWristSubSystem extends SubsystemBase {
               // go up to safe position to do wrist next
               return (wrist.getPosition() > Constants.WRIST.MIN_SLOT1_TO_ELEVATE
                       && wrist.getPosition() < Constants.WRIST.MAX_SLOT1_TO_ELEVATE
-                      && elevator.getPosition() > Constants.ELEVATOR.MAX_POSITION_BLOCK4)
-                  || (elevator.getPosition() < e_goal
-                      && elevator.getPosition() > Constants.ELEVATOR.MAX_POSITION_BLOCK2
-                      && elevator.getPosition() < Constants.ELEVATOR.MIN_POSITION_BLOCK4
+                      && elevator.getPositionRotations() > Constants.ELEVATOR.MAX_POSITION_BLOCK4)
+                  || (elevator.getPositionRotations() < e_goal
+                      && elevator.getPositionRotations() > Constants.ELEVATOR.MAX_POSITION_BLOCK2
+                      && elevator.getPositionRotations() < Constants.ELEVATOR.MIN_POSITION_BLOCK4
                       && wrist.getPosition() > Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR);
             }),
         new ConditionalCommand( // true, wrist first, then elevator
@@ -228,7 +230,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
               // (then in next command it will do elevator, then wrist again)
               return (wrist.getPosition() > Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN
                       && w_goal < Constants.WRIST.MIN_POSITION_TO_CLEAR_ELEVATOR)
-                  || (elevator.getPosition() < Constants.ELEVATOR.MAX_POSITION_BLOCK0
+                  || (elevator.getPositionRotations() < Constants.ELEVATOR.MAX_POSITION_BLOCK0
                       && e_goal > Constants.ELEVATOR.MAX_POSITION_BLOCK0
                       && w_goal > Constants.WRIST.MAX_SLOT1_TO_ELEVATE);
             }),
@@ -252,27 +254,38 @@ public class ElevatorWristSubSystem extends SubsystemBase {
               // and if elevator currently between 3.4 and 5.1 (e.g. L2)
               //     or
               //     if elevator curruntly between 10.5 and 21 (e.g L3)
-              return (e_goal >= elevator.getPosition()
+              return (e_goal >= elevator.getPositionRotations()
                       && w_goal <= Constants.WRIST.MAX_SLOT1_TO_ELEVATE)
                   || (w_goal <= Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN
                       && w_goal > Constants.WRIST.MAX_SLOT1_TO_ELEVATE)
                   || (w_goal > Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN
-                      && ((elevator.getPosition() < Constants.ELEVATOR.MAX_POSITION_BLOCK2
-                              && elevator.getPosition() > Constants.ELEVATOR.MIN_POSITION_AT_P1)
-                          || (elevator.getPosition() < Constants.ELEVATOR.MAX_POSITION_BLOCK4
-                              && elevator.getPosition() > Constants.ELEVATOR.MIN_POSITION_BLOCK4)));
+                      && ((elevator.getPositionRotations() < Constants.ELEVATOR.MAX_POSITION_BLOCK2
+                              && elevator.getPositionRotations()
+                                  > Constants.ELEVATOR.MIN_POSITION_AT_P1)
+                          || (elevator.getPositionRotations()
+                                  < Constants.ELEVATOR.MAX_POSITION_BLOCK4
+                              && elevator.getPositionRotations()
+                                  > Constants.ELEVATOR.MIN_POSITION_BLOCK4)));
             }));
   }
 
+<<<<<<< HEAD:src/main/java/frc/robot/subsystems/ElevatorWristSubSystem.java
   public Command setPositionCmdNew(double e_goal, double w_goal) {
     return setPositionCmdNew(e_goal, w_goal, 0);
   }
 
   public Command setPositionCmdNew(double e_goal, double w_goal, int wristSlot) {
+=======
+  public Command setPositionCmd(double e_goal, double w_goal) {
+    return setPositionCmd(e_goal, w_goal, 0);
+  }
+
+  public Command setPositionCmd(double e_goal, double w_goal, int wristSlot) {
+>>>>>>> offseason-cleanup:src/main/java/frc/robot/subsystems/ElevatorWristSubsystem.java
     return new DeferredCommand(
         () -> {
           // initialization
-          double e_current = elevator.getPosition();
+          double e_current = elevator.getPositionRotations();
           double w_current = wrist.getPosition();
           Command sequence0;
           Command sequence1;
@@ -315,8 +328,17 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                     Commands.runOnce(() -> elevator.setPosition(e_goal)),
                     Commands.waitUntil(
                         () ->
+<<<<<<< HEAD:src/main/java/frc/robot/subsystems/ElevatorWristSubSystem.java
                             (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE)
                                 || elevator.atPosition()));
+=======
+                            (elevator.getPositionRotations() >= Constants.ELEVATOR.MIN_MID_SAFE)
+                                || elevator.atPosition()));
+
+            // MAX_LOW_WRIST_MOVE_FROM_SAFE
+
+            // Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)));
+>>>>>>> offseason-cleanup:src/main/java/frc/robot/subsystems/ElevatorWristSubsystem.java
             // Commands.waitUntil(() -> wrist.atPosition()),
             // Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)));
 
@@ -365,7 +387,11 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                           () -> wrist.setPosition(Constants.WRIST.SLOT1_TO_ELEVATE, wristSlot)),
                       Commands.runOnce(() -> elevator.setPosition(e_goal)),
                       Commands.waitUntil(
+<<<<<<< HEAD:src/main/java/frc/robot/subsystems/ElevatorWristSubSystem.java
                           () -> elevator.getPosition() <= Constants.ELEVATOR.MAX_LOW_SAFE),
+=======
+                          () -> elevator.getPositionRotations() <= Constants.ELEVATOR.MAX_LOW_SAFE),
+>>>>>>> offseason-cleanup:src/main/java/frc/robot/subsystems/ElevatorWristSubsystem.java
                       Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
                       Commands.waitUntil(() -> elevator.atPosition()));
             } else {
@@ -379,7 +405,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                       Commands.runOnce(() -> elevator.setPosition(e_goal)),
                       Commands.waitUntil(
                           () ->
-                              elevator.getPosition()
+                              elevator.getPositionRotations()
                                   <= Constants.ELEVATOR.MAX_LOW_WRIST_MOVE_FROM_SAFE),
                       Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)));
             }
@@ -406,14 +432,15 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                       Commands.runOnce(
                           () ->
                               elevator.setPosition(
-                                  Constants.ELEVATOR.MAX_MID_SAFE
-                                      - Constants.ELEVATOR.MIN_MID_SAFE
-                                      + Constants.ELEVATOR.MIN_MID_SAFE)),
+                                  (Constants.ELEVATOR.MAX_MID_SAFE
+                                          + Constants.ELEVATOR.MIN_MID_SAFE)
+                                      / 2)),
                       Commands.waitUntil(
                           () ->
-                              (elevator.getPosition() <= Constants.ELEVATOR.MAX_MID_SAFE)
-                                  && (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE)));
-              if (e_goal > elevator.getPosition()) {
+                              (elevator.getPositionRotations() <= Constants.ELEVATOR.MAX_MID_SAFE)
+                                  && (elevator.getPositionRotations()
+                                      >= Constants.ELEVATOR.MIN_MID_SAFE)));
+              if (e_goal > elevator.getPositionRotations()) {
                 sequence2 =
                     Commands.sequence(
                         Commands.runOnce(
@@ -441,14 +468,21 @@ public class ElevatorWristSubSystem extends SubsystemBase {
                       Commands.runOnce(
                           () ->
                               elevator.setPosition(
-                                  Constants.ELEVATOR.MAX_MID_SAFE
-                                      - Constants.ELEVATOR.MIN_MID_SAFE
-                                      + Constants.ELEVATOR.MIN_MID_SAFE)),
+                                  (Constants.ELEVATOR.MAX_MID_SAFE
+                                          + Constants.ELEVATOR.MIN_MID_SAFE)
+                                      / 2)),
                       Commands.waitUntil(
                           () ->
+<<<<<<< HEAD:src/main/java/frc/robot/subsystems/ElevatorWristSubSystem.java
                               (elevator.getPosition() <= Constants.ELEVATOR.MAX_MID_SAFE)
                                   && (elevator.getPosition() >= Constants.ELEVATOR.MIN_MID_SAFE)),
                       Commands.waitSeconds(.3),
+=======
+                              (elevator.getPositionRotations() <= Constants.ELEVATOR.MAX_MID_SAFE)
+                                  && (elevator.getPositionRotations()
+                                      >= Constants.ELEVATOR.MIN_MID_SAFE)),
+                      // Commands.waitSeconds(.05),
+>>>>>>> offseason-cleanup:src/main/java/frc/robot/subsystems/ElevatorWristSubsystem.java
                       Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
                       Commands.runOnce(() -> elevator.setPosition(e_goal)));
             }
@@ -494,25 +528,25 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   }
 
   public Command BumpElevatorPosition(double bumpValue) {
-    // double elevatorNow = elevator.getPosition();
+    // double elevatorNow = elevator.getPositionRotations();
     return new ConditionalCommand(
-        runOnce(() -> elevator.setPosition(elevator.getPosition() + bumpValue)),
+        runOnce(() -> elevator.setPosition(elevator.getPositionRotations() + bumpValue)),
         Commands.none(),
         () -> {
-          double elevatorNow = elevator.getPosition();
+          double elevatorNow = elevator.getPositionRotations();
           return elevatorNow + bumpValue > Constants.ELEVATOR.MIN_POSITION - 0.2
               && elevatorNow + bumpValue < Constants.ELEVATOR.MAX_POSITION;
         });
   }
 
   public Command BumpWristPosition(double bumpValue) {
-    // double elevatorNow = elevator.getPosition();
+    // double elevatorNow = elevator.getPositionRotations();
     return new ConditionalCommand(
         runOnce(() -> wrist.setPosition(wrist.getPosition() + bumpValue)),
         Commands.none(),
         () -> {
           double wristNow = wrist.getPosition();
-          double elevatorNow = elevator.getPosition();
+          double elevatorNow = elevator.getPositionRotations();
           return (wristNow + bumpValue > Constants.WRIST.MIN_POSITION - 0.2
                   && wristNow + bumpValue < Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN)
               || (elevatorNow >= Constants.ELEVATOR.MIN_POSITION_AT_P1 - 0.2
@@ -534,7 +568,7 @@ public class ElevatorWristSubSystem extends SubsystemBase {
               Logger.recordOutput(
                   "Elevator/StaticCharacterizationOutput", state.characterizationOutput);
             })
-        .until(() -> elevator.getPosition() >= Constants.ELEVATOR.MAX_POSITION - 1)
+        .until(() -> elevator.getPositionRotations() >= Constants.ELEVATOR.MAX_POSITION - 1)
         .finallyDo(
             () -> {
               // stopProfile = false;
@@ -557,7 +591,8 @@ public class ElevatorWristSubSystem extends SubsystemBase {
               Logger.recordOutput(
                   "Wrist/StaticCharacterizationOutput", state.characterizationOutput);
             })
-        .until(() -> elevator.getPosition() >= Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN)
+        .until(
+            () -> elevator.getPositionRotations() >= Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN)
         .finallyDo(
             () -> {
               // stopProfile = false;
@@ -578,6 +613,6 @@ public class ElevatorWristSubSystem extends SubsystemBase {
   public Command haltCmd() {
     return Commands.sequence(
         runOnce(() -> wrist.setPosition(wrist.getPosition())),
-        runOnce(() -> elevator.setPosition(elevator.getPosition())));
+        runOnce(() -> elevator.setPosition(elevator.getPositionRotations())));
   }
 }

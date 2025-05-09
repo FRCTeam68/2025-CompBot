@@ -5,167 +5,39 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "C_Start-H"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "coralToL4"
-                }
-              }
-            ]
+            "pathName": "C_Start-H"
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "shoot"
+            "pathName": "C_H-AlgaeA1IntakePosition"
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "C_H-AlgaeA1IntakePosition"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "algaeFromA1"
-                }
-              }
-            ]
+            "pathName": "C_AlgaeA1IntakePosition-A1"
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "C_AlgaeA1IntakePosition-A1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "intake"
-                }
-              }
-            ]
+            "pathName": "C1_A1-Processer"
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "C1_A1-Processer"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.8
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "algaeToP1"
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
+            "pathName": "C1_Processor-EFalgae"
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "shoot"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "C1_Processor-EFalgae"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "algaeFromA2"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "intake"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "C1_EFalgae-Processor"
-                }
-              },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.6
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "algaeToP1"
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shoot"
+            "pathName": "C1_EFalgae-Processor"
           }
         }
       ]
