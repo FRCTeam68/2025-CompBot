@@ -583,8 +583,14 @@ public class RobotContainer {
     autoChooser.addOption(
         "AUTON CENTER NET",
         autons
-            .centerNet(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)
+            .centerNet(
+                intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED, false)
             .withName("CENTER NET"));
+    autoChooser.addOption(
+        "AUTON CENTER NET PLAYOFF",
+        autons
+            .centerNet(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED, true)
+            .withName("CENTER NET PLAYOFF"));
     autoChooser.addOption("NONE", Commands.none());
     // Set up SysId routines
     if (Constants.tuningMode) {
