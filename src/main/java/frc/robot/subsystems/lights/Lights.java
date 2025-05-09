@@ -28,7 +28,7 @@ public class Lights extends SubsystemBase {
 
   // Default values
   @Getter private static final double onboardLEDBrightness = 0.5;
-  private final double defaultAnimationSpeed = 4;
+  private final double defaultAnimationSpeed = 200;
   private final AnimationDirectionValue defaultAnimationDirection = AnimationDirectionValue.Forward;
 
   public Lights(LightsIO io) {

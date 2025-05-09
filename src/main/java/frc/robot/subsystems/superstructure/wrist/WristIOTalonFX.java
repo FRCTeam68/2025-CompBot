@@ -80,9 +80,9 @@ public class WristIOTalonFX implements WristIO {
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
     // Motion limits
-    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.544;
-    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
     // Feedback
     config.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
@@ -105,8 +105,7 @@ public class WristIOTalonFX implements WristIO {
         () ->
             BaseStatusSignal.setUpdateFrequencyForAll(
                 50.0, position, velocity, appliedVoltage, torqueCurrent, magnetHealth));
-    tryUntilOk(
-        5, () -> BaseStatusSignal.setUpdateFrequencyForAll(250.0, supplyCurrent, tempCelsius));
+    tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(4.0, supplyCurrent, tempCelsius));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon, cancoder));
   }
 
@@ -150,24 +149,24 @@ public class WristIOTalonFX implements WristIO {
 
   @Override
   public void setPID(SlotConfigs... newconfig) {
-    // config.Slot0.GravityType = gravityType;
+    config.Slot0.GravityType = gravityType;
     config.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
     config.Slot0.kP = newconfig[0].kP;
     config.Slot0.kI = newconfig[0].kI;
     config.Slot0.kD = newconfig[0].kD;
     config.Slot0.kV = newconfig[0].kV;
     config.Slot0.kA = newconfig[0].kA;
-    // config.Slot0.kG = newconfig[0].kG;
+    config.Slot0.kG = newconfig[0].kG;
     config.Slot0.kS = newconfig[0].kS;
     if (newconfig.length > 1) {
-      // config.Slot1.GravityType = gravityType;
+      config.Slot1.GravityType = gravityType;
       config.Slot1.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
       config.Slot1.kP = newconfig[1].kP;
       config.Slot1.kI = newconfig[1].kI;
       config.Slot1.kD = newconfig[1].kD;
       config.Slot1.kV = newconfig[1].kV;
       config.Slot1.kA = newconfig[1].kA;
-      // config.Slot1.kG = newconfig[1].kG;
+      config.Slot1.kG = newconfig[1].kG;
       config.Slot1.kS = newconfig[1].kS;
     }
     if (newconfig.length > 2) {

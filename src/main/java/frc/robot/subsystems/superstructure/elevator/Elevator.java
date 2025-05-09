@@ -33,7 +33,7 @@ public class Elevator extends SubsystemBase {
       new LoggedTunableNumber(pathName + "/Motion Magic Configs/Jerk", 400);
 
   private LoggedTunableNumber setpointBand =
-      new LoggedTunableNumber(pathName + "/setpointBand", 0.005);
+      new LoggedTunableNumber(pathName + "/setpointBand", 0.2);
 
   @Getter private double setpoint = 0.0;
 

@@ -125,7 +125,7 @@ public class Wrist extends SubsystemBase {
     setpoint = position;
     Logger.recordOutput(pathName + "/setpointPosition", setpoint);
     Logger.recordOutput(pathName + "/slot", slot);
-    io.setPosition(position, 0);
+    io.setPosition(position, slot);
   }
 
   /**
