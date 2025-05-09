@@ -275,12 +275,16 @@ public class autons {
   public static Command centerNet(
       RollerSystem myIntake,
       RollerSystem myIntakeLow,
-      ElevatorWristSubsystem myElevatorWrist,
-      RangeSensorSubsystem intake_sensor,
-      Lights LED) {
-
-    PathPlannerPath[] path = pathBuilder("AUTON_CENTER_NET");
-
+      ElevatorWristSubSystem myElevatorWrist,
+      RangeSensorSubSystem intake_sensor,
+      Boolean playoff) {
+    // if (playoff) {
+    //   PathPlannerPath[] path = pathBuilder("PLAYOFFS_AUTON_CENTER_NET");
+    // } else {
+    //   PathPlannerPath[] path = pathBuilder("AUTON_CENTER_NET");
+    // }
+    PathPlannerPath[] path =
+        pathBuilder(playoff ? "PLAYOFFS_AUTON_CENTER_NET" : "AUTON_CENTER_NET");
     return Commands.sequence(
         Commands.runOnce(() -> ManipulatorCommands.setHavePiece(true)),
         Commands.parallel(
