@@ -1,30 +1,64 @@
 package frc.robot.subsystems.lights;
 
 import com.ctre.phoenix6.controls.ControlRequest;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.ctre.phoenix6.signals.RGBWColor;
+import frc.robot.Constants.LEDSegment;
+import frc.robot.subsystems.lights.Lights.Segment;
 import java.util.Map;
 import org.littletonrobotics.junction.networktables.LoggedNetworkString;
 
 public class LightsIOSim implements LightsIO {
-  private static final String tableKey = "/Simulation/CANdle";
+  private final String tableKey = "/Simulation/CANdle";
+  private final String defaultHex = "#000000";
 
-  private static String[] integratedLEDValues = new String[8];
-  private static String[] lastIntegratedLEDValues = new String[8];
+  // {Hex, Control, Name, Segment}
+  private String[] integratedLEDValues = new String[8];
+  private final String[] integratedLEDNames = {"0", "1", "2", "3", "4", "5", "6", "7"};
+  private String[] otherLEDValues = new String[1];
+  private final String[] otherLEDNames = {"All"};
+  private final Segment[] otherLEDSegments = {LEDSegment.ALL};
+  private Object[][] LEDValues = new Object[8 + otherLEDSegments.length][4];
+
+  private LoggedNetworkString[] loggedLEDValues =
+      new LoggedNetworkString[integratedLEDValues.length + otherLEDValues.length];
 
   public LightsIOSim() {
-    for (int i = 0; i < integratedLEDValues.length; i++) {
-      integratedLEDValues[i] = "#000000";
+    for (int i = 0; i < 8; i++) {
+      LEDValues[i] = new Object[] {defaultHex, "Solid", integratedLEDNames[i]};
+      loggedLEDValues[i] =
+          new LoggedNetworkString(
+              tableKey + "/Integrated/" + i + " - " + integratedLEDNames[i],
+              LEDValues[i][0].toString());
     }
+
+    for (int i = 0; i < otherLEDSegments.length; i++) {
+      LEDValues[i + 8] = new Object[] {defaultHex, "Solid", otherLEDNames[i], otherLEDSegments[i]};
+      loggedLEDValues[i + 8] =
+          new LoggedNetworkString(
+              tableKey + "/Other/" + otherLEDNames[i], LEDValues[i + 8][0].toString());
+    }
+
+    // for (int i = 0; i < integratedLEDValues.length; i++) {
+    //   integratedLEDValues[i] = "#000000";
+    //   loggedLEDValues[i] =
+    //       new LoggedNetworkString(
+    //           tableKey + "/Integrated/" + i + " - " + integratedLEDNames[i],
+    //           integratedLEDValues[i]);
+    // }
+
+    // for (int i = 0; i < otherLEDValues.length; i++) {
+    //   otherLEDValues[i] = "#000000";
+    //   loggedLEDValues[i + 8] =
+    //       new LoggedNetworkString(tableKey + "/Other/" + otherLEDNames[i], otherLEDValues[i]);
+    // }
   }
 
   @Override
   public void updateInputs(LightsIOInputs inputs) {
     inputs.connected = true;
-    if (integratedLEDValues != lastIntegratedLEDValues) {
-      for (int j = 0; j < integratedLEDValues.length; j++) {
-        new LoggedNetworkString(tableKey + "/" + String.valueOf(j), integratedLEDValues[j]);
-      }
-      lastIntegratedLEDValues = integratedLEDValues;
+
+    for (int i = 0; i < loggedLEDValues.length; i++) {
+      loggedLEDValues[i].set(LEDValues[i][0].toString());
     }
   }
 
@@ -34,42 +68,23 @@ public class LightsIOSim implements LightsIO {
     String name = controlInfo.get("Name");
     if (name != "EmptyAnimation") {
       int startIndex = Integer.parseInt(request.getControlInfo().get("LEDStartIndex"));
-      SmartDashboard.putNumber("test1", startIndex);
       int endIndex = Integer.parseInt(request.getControlInfo().get("LEDEndIndex"));
-      SmartDashboard.putNumber("test2", endIndex);
-      String color = colorStringToHex(request.getControlInfo().get("Color"));
-      SmartDashboard.putString("test3", color);
-      integratedLEDValues[1] = color;
-      if (startIndex <= 7) {
-        for (int i = startIndex; i <= Math.min(7, endIndex); i++) {
-          integratedLEDValues[i] = color;
-        }
+      String colorHex = stringToHex(request.getControlInfo().get("Color"));
+      for (int i = startIndex; i <= Math.min(7, endIndex); i++) {
+        LEDValues[i][0] = colorHex;
       }
     }
   }
-  // RGBW(255, 45,5,0)
-  private String colorStringToHex(String color) {
-    String[] splitColors = color.substring(5).replace(")", "").split(",");
+
+  private String stringToHex(String colorString) {
+    String[] splitColors = colorString.substring(5).replace(")", "").split(",");
     int red = Integer.parseInt(splitColors[0].trim());
     int green = Integer.parseInt(splitColors[1].trim());
     int blue = Integer.parseInt(splitColors[2].trim());
+    int white = Integer.parseInt(splitColors[3].trim());
 
-    StringBuilder hex = new StringBuilder(7);
-    hex.append('#');
-    hex.append(nibbleToHex((red >> 4) & 0xF));
-    hex.append(nibbleToHex(red & 0xF));
-    hex.append(nibbleToHex((green >> 4) & 0xF));
-    hex.append(nibbleToHex(green & 0xF));
-    hex.append(nibbleToHex((blue >> 4) & 0xF));
-    hex.append(nibbleToHex(blue & 0xF));
-    return hex.toString();
-  }
+    RGBWColor color = new RGBWColor(red, green, blue, white);
 
-  private static char nibbleToHex(int nibble) {
-    if (nibble < 10) {
-      return (char) (nibble + '0');
-    } else {
-      return (char) (nibble - 10 + 'A');
-    }
+    return color.toHexString().substring(0, 7);
   }
 }
