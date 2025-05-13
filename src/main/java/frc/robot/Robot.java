@@ -161,7 +161,8 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
-    robotContainer.autonReadyStatus();
+    robotContainer.loadAutonPath();
+    // robotContainer.autonReadyStatus();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -169,10 +170,12 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     autonomousCommand = robotContainer.getAutonomousCommand();
 
-    if (Constants.currentMode == Constants.Mode.SIM) robotContainer.setSimulatedStartingPose();
+    robotContainer.loadAutonPath();
 
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {
+      if (Constants.currentMode == Constants.Mode.SIM)
+        robotContainer.setStartingMechanismPosition();
       autonomousCommand.schedule();
     }
   }

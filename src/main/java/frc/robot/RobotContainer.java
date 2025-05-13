@@ -16,9 +16,6 @@ package frc.robot;
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -31,11 +28,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.LEDColor;
-import frc.robot.Constants.LEDSegment;
 import frc.robot.commands.*;
-import frc.robot.commands.auton.autons;
+import frc.robot.commands.auton.Auton;
+import frc.robot.commands.auton.Auton.AutonPath;
+import frc.robot.commands.auton.Auton.Sequence;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ElevatorWristSubsystem;
 import frc.robot.subsystems.RangeSensorSubsystem;
@@ -62,7 +58,6 @@ import frc.robot.subsystems.superstructure.SuperstructureVisualizer;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.util.AllianceFlipUtil;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -84,6 +79,7 @@ public class RobotContainer {
   private final ElevatorWristSubsystem elevatorWrist;
   private final Lights LED;
   private ReefCentering reefCentering;
+  private final Auton auton;
 
   // Controllers
   private static final CommandXboxController m_xboxController = new CommandXboxController(0);
@@ -94,7 +90,7 @@ public class RobotContainer {
       new Alert("Ps4 controller disconnected.", AlertType.kError);
 
   // Autons
-  private static LoggedDashboardChooser<Command> autoChooser;
+  private static LoggedDashboardChooser<AutonPath> autoChooser;
   private static String m_autonName;
 
   @Getter private static boolean m_overideMode = false;
@@ -240,8 +236,9 @@ public class RobotContainer {
     SmartDashboard.putString("BumpMode", "ELEVATOR");
     SmartDashboard.putString("AutoShoot", "OFF");
 
-    // Set up auton chooser
+    // Set up auton
     configureAutonChooser();
+    auton = new Auton(drive);
 
     // Configure the button bindings
     configureButtonBindings();
@@ -532,55 +529,44 @@ public class RobotContainer {
 
   private void configureAutonChooser() {
     autoChooser = new LoggedDashboardChooser<>("Auto/Auto Choices");
-    // Set up autos
+    autoChooser.addOption("LEFT", new AutonPath(Sequence.Side, "Left Group"));
+    autoChooser.addOption("RIGHT", new AutonPath(Sequence.Side, "Right Group"));
     autoChooser.addOption(
-        "AUTON LEFT",
-        autons
-            .side(true, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)
-            .withName("LEFT"));
+        "CENTER LEFT PROCESSOR",
+        new AutonPath(Sequence.Processor, "Center Start Left Group", "Center Processor Group"));
     autoChooser.addOption(
-        "AUTON RIGHT",
-        autons
-            .side(false, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)
-            .withName("RIGHT"));
+        "CENTER RIGHT PROCESSOR",
+        new AutonPath(Sequence.Processor, "Center Start Right Group", "Center Processor Group"));
     autoChooser.addOption(
-        "AUTON CENTER PROCESSOR",
-        autons
-            .centerProcessor(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)
-            .withName("CENTER PROCESSOR"));
+        "CENTER LEFT NET",
+        new AutonPath(Sequence.Net, "Center Start Left Group", "Center Net Group"));
     autoChooser.addOption(
-        "AUTON CENTER NET",
-        autons
-            .centerNet(
-                intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED, false)
-            .withName("CENTER NET"));
-    autoChooser.addOption(
-        "AUTON CENTER NET PLAYOFF",
-        autons
-            .centerNet(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED, true)
-            .withName("CENTER NET PLAYOFF"));
-    autoChooser.addOption("NONE", Commands.none());
+        "CENTER RIGHT NET",
+        new AutonPath(Sequence.Net, "Center Start Right Group", "Center Net Group"));
+    autoChooser.addOption("NONE", null);
 
     // Set up SysId routines
-    if (Constants.tuningMode) {
-      autoChooser.addOption(
-          "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-      autoChooser.addOption(
-          "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-      autoChooser.addOption(
-          "Drive SysId (Quasistatic Forward)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      autoChooser.addOption(
-          "Drive SysId (Quasistatic Reverse)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-      autoChooser.addOption(
-          "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-      autoChooser.addOption(
-          "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-      autoChooser.addOption("Elevator static", elevatorWrist.staticElevatorCharacterization(2.0));
-      autoChooser.addOption("Wrist static", elevatorWrist.staticWristCharacterization(2.0));
-      autoChooser.addOption("Climber static", staticClimberCharacterization(2.0));
-    }
+    // if (Constants.tuningMode) {
+    //   autoChooser.addOption(
+    //       "Drive Wheel Radius Characterization",
+    // DriveCommands.wheelRadiusCharacterization(drive));
+    //   autoChooser.addOption(
+    //       "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+    //   autoChooser.addOption(
+    //       "Drive SysId (Quasistatic Forward)",
+    //       drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    //   autoChooser.addOption(
+    //       "Drive SysId (Quasistatic Reverse)",
+    //       drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    //   autoChooser.addOption(
+    //       "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    //   autoChooser.addOption(
+    //       "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    //   autoChooser.addOption("Elevator static",
+    // elevatorWrist.staticElevatorCharacterization(2.0));
+    //   autoChooser.addOption("Wrist static", elevatorWrist.staticWristCharacterization(2.0));
+    //   autoChooser.addOption("Climber static", staticClimberCharacterization(2.0));
+    // }
   }
 
   /**
@@ -589,29 +575,24 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.get();
+    if (autoChooser.get() == null) {
+      return null;
+    }
+    return auton.execute(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED);
   }
 
-  public void setSimulatedStartingPose() {
+  public void loadAutonPath() {
+    if (autoChooser.get() != null) {
+      auton.loadPath(autoChooser.get());
+    }
+  }
+
+  public void setStartingMechanismPosition() {
     elevatorWrist.getElevator().zero();
     elevatorWrist.getWrist().zero();
-
-    AllianceFlipUtil.apply(drive.getPose());
-
-    switch (autoChooser.get().getName()) {
-      case "LEFT":
-        drive.setPose(AllianceFlipUtil.apply(Constants.AutonStartPositions.left));
-        break;
-
-      case "RIGHT":
-        drive.setPose(AllianceFlipUtil.apply(Constants.AutonStartPositions.right));
-        break;
-
-      case "CENTER PROCESSOR":
-      case "CENTER NET":
-        drive.setPose(AllianceFlipUtil.apply(Constants.AutonStartPositions.middle));
-        break;
-    }
+    intakeShooter.zero();
+    intakeShooterLow.zero();
+    climber.zero();
   }
 
   public void setAutonOn(boolean state) {
@@ -619,146 +600,149 @@ public class RobotContainer {
     SmartDashboard.putString("AutoShoot", state ? "ON" : "OFF");
   }
 
-  public void autonReadyStatus() {
-    Pose2d curPose;
-    double autonX = 0;
-    double autonY = 0;
-    double autonR = 0;
-    double offsetX = 0;
-    double offsetY = 0;
-    double offsetR = 0;
-    boolean offsetXOK = false;
-    boolean offsetYOK = false;
-    boolean offsetROK = false;
-    boolean robotStateOK = false;
+  // public void autonReadyStatus() {
+  //   Pose2d curPose;
+  //   double autonX = 0;
+  //   double autonY = 0;
+  //   double autonR = 0;
+  //   double offsetX = 0;
+  //   double offsetY = 0;
+  //   double offsetR = 0;
+  //   boolean offsetXOK = false;
+  //   boolean offsetYOK = false;
+  //   boolean offsetROK = false;
+  //   boolean robotStateOK = false;
 
-    // flip current pose if on the red side of the field
-    // otherwise set as current pose
-    curPose =
-        (drive.getPose().getX() > (FieldConstants.fieldLength / 2))
-            ? new Pose2d(
-                new Translation2d(
-                    FieldConstants.fieldLength - drive.getPose().getX(),
-                    FieldConstants.fieldWidth - drive.getPose().getY()),
-                drive.getPose().getRotation().rotateBy(Rotation2d.kPi))
-            : drive.getPose();
+  //   // flip current pose if on the red side of the field
+  //   // otherwise set as current pose
+  //   curPose =
+  //       (drive.getPose().getX() > (FieldConstants.fieldLength / 2))
+  //           ? new Pose2d(
+  //               new Translation2d(
+  //                   FieldConstants.fieldLength - drive.getPose().getX(),
+  //                   FieldConstants.fieldWidth - drive.getPose().getY()),
+  //               drive.getPose().getRotation().rotateBy(Rotation2d.kPi))
+  //           : drive.getPose();
 
-    if (Math.abs(curPose.getY() - Constants.AutonStartPositions.middle.getY())
-        < Math.abs(
-            (Constants.AutonStartPositions.middle.getY()
-                    - Constants.AutonStartPositions.right.getY())
-                / 2)) {
-      autonX = Constants.AutonStartPositions.middle.getX();
-      autonY = Constants.AutonStartPositions.middle.getY();
-      autonR = Constants.AutonStartPositions.middle.getRotation().getDegrees();
-    } else if (curPose.getY() < Constants.AutonStartPositions.middle.getY()) {
-      autonX = Constants.AutonStartPositions.right.getX();
-      autonY = Constants.AutonStartPositions.right.getY();
-      autonR = Constants.AutonStartPositions.right.getRotation().getDegrees();
-    } else {
-      autonX = Constants.AutonStartPositions.left.getX();
-      autonY = Constants.AutonStartPositions.left.getY();
-      autonR = Constants.AutonStartPositions.left.getRotation().getDegrees();
-    }
+  //   if (Math.abs(curPose.getY() - Constants.AutonStartPositions.middle.getY())
+  //       < Math.abs(
+  //           (Constants.AutonStartPositions.middle.getY()
+  //                   - Constants.AutonStartPositions.right.getY())
+  //               / 2)) {
+  //     autonX = Constants.AutonStartPositions.middle.getX();
+  //     autonY = Constants.AutonStartPositions.middle.getY();
+  //     autonR = Constants.AutonStartPositions.middle.getRotation().getDegrees();
+  //   } else if (curPose.getY() < Constants.AutonStartPositions.middle.getY()) {
+  //     autonX = Constants.AutonStartPositions.right.getX();
+  //     autonY = Constants.AutonStartPositions.right.getY();
+  //     autonR = Constants.AutonStartPositions.right.getRotation().getDegrees();
+  //   } else {
+  //     autonX = Constants.AutonStartPositions.left.getX();
+  //     autonY = Constants.AutonStartPositions.left.getY();
+  //     autonR = Constants.AutonStartPositions.left.getRotation().getDegrees();
+  //   }
 
-    offsetX = curPose.getX() - autonX;
-    offsetY = curPose.getY() - autonY;
-    offsetR = Math.abs(curPose.getRotation().getDegrees()) - autonR;
+  //   offsetX = curPose.getX() - autonX;
+  //   offsetY = curPose.getY() - autonY;
+  //   offsetR = Math.abs(curPose.getRotation().getDegrees()) - autonR;
 
-    offsetXOK = (Math.abs(offsetX) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR / 2));
-    offsetYOK = (Math.abs(offsetY) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR / 2));
-    offsetROK = (Math.abs(offsetR) < (Constants.AutonStartPositions.ROTATION_START_ERROR / 2));
+  //   offsetXOK = (Math.abs(offsetX) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR /
+  // 2));
+  //   offsetYOK = (Math.abs(offsetY) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR /
+  // 2));
+  //   offsetROK = (Math.abs(offsetR) < (Constants.AutonStartPositions.ROTATION_START_ERROR / 2));
 
-    SmartDashboard.putNumber("Auto/offset_X:", offsetX);
-    SmartDashboard.putNumber("Auto/offset_Y:", offsetY);
-    SmartDashboard.putNumber("Auto/offset_ROT:", offsetR);
-    SmartDashboard.putBoolean("Auto/offset_X_OK:", offsetXOK);
-    SmartDashboard.putBoolean("Auto/offset_Y_OK:", offsetYOK);
-    SmartDashboard.putBoolean("Auto/offset_ROT_OK:", offsetROK);
+  //   SmartDashboard.putNumber("Auto/offset_X:", offsetX);
+  //   SmartDashboard.putNumber("Auto/offset_Y:", offsetY);
+  //   SmartDashboard.putNumber("Auto/offset_ROT:", offsetR);
+  //   SmartDashboard.putBoolean("Auto/offset_X_OK:", offsetXOK);
+  //   SmartDashboard.putBoolean("Auto/offset_Y_OK:", offsetYOK);
+  //   SmartDashboard.putBoolean("Auto/offset_ROT_OK:", offsetROK);
 
-    try {
-      m_autonName = autoChooser.get().getName();
-    } catch (Exception e) {
-      m_autonName = "";
-    }
+  //   try {
+  //     // m_autonName = autoChooser.get().getName();
+  //   } catch (Exception e) {
+  //     m_autonName = "";
+  //   }
 
-    robotStateOK =
-        (m_autonName.contains("LEFT")
-                || m_autonName.contains("CENTER")
-                || m_autonName.contains("RIGHT"))
-            && m_xboxController.isConnected()
-            && m_ps4Controller.isConnected()
-            && intakeCoralSensor.isDetected()
-            && elevatorWrist.getWrist().getPosition() < 0.01
-            && elevatorWrist.getElevator().getPositionRotations() < 0.01;
+  //   robotStateOK =
+  //       (m_autonName.contains("LEFT")
+  //               || m_autonName.contains("CENTER")
+  //               || m_autonName.contains("RIGHT"))
+  //           && m_xboxController.isConnected()
+  //           && m_ps4Controller.isConnected()
+  //           && intakeCoralSensor.isDetected()
+  //           && elevatorWrist.getWrist().getPosition() < 0.01
+  //           && elevatorWrist.getElevator().getPositionRotations() < 0.01;
 
-    SmartDashboard.putBoolean(
-        "Match Ready/auton_selected",
-        m_autonName.contains("LEFT")
-            || m_autonName.contains("CENTER")
-            || m_autonName.contains("RIGHT"));
-    SmartDashboard.putBoolean("Match Ready/coral_loaded", intakeCoralSensor.isDetected());
-    SmartDashboard.putBoolean(
-        "Match Ready/wrist_zeroed", elevatorWrist.getWrist().getPosition() < 0.01);
-    SmartDashboard.putBoolean(
-        "Match Ready/elevator_zeroed", elevatorWrist.getElevator().getPositionRotations() < 0.01);
+  //   SmartDashboard.putBoolean(
+  //       "Match Ready/auton_selected",
+  //       m_autonName.contains("LEFT")
+  //           || m_autonName.contains("CENTER")
+  //           || m_autonName.contains("RIGHT"));
+  //   SmartDashboard.putBoolean("Match Ready/coral_loaded", intakeCoralSensor.isDetected());
+  //   SmartDashboard.putBoolean(
+  //       "Match Ready/wrist_zeroed", elevatorWrist.getWrist().getPosition() < 0.01);
+  //   SmartDashboard.putBoolean(
+  //       "Match Ready/elevator_zeroed", elevatorWrist.getElevator().getPositionRotations() <
+  // 0.01);
 
-    // set LEDs
-    if (robotStateOK && offsetXOK && offsetYOK && offsetROK) {
-      LED.setBandAnimation(LEDColor.GREEN, LEDSegment.ALL);
-    } else {
-      // all auton ready but position
-      if (robotStateOK) {
-        LED.setSolidColor(LEDColor.GREEN, LEDSegment.LEFT_SIDE);
-        LED.setSolidColor(LEDColor.GREEN, LEDSegment.RIGHT_SIDE);
-      } else {
-        LED.setSolidColor(LEDColor.RED, LEDSegment.LEFT_SIDE);
-        LED.setSolidColor(LEDColor.RED, LEDSegment.RIGHT_SIDE);
-      }
+  //   // set LEDs
+  //   if (robotStateOK && offsetXOK && offsetYOK && offsetROK) {
+  //     LED.setBandAnimation(LEDColor.GREEN, LEDSegment.ALL);
+  //   } else {
+  //     // all auton ready but position
+  //     if (robotStateOK) {
+  //       LED.setSolidColor(LEDColor.GREEN, LEDSegment.LEFT_SIDE);
+  //       LED.setSolidColor(LEDColor.GREEN, LEDSegment.RIGHT_SIDE);
+  //     } else {
+  //       LED.setSolidColor(LEDColor.RED, LEDSegment.LEFT_SIDE);
+  //       LED.setSolidColor(LEDColor.RED, LEDSegment.RIGHT_SIDE);
+  //     }
 
-      // X offset LEDs
-      if (offsetXOK) {
-        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
-        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
-      } else {
-        if (offsetX < 0) {
-          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_X_LEFT);
-          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
-        } else {
-          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
-          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_X_RIGHT);
-        }
-      }
+  //     // X offset LEDs
+  //     if (offsetXOK) {
+  //       LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
+  //       LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
+  //     } else {
+  //       if (offsetX < 0) {
+  //         LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_X_LEFT);
+  //         LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
+  //       } else {
+  //         LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
+  //         LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_X_RIGHT);
+  //       }
+  //     }
 
-      // Y offset LEDs
-      if (offsetYOK) {
-        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
-        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
-      } else {
-        if (offsetY < 0) {
-          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_Y_LEFT);
-          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
-        } else {
-          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
-          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_Y_RIGHT);
-        }
-      }
+  //     // Y offset LEDs
+  //     if (offsetYOK) {
+  //       LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
+  //       LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
+  //     } else {
+  //       if (offsetY < 0) {
+  //         LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_Y_LEFT);
+  //         LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
+  //       } else {
+  //         LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
+  //         LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_Y_RIGHT);
+  //       }
+  //     }
 
-      // rotation offset LEDs
-      if (offsetROK) {
-        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
-        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
-      } else {
-        if (offsetR < 0) {
-          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_R_LEFT);
-          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
-        } else {
-          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
-          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_R_RIGHT);
-        }
-      }
-    }
-  }
+  //     // rotation offset LEDs
+  //     if (offsetROK) {
+  //       LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
+  //       LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
+  //     } else {
+  //       if (offsetR < 0) {
+  //         LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_R_LEFT);
+  //         LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
+  //       } else {
+  //         LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
+  //         LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_R_RIGHT);
+  //       }
+  //     }
+  //   }
+  // }
 
   public void updateAlerts() {
     xboxDisconnectedAlert.set(!m_xboxController.isConnected());

@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "C_Start-G"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "C_G-AlgaeA1IntakePosition"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "C_AlgaeA1IntakePosition-A1"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": false,
+  "folder": null,
+  "choreoAuto": false
+}

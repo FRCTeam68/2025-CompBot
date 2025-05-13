@@ -7,24 +7,6 @@
         {
           "type": "path",
           "data": {
-            "pathName": "C_Start-H"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "C_H-AlgaeA1IntakePosition"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "C_AlgaeA1IntakePosition-A1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
             "pathName": "C2_AlgaeGH-Net"
           }
         },
