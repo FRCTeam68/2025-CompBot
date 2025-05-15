@@ -16,6 +16,8 @@ package frc.robot;
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -30,8 +32,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.*;
 import frc.robot.commands.auton.Auton;
-import frc.robot.commands.auton.Auton.AutonPath;
-import frc.robot.commands.auton.Auton.Sequence;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ShotVisualizer;
 import frc.robot.subsystems.climber.Climber;
@@ -61,8 +61,8 @@ import frc.robot.subsystems.superstructure.SuperstructureVisualizer;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.util.AllianceFlipUtil;
 import lombok.Getter;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -73,7 +73,10 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private static Drive drive;
+
+  @SuppressWarnings("unused")
   private final Vision vision;
+
   private final Climber climber;
   private final RollerSystem intakeShooter;
   private final RollerSystem intakeShooterLow;
@@ -82,8 +85,13 @@ public class RobotContainer {
   private final Lights LED;
 
   // Commands
+  // (initalize commands to use @AutoLogOutput)
+  // TODO Is there a better way to do this
+  // TODO Possible use AutoLogOutputManager.addPackage("frc.lib");
   private ReefCentering reefCentering;
   private final Auton auton;
+
+  @SuppressWarnings("unused")
   private final ManipulatorCommands manipulatorCommands = new ManipulatorCommands();
 
   // Controllers
@@ -95,7 +103,6 @@ public class RobotContainer {
       new Alert("Ps4 controller disconnected.", AlertType.kError);
 
   // Autons
-  private static LoggedDashboardChooser<AutonPath> autoChooser;
   private static String m_autonName;
 
   @Getter private static boolean m_overideMode = false;
@@ -167,8 +174,6 @@ public class RobotContainer {
                 new RangeSensorIOCANrange(
                     Constants.INTAKE_CORAL_SENSOR.ID, "rio", Constants.INTAKE_CORAL_SENSOR.CONFIG));
 
-        elevatorWrist = new ElevatorWristSubsystem(LED, drive::getPose);
-
         climber = new Climber(new ClimberIOTalonFX());
         break;
 
@@ -194,11 +199,8 @@ public class RobotContainer {
         intakeShooterLow =
             new RollerSystem(
                 "IntakeShooterLow", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
-        // TBD, this needs an actual simulated sensor.....
-        intakeCoralSensor = new CoralSensor(LED, new RangeSensorIOSim("Coral"));
 
-        // TBD, this needs an actual simulated sensor.....
-        elevatorWrist = new ElevatorWristSubsystem(LED, drive::getPose);
+        intakeCoralSensor = new CoralSensor(LED, new RangeSensorIOSim("Coral"));
 
         climber = new Climber(new ClimberIOSim());
         // TBD, this needs an actual simulated sensor.....
@@ -225,19 +227,17 @@ public class RobotContainer {
         intakeShooterLow = new RollerSystem("IntakeShooterLow", new RollerSystemIO() {});
         intakeCoralSensor = new CoralSensor(LED, new RangeSensorIO() {});
 
-        // TBD, this needs an actual simulated sensor.....
-        elevatorWrist = new ElevatorWristSubsystem(LED, drive::getPose);
-
         climber = new Climber(new ClimberIO() {});
         break;
     }
+
+    elevatorWrist = new ElevatorWristSubsystem(LED, drive::getPose);
 
     // Configure reef centering
     reefCentering = new ReefCentering(drive);
 
     // Configure auton
-    configureAutonChooser();
-    auton = new Auton(drive);
+    auton = new Auton();
 
     // Warm up path following command
     FollowPathCommand.warmupCommand().schedule();
@@ -251,13 +251,7 @@ public class RobotContainer {
 
     configureSysIdRoutines();
 
-    SmartDashboard.putData(
-        "Testing/Run Functional Test",
-        ManipulatorCommands.FunctionalTest(
-            intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, climber, LED));
-    SmartDashboard.putData(
-        "Testing/Run Elevator Sequencing Test",
-        ManipulatorCommands.TestElevatorWristSequencing(elevatorWrist));
+    configureTestingRoutines();
 
     SmartDashboard.putBoolean("Override Mode", m_overideMode);
     SmartDashboard.putBoolean("AutoShoot", false);
@@ -354,6 +348,17 @@ public class RobotContainer {
     // Reef alignment
     m_xboxController.leftBumper().onTrue(new AlignToReefTagRelative(false, drive).withTimeout(3));
     m_xboxController.rightBumper().onTrue(new AlignToReefTagRelative(true, drive).withTimeout(3));
+
+    // Reset robot rotation
+    m_xboxController
+        .back()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    drive.setPose(
+                        new Pose2d(
+                            drive.getPose().getTranslation(),
+                            AllianceFlipUtil.apply(new Rotation2d(0))))));
 
     m_xboxController
         .start()
@@ -529,23 +534,20 @@ public class RobotContainer {
     SmartDashboard.putData("Climber/Climber static", climber.staticClimberCharacterization(2.0));
   }
 
-  private void configureAutonChooser() {
-    autoChooser = new LoggedDashboardChooser<>("Auto/Auto Choices");
-    autoChooser.addOption("LEFT", new AutonPath(Sequence.Side, "Left Group"));
-    autoChooser.addOption("RIGHT", new AutonPath(Sequence.Side, "Right Group"));
-    autoChooser.addOption(
-        "CENTER LEFT PROCESSOR",
-        new AutonPath(Sequence.Processor, "Center Start Left Group", "Center Processor Group"));
-    autoChooser.addOption(
-        "CENTER RIGHT PROCESSOR",
-        new AutonPath(Sequence.Processor, "Center Start Right Group", "Center Processor Group"));
-    autoChooser.addOption(
-        "CENTER LEFT NET",
-        new AutonPath(Sequence.Net, "Center Start Left Group", "Center Net Group"));
-    autoChooser.addOption(
-        "CENTER RIGHT NET",
-        new AutonPath(Sequence.Net, "Center Start Right Group", "Center Net Group"));
-    autoChooser.addOption("NONE", null);
+  private void configureTestingRoutines() {
+    SmartDashboard.putData(
+        "Testing Routines/Functional Test",
+        ManipulatorCommands.FunctionalTest(
+            intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, climber, LED));
+    SmartDashboard.putData(
+        "Testing Routines/Elevator Sequencing Test",
+        ManipulatorCommands.TestElevatorWristSequencing(elevatorWrist));
+    SmartDashboard.putData(
+        "Testing Routines/Elevator Wrist to Zero Position",
+        ManipulatorCommands.ElevatorWristZeroCmd(elevatorWrist));
+    SmartDashboard.putData(
+        "Testing Routines/Climber to Zero Position",
+        ManipulatorCommands.climberToZeroCmd(climber, LED));
   }
 
   /**
@@ -554,16 +556,15 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    if (autoChooser.get() == null) {
+    if (auton.getAutoChooser().get() == null) {
       return null;
     }
-    return auton.execute(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED);
+    return auton.execute(
+        drive, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED);
   }
 
   public void loadAutonPath() {
-    if (autoChooser.get() != null) {
-      auton.loadPath(autoChooser.get());
-    }
+    auton.loadPath();
   }
 
   public void setStartingMechanismPosition() {

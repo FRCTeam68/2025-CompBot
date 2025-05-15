@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import frc.robot.Constants;
-import frc.robot.commands.auton.autonSequences.*;
 import frc.robot.commands.auton.autonSequences.AutonNet;
 import frc.robot.commands.auton.autonSequences.AutonProcessor;
 import frc.robot.commands.auton.autonSequences.AutonSide;
@@ -31,15 +30,34 @@ import frc.robot.subsystems.superstructure.ElevatorWristSubsystem;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import lombok.Getter;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class Auton {
-  private final Drive m_drive;
+  @Getter
+  private final LoggedDashboardChooser<AutonPath> autoChooser =
+      new LoggedDashboardChooser<>("Auto/Auto Chooser");
 
   private Sequence sequence;
-  private static final Alert pathLoadAlert = new Alert("Error loading path.", AlertType.kError);
+  private static final Alert pathLoadAlert =
+      new Alert("Error loading auton path.", AlertType.kError);
 
-  public Auton(Drive drive) {
-    m_drive = drive;
+  public Auton() {
+    autoChooser.addOption("LEFT", new AutonPath(Sequence.Side, "Left Group"));
+    autoChooser.addOption("RIGHT", new AutonPath(Sequence.Side, "Right Group"));
+    autoChooser.addOption(
+        "CENTER LEFT PROCESSOR",
+        new AutonPath(Sequence.Processor, "Center Start Left Group", "Center Processor Group"));
+    autoChooser.addOption(
+        "CENTER RIGHT PROCESSOR",
+        new AutonPath(Sequence.Processor, "Center Start Right Group", "Center Processor Group"));
+    autoChooser.addOption(
+        "CENTER LEFT NET",
+        new AutonPath(Sequence.Net, "Center Start Left Group", "Center Net Group"));
+    autoChooser.addOption(
+        "CENTER RIGHT NET",
+        new AutonPath(Sequence.Net, "Center Start Right Group", "Center Net Group"));
+    autoChooser.addOption("NONE", null);
   }
 
   public static enum Sequence {
@@ -60,12 +78,15 @@ public class Auton {
     }
   }
 
-  public void loadPath(AutonPath autonPath) {
-    sequence = autonPath.sequence;
-    pathLoadAlert.set(!AutonPathCommands.loadPathFromList(autonPath.pathList));
+  public void loadPath() {
+    if (autoChooser.get() != null) {
+      sequence = autoChooser.get().sequence;
+      pathLoadAlert.set(!AutonPathCommands.loadPathFromList(autoChooser.get().pathList));
+    }
   }
 
   public Command execute(
+      Drive myDrive,
       RollerSystem myIntake,
       RollerSystem myIntakeLow,
       ElevatorWristSubsystem myElevatorWrist,
@@ -75,12 +96,13 @@ public class Auton {
     return new DeferredCommand(
         () -> {
           // initialization
+          Command initalize = Commands.runOnce(() -> loadPath());
           Command setPose = Commands.none();
           Command autonSequence = Commands.none();
 
           if (Constants.currentMode == Constants.Mode.SIM) {
             setPose =
-                Commands.runOnce(() -> m_drive.setPose(AutonPathCommands.getInitalStartingPose()));
+                Commands.runOnce(() -> myDrive.setPose(AutonPathCommands.getInitalStartingPose()));
           }
 
           switch (sequence) {
@@ -102,8 +124,8 @@ public class Auton {
           }
 
           // execute sequence
-          return setPose.andThen(autonSequence);
+          return initalize.andThen(setPose).andThen(autonSequence);
         },
-        Set.of(myIntake, myIntakeLow, myElevatorWrist, m_drive));
+        Set.of(myIntake, myIntakeLow, myElevatorWrist, myDrive));
   }
 }

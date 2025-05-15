@@ -264,18 +264,25 @@ public final class Constants {
 
   public static final class LEDSegment {
     // standard segments
-    public static final Segment LEFT_SIDE = new Segment(8, 44, 1);
-    public static final Segment MIDDLE = new Segment(45, 62, 2);
-    public static final Segment RIGHT_SIDE = new Segment(63, 98, 3);
-    public static final Segment ALL = new Segment(8, 98, 4);
+    public static final Segment LEFT_SIDE = new Segment(8, 44, 1).withOverlappingAnimationSlots(4);
+    public static final Segment MIDDLE = new Segment(45, 62, 2).withOverlappingAnimationSlots(4);
+    public static final Segment RIGHT_SIDE =
+        new Segment(63, 98, 3).withOverlappingAnimationSlots(4);
+    public static final Segment ALL = new Segment(8, 98, 4).withOverlappingAnimationSlots(1, 2, 3);
 
     // auton setup
-    public static final Segment AUTON_Y_LEFT = new Segment(45, 8, 0);
-    public static final Segment AUTON_R_LEFT = new Segment(49, 51, 0);
-    public static final Segment AUTON_X_LEFT = new Segment(52, 53, 0);
-    public static final Segment AUTON_X_RIGHT = new Segment(54, 55, 0);
-    public static final Segment AUTON_R_RIGHT = new Segment(56, 58, 0);
-    public static final Segment AUTON_Y_RIGHT = new Segment(59, 62, 0);
+    public static final Segment AUTON_Y_LEFT =
+        new Segment(45, 48, 0).withOverlappingAnimationSlots(2, 4);
+    public static final Segment AUTON_R_LEFT =
+        new Segment(49, 51, 0).withOverlappingAnimationSlots(2, 4);
+    public static final Segment AUTON_X_LEFT =
+        new Segment(52, 53, 0).withOverlappingAnimationSlots(2, 4);
+    public static final Segment AUTON_X_RIGHT =
+        new Segment(54, 55, 0).withOverlappingAnimationSlots(2, 4);
+    public static final Segment AUTON_R_RIGHT =
+        new Segment(56, 58, 0).withOverlappingAnimationSlots(2, 4);
+    public static final Segment AUTON_Y_RIGHT =
+        new Segment(59, 62, 0).withOverlappingAnimationSlots(2, 4);
   }
 
   public static final class LEDColor {

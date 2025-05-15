@@ -129,7 +129,7 @@ public class ManipulatorCommands {
           // execute sequence
           return initialize.andThen(command).andThen(finalize);
         },
-        Set.of(myIntake, myIntakeLow));
+        Set.of(myIntake, myIntakeLow, myElevatorWrist));
   }
 
   public static Command shootCmd(
@@ -201,7 +201,7 @@ public class ManipulatorCommands {
           // execute sequence
           return ledShooting.andThen(command).andThen(afterShot);
         },
-        Set.of(myIntake, myIntakeLow));
+        Set.of(myIntake, myIntakeLow, myElevatorWrist));
   }
 
   public static Command CoralL4Cmd(ElevatorWristSubsystem myElevatorWrist) {

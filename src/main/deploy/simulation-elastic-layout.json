@@ -1,0 +1,311 @@
+{
+  "version": 1.0,
+  "grid_size": 64,
+  "tabs": [
+    {
+      "name": "Simulation",
+      "grid_layout": {
+        "layouts": [
+          {
+            "title": "Other",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 192.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "All",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Single Color View",
+                "properties": {
+                  "topic": "/Simulation/CANdle/Other/All",
+                  "period": 0.06,
+                  "data_type": "string"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Integrated LEDs 0-3",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 512.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "0 - Hopper Camera",
+                "x": 896.0,
+                "y": 128.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Single Color View",
+                "properties": {
+                  "topic": "/Simulation/CANdle/Integrated/0 - Hopper Camera",
+                  "period": 0.06,
+                  "data_type": "string"
+                }
+              },
+              {
+                "title": "1 - Reef Camera",
+                "x": 896.0,
+                "y": 128.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Single Color View",
+                "properties": {
+                  "topic": "/Simulation/CANdle/Integrated/1 - Reef Camera",
+                  "period": 0.06,
+                  "data_type": "string"
+                }
+              },
+              {
+                "title": "2 - Rotation Initalized",
+                "x": 1024.0,
+                "y": 128.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Single Color View",
+                "properties": {
+                  "topic": "/Simulation/CANdle/Integrated/2 - Rotation Initalized",
+                  "period": 0.06,
+                  "data_type": "string"
+                }
+              },
+              {
+                "title": "3 - Intake Coral Sensor",
+                "x": 896.0,
+                "y": 128.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Single Color View",
+                "properties": {
+                  "topic": "/Simulation/CANdle/Integrated/3 - Intake Coral Sensor",
+                  "period": 0.06,
+                  "data_type": "string"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Integrated LEDs 4-7",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 512.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "4 - Reef Post Sensor",
+                "x": 1280.0,
+                "y": 128.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Single Color View",
+                "properties": {
+                  "topic": "/Simulation/CANdle/Integrated/4 - Reef Post Sensor",
+                  "period": 0.06,
+                  "data_type": "string"
+                }
+              },
+              {
+                "title": "5 - 5",
+                "x": 1152.0,
+                "y": 128.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Single Color View",
+                "properties": {
+                  "topic": "/Simulation/CANdle/Integrated/5 - 5",
+                  "period": 0.06,
+                  "data_type": "string"
+                }
+              },
+              {
+                "title": "6 - 6",
+                "x": 1280.0,
+                "y": 128.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Single Color View",
+                "properties": {
+                  "topic": "/Simulation/CANdle/Integrated/6 - 6",
+                  "period": 0.06,
+                  "data_type": "string"
+                }
+              },
+              {
+                "title": "7 - 7",
+                "x": 1280.0,
+                "y": 128.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Single Color View",
+                "properties": {
+                  "topic": "/Simulation/CANdle/Integrated/7 - 7",
+                  "period": 0.06,
+                  "data_type": "string"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Reef Range Sensor",
+            "x": 1024.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 192.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Detected",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Toggle Switch",
+                "properties": {
+                  "topic": "/Simulation/Reef Range Sensor/Detected",
+                  "period": 0.06,
+                  "data_type": "boolean"
+                }
+              },
+              {
+                "title": "Distance mm",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Simulation/Reef Range Sensor/Distance mm",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              }
+            ]
+          },
+          {
+            "title": "Coral Range Sensor",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 192.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Detected",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Toggle Switch",
+                "properties": {
+                  "topic": "/Simulation/Coral Range Sensor/Detected",
+                  "period": 0.06,
+                  "data_type": "boolean"
+                }
+              },
+              {
+                "title": "Distance mm",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/Simulation/Coral Range Sensor/Distance mm",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": true
+                }
+              }
+            ]
+          },
+          {
+            "title": "ManipulatorCommands",
+            "x": 1280.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "HavePiece",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/RealOutputs/ManipulatorCommands/HavePiece",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Indexing",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/AdvantageKit/RealOutputs/ManipulatorCommands/Indexing",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "ScoringPosition",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/AdvantageKit/RealOutputs/ManipulatorCommands/ScoringPosition",
+                  "period": 0.06,
+                  "data_type": "string",
+                  "show_submit_button": false
+                }
+              }
+            ]
+          }
+        ],
+        "containers": []
+      }
+    }
+  ]
+}

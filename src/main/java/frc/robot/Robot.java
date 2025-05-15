@@ -165,15 +165,12 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledPeriodic() {
     robotContainer.loadAutonPath();
-    // robotContainer.autonReadyStatus();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
     autonomousCommand = robotContainer.getAutonomousCommand();
-
-    robotContainer.loadAutonPath();
 
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {
