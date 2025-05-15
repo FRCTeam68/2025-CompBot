@@ -5,11 +5,10 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.superstructure;
 
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -20,8 +19,8 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.LEDColor;
 import frc.robot.Constants.LEDSegment;
+import frc.robot.subsystems.RangeSensorSubsystem;
 import frc.robot.subsystems.lights.Lights;
-import frc.robot.subsystems.superstructure.SuperstructureVisualizer;
 import frc.robot.subsystems.superstructure.elevator.*;
 import frc.robot.subsystems.superstructure.wrist.*;
 import java.util.Set;
@@ -467,57 +466,6 @@ public class ElevatorWristSubsystem extends SubsystemBase {
               || (elevatorNow >= Constants.ELEVATOR.MIN_POSITION_AT_P1 - 0.2
                   && wristNow + bumpValue < Constants.WRIST.MAX_POSITION_AT_P1);
         });
-  }
-
-  public Command staticElevatorCharacterization(double outputRampRate) {
-    final StaticCharacterizationState state = new StaticCharacterizationState();
-    Timer timer = new Timer();
-    return Commands.startRun(
-            () -> {
-              // stopProfile = true;
-              timer.restart();
-            },
-            () -> {
-              state.characterizationOutput = outputRampRate * timer.get();
-              elevator.setVolts(state.characterizationOutput);
-              Logger.recordOutput(
-                  "Elevator/StaticCharacterizationOutput", state.characterizationOutput);
-            })
-        .until(() -> elevator.getPositionRotations() >= Constants.ELEVATOR.MAX_POSITION - 1)
-        .finallyDo(
-            () -> {
-              // stopProfile = false;
-              timer.stop();
-              Logger.recordOutput("Elevator/CharacterizationOutput", state.characterizationOutput);
-            });
-  }
-
-  public Command staticWristCharacterization(double outputRampRate) {
-    final StaticCharacterizationState state = new StaticCharacterizationState();
-    Timer timer = new Timer();
-    return Commands.startRun(
-            () -> {
-              // stopProfile = true;
-              timer.restart();
-            },
-            () -> {
-              state.characterizationOutput = outputRampRate * timer.get();
-              elevator.setVolts(state.characterizationOutput);
-              Logger.recordOutput(
-                  "Wrist/StaticCharacterizationOutput", state.characterizationOutput);
-            })
-        .until(
-            () -> elevator.getPositionRotations() >= Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN)
-        .finallyDo(
-            () -> {
-              // stopProfile = false;
-              timer.stop();
-              Logger.recordOutput("Wrist/CharacterizationOutput", state.characterizationOutput);
-            });
-  }
-
-  private static class StaticCharacterizationState {
-    public double characterizationOutput = 0.0;
   }
 
   public void stop() {

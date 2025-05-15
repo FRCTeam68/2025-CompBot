@@ -40,14 +40,15 @@ public class Vision extends SubsystemBase {
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlert;
-  private boolean anyConnected = false;
   private final Alert allDisconnectedAlert =
       new Alert("All vision cameras disconnected.", AlertType.kError);
   private Double[] rotationSamples = new Double[10]; // Amount of rotation samples to use
   private final double maxRotationError = 3; // Acceptable error in degrees
-  private final Segment rotationInitalizedIndicator = new Segment(6, 1, 0);
+  private final Segment rotationInitalizedIndicator = new Segment(3, 3, 0);
   private final Alert rotationNotInitalizedAlert =
-      new Alert("Robot rotation not initalized. Face robot toward april tag.", AlertType.kError);
+      new Alert(
+          "Robot rotation not initalized. Face robot toward april tag. If all cameras are disconnected, cycle power with reef camera facing red driver station",
+          AlertType.kError);
 
   public Vision(Lights LED, VisionConsumer consumer, VisionIO... io) {
     this.LED = LED;
@@ -126,6 +127,7 @@ public class Vision extends SubsystemBase {
     List<Pose3d> allRobotPoses = new LinkedList<>();
     List<Pose3d> allRobotPosesAccepted = new LinkedList<>();
     List<Pose3d> allRobotPosesRejected = new LinkedList<>();
+    boolean anyConnected = false;
 
     // Loop over cameras
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
@@ -236,9 +238,8 @@ public class Vision extends SubsystemBase {
       allRobotPosesRejected.addAll(robotPosesRejected);
     }
 
-    // update disconnected alert for all cameras
-    allDisconnectedAlert.set(!anyConnected);
-    anyConnected = false;
+    // update combined disconnected alert
+    allDisconnectedAlert.set(!anyConnected && io.length > 0);
 
     // Log summary data
     Logger.recordOutput(

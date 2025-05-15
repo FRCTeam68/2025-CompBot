@@ -3,6 +3,11 @@ package frc.robot.subsystems.superstructure.wrist;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
@@ -13,7 +18,10 @@ public class Wrist extends SubsystemBase {
   private final String pathName = "Wrist";
   private final WristIO io;
   protected final WristIOInputsAutoLogged inputs = new WristIOInputsAutoLogged();
-  private final Alert disconnected;
+  private final Alert motorDisconnectedAlert =
+      new Alert("Wrist motor disconnected!", AlertType.kError);
+  private final Alert cancoderDisconnectedAlert =
+      new Alert("Wrist CANcoder disconnected!", AlertType.kWarning);
 
   private LoggedTunableNumber kP0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kP", 120);
   private LoggedTunableNumber kI0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kI", 0);
@@ -53,14 +61,15 @@ public class Wrist extends SubsystemBase {
             .withMotionMagicAcceleration(mmA.get())
             .withMotionMagicJerk(mmJ.get()));
 
-    disconnected = new Alert("Wrist" + " motor disconnected!", Alert.AlertType.kWarning);
+    SmartDashboard.putData(pathName + "/Zero In Place", Commands.runOnce(() -> zero()));
   }
 
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Wrist", inputs);
-    disconnected.set(!inputs.connected);
-    Logger.recordOutput("Wrist/At position", atPosition());
+    motorDisconnectedAlert.set(!inputs.connected);
+    cancoderDisconnectedAlert.set(!inputs.CANcoderConnected);
+    Logger.recordOutput(pathName + "/At position", atPosition());
 
     // Update tunable numbers
     if (Constants.tuningMode) {
@@ -196,5 +205,32 @@ public class Wrist extends SubsystemBase {
             .withKV(kV1.get())
             .withKA(kA1.get())
             .withKG(kG1.get()));
+  }
+
+  public Command staticWristCharacterization(double outputRampRate) {
+    final StaticCharacterizationState state = new StaticCharacterizationState();
+    Timer timer = new Timer();
+    return Commands.startRun(
+            () -> {
+              // stopProfile = true;
+              timer.restart();
+            },
+            () -> {
+              state.characterizationOutput = outputRampRate * timer.get();
+              setVolts(state.characterizationOutput);
+              Logger.recordOutput(
+                  "Wrist/StaticCharacterizationOutput", state.characterizationOutput);
+            })
+        .until(() -> getPosition() >= Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN)
+        .finallyDo(
+            () -> {
+              // stopProfile = false;
+              timer.stop();
+              Logger.recordOutput("Wrist/CharacterizationOutput", state.characterizationOutput);
+            });
+  }
+
+  private static class StaticCharacterizationState {
+    public double characterizationOutput = 0.0;
   }
 }

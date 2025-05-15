@@ -80,9 +80,9 @@ public class WristIOTalonFX implements WristIO {
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
     // Motion limits
-    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.544;
-    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
     // Feedback
     config.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
@@ -145,6 +145,7 @@ public class WristIOTalonFX implements WristIO {
   public void zero() {
     setVolts(0);
     talon.setPosition(0);
+    cancoder.setPosition(0);
   }
 
   @Override

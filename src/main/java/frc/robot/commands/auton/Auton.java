@@ -20,11 +20,14 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import frc.robot.Constants;
 import frc.robot.commands.auton.autonSequences.*;
-import frc.robot.subsystems.ElevatorWristSubsystem;
-import frc.robot.subsystems.RangeSensorSubsystem;
+import frc.robot.commands.auton.autonSequences.AutonNet;
+import frc.robot.commands.auton.autonSequences.AutonProcessor;
+import frc.robot.commands.auton.autonSequences.AutonSide;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.rollers.RollerSystem;
+import frc.robot.subsystems.sensors2.CoralSensor;
+import frc.robot.subsystems.superstructure.ElevatorWristSubsystem;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -66,7 +69,7 @@ public class Auton {
       RollerSystem myIntake,
       RollerSystem myIntakeLow,
       ElevatorWristSubsystem myElevatorWrist,
-      RangeSensorSubsystem intake_sensor,
+      CoralSensor intake_sensor,
       Lights LED) {
 
     return new DeferredCommand(

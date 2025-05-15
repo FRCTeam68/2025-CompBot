@@ -152,28 +152,25 @@ public final class Constants {
   }
 
   public static final class INTAKE_CORAL_SENSOR {
-    public static final CANrangeConstants CONFIGURATION_CONFIGS =
-        new CANrangeConstants(
-            "Coral Sensor",
-            37,
-            "rio",
-            new Segment(2, 2, 0),
-            new CANrangeConfiguration()
-                .withFovParams(
-                    new FovParamsConfigs()
-                        .withFOVCenterX(0)
-                        .withFOVCenterY(0)
-                        .withFOVRangeX(6.75)
-                        .withFOVRangeY(6.75))
-                .withProximityParams(
-                    new ProximityParamsConfigs()
-                        .withProximityThreshold(400 / 1000.0)
-                        .withProximityHysteresis(10 / 1000.0)
-                        .withMinSignalStrengthForValidMeasurement(9000))
-                .withToFParams(
-                    new ToFParamsConfigs()
-                        .withUpdateMode(UpdateModeValue.ShortRange100Hz)
-                        .withUpdateFrequency(50)));
+    public static final Integer ID = 37;
+    public static final String BUS = "rio";
+    public static final CANrangeConfiguration CONFIG =
+        new CANrangeConfiguration()
+            .withFovParams(
+                new FovParamsConfigs()
+                    .withFOVCenterX(0)
+                    .withFOVCenterY(0)
+                    .withFOVRangeX(6.75)
+                    .withFOVRangeY(6.75))
+            .withProximityParams(
+                new ProximityParamsConfigs()
+                    .withProximityThreshold(400 / 1000.0)
+                    .withProximityHysteresis(10 / 1000.0)
+                    .withMinSignalStrengthForValidMeasurement(9000))
+            .withToFParams(
+                new ToFParamsConfigs()
+                    .withUpdateMode(UpdateModeValue.ShortRange100Hz)
+                    .withUpdateFrequency(50));
   }
 
   public static final class WRIST {
@@ -239,7 +236,7 @@ public final class Constants {
             "Reef Post Sensor",
             47,
             "rio",
-            new Segment(3, 3, 0),
+            new Segment(4, 4, 0),
             new CANrangeConfiguration()
                 .withFovParams(
                     new FovParamsConfigs()

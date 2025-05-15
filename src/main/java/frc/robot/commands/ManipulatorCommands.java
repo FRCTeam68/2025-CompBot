@@ -21,12 +21,12 @@ import frc.robot.Constants.LEDColor;
 import frc.robot.Constants.LEDSegment;
 import frc.robot.Constants.Mode;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.ElevatorWristSubsystem;
-import frc.robot.subsystems.RangeSensorSubsystem;
 import frc.robot.subsystems.ShotVisualizer;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.rollers.RollerSystem;
+import frc.robot.subsystems.sensors2.CoralSensor;
+import frc.robot.subsystems.superstructure.ElevatorWristSubsystem;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,10 +35,12 @@ import org.littletonrobotics.junction.Logger;
 
 public class ManipulatorCommands {
   @Getter @AutoLogOutput private static ScoringPosition scoringPosition = ScoringPosition.CoralL2_4;
+
   @Getter @Setter @AutoLogOutput private static boolean havePiece = false;
+
   @Getter @AutoLogOutput private static boolean indexing = false;
 
-  private ManipulatorCommands(Lights LED) {}
+  public ManipulatorCommands() {}
 
   public static enum ScoringPosition {
     Algae,
@@ -54,7 +56,7 @@ public class ManipulatorCommands {
       RollerSystem myIntake,
       RollerSystem myIntakeLow,
       ElevatorWristSubsystem myElevatorWrist,
-      RangeSensorSubsystem intake_sensor,
+      CoralSensor intake_sensor,
       Lights LED) {
     return new DeferredCommand(
         () -> {
@@ -366,7 +368,7 @@ public class ManipulatorCommands {
       RollerSystem myIntake,
       RollerSystem myIntakeLow,
       ElevatorWristSubsystem myElevatorWrist,
-      RangeSensorSubsystem intake_sensor,
+      CoralSensor intake_sensor,
       Climber myClimber,
       Lights LED) {
     return Commands.sequence(

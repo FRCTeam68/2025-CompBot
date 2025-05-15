@@ -13,7 +13,16 @@ public class LightsIOSim implements LightsIO {
 
   // {Hex, Control, Name, Segment}
   private String[] integratedLEDValues = new String[8];
-  private final String[] integratedLEDNames = {"0", "1", "2", "3", "4", "5", "6", "7"};
+  private final String[] integratedLEDNames = {
+    "Hopper Camera",
+    "Reef Camera",
+    "Rotation Initalized",
+    "Intake Coral Sensor",
+    "Reef Post Sensor",
+    "5",
+    "6",
+    "7"
+  };
   private String[] otherLEDValues = new String[1];
   private final String[] otherLEDNames = {"All"};
   private final Segment[] otherLEDSegments = {LEDSegment.ALL};
