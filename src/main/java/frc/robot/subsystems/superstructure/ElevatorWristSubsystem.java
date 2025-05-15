@@ -19,8 +19,11 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.LEDColor;
 import frc.robot.Constants.LEDSegment;
-import frc.robot.subsystems.RangeSensorSubsystem;
 import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.sensors.RangeSensorIO;
+import frc.robot.subsystems.sensors.RangeSensorIOCANrange;
+import frc.robot.subsystems.sensors.RangeSensorIOSim;
+import frc.robot.subsystems.sensors.ReefSensor;
 import frc.robot.subsystems.superstructure.elevator.*;
 import frc.robot.subsystems.superstructure.wrist.*;
 import java.util.Set;
@@ -37,7 +40,7 @@ public class ElevatorWristSubsystem extends SubsystemBase {
   private final Elevator elevator;
 
   @SuppressWarnings("unused")
-  private final RangeSensorSubsystem reefPostSensor;
+  private final ReefSensor reefPostSensor;
 
   //   @Getter @AutoLogOutput private double setpoint = 0.0;
   @Getter @AutoLogOutput private boolean reefPostDetectedRaw = false;
@@ -67,18 +70,25 @@ public class ElevatorWristSubsystem extends SubsystemBase {
       case REAL:
         wrist = new Wrist(new WristIOTalonFX());
         elevator = new Elevator(new ElevatorIOTalonFX());
+        reefPostSensor =
+            new ReefSensor(
+                LED,
+                new RangeSensorIOCANrange(
+                    Constants.REEFPOSTSENSOR.ID,
+                    Constants.REEFPOSTSENSOR.BUS,
+                    Constants.REEFPOSTSENSOR.CONFIG));
         break;
       case SIM:
         wrist = new Wrist(new WristIOSim());
         elevator = new Elevator(new ElevatorIOSim());
+        reefPostSensor = new ReefSensor(LED, new RangeSensorIOSim("Reef"));
         break;
       default:
         wrist = new Wrist(new WristIO() {});
         elevator = new Elevator(new ElevatorIO() {});
+        reefPostSensor = new ReefSensor(LED, new RangeSensorIO() {});
         break;
     }
-
-    reefPostSensor = new RangeSensorSubsystem(LED, Constants.REEFPOSTSENSOR.CONFIGURATION_CONFIGS);
 
     zero();
   }

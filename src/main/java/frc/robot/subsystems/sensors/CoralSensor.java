@@ -1,4 +1,4 @@
-package frc.robot.subsystems.sensors2;
+package frc.robot.subsystems.sensors;
 
 import com.ctre.phoenix6.signals.RGBWColor;
 import edu.wpi.first.wpilibj.Alert;

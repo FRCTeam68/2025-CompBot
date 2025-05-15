@@ -1,4 +1,4 @@
-package frc.robot.subsystems.sensors2;
+package frc.robot.subsystems.sensors;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 

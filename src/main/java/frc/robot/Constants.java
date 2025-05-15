@@ -28,7 +28,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.subsystems.RangeSensorSubsystem.CANrangeConstants;
 import frc.robot.subsystems.lights.Lights.Segment;
 import java.util.ArrayList;
 import java.util.List;
@@ -231,28 +230,25 @@ public final class Constants {
   }
 
   public static final class REEFPOSTSENSOR {
-    public static final CANrangeConstants CONFIGURATION_CONFIGS =
-        new CANrangeConstants(
-            "Reef Post Sensor",
-            47,
-            "rio",
-            new Segment(4, 4, 0),
-            new CANrangeConfiguration()
-                .withFovParams(
-                    new FovParamsConfigs()
-                        .withFOVCenterX(0)
-                        .withFOVCenterY(0)
-                        .withFOVRangeX(6.75)
-                        .withFOVRangeY(6.75))
-                .withProximityParams(
-                    new ProximityParamsConfigs()
-                        .withProximityThreshold(400 / 1000)
-                        .withProximityHysteresis(10 / 1000)
-                        .withMinSignalStrengthForValidMeasurement(2500))
-                .withToFParams(
-                    new ToFParamsConfigs()
-                        .withUpdateMode(UpdateModeValue.LongRangeUserFreq)
-                        .withUpdateFrequency(25)));
+    public static final Integer ID = 37;
+    public static final String BUS = "rio";
+    public static final CANrangeConfiguration CONFIG =
+        new CANrangeConfiguration()
+            .withFovParams(
+                new FovParamsConfigs()
+                    .withFOVCenterX(0)
+                    .withFOVCenterY(0)
+                    .withFOVRangeX(6.75)
+                    .withFOVRangeY(6.75))
+            .withProximityParams(
+                new ProximityParamsConfigs()
+                    .withProximityThreshold(400 / 1000)
+                    .withProximityHysteresis(10 / 1000)
+                    .withMinSignalStrengthForValidMeasurement(2500))
+            .withToFParams(
+                new ToFParamsConfigs()
+                    .withUpdateMode(UpdateModeValue.LongRangeUserFreq)
+                    .withUpdateFrequency(25));
     // must be up against reef for these limits
     public static final double LOW_LIMIT = 100; // mm
     public static final double HIGH_LIMIT = 340; // mm

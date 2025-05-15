@@ -26,7 +26,7 @@ import frc.robot.commands.auton.autonSequences.AutonSide;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.rollers.RollerSystem;
-import frc.robot.subsystems.sensors2.CoralSensor;
+import frc.robot.subsystems.sensors.CoralSensor;
 import frc.robot.subsystems.superstructure.ElevatorWristSubsystem;
 import java.util.Arrays;
 import java.util.List;

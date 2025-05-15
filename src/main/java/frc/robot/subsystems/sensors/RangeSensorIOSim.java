@@ -1,4 +1,4 @@
-package frc.robot.subsystems.sensors2;
+package frc.robot.subsystems.sensors;
 
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
@@ -8,8 +8,8 @@ public class RangeSensorIOSim implements RangeSensorIO {
   private final LoggedNetworkNumber distance_mm;
 
   public RangeSensorIOSim(String name) {
-    detected = new LoggedNetworkBoolean("/Simulation/" + name + "Range Sensor/Detected", false);
-    distance_mm = new LoggedNetworkNumber("/Simulation/" + name + "Range Sensor/Distance mm", 0.0);
+    detected = new LoggedNetworkBoolean("/Simulation/" + name + " Range Sensor/Detected", false);
+    distance_mm = new LoggedNetworkNumber("/Simulation/" + name + " Range Sensor/Distance mm", 0.0);
   }
 
   @Override

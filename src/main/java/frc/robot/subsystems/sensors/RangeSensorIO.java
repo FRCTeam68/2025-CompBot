@@ -1,4 +1,4 @@
-package frc.robot.subsystems.sensors2;
+package frc.robot.subsystems.sensors;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;

@@ -19,13 +19,12 @@ import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.LEDColor;
 import frc.robot.Constants.LEDSegment;
-import frc.robot.Constants.Mode;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.ShotVisualizer;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.rollers.RollerSystem;
-import frc.robot.subsystems.sensors2.CoralSensor;
+import frc.robot.subsystems.sensors.CoralSensor;
 import frc.robot.subsystems.superstructure.ElevatorWristSubsystem;
 import java.util.Set;
 import lombok.Getter;
@@ -72,72 +71,59 @@ public class ManipulatorCommands {
                   // Commands.runOnce(() -> safeToMove = true),
                   Commands.runOnce(() -> havePiece = true));
           command = Commands.none();
-          if (Constants.currentMode != Mode.SIM) {
-            if (scoringPosition == ScoringPosition.Algae
-                || scoringPosition == ScoringPosition.AlgaeNet) {
-              ///// INTAKE ALGAE /////
+
+          if (scoringPosition == ScoringPosition.Algae
+              || scoringPosition == ScoringPosition.AlgaeNet) {
+            ///// INTAKE ALGAE /////
+            command =
+                Commands.sequence(
+                    Commands.runOnce(() -> havePiece = false),
+                    Commands.runOnce(
+                        () -> Logger.recordOutput("Manipulator/IntakeShooterState", "IntakeAlgae")),
+                    myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_INTAKE_SPEED),
+                    myIntakeLow.setSpeedCmd(Constants.INTAKE_SHOOTER_LOW.ALGAE_INTAKE_SPEED),
+                    Commands.waitUntil(() -> myIntake.hasPiece()),
+                    ledHaveObject,
+                    myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_HOLD_SPEED),
+                    myIntakeLow.setSpeedCmd(Constants.INTAKE_SHOOTER_LOW.ALGAE_HOLD_SPEED));
+          } else {
+            ///// INTAKE CORAL /////
+            if (intake_sensor.isDetected()) {
               command =
-                  Commands.sequence(
-                      Commands.runOnce(() -> havePiece = false),
+                  Commands.parallel(
                       Commands.runOnce(
                           () ->
-                              Logger.recordOutput("Manipulator/IntakeShooterState", "IntakeAlgae")),
-                      myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_INTAKE_SPEED),
-                      myIntakeLow.setSpeedCmd(Constants.INTAKE_SHOOTER_LOW.ALGAE_INTAKE_SPEED),
-                      Commands.waitUntil(() -> myIntake.hasPiece()),
-                      ledHaveObject,
-                      myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.ALGAE_HOLD_SPEED),
-                      myIntakeLow.setSpeedCmd(Constants.INTAKE_SHOOTER_LOW.ALGAE_HOLD_SPEED));
-            } else {
-              ///// INTAKE CORAL /////
-              if (intake_sensor.isDetected()) {
-                command =
-                    Commands.parallel(
-                        Commands.runOnce(
-                            () ->
-                                Logger.recordOutput(
-                                    "Manipulator/IntakeShooterState", "AlreadyHasCoral")),
-                        CoralIntakePositionCmd(myElevatorWrist),
-                        myIntake.setSpeedCmd(0),
-                        myIntakeLow.setSpeedCmd(0),
-                        Commands.runOnce(() -> indexing = true),
-                        Commands.runOnce(() -> havePiece = true));
-              } else {
-                command =
-                    Commands.sequence(
-                        myIntakeLow.setSpeedCmd(0),
-                        Commands.runOnce(() -> havePiece = false),
-                        Commands.runOnce(() -> indexing = false),
-                        Commands.runOnce(
-                            () ->
-                                Logger.recordOutput(
-                                    "Manipulator/IntakeShooterState", "IntakeCoral")),
-                        CoralIntakePositionCmd(myElevatorWrist),
-                        myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
-                        Commands.waitUntil(() -> intake_sensor.isDetected()),
-                        Commands.runOnce(() -> indexing = true),
-                        Commands.waitSeconds(.03),
-                        myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED),
-                        Commands.waitUntil(() -> intake_sensor.isDetected() == false),
-                        myIntake.setSpeedCmd(
-                            Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED * -1),
-                        Commands.waitUntil(() -> intake_sensor.isDetected()),
-                        Commands.runOnce(
-                            () ->
-                                myIntake.setPosition(
-                                    myIntake.getPosition()
-                                        - Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_REVERSE)),
-                        ledHaveObject);
-              }
-            }
-          } else {
-            if (scoringPosition == ScoringPosition.Algae
-                || scoringPosition == ScoringPosition.AlgaeNet) {
-              command = Commands.waitSeconds(1);
+                              Logger.recordOutput(
+                                  "Manipulator/IntakeShooterState", "AlreadyHasCoral")),
+                      CoralIntakePositionCmd(myElevatorWrist),
+                      myIntake.setSpeedCmd(0),
+                      myIntakeLow.setSpeedCmd(0),
+                      Commands.runOnce(() -> indexing = true),
+                      Commands.runOnce(() -> havePiece = true));
             } else {
               command =
                   Commands.sequence(
-                      CoralIntakePositionCmd(myElevatorWrist), Commands.waitSeconds(1));
+                      myIntakeLow.setSpeedCmd(0),
+                      Commands.runOnce(() -> havePiece = false),
+                      Commands.runOnce(() -> indexing = false),
+                      Commands.runOnce(
+                          () ->
+                              Logger.recordOutput("Manipulator/IntakeShooterState", "IntakeCoral")),
+                      CoralIntakePositionCmd(myElevatorWrist),
+                      myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
+                      Commands.waitUntil(() -> intake_sensor.isDetected()),
+                      Commands.runOnce(() -> indexing = true),
+                      Commands.waitSeconds(.03),
+                      myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED),
+                      Commands.waitUntil(() -> intake_sensor.isDetected() == false),
+                      myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_SPEED * -1),
+                      Commands.waitUntil(() -> intake_sensor.isDetected()),
+                      Commands.runOnce(
+                          () ->
+                              myIntake.setPosition(
+                                  myIntake.getPosition()
+                                      - Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_REVERSE)),
+                      ledHaveObject);
             }
           }
           // execute sequence
