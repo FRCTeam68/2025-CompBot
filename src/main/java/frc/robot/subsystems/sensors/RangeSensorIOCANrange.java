@@ -29,7 +29,7 @@ public class RangeSensorIOCANrange implements RangeSensorIO {
 
     tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(50.0, detected, distance));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(canrange));
-    PhoenixUtil.registerSignals((bus == "rio") ? false : true, detected, distance);
+    PhoenixUtil.registerSignals((bus.equals("rio")) ? false : true, detected, distance);
   }
 
   @Override

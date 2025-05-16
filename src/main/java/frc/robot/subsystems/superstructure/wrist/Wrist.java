@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.superstructure.SuperstructureConstants;
 import frc.robot.util.LoggedTunableNumber;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
@@ -221,7 +222,7 @@ public class Wrist extends SubsystemBase {
               Logger.recordOutput(
                   "Wrist/StaticCharacterizationOutput", state.characterizationOutput);
             })
-        .until(() -> getPosition() >= Constants.WRIST.MAX_POSITION_AT_ELEVATOR_MIN)
+        .until(() -> getPosition() >= SuperstructureConstants.WRIST.maxAtElevatorMinimum)
         .finallyDo(
             () -> {
               // stopProfile = false;

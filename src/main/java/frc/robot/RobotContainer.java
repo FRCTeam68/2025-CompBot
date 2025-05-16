@@ -57,6 +57,7 @@ import frc.robot.subsystems.sensors.RangeSensorIO;
 import frc.robot.subsystems.sensors.RangeSensorIOCANrange;
 import frc.robot.subsystems.sensors.RangeSensorIOSim;
 import frc.robot.subsystems.superstructure.ElevatorWristSubsystem;
+import frc.robot.subsystems.superstructure.SuperstructureConstants;
 import frc.robot.subsystems.superstructure.SuperstructureVisualizer;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
@@ -103,7 +104,7 @@ public class RobotContainer {
       new Alert("Ps4 controller disconnected.", AlertType.kError);
 
   // Autons
-  private static String m_autonName;
+  //   private static String m_autonName;
 
   @Getter private static boolean m_overideMode = false;
   public static boolean m_autoshootOnPostDection = false;
@@ -203,13 +204,10 @@ public class RobotContainer {
         intakeCoralSensor = new CoralSensor(LED, new RangeSensorIOSim("Coral"));
 
         climber = new Climber(new ClimberIOSim());
-        // TBD, this needs an actual simulated sensor.....
         break;
 
       default:
         // Replayed robot, disable IO implementations
-
-        // TBD, this needs an actual simulated sensor.....
         drive =
             new Drive(
                 new GyroIO() {},
@@ -456,7 +454,7 @@ public class RobotContainer {
         .onTrue(
             Commands.either(
                 ManipulatorCommands.BumpClimberCmd(climber, Constants.CLIMBER.BUMP_VALUE),
-                elevatorWrist.BumpElevatorPosition(Constants.ELEVATOR.BUMP_VALUE),
+                elevatorWrist.BumpElevatorPosition(SuperstructureConstants.ELEVATOR.bump),
                 () -> m_overideMode));
 
     m_ps4Controller
@@ -464,7 +462,7 @@ public class RobotContainer {
         .onTrue(
             Commands.either(
                 ManipulatorCommands.BumpClimberCmd(climber, -Constants.CLIMBER.BUMP_VALUE),
-                elevatorWrist.BumpElevatorPosition(-Constants.ELEVATOR.BUMP_VALUE),
+                elevatorWrist.BumpElevatorPosition(-SuperstructureConstants.ELEVATOR.bump),
                 () -> m_overideMode));
 
     m_ps4Controller
@@ -473,9 +471,13 @@ public class RobotContainer {
             Commands.runOnce(() -> m_overideMode = !m_overideMode)
                 .andThen(() -> SmartDashboard.putBoolean("Override Mode", m_overideMode)));
 
-    m_ps4Controller.povLeft().onTrue(elevatorWrist.BumpWristPosition(Constants.WRIST.BUMP_VALUE));
+    m_ps4Controller
+        .povLeft()
+        .onTrue(elevatorWrist.BumpWristPosition(SuperstructureConstants.WRIST.bump));
 
-    m_ps4Controller.povRight().onTrue(elevatorWrist.BumpWristPosition(-Constants.WRIST.BUMP_VALUE));
+    m_ps4Controller
+        .povRight()
+        .onTrue(elevatorWrist.BumpWristPosition(-SuperstructureConstants.WRIST.bump));
 
     // use incase you notice red light on dashboard.
     // m_ps4Controller.share().onTrue(ManipulatorCommands.ZeroClimberCmd(climber));

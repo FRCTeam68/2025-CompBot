@@ -172,63 +172,6 @@ public final class Constants {
                     .withUpdateFrequency(50));
   }
 
-  public static final class WRIST {
-    public static final double REDUCTION = 62.5;
-    public static final double MIN_POSITION = 0;
-    public static final double MIN_SLOT1_TO_ELEVATE = 0.059; // .0606;
-    public static final double SLOT1_TO_ELEVATE = 0.0672; // packaged position to lift elevator
-    public static final double MAX_SLOT1_TO_ELEVATE = 0.075; // .0688;
-    public static final double MIN_POSITION_TO_CLEAR_ELEVATOR = 0.232; // min slot2
-    public static final double MAX_POSITION_AT_ELEVATOR_MIN = 0.416; // max slot2
-    public static final double MAX_POSITION_AT_P1 = 0.544;
-    public static final double MAX_POSITION = 0.544;
-    public static final double INTAKE = 0.012; // 0.02; // 1.5 / REDUCTION;
-    public static final double L1 = 0.44;
-    public static final double L2 = 0.0672; // 3.9; // DO NOT MODIFY WITHOUT CHANGING
-    public static final double L3 = 0.0672; // 3.9; // SEQUENCING LOGIC
-    public static final double L4 = 0.0672; // 3.9; // all 3 of these must be the same value
-    public static final double CRADLE = 0.192;
-    public static final double SHOOTNET = 0.1;
-    public static final double PRENET = 0.352;
-    public static final double A2 = 0.44;
-    public static final double A1 = 0.44;
-    public static final double P1 = 0.528;
-    public static final double BUMP_VALUE = 0.008; // rotations
-    public static final double SAFE = 0.232; // minimum position to move full elevator travel
-    public static final double ERROR = 0.008;
-  }
-
-  public static final class ELEVATOR {
-    public static final double MAX_POSITION = 5.4; // 26.5; // MAX_BLOCK6
-    public static final double MAX_POSITION_BLOCK5 = 4.8; // ????
-    public static final double MAX_POSITION_BLOCK4 = 4.2; // ????
-    public static final double SAFE_IN_BLOCK4 = 2.5;
-    public static final double MIN_POSITION_BLOCK4 = 2.1; // ????
-    public static final double MAX_POSITION_BLOCK2 = 1.02; // ????
-    public static final double MIN_POSITION_AT_P1 = 0.68; // MIN_BLOCK2
-    public static final double MAX_POSITION_BLOCK0 = 0.2;
-    public static final double MIN_POSITION = 0; // /MIN_BLOCK0
-    public static final double SHOOTNET = 5.3;
-    public static final double L4 = 4.6;
-    public static final double PRENET = 5.3;
-    public static final double A2 = 3.1;
-    public static final double L3 = 2.4;
-    public static final double A1 = 1.8;
-    public static final double L2 = 0.9;
-    public static final double P1 = 0.68;
-    public static final double L1 = 1.6;
-    public static final double L1_FINAL = 0.8; // used for pivoting L1 shoot
-    public static final double INTAKE = 0;
-    public static final double BUMP_VALUE = 0.1; // rotations
-    // sequencing contants
-    public static final double MAX_LOW_SAFE = 0.2;
-    public static final double MIN_MID_SAFE = 2.356;
-    public static final double MAX_MID_SAFE = 3.2;
-    public static final double MIN_HIGH_SAFE = 4.8;
-    public static final double MAX_LOW_WRIST_MOVE_FROM_SAFE =
-        0.6; // height to start wrist move if wrist is in safe position
-  }
-
   public static final class REEFPOSTSENSOR {
     public static final Integer ID = 37;
     public static final String BUS = "rio";
@@ -408,18 +351,39 @@ public final class Constants {
           }
         };
 
+    private static final double bargeXOffset = 0.588;
+    // Rotation in degrees from straight
+    // + is toward edge of field
+    private static final double bargeRotation = 27;
+
     public static final List<Pose2d> blueBargePoses =
         new ArrayList<Pose2d>() {
           {
-            add(new Pose2d(8.187, 5, new Rotation2d(Units.degreesToRadians(181))));
-            add(new Pose2d(8.187, 6.5, new Rotation2d(Units.degreesToRadians(181))));
+            add(
+                new Pose2d(
+                    (FieldConstants.fieldLength / 2) - bargeXOffset,
+                    0,
+                    new Rotation2d(Math.PI + Units.degreesToRadians(bargeRotation))));
+            add(
+                new Pose2d(
+                    (FieldConstants.fieldLength / 2) + bargeXOffset,
+                    0,
+                    new Rotation2d(Units.degreesToRadians(-bargeRotation))));
           }
         };
     public static final List<Pose2d> redBargePoses =
         new ArrayList<Pose2d>() {
           {
-            add(new Pose2d(9.363, 3, new Rotation2d(Units.degreesToRadians(1))));
-            add(new Pose2d(9.363, 1.5, new Rotation2d(Units.degreesToRadians(1))));
+            add(
+                new Pose2d(
+                    (FieldConstants.fieldLength / 2) - bargeXOffset,
+                    0,
+                    new Rotation2d(Math.PI + Units.degreesToRadians(-bargeRotation))));
+            add(
+                new Pose2d(
+                    (FieldConstants.fieldLength / 2) + bargeXOffset,
+                    0,
+                    new Rotation2d(Units.degreesToRadians(bargeRotation))));
           }
         };
   }

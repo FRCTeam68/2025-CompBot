@@ -55,7 +55,10 @@ public class ModuleIOTalonFX implements ModuleIO {
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       constants;
 
+  @SuppressWarnings("unused")
   private static final double driveCurrentLimitAmps = 80;
+
+  @SuppressWarnings("unused")
   private static final double turnCurrentLimitAmps = 40;
 
   // Hardware objects
