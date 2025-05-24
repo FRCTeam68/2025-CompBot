@@ -26,7 +26,9 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.LEDColor;
+import frc.robot.Constants.Mode;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.Segment;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
@@ -44,10 +46,10 @@ public class Vision extends SubsystemBase {
       new Alert("All vision cameras disconnected.", AlertType.kError);
   private Double[] rotationSamples = new Double[10]; // Amount of rotation samples to use
   private final double maxRotationError = 3; // Acceptable error in degrees
-  private final Segment rotationInitalizedIndicator = new Segment(3, 3, 0);
+  private final Segment rotationInitalizedIndicator = new Segment(2, 2, 0);
   private final Alert rotationNotInitalizedAlert =
       new Alert(
-          "Robot rotation not initalized. Face robot toward april tag. If all cameras are disconnected, cycle power with reef camera facing red driver station",
+          "Robot rotation not initalized. Face robot toward april tag. If all cameras are disconnected, press the back button with reef camera facing away from driver station. (This can be done while disabled)",
           AlertType.kError);
 
   public Vision(Lights LED, VisionConsumer consumer, VisionIO... io) {
@@ -103,15 +105,19 @@ public class Vision extends SubsystemBase {
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
       inputs[cameraIndex].skipMegaTag1 = false;
     }
-    LED.setSolidColor(LEDColor.RED, rotationInitalizedIndicator);
-    rotationNotInitalizedAlert.set(true);
+    LED.setSolidColor(
+        LEDColor.RED.scaleBrightness(Lights.getOnboardLEDBrightness()),
+        rotationInitalizedIndicator);
+    rotationNotInitalizedAlert.set(true && Constants.currentMode != Mode.SIM);
   }
 
   public void disableMegaTag1() {
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
       inputs[cameraIndex].skipMegaTag1 = true;
     }
-    LED.setSolidColor(LEDColor.GREEN, rotationInitalizedIndicator);
+    LED.setSolidColor(
+        LEDColor.GREEN.scaleBrightness(Lights.getOnboardLEDBrightness()),
+        rotationInitalizedIndicator);
     rotationNotInitalizedAlert.set(false);
   }
 
@@ -132,7 +138,8 @@ public class Vision extends SubsystemBase {
     // Loop over cameras
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
       // Update disconnected alert
-      disconnectedAlert[cameraIndex].set(!inputs[cameraIndex].connected);
+      disconnectedAlert[cameraIndex].set(
+          !inputs[cameraIndex].connected && Constants.currentMode != Mode.SIM);
       if (inputs[cameraIndex].connected) anyConnected = true;
 
       // Initialize logging values
@@ -239,7 +246,7 @@ public class Vision extends SubsystemBase {
     }
 
     // update combined disconnected alert
-    allDisconnectedAlert.set(!anyConnected && io.length > 0);
+    allDisconnectedAlert.set(!anyConnected && io.length > 0 && Constants.currentMode != Mode.SIM);
 
     // Log summary data
     Logger.recordOutput(

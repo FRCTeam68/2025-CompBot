@@ -16,16 +16,12 @@ package frc.robot;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.CANBus.CANBusStatus;
 import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.generated.TunerConstants;
 import frc.robot.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -54,15 +50,9 @@ public class Robot extends LoggedRobot {
     Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
     Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
     switch (BuildConstants.DIRTY) {
-      case 0:
-        Logger.recordMetadata("GitDirty", "All changes committed");
-        break;
-      case 1:
-        Logger.recordMetadata("GitDirty", "Uncomitted changes");
-        break;
-      default:
-        Logger.recordMetadata("GitDirty", "Unknown");
-        break;
+      case 0 -> Logger.recordMetadata("GitDirty", "All changes committed");
+      case 1 -> Logger.recordMetadata("GitDirty", "Uncomitted changes");
+      default -> Logger.recordMetadata("GitDirty", "Unknown");
     }
     // TODO add this from sensor input
     Logger.recordMetadata("BatteryName", "ADD THIS IN FUTURE");
@@ -90,22 +80,6 @@ public class Robot extends LoggedRobot {
         break;
     }
 
-    // Check for valid swerve config
-    var modules =
-        new SwerveModuleConstants[] {
-          TunerConstants.FrontLeft,
-          TunerConstants.FrontRight,
-          TunerConstants.BackLeft,
-          TunerConstants.BackRight
-        };
-    for (var constants : modules) {
-      if (constants.DriveMotorType != DriveMotorArrangement.TalonFX_Integrated
-          || constants.SteerMotorType != SteerMotorArrangement.TalonFX_Integrated) {
-        throw new RuntimeException(
-            "You are using an unsupported swerve configuration, which this template does not support without manual customization. The 2025 release of Phoenix supports some swerve configurations which were not available during 2025 beta testing, preventing any development and support from the AdvantageKit developers.");
-      }
-    }
-
     // Elasic remote layout downloading
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
 
@@ -119,7 +93,7 @@ public class Robot extends LoggedRobot {
     rioBus = new CANBus("rio");
     CANivoreBus = new CANBus("DRIVEbus");
 
-    // uncomment the line below to log CTRE devices to usb stick
+    // uncomment the lines below to log CTRE devices to usb stick
     SignalLogger.setPath("//media/sda1/logs");
     SignalLogger.start();
     // do not call the setPath and will be logged to rio at "/home/lvuser/logs"

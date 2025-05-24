@@ -43,7 +43,7 @@ public interface ElevatorIO {
    *
    * @param newconfig PID gains
    */
-  public default void setPID(SlotConfigs... newconfig) {}
+  public default void setPID(SlotConfigs... newConfig) {}
 
   /** Set motion magic velocity, acceleration and jerk. */
   public default void setMotionMagic(MotionMagicConfigs newconfig) {}

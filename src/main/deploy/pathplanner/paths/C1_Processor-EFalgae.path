@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.987,
-        "y": 0.632
+        "x": 5.986500000000001,
+        "y": 0.6319999999999993
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.68425,
-        "y": 1.685
+        "x": 5.683750000000001,
+        "y": 1.6849999999999994
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Processor"
     },
     {
       "anchor": {
-        "x": 5.127822220693052,
-        "y": 2.9452297350612917
+        "x": 5.128,
+        "y": 2.945
       },
       "prevControl": {
-        "x": 5.552072220693053,
-        "y": 1.8844797350612918
+        "x": 5.552250000000001,
+        "y": 1.88425
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Algae-EF"
     }
   ],
   "rotationTargets": [
@@ -38,8 +38,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 3.1,
+    "maxAcceleration": 8.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -50,7 +50,7 @@
     "rotation": 119.99999999999999
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Processor",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -90.0

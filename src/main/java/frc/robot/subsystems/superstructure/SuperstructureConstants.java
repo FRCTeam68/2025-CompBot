@@ -4,7 +4,7 @@ public final class SuperstructureConstants {
   public static final class ELEVATOR {
     public static final double max = 5.4;
     public static final double min = 0;
-    public static final double bump = 0.1;
+    public static final double bump = 0.25;
 
     public static final double maxLowSafe = 0.2;
     public static final double minMidSafe = 2.356;
@@ -27,7 +27,7 @@ public final class SuperstructureConstants {
   public static final class WRIST {
     public static final double max = 0.544;
     public static final double min = 0;
-    public static final double bump = 0.008;
+    public static final double bump = 0.03;
 
     public static final double L2_4 = 0.0672;
     public static final double A1_2 = 0.44;
@@ -38,9 +38,6 @@ public final class SuperstructureConstants {
     public static final double safe = 0.232; // minimum position to move full elevator travel
     public static final double maxAtElevatorMinimum = 0.416;
     public static final double maxAtProcessor = 0.544;
-
-    // Old block values used in failsafe elevator wrist command
-    // TODO Remove these and use values above
   }
 
   public static enum Pose {

@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.163,
-        "y": 2.917
+        "x": 5.128,
+        "y": 2.945
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.945901639344262,
-        "y": 1.969108606557377
+        "x": 5.910901639344262,
+        "y": 1.997108606557377
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Algae-EF"
     },
     {
       "anchor": {
         "x": 8.062,
-        "y": 5.277715163934426
+        "y": 5.118
       },
       "prevControl": {
         "x": 5.776938524590163,
-        "y": 1.9211577868852467
+        "y": 1.7614426229508213
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Net"
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 3.1,
+    "maxAcceleration": 8.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -45,7 +45,7 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Net",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 119.99999999999999

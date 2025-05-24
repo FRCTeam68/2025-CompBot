@@ -13,6 +13,8 @@
 
 package frc.robot.subsystems.drive;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -27,13 +29,16 @@ public interface ModuleIO {
     public double driveTemp = 0.0;
 
     public boolean turnConnected = false;
-    public boolean turnEncoderConnected = false;
-    public Rotation2d turnAbsolutePosition = new Rotation2d();
     public Rotation2d turnPosition = new Rotation2d();
     public double turnVelocityRadPerSec = 0.0;
     public double turnAppliedVolts = 0.0;
     public double turnCurrentAmps = 0.0;
     public double turnTemp = 0.0;
+
+    public boolean turnEncoderConnected = false;
+    public Rotation2d turnAbsolutePosition = new Rotation2d();
+    public MagnetHealthValue turnMagnetHealth = MagnetHealthValue.Magnet_Invalid;
+    public boolean turnEncoderSyncStickyFault = true;
 
     public double[] odometryTimestamps = new double[] {};
     public double[] odometryDrivePositionsRad = new double[] {};
@@ -56,10 +61,10 @@ public interface ModuleIO {
   public default void setTurnPosition(Rotation2d rotation) {}
 
   /** Set P, I, and D gains for closed loop control on drive motor. */
-  public default void setDrivePID(double kP, double kI, double kD) {}
+  public default void setDrivePID(Slot0Configs config) {}
 
   /** Set P, I, and D gains for closed loop control on turn motor. */
-  public default void setTurnPID(double kP, double kI, double kD) {}
+  public default void setTurnPID(Slot0Configs config) {}
 
   /** Set brake mode on drive motor */
   public default void setBrakeMode(boolean enabled) {}

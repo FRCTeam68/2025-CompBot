@@ -26,9 +26,10 @@ public class PhoenixUtil {
     }
   }
 
-  /** Signals for synchronized refresh. */
+  /** CANivore signals for synchronized refresh. */
   private static BaseStatusSignal[] canivoreSignals = new BaseStatusSignal[0];
 
+  /** Rio signals for synchronized refresh. */
   private static BaseStatusSignal[] rioSignals = new BaseStatusSignal[0];
 
   /** Registers a set of signals for synchronized refresh. */

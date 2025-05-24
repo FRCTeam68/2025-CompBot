@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldPoses;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.AllianceFlipUtil;
 import java.util.List;
 import java.util.Set;
 
@@ -45,34 +46,26 @@ public class ReefCentering {
     Pose2d nearest;
 
     switch (selectedSide) {
-      case Left, Middle, Right:
-        nearest = calculateNearestReefSide();
-        break;
-      case Back:
-        nearest = calculateNearestSourceSide();
-        break;
-      case Barge:
-        nearest = calculateNearestBargeSide();
-        break;
-      default:
-        nearest = new Pose2d();
-        break;
+      case Left, Middle, Right -> nearest = calculateNearestReefSide();
+      case Back -> nearest = calculateNearestSourceSide();
+      case Barge -> nearest = calculateNearestBargeSide();
+      default -> nearest = new Pose2d();
     }
     return nearest;
   }
 
   public Pose2d calculateNearestReefSide() {
-    if (m_drive.isRedSide()) return m_drive.getPose().nearest(FieldPoses.redReefPoses);
+    if (AllianceFlipUtil.shouldFlip()) return m_drive.getPose().nearest(FieldPoses.redReefPoses);
     else return m_drive.getPose().nearest(FieldPoses.blueReefPoses);
   }
 
   public Pose2d calculateNearestSourceSide() {
-    if (m_drive.isRedSide()) return m_drive.getPose().nearest(FieldPoses.redSourcePoses);
+    if (AllianceFlipUtil.shouldFlip()) return m_drive.getPose().nearest(FieldPoses.redSourcePoses);
     else return m_drive.getPose().nearest(FieldPoses.blueSourcePoses);
   }
 
   public Pose2d calculateNearestBargeSide() {
-    if (m_drive.isRedSide()) return m_drive.getPose().nearest(FieldPoses.redBargePoses);
+    if (AllianceFlipUtil.shouldFlip()) return m_drive.getPose().nearest(FieldPoses.redBargePoses);
     else return m_drive.getPose().nearest(FieldPoses.blueBargePoses);
   }
 
@@ -131,25 +124,18 @@ public class ReefCentering {
     PathConstraints pathContraints;
 
     switch (selectedSide) {
-      case Left, Middle, Right:
-        pathContraints = Constants.PathPlannerConstants.slowConstraints;
-        break;
-      case Back:
-        pathContraints = Constants.PathPlannerConstants.slowConstraints;
-        break;
-      case Barge:
-        pathContraints = Constants.PathPlannerConstants.slowConstraints;
-        break;
-      default:
-        pathContraints = Constants.PathPlannerConstants.defaultConstraints;
-        break;
+      case Left, Middle, Right -> pathContraints = Constants.PathPlannerConstants.slowConstraints;
+      case Back -> pathContraints = Constants.PathPlannerConstants.slowConstraints;
+      case Barge -> pathContraints = Constants.PathPlannerConstants.slowConstraints;
+      default -> pathContraints = Constants.PathPlannerConstants.defaultConstraints;
     }
 
     PathPlannerPath path =
         new PathPlannerPath(
             waypoints,
             pathContraints,
-            new IdealStartingState(m_drive.getVelocityMagnitude(), m_drive.getHeading()),
+            // TODO documentation says this should be null and is not used
+            new IdealStartingState(m_drive.getVelocityMagnitude(), m_drive.getRotation()),
             new GoalEndState(0.0, waypoint.getRotation()));
 
     path.preventFlipping = true;
@@ -164,9 +150,7 @@ public class ReefCentering {
   private Rotation2d getPathVelocityHeading(ChassisSpeeds cs, Pose2d target) {
     if (m_drive.getVelocityMagnitude().in(MetersPerSecond) < 0.25) {
       var diff = target.minus(m_drive.getPose()).getTranslation();
-      return (diff.getNorm() < 0.01)
-          ? target.getRotation()
-          : diff.getAngle(); // .rotateBy(Rotation2d.k180deg);
+      return (diff.getNorm() < 0.01) ? target.getRotation() : diff.getAngle();
     }
     return new Rotation2d(cs.vxMetersPerSecond, cs.vyMetersPerSecond);
   }
@@ -199,18 +183,10 @@ public class ReefCentering {
     PathConstraints pathContraints;
 
     switch (selectedSide) {
-      case Left, Middle, Right:
-        pathContraints = Constants.PathPlannerConstants.slowConstraints;
-        break;
-      case Back:
-        pathContraints = Constants.PathPlannerConstants.defaultConstraints;
-        break;
-      case Barge:
-        pathContraints = Constants.PathPlannerConstants.defaultConstraints;
-        break;
-      default:
-        pathContraints = Constants.PathPlannerConstants.defaultConstraints;
-        break;
+      case Left, Middle, Right -> pathContraints = Constants.PathPlannerConstants.slowConstraints;
+      case Back -> pathContraints = Constants.PathPlannerConstants.defaultConstraints;
+      case Barge -> pathContraints = Constants.PathPlannerConstants.defaultConstraints;
+      default -> pathContraints = Constants.PathPlannerConstants.defaultConstraints;
     }
 
     return AutoBuilder.pathfindToPose(

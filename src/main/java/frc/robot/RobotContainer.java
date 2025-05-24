@@ -18,7 +18,9 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -32,27 +34,27 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.*;
 import frc.robot.commands.auton.Auton;
-import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ShotVisualizer;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIO;
 import frc.robot.subsystems.climber.ClimberIOSim;
 import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.Lights.Segment;
 import frc.robot.subsystems.lights.LightsIO;
 import frc.robot.subsystems.lights.LightsIOCANdle;
-import frc.robot.subsystems.lights.LightsIOSim;
 import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.rollers.RollerSystemIOSim;
 import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
-import frc.robot.subsystems.sensors.CoralSensor;
+import frc.robot.subsystems.sensors.RangeSensor;
 import frc.robot.subsystems.sensors.RangeSensorIO;
 import frc.robot.subsystems.sensors.RangeSensorIOCANrange;
 import frc.robot.subsystems.sensors.RangeSensorIOSim;
@@ -63,7 +65,9 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.AllianceFlipUtil;
+import frc.robot.util.TimedAlert;
 import lombok.Getter;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -74,14 +78,11 @@ import lombok.Getter;
 public class RobotContainer {
   // Subsystems
   private static Drive drive;
-
-  @SuppressWarnings("unused")
   private final Vision vision;
-
   private final Climber climber;
   private final RollerSystem intakeShooter;
   private final RollerSystem intakeShooterLow;
-  private final CoralSensor intakeCoralSensor;
+  private final RangeSensor intakeCoralSensor;
   private final ElevatorWristSubsystem elevatorWrist;
   private final Lights LED;
 
@@ -109,6 +110,9 @@ public class RobotContainer {
   @Getter private static boolean m_overideMode = false;
   public static boolean m_autoshootOnPostDection = false;
 
+  private static final LoggedDashboardChooser<Translation2d> selectedCage =
+      new LoggedDashboardChooser<>("Cage");
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     switch (Constants.currentMode) {
@@ -117,10 +121,10 @@ public class RobotContainer {
         drive =
             new Drive(
                 new GyroIOPigeon2(),
-                new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                new ModuleIOTalonFX(TunerConstants.FrontRight),
-                new ModuleIOTalonFX(TunerConstants.BackLeft),
-                new ModuleIOTalonFX(TunerConstants.BackRight));
+                new ModuleIOTalonFX(DriveConstants.moduleConfigsComp[0]),
+                new ModuleIOTalonFX(DriveConstants.moduleConfigsComp[1]),
+                new ModuleIOTalonFX(DriveConstants.moduleConfigsComp[2]),
+                new ModuleIOTalonFX(DriveConstants.moduleConfigsComp[3]));
 
         LED = new Lights(new LightsIOCANdle());
 
@@ -145,7 +149,7 @@ public class RobotContainer {
                     true,
                     1));
         // init tunables in the parent roller system
-        intakeShooter.setPID(Constants.INTAKE_SHOOTER.SLOT0_CONFIGS);
+        intakeShooter.setPID(Constants.INTAKE_SHOOTER.SLOT_CONFIGS);
         intakeShooter.setMotionMagic(Constants.INTAKE_SHOOTER.MOTIONMAGIC_CONFIGS);
         intakeShooter.setAtSetpointBand(.3);
         intakeShooter.setPieceCurrentThreshold(40);
@@ -164,16 +168,18 @@ public class RobotContainer {
                     false,
                     1));
         // init tunables in the parent roller system
-        intakeShooterLow.setPID(Constants.INTAKE_SHOOTER_LOW.SLOT0_CONFIGS);
+        intakeShooterLow.setPID(Constants.INTAKE_SHOOTER_LOW.SLOT_CONFIGS);
         intakeShooterLow.setMotionMagic(Constants.INTAKE_SHOOTER_LOW.MOTIONMAGIC_CONFIGS);
         intakeShooterLow.setAtSetpointBand(.3);
         intakeShooterLow.setPieceCurrentThreshold(40);
 
         intakeCoralSensor =
-            new CoralSensor(
+            new RangeSensor(
                 LED,
+                "CoralCANrange",
                 new RangeSensorIOCANrange(
-                    Constants.INTAKE_CORAL_SENSOR.ID, "rio", Constants.INTAKE_CORAL_SENSOR.CONFIG));
+                    Constants.INTAKE_CORAL_SENSOR.ID, "rio", Constants.INTAKE_CORAL_SENSOR.CONFIG),
+                new Segment(3, 3, 0));
 
         climber = new Climber(new ClimberIOTalonFX());
         break;
@@ -183,15 +189,15 @@ public class RobotContainer {
         drive =
             new Drive(
                 new GyroIO() {},
-                new ModuleIOSim(TunerConstants.FrontLeft),
-                new ModuleIOSim(TunerConstants.FrontRight),
-                new ModuleIOSim(TunerConstants.BackLeft),
-                new ModuleIOSim(TunerConstants.BackRight));
+                new ModuleIOSim(),
+                new ModuleIOSim(),
+                new ModuleIOSim(),
+                new ModuleIOSim());
         // (Use same number of dummy implementations as the real robot)
 
-        LED = new Lights(new LightsIOSim());
+        LED = new Lights(new LightsIO() {});
 
-        vision = new Vision(LED, drive::addVisionMeasurement);
+        vision = new Vision(LED, drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
         intakeShooter =
             new RollerSystem(
@@ -201,7 +207,9 @@ public class RobotContainer {
             new RollerSystem(
                 "IntakeShooterLow", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
 
-        intakeCoralSensor = new CoralSensor(LED, new RangeSensorIOSim("Coral"));
+        intakeCoralSensor =
+            new RangeSensor(
+                LED, "CoralCANrange", new RangeSensorIOSim("Coral"), new Segment(3, 3, 0));
 
         climber = new Climber(new ClimberIOSim());
         break;
@@ -223,7 +231,8 @@ public class RobotContainer {
 
         intakeShooter = new RollerSystem("IntakeShooter", new RollerSystemIO() {});
         intakeShooterLow = new RollerSystem("IntakeShooterLow", new RollerSystemIO() {});
-        intakeCoralSensor = new CoralSensor(LED, new RangeSensorIO() {});
+        intakeCoralSensor =
+            new RangeSensor(LED, "CoralCANrange", new RangeSensorIO() {}, new Segment(3, 3, 0));
 
         climber = new Climber(new ClimberIO() {});
         break;
@@ -253,6 +262,10 @@ public class RobotContainer {
 
     SmartDashboard.putBoolean("Override Mode", m_overideMode);
     SmartDashboard.putBoolean("AutoShoot", false);
+
+    selectedCage.addOption("Left", FieldConstants.Barge.farCage);
+    selectedCage.addOption("Center", FieldConstants.Barge.middleCage);
+    selectedCage.addOption("Right", FieldConstants.Barge.closeCage);
   }
 
   /**
@@ -288,6 +301,53 @@ public class RobotContainer {
                 .until(() -> reefCentering.haveConditionsChanged())
                 .repeatedly());
 
+    // Drive to line looking at reef
+    m_xboxController
+        .x()
+        .whileTrue(
+            DriveCommands.driveToLineAtAngle(
+                drive,
+                () -> -m_xboxController.getLeftY(),
+                () -> 0.7,
+                () ->
+                    new Pose2d(
+                        AllianceFlipUtil.apply(FieldConstants.Barge.farCage),
+                        new Rotation2d(Units.degreesToRadians(60))),
+                () ->
+                    DriveCommands.calculateRotationToPoint(
+                        drive.getPose().getTranslation(),
+                        AllianceFlipUtil.apply(FieldConstants.Reef.center))));
+
+    // Drive to cage
+    m_xboxController
+        .y()
+        .whileTrue(
+            DriveCommands.driveToLineAtAngle(
+                drive,
+                () -> -m_xboxController.getLeftY(),
+                () -> 0.33,
+                () ->
+                    new Pose2d(
+                        AllianceFlipUtil.apply(
+                            selectedCage.get() != null
+                                ? selectedCage.get()
+                                : FieldConstants.Barge.middleCage),
+                        new Rotation2d(Units.degreesToRadians(0))),
+                () -> AllianceFlipUtil.apply(new Rotation2d(Units.degreesToRadians(180)))));
+
+    // Aim at point example
+    m_xboxController
+        .a()
+        .whileTrue(
+            DriveCommands.joystickDriveAtAngle(
+                drive,
+                () -> -m_xboxController.getLeftY(),
+                () -> -m_xboxController.getLeftX(),
+                () ->
+                    DriveCommands.calculateRotationToPoint(
+                        drive.getPose().getTranslation(),
+                        AllianceFlipUtil.apply(FieldConstants.Reef.center))));
+
     // lock to tag angle
     // m_xboxController
     //     .y()
@@ -297,41 +357,6 @@ public class RobotContainer {
     //             () -> -m_xboxController.getLeftY(),
     //             () -> -m_xboxController.getLeftX(),
     //             () -> vision.getTagPose(1).getRotation()));
-
-    // // Reset gyro to 0° when B button is pressed
-    // m_xboxController
-    //     .back()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //                 () ->
-    //                     drive.setPose(
-    //                         new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-    //                 drive)
-    //             .ignoringDisable(true));
-
-    // Auto aim command example
-    // @SuppressWarnings("resource")
-    // PIDController aimController = new PIDController(0.2, 0.0, 0.0);
-    // aimController.enableContinuousInput(-Math.PI, Math.PI);
-    // m_xboxController
-    //     .x()
-    //     .whileTrue(
-    //         Commands.startRun(
-    //             () -> {
-    //               aimController.reset();
-    //             },
-    //             () -> {
-    //               DriveCommands.joystickDriveAtAngle(
-    //                   drive,
-    //                   () -> -m_xboxController.getLeftY(),
-    //                   () -> -m_xboxController.getLeftX(),
-    //                   () ->
-    //                       new Rotation2d(
-    //                           aimController.calculate(vision.getTargetX(1).getRadians())));
-    //               Logger.recordOutput("DriveAtAngle/TargetX",
-    //                vision.getTargetX(1).getRadians());
-    //             },
-    //             drive));
 
     m_xboxController
         .leftTrigger()
@@ -348,24 +373,28 @@ public class RobotContainer {
     m_xboxController.rightBumper().onTrue(new AlignToReefTagRelative(true, drive).withTimeout(3));
 
     // Reset robot rotation
+    // and enable MegaTag 1 sampling
     m_xboxController
         .back()
         .onTrue(
             Commands.runOnce(
-                () ->
-                    drive.setPose(
-                        new Pose2d(
-                            drive.getPose().getTranslation(),
-                            AllianceFlipUtil.apply(new Rotation2d(0))))));
+                    () ->
+                        drive.setPose(
+                            new Pose2d(
+                                drive.getPose().getTranslation(),
+                                AllianceFlipUtil.apply(new Rotation2d(0)))))
+                .alongWith(Commands.runOnce(() -> vision.enableMegaTag1()))
+                .ignoringDisable(true));
 
     m_xboxController
         .start()
         .onTrue(
             intakeShooter
                 .setSpeedCmd(0)
-                .andThen(intakeShooterLow.setSpeedCmd(0))
-                .andThen(elevatorWrist.haltCmd())
-                .andThen(Commands.runOnce(() -> System.out.printf("stop%n"))));
+                .alongWith(intakeShooterLow.setSpeedCmd(0))
+                .alongWith(elevatorWrist.haltCmd())
+                .alongWith(Commands.runOnce(() -> TimedAlert.set("Mechanisms stopped", 2)))
+                .ignoringDisable(true));
 
     m_xboxController
         .povUp()
@@ -530,9 +559,9 @@ public class RobotContainer {
         "Drive/Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     SmartDashboard.putData(
         "Elevator/Elevator static",
-        elevatorWrist.getElevator().staticElevatorCharacterization(2.0));
+        ManipulatorCommands.staticElevatorCharacterization(elevatorWrist, 2.0));
     SmartDashboard.putData(
-        "Wrist/Wrist static", elevatorWrist.getWrist().staticWristCharacterization(2.0));
+        "Wrist/Wrist static", ManipulatorCommands.staticWristCharacterization(elevatorWrist, 2.0));
     SmartDashboard.putData("Climber/Climber static", climber.staticClimberCharacterization(2.0));
   }
 

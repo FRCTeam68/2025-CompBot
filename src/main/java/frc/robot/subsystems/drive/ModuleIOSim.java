@@ -13,9 +13,7 @@
 
 package frc.robot.subsystems.drive;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -47,27 +45,21 @@ public class ModuleIOSim implements ModuleIO {
 
   private boolean driveClosedLoop = false;
   private boolean turnClosedLoop = false;
-  // private PIDController driveController = new PIDController(0, 0, 0);
-  // private PIDController turnController = new PIDController(0, 0, 0);
   private PIDController driveController = new PIDController(DRIVE_KP, 0, DRIVE_KD);
   private PIDController turnController = new PIDController(TURN_KP, 0, TURN_KD);
   private double driveFFVolts = 0.0;
   private double driveAppliedVolts = 0.0;
   private double turnAppliedVolts = 0.0;
 
-  public ModuleIOSim(
-      SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
-          constants) {
+  public ModuleIOSim() {
     // Create drive and turn sim models
     driveSim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(
-                DRIVE_GEARBOX, constants.DriveInertia, constants.DriveMotorGearRatio),
+            LinearSystemId.createDCMotorSystem(DRIVE_GEARBOX, 0.1, DriveConstants.driveGearRatio),
             DRIVE_GEARBOX);
     turnSim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(
-                TURN_GEARBOX, constants.SteerInertia, constants.SteerMotorGearRatio),
+            LinearSystemId.createDCMotorSystem(TURN_GEARBOX, 0.05, DriveConstants.turnGearRatio),
             TURN_GEARBOX);
 
     // Enable wrapping for turn PID
@@ -104,12 +96,15 @@ public class ModuleIOSim implements ModuleIO {
 
     // Update turn inputs
     inputs.turnConnected = true;
-    inputs.turnEncoderConnected = true;
-    inputs.turnAbsolutePosition = new Rotation2d(turnSim.getAngularPositionRad());
     inputs.turnPosition = new Rotation2d(turnSim.getAngularPositionRad());
     inputs.turnVelocityRadPerSec = turnSim.getAngularVelocityRadPerSec();
     inputs.turnAppliedVolts = turnAppliedVolts;
     inputs.turnCurrentAmps = Math.abs(turnSim.getCurrentDrawAmps());
+
+    inputs.turnEncoderConnected = true;
+    inputs.turnAbsolutePosition = new Rotation2d(turnSim.getAngularPositionRad());
+    inputs.turnMagnetHealth = MagnetHealthValue.Magnet_Green;
+    inputs.turnEncoderSyncStickyFault = false;
 
     // Update odometry inputs (50Hz because high-frequency odometry in sim doesn't matter)
     inputs.odometryTimestamps = new double[] {Timer.getFPGATimestamp()};
@@ -140,15 +135,5 @@ public class ModuleIOSim implements ModuleIO {
   public void setTurnPosition(Rotation2d rotation) {
     turnClosedLoop = true;
     turnController.setSetpoint(rotation.getRadians());
-  }
-
-  @Override
-  public void setDrivePID(double kP, double kI, double kD) {
-    driveController.setPID(kP, kI, kD);
-  }
-
-  @Override
-  public void setTurnPID(double kP, double kI, double kD) {
-    turnController.setPID(kP, kI, kD);
   }
 }

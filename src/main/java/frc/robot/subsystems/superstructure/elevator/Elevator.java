@@ -4,67 +4,56 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.superstructure.SuperstructureConstants;
 import frc.robot.util.LoggedTunableNumber;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 public class Elevator extends SubsystemBase {
-  private final String pathName = "Elevator";
   private final ElevatorIO io;
   protected final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
   private final Alert disconnected;
   private final Alert followerDisconnected;
 
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kP", 5);
-  private LoggedTunableNumber kI0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kI", 0);
-  private LoggedTunableNumber kD0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kD", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kS", 0.5);
-  private LoggedTunableNumber kV0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kV", 0.2);
-  private LoggedTunableNumber kA0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kA", 0);
-  private LoggedTunableNumber kG0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kG", 0.5);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber("Elevator/Slot0Configs/kP", 5);
+  private LoggedTunableNumber kD0 = new LoggedTunableNumber("Elevator/Slot0Configs/kD", 0);
+  private LoggedTunableNumber kS0 = new LoggedTunableNumber("Elevator/Slot0Configs/kS", 0.5);
+  private LoggedTunableNumber kV0 = new LoggedTunableNumber("Elevator/Slot0Configs/kV", 0.2);
+  private LoggedTunableNumber kA0 = new LoggedTunableNumber("Elevator/Slot0Configs/kA", 0);
+  private LoggedTunableNumber kG0 = new LoggedTunableNumber("Elevator/Slot0Configs/kG", 0.5);
 
   private LoggedTunableNumber mmV =
-      new LoggedTunableNumber(pathName + "/Motion Magic Configs/Velocity", 40);
+      new LoggedTunableNumber("Elevator/MotionMagicConfigs/Velocity", 40);
   private LoggedTunableNumber mmA =
-      new LoggedTunableNumber(pathName + "/Motion Magic Configs/Acceleration", 120);
+      new LoggedTunableNumber("Elevator/MotionMagicConfigs/Acceleration", 120);
   private LoggedTunableNumber mmJ =
-      new LoggedTunableNumber(pathName + "/Motion Magic Configs/Jerk", 400);
+      new LoggedTunableNumber("Elevator/MotionMagicConfigs/Jerk", 400);
 
-  private LoggedTunableNumber setpointBand =
-      new LoggedTunableNumber(pathName + "/setpointBand", 0.2);
+  private LoggedTunableNumber setpointBand = new LoggedTunableNumber("Elevator/SetpointBand", 0.2);
 
   @Getter private double setpoint = 0.0;
+
+  private LoggedNetworkNumber testSetpoint =
+      new LoggedNetworkNumber("SmartDashboard/Elevator/RunToPosition/Setpoint", 0);
 
   public Elevator(ElevatorIO io) {
     this.io = io;
 
-    io.setPID(
-        new SlotConfigs()
-            .withKP(kP0.get())
-            .withKI(kI0.get())
-            .withKD(kD0.get())
-            .withKS(kS0.get())
-            .withKV(kV0.get())
-            .withKA(kA0.get())
-            .withKG(kG0.get()));
-    io.setMotionMagic(
-        new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(mmV.get())
-            .withMotionMagicAcceleration(mmA.get())
-            .withMotionMagicJerk(mmJ.get()));
+    setPID();
+    setMotionMagic();
 
-    disconnected = new Alert("Lead elevator motor disconnected!", Alert.AlertType.kError);
+    disconnected = new Alert("Lead elevator motor disconnected.", Alert.AlertType.kError);
     followerDisconnected =
-        new Alert("Follower elevator motor disconnected!", Alert.AlertType.kError);
+        new Alert("Follower elevator motor disconnected.", Alert.AlertType.kError);
 
-    SmartDashboard.putData(pathName + "/Zero In Place", Commands.runOnce(() -> zero()));
+    // Dashboard tuning commands
+    SmartDashboard.putData("Elevator/ZeroInPlace", Commands.runOnce(() -> zero()));
+    SmartDashboard.putData(
+        "Elevator/RunToPosition/Run", Commands.runOnce(() -> setPosition(testSetpoint.get())));
   }
 
   public void periodic() {
@@ -72,34 +61,21 @@ public class Elevator extends SubsystemBase {
     Logger.processInputs("Elevator", inputs);
     disconnected.set(!inputs.connected);
     followerDisconnected.set(!inputs.followerConnected);
-    Logger.recordOutput(pathName + "/At position", atPosition());
+    Logger.recordOutput("Elevator/AtPosition", atPosition());
 
     // Update tunable numbers
     if (Constants.tuningMode) {
       if (kP0.hasChanged(hashCode())
-          || kI0.hasChanged(hashCode())
           || kD0.hasChanged(hashCode())
           || kS0.hasChanged(hashCode())
           || kV0.hasChanged(hashCode())
           || kA0.hasChanged(hashCode())
           || kG0.hasChanged(hashCode())) {
-        SlotConfigs newconfig = new SlotConfigs();
-        newconfig.kP = kP0.get();
-        newconfig.kI = kI0.get();
-        newconfig.kD = kD0.get();
-        newconfig.kS = kS0.get();
-        newconfig.kV = kV0.get();
-        newconfig.kA = kA0.get();
-        newconfig.kG = kG0.get();
-        io.setPID(newconfig);
+        setPID();
       }
 
       if (mmV.hasChanged(hashCode()) || mmA.hasChanged(hashCode()) || mmJ.hasChanged(hashCode())) {
-        MotionMagicConfigs newMMconfig = new MotionMagicConfigs();
-        newMMconfig.MotionMagicCruiseVelocity = mmV.get();
-        newMMconfig.MotionMagicAcceleration = mmA.get();
-        newMMconfig.MotionMagicJerk = mmJ.get();
-        io.setMotionMagic(newMMconfig);
+        setMotionMagic();
       }
     }
   }
@@ -115,7 +91,7 @@ public class Elevator extends SubsystemBase {
    */
   public void setVolts(double inputVolts) {
     setpoint = inputVolts;
-    Logger.recordOutput(pathName + "/setpointVolts", setpoint);
+    Logger.recordOutput("Elevator/setpointVolts", setpoint);
     io.setVolts(inputVolts);
   }
 
@@ -126,7 +102,7 @@ public class Elevator extends SubsystemBase {
    */
   public void setPosition(double position) {
     setpoint = position;
-    Logger.recordOutput(pathName + "/setpointPosition", setpoint);
+    Logger.recordOutput("Elevator/setpointPosition", setpoint);
     io.setPosition(position, 0);
   }
 
@@ -203,30 +179,22 @@ public class Elevator extends SubsystemBase {
     io.zero();
   }
 
-  public Command staticElevatorCharacterization(double outputRampRate) {
-    final StaticCharacterizationState state = new StaticCharacterizationState();
-    Timer timer = new Timer();
-    return Commands.startRun(
-            () -> {
-              // stopProfile = true;
-              timer.restart();
-            },
-            () -> {
-              state.characterizationOutput = outputRampRate * timer.get();
-              setVolts(state.characterizationOutput);
-              Logger.recordOutput(
-                  "Elevator/StaticCharacterizationOutput", state.characterizationOutput);
-            })
-        .until(() -> getPositionRotations() >= SuperstructureConstants.ELEVATOR.max - 1)
-        .finallyDo(
-            () -> {
-              // stopProfile = false;
-              timer.stop();
-              Logger.recordOutput("Elevator/CharacterizationOutput", state.characterizationOutput);
-            });
+  private void setPID() {
+    io.setPID(
+        new SlotConfigs()
+            .withKP(kP0.getAsDouble())
+            .withKD(kD0.getAsDouble())
+            .withKS(kS0.getAsDouble())
+            .withKV(kV0.getAsDouble())
+            .withKA(kA0.getAsDouble())
+            .withKG(kG0.getAsDouble()));
   }
 
-  private static class StaticCharacterizationState {
-    public double characterizationOutput = 0.0;
+  private void setMotionMagic() {
+    io.setMotionMagic(
+        new MotionMagicConfigs()
+            .withMotionMagicCruiseVelocity(mmV.getAsDouble())
+            .withMotionMagicAcceleration(mmA.getAsDouble())
+            .withMotionMagicJerk(mmJ.getAsDouble()));
   }
 }

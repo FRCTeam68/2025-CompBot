@@ -5,6 +5,9 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -22,6 +25,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.PhoenixUtil;
 
 /** Generic roller IO implementation for a roller or series of rollers using a Kraken. */
 public class ClimberIOTalonFX implements ClimberIO {
@@ -80,16 +84,18 @@ public class ClimberIOTalonFX implements ClimberIO {
         5,
         () ->
             BaseStatusSignal.setUpdateFrequencyForAll(
-                50.0, position, velocity, appliedVoltage, torqueCurrent));
-    tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(4.0, supplyCurrent, tempCelsius));
+                50.0, position, velocity, appliedVoltage, supplyCurrent, torqueCurrent));
+    tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(4.0, tempCelsius));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(talon));
+    PhoenixUtil.registerSignals(
+        false, position, velocity, appliedVoltage, supplyCurrent, torqueCurrent, tempCelsius);
   }
 
   @Override
   public void updateInputs(ClimberIOInputs inputs) {
     inputs.connected =
         connectedDebouncer.calculate(
-            BaseStatusSignal.refreshAll(position, velocity, appliedVoltage, torqueCurrent).isOK());
+            BaseStatusSignal.isAllGood(position, velocity, appliedVoltage, torqueCurrent));
     inputs.positionRotations = position.getValueAsDouble();
     inputs.velocityRotsPerSec = velocity.getValueAsDouble();
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
@@ -122,36 +128,24 @@ public class ClimberIOTalonFX implements ClimberIO {
 
   @Override
   public void setPID(SlotConfigs... newconfig) {
-    config.Slot0.GravityType = gravityType;
-    config.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
-    config.Slot0.kP = newconfig[0].kP;
-    config.Slot0.kI = newconfig[0].kI;
-    config.Slot0.kD = newconfig[0].kD;
-    config.Slot0.kV = newconfig[0].kV;
-    config.Slot0.kA = newconfig[0].kA;
-    config.Slot0.kG = newconfig[0].kG;
-    config.Slot0.kS = newconfig[0].kS;
-    if (newconfig.length > 1) {
-      config.Slot1.GravityType = gravityType;
-      config.Slot1.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
-      config.Slot1.kP = newconfig[1].kP;
-      config.Slot1.kI = newconfig[1].kI;
-      config.Slot1.kD = newconfig[1].kD;
-      config.Slot1.kV = newconfig[1].kV;
-      config.Slot1.kA = newconfig[1].kA;
-      config.Slot1.kG = newconfig[1].kG;
-      config.Slot1.kS = newconfig[1].kS;
-    }
-    if (newconfig.length > 2) {
-      config.Slot2.GravityType = gravityType;
-      config.Slot2.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
-      config.Slot2.kP = newconfig[2].kP;
-      config.Slot2.kI = newconfig[2].kI;
-      config.Slot2.kD = newconfig[2].kD;
-      config.Slot2.kV = newconfig[2].kV;
-      config.Slot2.kA = newconfig[2].kA;
-      config.Slot2.kG = newconfig[2].kG;
-      config.Slot2.kS = newconfig[2].kS;
+    for (int i = 0; i < newconfig.length; i++) {
+      SlotConfigs slotConfig =
+          new SlotConfigs()
+              .withGravityType(gravityType)
+              .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign)
+              .withKP(newconfig[i].kP)
+              .withKI(newconfig[i].kI)
+              .withKD(newconfig[i].kD)
+              .withKV(newconfig[i].kV)
+              .withKA(newconfig[i].kA)
+              .withKG(newconfig[i].kG)
+              .withKS(newconfig[i].kS);
+
+      switch (i) {
+        case 0 -> config.Slot0 = Slot0Configs.from(slotConfig);
+        case 1 -> config.Slot1 = Slot1Configs.from(slotConfig);
+        case 2 -> config.Slot2 = Slot2Configs.from(slotConfig);
+      }
     }
     tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
   }

@@ -7,9 +7,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LEDColor;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.Segment;
-
-import java.util.Optional;
-
 import org.littletonrobotics.junction.Logger;
 
 public class RangeSensor extends SubsystemBase {
@@ -24,11 +21,11 @@ public class RangeSensor extends SubsystemBase {
 
   private final Alert disconnectedAlert;
 
-  public RangeSensor(Lights LED, RangeSensorIO io, String name, Optional<Segment> indicator) {
+  public RangeSensor(Lights LED, String name, RangeSensorIO io, Segment... indicator) {
     this.LED = LED;
     this.io = io;
     this.name = name;
-    this.indicator = indicator.get();
+    this.indicator = indicator[0];
 
     disconnectedAlert = new Alert(name + " sensor disconnected.", AlertType.kError);
   }
@@ -39,19 +36,20 @@ public class RangeSensor extends SubsystemBase {
     disconnectedAlert.set(!inputs.connected);
 
     if (indicator != null) {
-    // determine indicator color
-    if (inputs.detected) {
-      indicatorColor = LEDColor.BLUE;
-    } else if (inputs.connected) {
-      indicatorColor = LEDColor.GREEN;
-    } else {
-      indicatorColor = LEDColor.RED;
-    }
+      // determine indicator color
+      if (inputs.detected) {
+        indicatorColor = LEDColor.BLUE;
+      } else if (inputs.connected) {
+        indicatorColor = LEDColor.GREEN;
+      } else {
+        indicatorColor = LEDColor.RED;
+      }
 
-    if (indicatorColor != prevIndicatorColor) {
-      LED.setSolidColor(indicatorColor, indicator);
+      if (indicatorColor != prevIndicatorColor) {
+        LED.setSolidColor(
+            indicatorColor.scaleBrightness(Lights.getOnboardLEDBrightness()), indicator);
+      }
     }
-  }
   }
 
   public boolean isDetected() {

@@ -13,6 +13,8 @@
 
 package frc.robot.commands;
 
+import com.ctre.phoenix6.signals.AnimationDirectionValue;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
@@ -24,9 +26,11 @@ import frc.robot.subsystems.ShotVisualizer;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.rollers.RollerSystem;
-import frc.robot.subsystems.sensors.CoralSensor;
+import frc.robot.subsystems.sensors.RangeSensor;
 import frc.robot.subsystems.superstructure.ElevatorWristSubsystem;
 import frc.robot.subsystems.superstructure.SuperstructureConstants;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -56,7 +60,7 @@ public class ManipulatorCommands {
       RollerSystem myIntake,
       RollerSystem myIntakeLow,
       ElevatorWristSubsystem myElevatorWrist,
-      CoralSensor intake_sensor,
+      RangeSensor intake_sensor,
       Lights LED) {
     return new DeferredCommand(
         () -> {
@@ -320,7 +324,8 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> myClimber.setPosition(Constants.CLIMBER.RETRACT), myClimber),
         Commands.waitUntil(() -> myClimber.atPosition()),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "CLIMBED")),
-        Commands.runOnce(() -> LED.setRainbowAnimation(LEDSegment.ALL)));
+        Commands.runOnce(
+            () -> LED.setRainbowAnimation(LEDSegment.ALL, AnimationDirectionValue.Forward)));
   }
 
   public static Command climberToZeroCmd(Climber myClimber, Lights LED) {
@@ -330,17 +335,8 @@ public class ManipulatorCommands {
         Commands.runOnce(() -> myClimber.setPosition(0), myClimber),
         Commands.waitUntil(() -> myClimber.atPosition()),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "at zero")),
-        Commands.runOnce(() -> LED.setRainbowAnimation(LEDSegment.ALL)));
-  }
-
-  // NO CHECKS
-  public static Command BumpClimberCmd(Climber myClimber, double bumpValue) {
-    return Commands.sequence(
-        Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "bumping")),
         Commands.runOnce(
-            () -> myClimber.setPosition(myClimber.getPosition() + bumpValue), myClimber),
-        Commands.waitUntil(() -> myClimber.atPosition()),
-        Commands.runOnce(() -> myClimber.zero()));
+            () -> LED.setRainbowAnimation(LEDSegment.ALL, AnimationDirectionValue.Forward)));
   }
 
   public static Command ElevatorWristZeroCmd(ElevatorWristSubsystem myElevatorWrist) {
@@ -351,11 +347,20 @@ public class ManipulatorCommands {
             SuperstructureConstants.ELEVATOR.min, SuperstructureConstants.WRIST.min));
   }
 
+  public static Command BumpClimberCmd(Climber myClimber, double bumpValue) {
+    return Commands.sequence(
+        Commands.runOnce(() -> Logger.recordOutput("Manipulator/ClimberState", "bumping")),
+        Commands.runOnce(
+            () -> myClimber.setPosition(myClimber.getPosition() + bumpValue), myClimber),
+        Commands.waitUntil(() -> myClimber.atPosition()),
+        Commands.runOnce(() -> myClimber.zero()));
+  }
+
   public static Command FunctionalTest(
       RollerSystem myIntake,
       RollerSystem myIntakeLow,
       ElevatorWristSubsystem myElevatorWrist,
-      CoralSensor intake_sensor,
+      RangeSensor intake_sensor,
       Climber myClimber,
       Lights LED) {
     return Commands.sequence(
@@ -382,126 +387,102 @@ public class ManipulatorCommands {
         climberToZeroCmd(myClimber, LED));
   }
 
+  // TODO fix this
   public static Command TestElevatorWristSequencing(ElevatorWristSubsystem myElevatorWrist) {
+    return Commands.runOnce(
+        () -> {
+          List<Command> positions =
+              Arrays.asList(
+                  CoralIntakePositionCmd(myElevatorWrist),
+                  CoralL2Cmd(myElevatorWrist),
+                  CoralL3Cmd(myElevatorWrist),
+                  CoralL4Cmd(myElevatorWrist),
+                  CoralL1Cmd(myElevatorWrist),
+                  AlgaeToP1(myElevatorWrist),
+                  AlgaeAtA1(myElevatorWrist),
+                  AlgaeAtA2(myElevatorWrist),
+                  AlgaeToNetCmd(myElevatorWrist),
+                  AlgaeCradle(myElevatorWrist));
+
+          for (int i = 0; i < positions.size(); i++) {
+            for (int k = i + 1; k < positions.size(); k++) {
+              positions.get(i);
+              positions.get(k);
+              Commands.waitSeconds(10);
+            }
+            positions.get(i);
+            Commands.waitSeconds(.3);
+          }
+          ElevatorWristZeroCmd(myElevatorWrist);
+        });
+  }
+
+  public static Command staticElevatorCharacterization(
+      ElevatorWristSubsystem myElevatorWrist, double outputRampRate) {
+    final StaticCharacterizationState state = new StaticCharacterizationState();
+    Timer timer = new Timer();
     return Commands.sequence(
-        // home intake
-        CoralIntakePositionCmd(myElevatorWrist),
-        CoralL2Cmd(myElevatorWrist),
-        CoralIntakePositionCmd(myElevatorWrist),
-        CoralL3Cmd(myElevatorWrist),
-        CoralIntakePositionCmd(myElevatorWrist),
-        CoralL4Cmd(myElevatorWrist),
-        CoralIntakePositionCmd(myElevatorWrist),
-        CoralL1Cmd(myElevatorWrist),
-        CoralIntakePositionCmd(myElevatorWrist),
-        AlgaeToP1(myElevatorWrist),
-        CoralIntakePositionCmd(myElevatorWrist),
-        AlgaeAtA1(myElevatorWrist),
-        CoralIntakePositionCmd(myElevatorWrist),
-        AlgaeAtA2(myElevatorWrist),
-        CoralIntakePositionCmd(myElevatorWrist),
-        AlgaeToNetCmd(myElevatorWrist),
-        CoralIntakePositionCmd(myElevatorWrist),
-        AlgaeCradle(myElevatorWrist),
-        CoralIntakePositionCmd(myElevatorWrist),
-        // home L2
-        Commands.waitSeconds(0.3),
-        CoralL2Cmd(myElevatorWrist),
-        CoralL3Cmd(myElevatorWrist),
-        CoralL2Cmd(myElevatorWrist),
-        CoralL4Cmd(myElevatorWrist),
-        CoralL2Cmd(myElevatorWrist),
-        CoralL1Cmd(myElevatorWrist),
-        CoralL2Cmd(myElevatorWrist),
-        AlgaeToP1(myElevatorWrist),
-        CoralL2Cmd(myElevatorWrist),
-        AlgaeAtA1(myElevatorWrist),
-        CoralL2Cmd(myElevatorWrist),
-        AlgaeAtA2(myElevatorWrist),
-        CoralL2Cmd(myElevatorWrist),
-        AlgaeToNetCmd(myElevatorWrist),
-        CoralL2Cmd(myElevatorWrist),
-        AlgaeCradle(myElevatorWrist),
-        CoralL2Cmd(myElevatorWrist),
-        // home L3
-        Commands.waitSeconds(0.3),
-        CoralL3Cmd(myElevatorWrist),
-        CoralL4Cmd(myElevatorWrist),
-        CoralL3Cmd(myElevatorWrist),
-        CoralL1Cmd(myElevatorWrist),
-        CoralL3Cmd(myElevatorWrist),
-        AlgaeToP1(myElevatorWrist),
-        CoralL3Cmd(myElevatorWrist),
-        AlgaeAtA1(myElevatorWrist),
-        CoralL3Cmd(myElevatorWrist),
-        AlgaeAtA2(myElevatorWrist),
-        CoralL3Cmd(myElevatorWrist),
-        AlgaeToNetCmd(myElevatorWrist),
-        CoralL3Cmd(myElevatorWrist),
-        AlgaeCradle(myElevatorWrist),
-        CoralL3Cmd(myElevatorWrist),
-        // home L4
-        Commands.waitSeconds(0.3),
-        CoralL4Cmd(myElevatorWrist),
-        CoralL1Cmd(myElevatorWrist),
-        CoralL4Cmd(myElevatorWrist),
-        AlgaeToP1(myElevatorWrist),
-        CoralL4Cmd(myElevatorWrist),
-        AlgaeAtA1(myElevatorWrist),
-        CoralL4Cmd(myElevatorWrist),
-        AlgaeAtA2(myElevatorWrist),
-        CoralL4Cmd(myElevatorWrist),
-        AlgaeToNetCmd(myElevatorWrist),
-        CoralL4Cmd(myElevatorWrist),
-        AlgaeCradle(myElevatorWrist),
-        CoralL4Cmd(myElevatorWrist),
-        // home L1
-        Commands.waitSeconds(0.3),
-        CoralL1Cmd(myElevatorWrist),
-        AlgaeToP1(myElevatorWrist),
-        CoralL1Cmd(myElevatorWrist),
-        AlgaeAtA1(myElevatorWrist),
-        CoralL1Cmd(myElevatorWrist),
-        AlgaeAtA2(myElevatorWrist),
-        CoralL1Cmd(myElevatorWrist),
-        AlgaeToNetCmd(myElevatorWrist),
-        CoralL1Cmd(myElevatorWrist),
-        AlgaeCradle(myElevatorWrist),
-        CoralL1Cmd(myElevatorWrist),
-        // home P1
-        Commands.waitSeconds(0.3),
-        AlgaeToP1(myElevatorWrist),
-        AlgaeAtA1(myElevatorWrist),
-        AlgaeToP1(myElevatorWrist),
-        AlgaeAtA2(myElevatorWrist),
-        AlgaeToP1(myElevatorWrist),
-        AlgaeToNetCmd(myElevatorWrist),
-        AlgaeToP1(myElevatorWrist),
-        AlgaeCradle(myElevatorWrist),
-        AlgaeToP1(myElevatorWrist),
-        // home A1
-        Commands.waitSeconds(0.3),
-        AlgaeAtA1(myElevatorWrist),
-        AlgaeAtA2(myElevatorWrist),
-        AlgaeAtA1(myElevatorWrist),
-        AlgaeToNetCmd(myElevatorWrist),
-        AlgaeAtA1(myElevatorWrist),
-        AlgaeCradle(myElevatorWrist),
-        AlgaeAtA1(myElevatorWrist),
-        // home A2
-        Commands.waitSeconds(0.3),
-        AlgaeAtA2(myElevatorWrist),
-        AlgaeToNetCmd(myElevatorWrist),
-        AlgaeAtA2(myElevatorWrist),
-        AlgaeCradle(myElevatorWrist),
-        AlgaeAtA2(myElevatorWrist),
-        // home net
-        Commands.waitSeconds(0.3),
-        AlgaeToNetCmd(myElevatorWrist),
-        AlgaeCradle(myElevatorWrist),
-        AlgaeToNetCmd(myElevatorWrist),
-        // return to zero
-        Commands.waitSeconds(0.3),
-        ElevatorWristZeroCmd(myElevatorWrist));
+        myElevatorWrist.setPositionCmd(
+            SuperstructureConstants.ELEVATOR.min, SuperstructureConstants.WRIST.safe),
+        Commands.waitUntil(() -> myElevatorWrist.atPosition()),
+        Commands.waitSeconds(2),
+        Commands.runOnce(() -> timer.restart()),
+        Commands.run(
+                () -> {
+                  state.characterizationOutput = outputRampRate * timer.get();
+                  myElevatorWrist.getElevator().setVolts(state.characterizationOutput);
+                  Logger.recordOutput(
+                      "Elevator/StaticCharacterizationOutput", state.characterizationOutput);
+                })
+            .until(
+                () ->
+                    myElevatorWrist.getElevator().getPositionRotations()
+                        >= SuperstructureConstants.ELEVATOR.max - 0.5)
+            .finallyDo(
+                () -> {
+                  timer.stop();
+                  myElevatorWrist
+                      .getElevator()
+                      .setPosition(myElevatorWrist.getElevator().getPositionRotations());
+                  Logger.recordOutput(
+                      "Elevator/CharacterizationOutput", state.characterizationOutput);
+                }));
+  }
+
+  public static Command staticWristCharacterization(
+      ElevatorWristSubsystem myElevatorWrist, double outputRampRate) {
+    final StaticCharacterizationState state = new StaticCharacterizationState();
+    Timer timer = new Timer();
+    return Commands.sequence(
+        myElevatorWrist.setPositionCmd(
+            (SuperstructureConstants.ELEVATOR.maxMidSafe
+                    + SuperstructureConstants.ELEVATOR.minMidSafe)
+                / 2,
+            SuperstructureConstants.WRIST.elevate),
+        Commands.waitUntil(() -> myElevatorWrist.atPosition()),
+        Commands.waitSeconds(2),
+        Commands.runOnce(() -> timer.restart()),
+        Commands.run(
+                () -> {
+                  state.characterizationOutput = outputRampRate * timer.get();
+                  myElevatorWrist.getWrist().setVolts(state.characterizationOutput);
+                  Logger.recordOutput(
+                      "Wrist/StaticCharacterizationOutput", state.characterizationOutput);
+                },
+                myElevatorWrist)
+            .until(
+                () ->
+                    myElevatorWrist.getWrist().getPosition()
+                        >= SuperstructureConstants.WRIST.max - 0.05)
+            .finallyDo(
+                () -> {
+                  timer.stop();
+                  myElevatorWrist.getWrist().setPosition(myElevatorWrist.getWrist().getPosition());
+                  Logger.recordOutput("Wrist/CharacterizationOutput", state.characterizationOutput);
+                }));
+  }
+
+  private static class StaticCharacterizationState {
+    public double characterizationOutput = 0.0;
   }
 }

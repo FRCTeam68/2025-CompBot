@@ -19,7 +19,7 @@ import com.ctre.phoenix6.configs.CANrangeConfiguration;
 import com.ctre.phoenix6.configs.FovParamsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.ProximityParamsConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.ToFParamsConfigs;
 import com.ctre.phoenix6.signals.RGBWColor;
 import com.ctre.phoenix6.signals.UpdateModeValue;
@@ -120,8 +120,9 @@ public final class Constants {
     public static final double ALGAE_SHOOT_TIMEOUT = .2;
     //
     public static final double BUMP_VALUE = 1; // rotations
-    public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(.2).withKI(0).withKD(0).withKS(0).withKV(0.13).withKA(0);
+    public static final SlotConfigs[] SLOT_CONFIGS = {
+      new SlotConfigs().withKP(.2).withKI(0).withKD(0).withKS(0).withKV(0.13).withKA(0)
+    };
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
             .withMotionMagicCruiseVelocity(20)
@@ -141,8 +142,9 @@ public final class Constants {
     public static final double ALGAE_NET_SHOOT_SPEED = 80;
     //
     public static final double BUMP_VALUE = 1; // rotations
-    public static final Slot0Configs SLOT0_CONFIGS =
-        new Slot0Configs().withKP(.2).withKI(0).withKD(0).withKS(0).withKV(0.13).withKA(0);
+    public static final SlotConfigs[] SLOT_CONFIGS = {
+      new SlotConfigs().withKP(.2).withKI(0).withKD(0).withKS(0).withKV(0.13).withKA(0)
+    };
     public static final MotionMagicConfigs MOTIONMAGIC_CONFIGS =
         new MotionMagicConfigs()
             .withMotionMagicCruiseVelocity(20)

@@ -17,6 +17,7 @@ import com.ctre.phoenix6.signals.VBatOutputModeValue;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
+import frc.robot.util.PhoenixUtil;
 
 public class LightsIOCANdle implements LightsIO {
   // Hardware
@@ -45,9 +46,10 @@ public class LightsIOCANdle implements LightsIO {
     outputCurrent = candle.getOutputCurrent();
     tempCelsius = candle.getDeviceTemp();
 
-    tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(10.0, outputCurrent));
+    tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(50.0, outputCurrent));
     tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(4, tempCelsius));
     tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(candle));
+    PhoenixUtil.registerSignals(false, outputCurrent, tempCelsius);
 
     // clear animation slots
     for (int i = 0; i < candle.getMaxSimultaneousAnimationCount().getValue(); i++) {
@@ -57,9 +59,7 @@ public class LightsIOCANdle implements LightsIO {
 
   @Override
   public void updateInputs(LightsIOInputs inputs) {
-    inputs.connected =
-        connectedDebouncer.calculate(
-            BaseStatusSignal.refreshAll(outputCurrent, tempCelsius).isOK());
+    inputs.connected = connectedDebouncer.calculate(BaseStatusSignal.isAllGood(outputCurrent));
     inputs.outputCurrent = outputCurrent.getValueAsDouble();
     inputs.tempCelsius = tempCelsius.getValueAsDouble();
   }

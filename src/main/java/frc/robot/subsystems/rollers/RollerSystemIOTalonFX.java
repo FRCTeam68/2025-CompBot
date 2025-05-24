@@ -14,6 +14,8 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.Slot2Configs;
+import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
@@ -30,6 +32,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.PhoenixUtil;
 
 /** Generic roller IO implementation for a roller or series of rollers using a Kraken. */
 public class RollerSystemIOTalonFX implements RollerSystemIO {
@@ -111,17 +114,24 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
         5,
         () ->
             BaseStatusSignal.setUpdateFrequencyForAll(
-                50.0, position, velocity, appliedVoltage, torqueCurrent));
-    tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(4, supplyCurrent, tempCelsius));
+                50.0, position, velocity, appliedVoltage, supplyCurrent, torqueCurrent));
+    tryUntilOk(5, () -> BaseStatusSignal.setUpdateFrequencyForAll(4, tempCelsius));
     tryUntilOk(5, () -> talon.optimizeBusUtilization(0, 1.0));
+    PhoenixUtil.registerSignals(
+        bus.equals("rio") ? false : true,
+        position,
+        velocity,
+        appliedVoltage,
+        supplyCurrent,
+        torqueCurrent,
+        tempCelsius);
   }
 
   @Override
   public void updateInputs(RollerSystemIOInputs inputs) {
     inputs.connected =
-        BaseStatusSignal.refreshAll(
-                position, velocity, appliedVoltage, supplyCurrent, torqueCurrent, tempCelsius)
-            .isOK();
+        BaseStatusSignal.isAllGood(
+            position, velocity, appliedVoltage, supplyCurrent, torqueCurrent);
     inputs.positionRads = Units.rotationsToRadians(position.getValueAsDouble()) / reduction;
     inputs.positionRotations = position.getValueAsDouble();
     inputs.velocityRadsPerSec = Units.rotationsToRadians(velocity.getValueAsDouble()) / reduction;
@@ -151,7 +161,6 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   public void setPosition(double rotations, double feedforward, int slot) {
     talon.setControl(
         mmvPosition.withPosition(rotations).withFeedForward(feedforward).withSlot(slot));
-    // System.out.println("\tFF set to: " + feedforward);
   }
 
   @Override
@@ -166,22 +175,25 @@ public class RollerSystemIOTalonFX implements RollerSystemIO {
   }
 
   @Override
-  public void setPID(Slot0Configs config0, Slot1Configs config1) {
-    // slot0
-    config.Slot0.kP = config0.kP;
-    config.Slot0.kI = config0.kI;
-    config.Slot0.kD = config0.kD;
-    config.Slot0.kS = config0.kS;
-    config.Slot0.kV = config0.kV;
-    config.Slot0.kA = config0.kA;
-    // slot1
-    if (config1 != null) {
-      config.Slot1.kP = config1.kP;
-      config.Slot1.kI = config1.kI;
-      config.Slot1.kD = config1.kD;
-      config.Slot1.kS = config1.kS;
-      config.Slot1.kV = config1.kV;
-      config.Slot1.kA = config1.kA;
+  public void setPID(SlotConfigs... newconfig) {
+    for (int i = 0; i < newconfig.length; i++) {
+      SlotConfigs slotConfig =
+          new SlotConfigs()
+              // .withGravityType(gravityType)
+              // .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseVelocitySign)
+              .withKP(newconfig[i].kP)
+              .withKI(newconfig[i].kI)
+              .withKD(newconfig[i].kD)
+              .withKV(newconfig[i].kV)
+              .withKA(newconfig[i].kA)
+              .withKG(newconfig[i].kG)
+              .withKS(newconfig[i].kS);
+
+      switch (i) {
+        case 0 -> config.Slot0 = Slot0Configs.from(slotConfig);
+        case 1 -> config.Slot1 = Slot1Configs.from(slotConfig);
+        case 2 -> config.Slot2 = Slot2Configs.from(slotConfig);
+      }
     }
     tryUntilOk(5, () -> talon.getConfigurator().apply(config, 0.25));
   }

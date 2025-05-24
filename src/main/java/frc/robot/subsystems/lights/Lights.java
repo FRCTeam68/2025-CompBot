@@ -13,7 +13,10 @@ import com.ctre.phoenix6.signals.LarsonBounceValue;
 import com.ctre.phoenix6.signals.RGBWColor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.LEDColor;
+import frc.robot.Constants.Mode;
+import frc.robot.util.LoggedTunableNumber;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
@@ -23,13 +26,12 @@ public class Lights extends SubsystemBase {
 
   // Alerts
   private final Alert disconnectedAlert =
-      new Alert("CANdle disconnected!", Alert.AlertType.kWarning);
-  private final Alert tempAlert = new Alert("CANdle over temp.", Alert.AlertType.kWarning);
+      new Alert("CANdle disconnected.", Alert.AlertType.kWarning);
 
   // Default values
   @Getter private static final double onboardLEDBrightness = 0.5;
-  private final double defaultAnimationSpeed = 200;
-  private final AnimationDirectionValue defaultAnimationDirection = AnimationDirectionValue.Forward;
+  private final LoggedTunableNumber defaultAnimationSpeed =
+      new LoggedTunableNumber("CANdle/Default Animation Speed", 200);
 
   public Lights(LightsIO io) {
     this.io = io;
@@ -38,8 +40,7 @@ public class Lights extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("CANdle", inputs);
-    disconnectedAlert.set(!inputs.connected);
-    tempAlert.set(inputs.tempCelsius > 50);
+    disconnectedAlert.set(!inputs.connected && Constants.currentMode != Mode.SIM);
   }
 
   /**
@@ -87,59 +88,35 @@ public class Lights extends SubsystemBase {
   /**
    * Set flowing animation for LED segment
    *
-   * <p>using default values
-   *
    * @param color Color of the LED
    * @param segment LED segment to apply animation
-   */
-  public void setFlowAnimation(RGBWColor color, Segment segment) {
-    setFlowAnimation(color, segment, defaultAnimationSpeed, defaultAnimationDirection);
-  }
-
-  /**
-   * Set flowing animation for LED segment
-   *
-   * @param color Color of the LED
-   * @param segment LED segment to apply animation
-   * @param speed How fast should the color travel the strip [0, 1]
    * @param direction What direction should the color move in
+   * @param speed How fast should the color travel the strip [0, 1]
    */
   public void setFlowAnimation(
-      RGBWColor color, Segment segment, double speed, AnimationDirectionValue direction) {
+      RGBWColor color, Segment segment, AnimationDirectionValue direction, double... speed) {
     clearAnimation(segment);
     io.setControl(
         new ColorFlowAnimation(segment.startIndex, segment.endIndex)
             .withColor(color)
             .withDirection(direction)
-            .withFrameRate(speed)
+            .withFrameRate(speed.length > 0 ? speed[0] : defaultAnimationSpeed.get())
             .withSlot(segment.animationSlot));
   }
 
   /**
    * Set fading animation for LED segment
    *
-   * <p>using default values
-   *
-   * @param color Color of the LED
-   * @param segment LED segment to apply animation
-   */
-  public void setSingleFadeAnimation(RGBWColor color, Segment segment) {
-    setSingleFadeAnimation(color, segment, defaultAnimationSpeed);
-  }
-
-  /**
-   * Set fading animation for LED segment
-   *
    * @param color Color of the LED
    * @param segment LED segment to apply animation
    * @param speed How fast should the color travel the strip [0, 1]
    */
-  public void setSingleFadeAnimation(RGBWColor color, Segment segment, double speed) {
+  public void setSingleFadeAnimation(RGBWColor color, Segment segment, double... speed) {
     clearAnimation(segment);
     io.setControl(
         new SingleFadeAnimation(segment.startIndex, segment.endIndex)
             .withColor(color)
-            .withFrameRate(speed)
+            .withFrameRate(speed.length > 0 ? speed[0] : defaultAnimationSpeed.get())
             .withSlot(segment.animationSlot));
   }
 
@@ -152,7 +129,7 @@ public class Lights extends SubsystemBase {
    * @param segment LED segment to apply animation
    */
   public void setBandAnimation(RGBWColor color, Segment segment) {
-    setBandAnimation(color, segment, defaultAnimationSpeed, LarsonBounceValue.Front, 4);
+    setBandAnimation(color, segment, defaultAnimationSpeed.get(), LarsonBounceValue.Front, 4);
   }
 
   /**
@@ -179,64 +156,40 @@ public class Lights extends SubsystemBase {
   /**
    * Set strobing animation for LED segment
    *
-   * <p>using default values
-   *
-   * @param color Color of the LED
-   * @param segment LED segment to apply animation
-   */
-  public void setStrobeAnimation(RGBWColor color, Segment segment) {
-    setStrobeAnimation(color, segment, defaultAnimationSpeed);
-  }
-
-  /**
-   * Set strobing animation for LED segment
-   *
    * @param color Color of the LED
    * @param segment LED segment to apply animation
    * @param speed How fast should the color travel the strip [0, 1]
    */
-  public void setStrobeAnimation(RGBWColor color, Segment segment, double speed) {
+  public void setStrobeAnimation(RGBWColor color, Segment segment, double... speed) {
     clearAnimation(segment);
     io.setControl(
         new StrobeAnimation(segment.startIndex, segment.startIndex)
             .withColor(color)
-            .withFrameRate(speed)
+            .withFrameRate(speed.length > 0 ? speed[0] : defaultAnimationSpeed.get())
             .withSlot(segment.animationSlot));
   }
 
   /**
    * Set rainbow animation for LED segment
    *
-   * <p>using default values
-   *
    * @param color Color of the LED
    * @param segment LED segment to apply animation
-   */
-  public void setRainbowAnimation(Segment segment) {
-    setRainbowAnimation(segment, defaultAnimationSpeed, defaultAnimationDirection);
-  }
-
-  /**
-   * Set rainbow animation for LED segment
-   *
-   * @param color Color of the LED
-   * @param segment LED segment to apply animation
-   * @param speed How fast should the color travel the strip [0, 1]
    * @param reverseDirection True to reverse the animation direction, so instead of going "toward"
    *     the CANdle, it will go "away" from the CANdle.
+   * @param speed How fast should the color travel the strip [0, 1]
    */
   public void setRainbowAnimation(
-      Segment segment, double speed, AnimationDirectionValue direction) {
+      Segment segment, AnimationDirectionValue direction, double... speed) {
     clearAnimation(segment);
     io.setControl(
         new RainbowAnimation(segment.startIndex, segment.endIndex)
             .withDirection(direction)
-            .withFrameRate(speed)
+            .withFrameRate(speed.length > 0 ? speed[0] : defaultAnimationSpeed.get())
             .withSlot(segment.animationSlot));
   }
 
   /**
-   * Control LEDs with generic control request object
+   * Control LEDs with abstract control request object
    *
    * @param request Abstract Control Request class that other control requests extend for use
    */

@@ -25,7 +25,7 @@ import frc.robot.commands.auton.autonSequences.AutonSide;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.rollers.RollerSystem;
-import frc.robot.subsystems.sensors.CoralSensor;
+import frc.robot.subsystems.sensors.RangeSensor;
 import frc.robot.subsystems.superstructure.ElevatorWristSubsystem;
 import java.util.Arrays;
 import java.util.List;
@@ -90,7 +90,7 @@ public class Auton {
       RollerSystem myIntake,
       RollerSystem myIntakeLow,
       ElevatorWristSubsystem myElevatorWrist,
-      CoralSensor intake_sensor,
+      RangeSensor intake_sensor,
       Lights LED) {
 
     return new DeferredCommand(
@@ -106,21 +106,12 @@ public class Auton {
           }
 
           switch (sequence) {
-            case Side:
-              autonSequence =
-                  AutonSide.sequence(myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED);
-              break;
-
-            case Processor:
-              autonSequence =
-                  AutonProcessor.sequence(
-                      myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED);
-              break;
-
-            case Net:
-              autonSequence =
-                  AutonNet.sequence(myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED);
-              break;
+            case Side -> autonSequence =
+                AutonSide.sequence(myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED);
+            case Processor -> autonSequence =
+                AutonProcessor.sequence(myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED);
+            case Net -> autonSequence =
+                new AutonNet(myDrive, myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED);
           }
 
           // execute sequence

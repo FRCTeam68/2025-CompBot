@@ -8,8 +8,7 @@
 package frc.robot.subsystems.rollers;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Timer;
@@ -91,7 +90,7 @@ public class RollerSystem extends SubsystemBase {
           || rollerkS.hasChanged(hashCode())
           || rollerkV.hasChanged(hashCode())
           || rollerkA.hasChanged(hashCode())) {
-        Slot0Configs newconfig = new Slot0Configs();
+        SlotConfigs newconfig = new SlotConfigs();
         newconfig.kP = rollerkP.get();
         newconfig.kI = rollerkI.get();
         newconfig.kD = rollerkD.get();
@@ -126,29 +125,16 @@ public class RollerSystem extends SubsystemBase {
   }
 
   // must call this once and only once in robotcontainer after each RollerSystem is created
-  public void setPID(Slot0Configs newconfig) {
-    setPID(newconfig, null);
-  }
-
-  // must call this once and only once in robotcontainer after each RollerSystem is created
-  public void setPID(Slot0Configs config0, Slot1Configs config1) {
-    // slot0
-    rollerkP.initDefault(config0.kP);
-    rollerkI.initDefault(config0.kI);
-    rollerkD.initDefault(config0.kD);
-    rollerkS.initDefault(config0.kS);
-    rollerkV.initDefault(config0.kV);
-    rollerkA.initDefault(config0.kA);
-    // slot1
-    if (config1 != null) {
-      rollerkP.initDefault(config1.kP);
-      rollerkI.initDefault(config1.kI);
-      rollerkD.initDefault(config1.kD);
-      rollerkS.initDefault(config1.kS);
-      rollerkV.initDefault(config1.kV);
-      rollerkA.initDefault(config1.kA);
+  public void setPID(SlotConfigs... newConfig) {
+    for (int i = 0; i < newConfig.length; i++) {
+      rollerkP.initDefault(newConfig[0].kP);
+      rollerkI.initDefault(newConfig[0].kI);
+      rollerkD.initDefault(newConfig[0].kD);
+      rollerkS.initDefault(newConfig[0].kS);
+      rollerkV.initDefault(newConfig[0].kV);
+      rollerkA.initDefault(newConfig[0].kA);
     }
-    io.setPID(config0, config1);
+    io.setPID(newConfig);
   }
 
   // must call this once and only once in robotcontainer after each RollerSystem is created

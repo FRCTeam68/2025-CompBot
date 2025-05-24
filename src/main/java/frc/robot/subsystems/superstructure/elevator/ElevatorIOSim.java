@@ -13,6 +13,7 @@ public class ElevatorIOSim implements ElevatorIO {
   private final DCMotorSim sim;
   private final PIDController controller = new PIDController(0.0, 0.0, 0.0);
   private PID[] PIDValues = new PID[3];
+  private boolean closedLoop;
 
   private double appliedVoltage = 0.0;
 
@@ -29,7 +30,9 @@ public class ElevatorIOSim implements ElevatorIO {
     if (DriverStation.isDisabled()) {
       setVolts(0.0);
     } else {
-      setVolts(controller.calculate(sim.getAngularPositionRotations()));
+      if (closedLoop) {
+        setInputVoltage(controller.calculate(sim.getAngularPositionRotations()));
+      }
     }
 
     sim.update(Constants.loopPeriodSecs);
@@ -43,12 +46,13 @@ public class ElevatorIOSim implements ElevatorIO {
 
   @Override
   public void setVolts(double volts) {
-    appliedVoltage = MathUtil.clamp(volts, -12.0, 12.0);
-    sim.setInputVoltage(appliedVoltage);
+    closedLoop = false;
+    setInputVoltage(volts);
   }
 
   @Override
   public void setPosition(double position, int slot) {
+    closedLoop = true;
     controller.setPID(PIDValues[slot].kP, PIDValues[slot].kI, PIDValues[slot].kD);
     controller.setSetpoint(position);
   }
@@ -65,10 +69,15 @@ public class ElevatorIOSim implements ElevatorIO {
   }
 
   @Override
-  public void setPID(SlotConfigs... newconfig) {
-    for (int i = 0; i < newconfig.length; i++) {
-      PIDValues[i] = new PID(newconfig[i].kP, newconfig[i].kI, newconfig[i].kD);
+  public void setPID(SlotConfigs... newConfig) {
+    for (int i = 0; i < newConfig.length; i++) {
+      PIDValues[i] = new PID(newConfig[i].kP, newConfig[i].kI, newConfig[i].kD);
     }
+  }
+
+  private void setInputVoltage(double volts) {
+    appliedVoltage = MathUtil.clamp(volts, -12.0, 12.0);
+    sim.setInputVoltage(appliedVoltage);
   }
 
   private class PID {

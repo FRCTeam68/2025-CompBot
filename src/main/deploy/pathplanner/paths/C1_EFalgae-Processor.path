@@ -12,20 +12,20 @@
         "y": 2.7235652977723728
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Algae-EF"
     },
     {
       "anchor": {
-        "x": 5.987,
-        "y": 0.632
+        "x": 5.986500000000001,
+        "y": 0.6319999999999993
       },
       "prevControl": {
-        "x": 6.005999999999999,
-        "y": 1.7532499999999995
+        "x": 6.0055000000000005,
+        "y": 1.7532499999999989
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Processor"
     }
   ],
   "rotationTargets": [
@@ -42,8 +42,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 3.1,
+    "maxAcceleration": 8.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -54,7 +54,7 @@
     "rotation": -90.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Processor",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 119.99999999999999
