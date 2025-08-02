@@ -734,6 +734,7 @@ public class RobotContainer {
   public void StopSubSystems() {
     elevatorWrist.stop();
     intakeShooter.stop();
+    intakeShooter.zero();
     intakeShooterLow.stop();
     climber.stop();
   }

@@ -13,6 +13,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
@@ -63,7 +64,12 @@ public class ManipulatorCommands {
           // initialization
           Command command;
           Command initialize =
-              Commands.runOnce(() -> LED.setBandAnimation(LEDColor.BLUE, LEDSegment.ALL));
+              Commands.sequence(
+                  Commands.runOnce(() -> LED.setBandAnimation(LEDColor.BLUE, LEDSegment.ALL)),
+                  Commands.runOnce(
+                      () ->
+                          Logger.recordOutput(
+                              "Manipulator/IntakeShooterstart", RobotController.getFPGATime())));
           Command ledHaveObject =
               Commands.runOnce(() -> LED.setSolidColor(LEDColor.BLUE, LEDSegment.ALL));
           Command finalize =
@@ -105,11 +111,18 @@ public class ManipulatorCommands {
               command =
                   Commands.sequence(
                       myIntakeLow.setSpeedCmd(0),
+                      myIntake.setSpeedCmd(0), // so you can tell command requested again
+                      Commands.runOnce(() -> myIntake.zero()), // to setPosition to 0
                       Commands.runOnce(() -> havePiece = false),
                       Commands.runOnce(() -> indexing = false),
                       Commands.runOnce(
                           () ->
                               Logger.recordOutput("Manipulator/IntakeShooterState", "IntakeCoral")),
+                      Commands.runOnce(
+                          () ->
+                              Logger.recordOutput(
+                                  "Manipulator/IntakeShooterTimeStamp",
+                                  RobotController.getFPGATime())),
                       CoralIntakePositionCmd(myElevatorWrist),
                       myIntake.setSpeedCmd(Constants.INTAKE_SHOOTER.CORAL_INTAKE_SPEED),
                       Commands.waitUntil(() -> intake_sensor.isDetected()),
@@ -124,6 +137,11 @@ public class ManipulatorCommands {
                               myIntake.setPosition(
                                   myIntake.getPosition()
                                       - Constants.INTAKE_SHOOTER.CORAL_INTAKE_INDEX_REVERSE)),
+                      Commands.runOnce(
+                          () ->
+                              Logger.recordOutput(
+                                  "Manipulator/IntakeShooterTimeStamp",
+                                  RobotController.getFPGATime())),
                       ledHaveObject);
             }
           }

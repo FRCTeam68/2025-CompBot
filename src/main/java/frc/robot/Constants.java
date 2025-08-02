@@ -173,7 +173,7 @@ public final class Constants {
   }
 
   public static final class REEFPOSTSENSOR {
-    public static final Integer ID = 37;
+    public static final Integer ID = 47;
     public static final String BUS = "rio";
     public static final CANrangeConfiguration CONFIG =
         new CANrangeConfiguration()

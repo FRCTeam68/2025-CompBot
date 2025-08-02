@@ -7,9 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LEDColor;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.Lights.Segment;
-
 import java.util.Optional;
-
 import org.littletonrobotics.junction.Logger;
 
 public class RangeSensor extends SubsystemBase {
@@ -39,19 +37,19 @@ public class RangeSensor extends SubsystemBase {
     disconnectedAlert.set(!inputs.connected);
 
     if (indicator != null) {
-    // determine indicator color
-    if (inputs.detected) {
-      indicatorColor = LEDColor.BLUE;
-    } else if (inputs.connected) {
-      indicatorColor = LEDColor.GREEN;
-    } else {
-      indicatorColor = LEDColor.RED;
-    }
+      // determine indicator color
+      if (inputs.detected) {
+        indicatorColor = LEDColor.BLUE;
+      } else if (inputs.connected) {
+        indicatorColor = LEDColor.GREEN;
+      } else {
+        indicatorColor = LEDColor.RED;
+      }
 
-    if (indicatorColor != prevIndicatorColor) {
-      LED.setSolidColor(indicatorColor, indicator);
+      if (indicatorColor != prevIndicatorColor) {
+        LED.setSolidColor(indicatorColor, indicator);
+      }
     }
-  }
   }
 
   public boolean isDetected() {
