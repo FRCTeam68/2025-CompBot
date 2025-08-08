@@ -36,6 +36,6 @@ public class RangeSensorIOCANrange implements RangeSensorIO {
   public void updateInputs(RangeSystemIOInputs inputs) {
     inputs.connected = connectedDebouncer.calculate(BaseStatusSignal.isAllGood(detected, distance));
     inputs.detected = detected.getValue();
-    inputs.distance_mm = distance.getValueAsDouble();
+    inputs.distance_mm = distance.getValueAsDouble() * 1000;
   }
 }
