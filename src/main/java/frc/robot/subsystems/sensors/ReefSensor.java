@@ -41,7 +41,9 @@ public class ReefSensor extends SubsystemBase {
     }
 
     if (indicatorColor != prevIndicatorColor) {
+      // only send when color changes so not using CAN bus every 20ms
       LED.setSolidColor(indicatorColor, indicator);
+      prevIndicatorColor = indicatorColor;
     }
   }
 
