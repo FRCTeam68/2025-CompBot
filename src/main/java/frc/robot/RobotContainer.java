@@ -353,6 +353,7 @@ public class RobotContainer {
     // Reset robot rotation
     m_xboxController
         .back()
+        .and(m_xboxController.a())
         .onTrue(
             Commands.runOnce(
                 () ->
@@ -360,6 +361,12 @@ public class RobotContainer {
                         new Pose2d(
                             drive.getPose().getTranslation(),
                             AllianceFlipUtil.apply(new Rotation2d(0))))));
+
+    // turn on megatag1 again to resync with april tags
+    m_xboxController
+        .back()
+        .and(m_xboxController.b())
+        .onTrue(Commands.runOnce(() -> vision.enableMegaTag1()));
 
     m_xboxController
         .start()
