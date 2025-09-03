@@ -353,13 +353,27 @@ public class RobotContainer {
     // Reset robot rotation
     m_xboxController
         .back()
+        .and(m_xboxController.a())
         .onTrue(
             Commands.runOnce(
-                () ->
-                    drive.setPose(
-                        new Pose2d(
-                            drive.getPose().getTranslation(),
-                            AllianceFlipUtil.apply(new Rotation2d(0))))));
+                    () ->
+                        drive.setPose(
+                            new Pose2d(
+                                drive.getPose().getTranslation(),
+                                AllianceFlipUtil.apply(new Rotation2d(0)))))
+                .andThen(() -> LED.setSolidColor(LEDColor.ORANGE, LEDSegment.ALL))
+                .andThen(Commands.waitSeconds(1))
+                .andThen(() -> LED.disableLEDs(LEDSegment.ALL)));
+
+    // turn on megatag1 again to resync with april tags
+    m_xboxController
+        .back()
+        .and(m_xboxController.b())
+        .onTrue(
+            Commands.runOnce(() -> vision.enableMegaTag1())
+                .andThen(() -> LED.setBandAnimation(LEDColor.ORANGE, LEDSegment.ALL))
+                .andThen(Commands.waitSeconds(2))
+                .andThen(() -> LED.disableLEDs(LEDSegment.ALL)));
 
     m_xboxController
         .start()
