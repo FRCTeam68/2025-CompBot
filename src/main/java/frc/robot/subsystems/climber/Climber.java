@@ -23,7 +23,7 @@ public class Climber extends SubsystemBase {
   private final Alert disconnectedAlert =
       new Alert("Climber motor disconnected!", Alert.AlertType.kError);
 
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kP", 10);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kP", 80);
   private LoggedTunableNumber kI0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kI", 0);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kD", 0);
   private LoggedTunableNumber kS0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kS", 0);
@@ -39,7 +39,7 @@ public class Climber extends SubsystemBase {
       new LoggedTunableNumber(pathName + "/Motion Magic Configs/Jerk", 500);
 
   private LoggedTunableNumber setpointBand =
-      new LoggedTunableNumber(pathName + "/setpointBand", 0.3);
+      new LoggedTunableNumber(pathName + "/setpointBand", 0.03);
 
   @Getter private double setpoint = 0.0;
 
