@@ -23,6 +23,7 @@ import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Threads;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.generated.TunerConstants;
@@ -45,6 +46,7 @@ public class Robot extends LoggedRobot {
   public static RobotContainer robotContainer;
   private CANBus rioBus;
   private CANBus CANivoreBus;
+  private Timer disabledTimer;
 
   public Robot() {
     // Record metadata
@@ -127,6 +129,8 @@ public class Robot extends LoggedRobot {
     // Start AdvantageKit logger
     // This must be called after Instantiating the RobotContainer
     Logger.start();
+
+    disabledTimer = new Timer();
   }
 
   /** This function is called periodically during all modes. */
@@ -166,13 +170,19 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     robotContainer.StopSubSystems();
+
+    disabledTimer.reset(); // Reset the timer when entering disabled mode
+    disabledTimer.start(); // Start the timer
   }
 
   /** This function is called periodically when disabled. */
   @Override
   public void disabledPeriodic() {
-    robotContainer.loadAutonPath();
-    robotContainer.autonReadyStatus();
+    if (disabledTimer.advanceIfElapsed(1.0)) {
+      // call less frequent than 20ms that periodic is called to reduce resource usage
+      robotContainer.loadAutonPath();
+      robotContainer.autonReadyStatus();
+    }
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
