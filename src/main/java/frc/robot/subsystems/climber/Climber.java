@@ -6,6 +6,10 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.LoggedTunableNumber;
@@ -16,7 +20,8 @@ public class Climber extends SubsystemBase {
   private final String pathName = "Climber";
   private final ClimberIO io;
   protected final ClimberIOInputsAutoLogged inputs = new ClimberIOInputsAutoLogged();
-  private final Alert disconnectedAlert;
+  private final Alert disconnectedAlert =
+      new Alert("Climber motor disconnected!", Alert.AlertType.kError);
 
   private LoggedTunableNumber kP0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kP", 10);
   private LoggedTunableNumber kI0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kI", 0);
@@ -48,7 +53,7 @@ public class Climber extends SubsystemBase {
             .withMotionMagicAcceleration(mmA.get())
             .withMotionMagicJerk(mmJ.get()));
 
-    disconnectedAlert = new Alert("Climber motor disconnected!", Alert.AlertType.kWarning);
+    SmartDashboard.putData(pathName + "/Zero In Place", Commands.runOnce(() -> zero()));
   }
 
   public void periodic() {
@@ -191,5 +196,32 @@ public class Climber extends SubsystemBase {
             .withKV(kV0.get())
             .withKA(kA0.get())
             .withKG(kG0.get()));
+  }
+
+  public Command staticClimberCharacterization(double outputRampRate) {
+    final StaticCharacterizationState state = new StaticCharacterizationState();
+    Timer timer = new Timer();
+    return Commands.startRun(
+            () -> {
+              // stopProfile = true;
+              timer.restart();
+            },
+            () -> {
+              state.characterizationOutput = outputRampRate * timer.get();
+              setVolts(state.characterizationOutput);
+              Logger.recordOutput(
+                  "Climber/StaticCharacterizationOutput", state.characterizationOutput);
+            })
+        .until(() -> getPosition() >= Constants.CLIMBER.DEPLOY)
+        .finallyDo(
+            () -> {
+              // stopProfile = false;
+              timer.stop();
+              Logger.recordOutput("Climber/CharacterizationOutput", state.characterizationOutput);
+            });
+  }
+
+  private static class StaticCharacterizationState {
+    public double characterizationOutput = 0.0;
   }
 }

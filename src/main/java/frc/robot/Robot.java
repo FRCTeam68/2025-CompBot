@@ -20,11 +20,13 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import edu.wpi.first.net.WebServer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.generated.TunerConstants;
+import frc.robot.util.PhoenixUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -62,6 +64,9 @@ public class Robot extends LoggedRobot {
         Logger.recordMetadata("GitDirty", "Unknown");
         break;
     }
+    // TODO add this from sensor input
+    Logger.recordMetadata("BatteryName", "ADD THIS IN FUTURE");
+    Logger.recordMetadata("TuningMode", String.valueOf(Constants.tuningMode));
 
     // Set up data receivers & replay source
     switch (Constants.currentMode) {
@@ -85,13 +90,6 @@ public class Robot extends LoggedRobot {
         break;
     }
 
-    // uncomment the line below to log CTRE devices to usb stick
-    SignalLogger.setPath("//media/sda1/logs");
-    // do not call the setPath and will be logged to rio at "/home/lvuser/logs"
-
-    // Start AdvantageKit logger
-    Logger.start();
-
     // Check for valid swerve config
     var modules =
         new SwerveModuleConstants[] {
@@ -108,6 +106,12 @@ public class Robot extends LoggedRobot {
       }
     }
 
+    // Elasic remote layout downloading
+    WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
+
+    // Rely on our custom alerts for disconnected controllers
+    DriverStation.silenceJoystickConnectionWarning(true);
+
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
@@ -115,10 +119,14 @@ public class Robot extends LoggedRobot {
     rioBus = new CANBus("rio");
     CANivoreBus = new CANBus("DRIVEbus");
 
-    // Elasic remote downloading
-    WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
-
+    // uncomment the line below to log CTRE devices to usb stick
+    SignalLogger.setPath("//media/sda1/logs");
     SignalLogger.start();
+    // do not call the setPath and will be logged to rio at "/home/lvuser/logs"
+
+    // Start AdvantageKit logger
+    // This must be called after Instantiating the RobotContainer
+    Logger.start();
   }
 
   /** This function is called periodically during all modes. */
@@ -126,6 +134,8 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     // Switch thread to high priority to improve loop timing
     Threads.setCurrentThreadPriority(true, 99);
+
+    PhoenixUtil.refreshAll();
 
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled commands, running already-scheduled commands, removing
@@ -140,16 +150,16 @@ public class Robot extends LoggedRobot {
     robotContainer.updateAlerts();
 
     CANBusStatus canInfo = rioBus.getStatus();
-    Logger.recordOutput("CANBUS/DRIVEbus/Util", canInfo.BusUtilization);
-    Logger.recordOutput("CANBUS/DRIVEbus/Status", canInfo.Status.getName());
+    Logger.recordOutput("CANBUS/rio/Util", canInfo.BusUtilization);
+    Logger.recordOutput("CANBUS/rio/Status", canInfo.Status.getName());
     if (!canInfo.Status.isOK())
-      Logger.recordOutput("CANBUS/DRIVEbus/Desc", canInfo.Status.getDescription());
+      Logger.recordOutput("CANBUS/rio/Desc", canInfo.Status.getDescription());
 
     CANBusStatus canInfo2 = CANivoreBus.getStatus();
-    Logger.recordOutput("CANBUS/rio/Util", canInfo2.BusUtilization);
-    Logger.recordOutput("CANBUS/rio/Status", canInfo2.Status.getName());
+    Logger.recordOutput("CANBUS/DRIVEbus/Util", canInfo2.BusUtilization);
+    Logger.recordOutput("CANBUS/DRIVEbus/Status", canInfo2.Status.getName());
     if (!canInfo2.Status.isOK())
-      Logger.recordOutput("CANBUS/rio/Desc", canInfo2.Status.getDescription());
+      Logger.recordOutput("CANBUS/DRIVEbus/Desc", canInfo2.Status.getDescription());
   }
 
   /** This function is called once when the robot is disabled. */
@@ -162,7 +172,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledPeriodic() {
     robotContainer.loadAutonPath();
-    // robotContainer.autonReadyStatus();
+    robotContainer.autonReadyStatus();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -170,11 +180,9 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     autonomousCommand = robotContainer.getAutonomousCommand();
 
-    robotContainer.loadAutonPath();
-
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {
-      if (Constants.currentMode == Constants.Mode.SIM)
+      if (Constants.currentMode.equals(Constants.Mode.SIM))
         robotContainer.setStartingMechanismPosition();
       autonomousCommand.schedule();
     }

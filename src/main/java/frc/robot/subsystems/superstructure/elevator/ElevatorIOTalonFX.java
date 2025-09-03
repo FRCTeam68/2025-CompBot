@@ -56,8 +56,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   // Control requests
   private final VoltageOut voltageOut = new VoltageOut(0.0).withEnableFOC(true).withUpdateFreqHz(0);
+
+  @SuppressWarnings("unused")
   private final MotionMagicTorqueCurrentFOC mmtPosition =
       new MotionMagicTorqueCurrentFOC(0).withUpdateFreqHz(0);
+
   private final MotionMagicVoltage mmvPosition = new MotionMagicVoltage(0);
   private final NeutralOut neutralOut = new NeutralOut();
 

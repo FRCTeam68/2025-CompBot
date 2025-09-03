@@ -27,6 +27,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.subsystems.superstructure.SuperstructureConstants;
 
 /** Generic roller IO implementation for a roller or series of rollers using a Kraken. */
 public class WristIOTalonFX implements WristIO {
@@ -80,10 +81,10 @@ public class WristIOTalonFX implements WristIO {
     config.CurrentLimits.SupplyCurrentLowerLimit = 40;
     config.CurrentLimits.SupplyCurrentLowerTime = 1;
     // Motion limits
-    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0.544;
-    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = SuperstructureConstants.WRIST.max;
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = SuperstructureConstants.WRIST.min;
     // Feedback
     config.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
     config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
@@ -145,6 +146,7 @@ public class WristIOTalonFX implements WristIO {
   public void zero() {
     setVolts(0);
     talon.setPosition(0);
+    cancoder.setPosition(0);
   }
 
   @Override

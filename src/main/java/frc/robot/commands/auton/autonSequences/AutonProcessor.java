@@ -5,17 +5,17 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.commands.ManipulatorCommands;
 import frc.robot.commands.auton.AutonPathCommands;
-import frc.robot.subsystems.ElevatorWristSubsystem;
-import frc.robot.subsystems.RangeSensorSubsystem;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.rollers.RollerSystem;
+import frc.robot.subsystems.sensors.CoralSensor;
+import frc.robot.subsystems.superstructure.ElevatorWristSubsystem;
 
 public class AutonProcessor {
   public static Command sequence(
       RollerSystem myIntake,
       RollerSystem myIntakeLow,
       ElevatorWristSubsystem myElevatorWrist,
-      RangeSensorSubsystem intake_sensor,
+      CoralSensor intake_sensor,
       Lights LED) {
 
     return Commands.sequence(

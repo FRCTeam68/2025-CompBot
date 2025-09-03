@@ -16,25 +16,26 @@ package frc.robot;
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.PS4Controller.Axis;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.LEDColor;
+import frc.robot.Constants.LEDSegment;
 import frc.robot.commands.*;
 import frc.robot.commands.auton.Auton;
-import frc.robot.commands.auton.Auton.AutonPath;
-import frc.robot.commands.auton.Auton.Sequence;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.ElevatorWristSubsystem;
-import frc.robot.subsystems.RangeSensorSubsystem;
 import frc.robot.subsystems.ShotVisualizer;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIO;
@@ -54,13 +55,18 @@ import frc.robot.subsystems.rollers.RollerSystem;
 import frc.robot.subsystems.rollers.RollerSystemIO;
 import frc.robot.subsystems.rollers.RollerSystemIOSim;
 import frc.robot.subsystems.rollers.RollerSystemIOTalonFX;
+import frc.robot.subsystems.sensors.CoralSensor;
+import frc.robot.subsystems.sensors.RangeSensorIO;
+import frc.robot.subsystems.sensors.RangeSensorIOCANrange;
+import frc.robot.subsystems.sensors.RangeSensorIOSim;
+import frc.robot.subsystems.superstructure.ElevatorWristSubsystem;
+import frc.robot.subsystems.superstructure.SuperstructureConstants;
 import frc.robot.subsystems.superstructure.SuperstructureVisualizer;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.util.AllianceFlipUtil;
 import lombok.Getter;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -71,15 +77,26 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private static Drive drive;
+
+  @SuppressWarnings("unused")
   private final Vision vision;
+
   private final Climber climber;
   private final RollerSystem intakeShooter;
   private final RollerSystem intakeShooterLow;
-  private final RangeSensorSubsystem intakeCoralSensor;
+  private final CoralSensor intakeCoralSensor;
   private final ElevatorWristSubsystem elevatorWrist;
   private final Lights LED;
+
+  // Commands
+  // (initalize commands to use @AutoLogOutput)
+  // TODO Is there a better way to do this
+  // TODO Possible use AutoLogOutputManager.addPackage("frc.lib");
   private ReefCentering reefCentering;
   private final Auton auton;
+
+  @SuppressWarnings("unused")
+  private final ManipulatorCommands manipulatorCommands = new ManipulatorCommands();
 
   // Controllers
   private static final CommandXboxController m_xboxController = new CommandXboxController(0);
@@ -90,8 +107,7 @@ public class RobotContainer {
       new Alert("Ps4 controller disconnected.", AlertType.kError);
 
   // Autons
-  private static LoggedDashboardChooser<AutonPath> autoChooser;
-  private static String m_autonName;
+  //   private static String m_autonName;
 
   @Getter private static boolean m_overideMode = false;
   public static boolean m_autoshootOnPostDection = false;
@@ -101,8 +117,6 @@ public class RobotContainer {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
-        LED = new Lights(new LightsIOCANdle());
-
         drive =
             new Drive(
                 new GyroIOPigeon2(),
@@ -110,6 +124,8 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+
+        LED = new Lights(new LightsIOCANdle());
 
         vision =
             new Vision(
@@ -157,20 +173,16 @@ public class RobotContainer {
         intakeShooterLow.setPieceCurrentThreshold(40);
 
         intakeCoralSensor =
-            new RangeSensorSubsystem(LED, Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
-
-        elevatorWrist = new ElevatorWristSubsystem(LED, drive::getPose);
+            new CoralSensor(
+                LED,
+                new RangeSensorIOCANrange(
+                    Constants.INTAKE_CORAL_SENSOR.ID, "rio", Constants.INTAKE_CORAL_SENSOR.CONFIG));
 
         climber = new Climber(new ClimberIOTalonFX());
-        climber.zero();
-
-        reefCentering = new ReefCentering(drive);
         break;
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
-        LED = new Lights(new LightsIOSim());
-
         drive =
             new Drive(
                 new GyroIO() {},
@@ -179,8 +191,10 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
         // (Use same number of dummy implementations as the real robot)
-        // no sim for limelight????  use blank
-        vision = new Vision(LED, drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+
+        LED = new Lights(new LightsIOSim());
+
+        vision = new Vision(LED, drive::addVisionMeasurement);
 
         intakeShooter =
             new RollerSystem(
@@ -189,25 +203,14 @@ public class RobotContainer {
         intakeShooterLow =
             new RollerSystem(
                 "IntakeShooterLow", new RollerSystemIOSim(DCMotor.getKrakenX60Foc(1), 4, .1));
-        // TBD, this needs an actual simulated sensor.....
-        intakeCoralSensor =
-            new RangeSensorSubsystem(LED, Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS);
 
-        // TBD, this needs an actual simulated sensor.....
-        elevatorWrist = new ElevatorWristSubsystem(LED, drive::getPose);
+        intakeCoralSensor = new CoralSensor(LED, new RangeSensorIOSim("Coral"));
 
         climber = new Climber(new ClimberIOSim());
-        // TBD, this needs an actual simulated sensor.....
-
-        reefCentering = new ReefCentering(drive);
         break;
 
       default:
         // Replayed robot, disable IO implementations
-
-        // TBD, this needs an actual simulated sensor.....
-        LED = new Lights(new LightsIO() {});
-
         drive =
             new Drive(
                 new GyroIO() {},
@@ -216,50 +219,43 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
         // (Use same number of dummy implementations as the real robot)
+
+        LED = new Lights(new LightsIO() {});
+
         vision = new Vision(LED, drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
         intakeShooter = new RollerSystem("IntakeShooter", new RollerSystemIO() {});
         intakeShooterLow = new RollerSystem("IntakeShooterLow", new RollerSystemIO() {});
-        intakeCoralSensor =
-            new RangeSensorSubsystem(
-                LED, Constants.INTAKE_CORAL_SENSOR.CONFIGURATION_CONFIGS); // TBD, need better dummy
-
-        // TBD, this needs an actual simulated sensor.....
-        elevatorWrist = new ElevatorWristSubsystem(LED, drive::getPose);
+        intakeCoralSensor = new CoralSensor(LED, new RangeSensorIO() {});
 
         climber = new Climber(new ClimberIO() {});
-
-        reefCentering = new ReefCentering(drive);
         break;
     }
 
-    SmartDashboard.putString("BumpMode", "ELEVATOR");
-    SmartDashboard.putString("AutoShoot", "OFF");
+    elevatorWrist = new ElevatorWristSubsystem(LED, drive::getPose);
 
-    // Set up auton
-    configureAutonChooser();
-    auton = new Auton(drive);
+    // Configure reef centering
+    reefCentering = new ReefCentering(drive);
 
-    // Configure the button bindings
-    configureButtonBindings();
+    // Configure auton
+    auton = new Auton();
 
     // Warm up path following command
     FollowPathCommand.warmupCommand().schedule();
+
+    // Configure the button bindings
+    configureButtonBindings();
 
     // Configure visualizers
     SuperstructureVisualizer.setRobotPoseSupplier(drive::getPose);
     ShotVisualizer.setRobotPoseSupplier(drive::getPose);
 
-    SmartDashboard.putData(
-        "Testing/Run Functional Test",
-        ManipulatorCommands.FunctionalTest(
-            intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, climber, LED));
-    SmartDashboard.putData(
-        "Testing/Run Elevator Sequencing Test",
-        ManipulatorCommands.TestElevatorWristSequencing(elevatorWrist));
-    SmartDashboard.putBoolean("HaveCoral", false);
-    SmartDashboard.putString("atPosition", "--");
-    SmartDashboard.putBoolean("CLIMB", false);
+    configureSysIdRoutines();
+
+    configureTestingRoutines();
+
+    SmartDashboard.putBoolean("Override Mode", m_overideMode);
+    SmartDashboard.putBoolean("AutoShoot", false);
   }
 
   /**
@@ -276,16 +272,6 @@ public class RobotContainer {
             () -> -m_xboxController.getLeftY(),
             () -> -m_xboxController.getLeftX(),
             () -> -m_xboxController.getRightX()));
-
-    // Lock to 0° when A button is held
-    // m_xboxController
-    //     .a()
-    //     .whileTrue(
-    //         DriveCommands.joystickDriveAtAngle(
-    //             drive,
-    //             () -> -m_xboxController.getLeftY(),
-    //             () -> -m_xboxController.getLeftX(),
-    //             () -> new Rotation2d(Units.degreesToRadians(0))));
 
     m_xboxController
         .a()
@@ -345,7 +331,8 @@ public class RobotContainer {
     //                   () ->
     //                       new Rotation2d(
     //                           aimController.calculate(vision.getTargetX(1).getRadians())));
-    //               Logger.recordOutput("DriveAtAngle/TargetX", vision.getTargetX(1).getRadians());
+    //               Logger.recordOutput("DriveAtAngle/TargetX",
+    //                vision.getTargetX(1).getRadians());
     //             },
     //             drive));
 
@@ -363,6 +350,17 @@ public class RobotContainer {
     m_xboxController.leftBumper().onTrue(new AlignToReefTagRelative(false, drive).withTimeout(3));
     m_xboxController.rightBumper().onTrue(new AlignToReefTagRelative(true, drive).withTimeout(3));
 
+    // Reset robot rotation
+    m_xboxController
+        .back()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    drive.setPose(
+                        new Pose2d(
+                            drive.getPose().getTranslation(),
+                            AllianceFlipUtil.apply(new Rotation2d(0))))));
+
     m_xboxController
         .start()
         .onTrue(
@@ -373,17 +371,17 @@ public class RobotContainer {
                 .andThen(Commands.runOnce(() -> System.out.printf("stop%n"))));
 
     m_xboxController
-        .povDown()
-        .whileTrue(
-            reefCentering
-                .createPathCommand(ReefCentering.Side.Back)
-                .until(() -> reefCentering.haveConditionsChanged())
-                .repeatedly());
-    m_xboxController
         .povUp()
         .whileTrue(
             reefCentering
                 .createPathCommand(ReefCentering.Side.Middle)
+                .until(() -> reefCentering.haveConditionsChanged())
+                .repeatedly());
+    m_xboxController
+        .povDown()
+        .whileTrue(
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Back)
                 .until(() -> reefCentering.haveConditionsChanged())
                 .repeatedly());
     m_xboxController
@@ -459,7 +457,7 @@ public class RobotContainer {
         .onTrue(
             Commands.either(
                 ManipulatorCommands.BumpClimberCmd(climber, Constants.CLIMBER.BUMP_VALUE),
-                elevatorWrist.BumpElevatorPosition(Constants.ELEVATOR.BUMP_VALUE),
+                elevatorWrist.BumpElevatorPosition(SuperstructureConstants.ELEVATOR.bump),
                 () -> m_overideMode));
 
     m_ps4Controller
@@ -467,25 +465,22 @@ public class RobotContainer {
         .onTrue(
             Commands.either(
                 ManipulatorCommands.BumpClimberCmd(climber, -Constants.CLIMBER.BUMP_VALUE),
-                elevatorWrist.BumpElevatorPosition(-Constants.ELEVATOR.BUMP_VALUE),
+                elevatorWrist.BumpElevatorPosition(-SuperstructureConstants.ELEVATOR.bump),
                 () -> m_overideMode));
 
     m_ps4Controller
         .share()
         .onTrue(
             Commands.runOnce(() -> m_overideMode = !m_overideMode)
-                .andThen(() -> SmartDashboard.putBoolean("Overide Mode", m_overideMode)));
+                .andThen(() -> SmartDashboard.putBoolean("Override Mode", m_overideMode)));
 
-    m_ps4Controller.povLeft().onTrue(elevatorWrist.BumpWristPosition(Constants.WRIST.BUMP_VALUE));
+    m_ps4Controller
+        .povLeft()
+        .onTrue(elevatorWrist.BumpWristPosition(SuperstructureConstants.WRIST.bump));
 
-    m_ps4Controller.povRight().onTrue(elevatorWrist.BumpWristPosition(-Constants.WRIST.BUMP_VALUE));
-
-    // //Left Joystick Y
-    // m_ps4Controller.axisGreaterThan(1,0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake1Speed((-Constants.INTAKE.BUMP_VALUE))));
-    // m_ps4Controller.axisLessThan(1,-0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake1Speed((Constants.INTAKE.BUMP_VALUE))));
-    // //Right Joystick Y
-    // m_ps4Controller.axisGreaterThan(5,0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake2Speed((-Constants.INTAKE.BUMP_VALUE))));
-    // m_ps4Controller.axisLessThan(5,-0.7).whileTrue(Commands.run(()->m_NoteSubSystem.bumpIntake2Speed((Constants.INTAKE.BUMP_VALUE))));
+    m_ps4Controller
+        .povRight()
+        .onTrue(elevatorWrist.BumpWristPosition(-SuperstructureConstants.WRIST.bump));
 
     // use incase you notice red light on dashboard.
     // m_ps4Controller.share().onTrue(ManipulatorCommands.ZeroClimberCmd(climber));
@@ -518,55 +513,46 @@ public class RobotContainer {
     m_ps4Controller
         .axisGreaterThan(Axis.kLeftY.value, 0.7)
         .onTrue(ManipulatorCommands.AlgaeCradle(elevatorWrist));
-
-    // climber.setDefaultCommand(
-    //     Commands.run(() -> climber.setVolts(-m_ps4Controller.getLeftY() * 12), climber)
-    //         .unless(
-    //             () -> {
-    //               return Math.abs(m_ps4Controller.getLeftY()) < .05;
-    //             }));
   }
 
-  private void configureAutonChooser() {
-    autoChooser = new LoggedDashboardChooser<>("Auto/Auto Choices");
-    autoChooser.addOption("LEFT", new AutonPath(Sequence.Side, "Left Group"));
-    autoChooser.addOption("RIGHT", new AutonPath(Sequence.Side, "Right Group"));
-    autoChooser.addOption(
-        "CENTER LEFT PROCESSOR",
-        new AutonPath(Sequence.Processor, "Center Start Left Group", "Center Processor Group"));
-    autoChooser.addOption(
-        "CENTER RIGHT PROCESSOR",
-        new AutonPath(Sequence.Processor, "Center Start Right Group", "Center Processor Group"));
-    autoChooser.addOption(
-        "CENTER LEFT NET",
-        new AutonPath(Sequence.Net, "Center Start Left Group", "Center Net Group"));
-    autoChooser.addOption(
-        "CENTER RIGHT NET",
-        new AutonPath(Sequence.Net, "Center Start Right Group", "Center Net Group"));
-    autoChooser.addOption("NONE", null);
+  private void configureSysIdRoutines() {
+    SmartDashboard.putData(
+        "Drive/Drive Wheel Radius Characterization",
+        DriveCommands.wheelRadiusCharacterization(drive));
+    SmartDashboard.putData(
+        "Drive/Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+    SmartDashboard.putData(
+        "Drive/Drive SysId (Quasistatic Forward)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    SmartDashboard.putData(
+        "Drive/Drive SysId (Quasistatic Reverse)",
+        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    SmartDashboard.putData(
+        "Drive/Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    SmartDashboard.putData(
+        "Drive/Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    SmartDashboard.putData(
+        "Elevator/Elevator static",
+        elevatorWrist.getElevator().staticElevatorCharacterization(2.0));
+    SmartDashboard.putData(
+        "Wrist/Wrist static", elevatorWrist.getWrist().staticWristCharacterization(2.0));
+    SmartDashboard.putData("Climber/Climber static", climber.staticClimberCharacterization(2.0));
+  }
 
-    // Set up SysId routines
-    // if (Constants.tuningMode) {
-    //   autoChooser.addOption(
-    //       "Drive Wheel Radius Characterization",
-    // DriveCommands.wheelRadiusCharacterization(drive));
-    //   autoChooser.addOption(
-    //       "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    //   autoChooser.addOption(
-    //       "Drive SysId (Quasistatic Forward)",
-    //       drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    //   autoChooser.addOption(
-    //       "Drive SysId (Quasistatic Reverse)",
-    //       drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    //   autoChooser.addOption(
-    //       "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    //   autoChooser.addOption(
-    //       "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    //   autoChooser.addOption("Elevator static",
-    // elevatorWrist.staticElevatorCharacterization(2.0));
-    //   autoChooser.addOption("Wrist static", elevatorWrist.staticWristCharacterization(2.0));
-    //   autoChooser.addOption("Climber static", staticClimberCharacterization(2.0));
-    // }
+  private void configureTestingRoutines() {
+    SmartDashboard.putData(
+        "Testing Routines/Functional Test",
+        ManipulatorCommands.FunctionalTest(
+            intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, climber, LED));
+    SmartDashboard.putData(
+        "Testing Routines/Elevator Sequencing Test",
+        ManipulatorCommands.TestElevatorWristSequencing(elevatorWrist));
+    SmartDashboard.putData(
+        "Testing Routines/Elevator Wrist to Zero Position",
+        ManipulatorCommands.ElevatorWristZeroCmd(elevatorWrist));
+    SmartDashboard.putData(
+        "Testing Routines/Climber to Zero Position",
+        ManipulatorCommands.climberToZeroCmd(climber, LED));
   }
 
   /**
@@ -575,16 +561,15 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    if (autoChooser.get() == null) {
+    if (auton.getAutoChooser().get() == null) {
       return null;
     }
-    return auton.execute(intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED);
+    return auton.execute(
+        drive, intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED);
   }
 
   public void loadAutonPath() {
-    if (autoChooser.get() != null) {
-      auton.loadPath(autoChooser.get());
-    }
+    auton.loadPath();
   }
 
   public void setStartingMechanismPosition() {
@@ -597,188 +582,160 @@ public class RobotContainer {
 
   public void setAutonOn(boolean state) {
     elevatorWrist.setAutoShootOn(state);
-    SmartDashboard.putString("AutoShoot", state ? "ON" : "OFF");
+    SmartDashboard.putBoolean("AutoShoot", state);
   }
 
-  // public void autonReadyStatus() {
-  //   Pose2d curPose;
-  //   double autonX = 0;
-  //   double autonY = 0;
-  //   double autonR = 0;
-  //   double offsetX = 0;
-  //   double offsetY = 0;
-  //   double offsetR = 0;
-  //   boolean offsetXOK = false;
-  //   boolean offsetYOK = false;
-  //   boolean offsetROK = false;
-  //   boolean robotStateOK = false;
+  public void autonReadyStatus() {
+    Pose2d curPose;
+    double autonX = 0;
+    double autonY = 0;
+    double autonR = 0;
+    double offsetX = 0;
+    double offsetY = 0;
+    double offsetR = 0;
+    boolean offsetXOK = false;
+    boolean offsetYOK = false;
+    boolean offsetROK = false;
+    boolean robotStateOK = false;
 
-  //   // flip current pose if on the red side of the field
-  //   // otherwise set as current pose
-  //   curPose =
-  //       (drive.getPose().getX() > (FieldConstants.fieldLength / 2))
-  //           ? new Pose2d(
-  //               new Translation2d(
-  //                   FieldConstants.fieldLength - drive.getPose().getX(),
-  //                   FieldConstants.fieldWidth - drive.getPose().getY()),
-  //               drive.getPose().getRotation().rotateBy(Rotation2d.kPi))
-  //           : drive.getPose();
+    // flip current pose if on the red side of the field
+    // otherwise set as current pose
+    curPose =
+        (drive.getPose().getX() > (FieldConstants.fieldLength / 2))
+            ? new Pose2d(
+                new Translation2d(
+                    FieldConstants.fieldLength - drive.getPose().getX(),
+                    FieldConstants.fieldWidth - drive.getPose().getY()),
+                drive.getPose().getRotation().rotateBy(Rotation2d.kPi))
+            : drive.getPose();
 
-  //   if (Math.abs(curPose.getY() - Constants.AutonStartPositions.middle.getY())
-  //       < Math.abs(
-  //           (Constants.AutonStartPositions.middle.getY()
-  //                   - Constants.AutonStartPositions.right.getY())
-  //               / 2)) {
-  //     autonX = Constants.AutonStartPositions.middle.getX();
-  //     autonY = Constants.AutonStartPositions.middle.getY();
-  //     autonR = Constants.AutonStartPositions.middle.getRotation().getDegrees();
-  //   } else if (curPose.getY() < Constants.AutonStartPositions.middle.getY()) {
-  //     autonX = Constants.AutonStartPositions.right.getX();
-  //     autonY = Constants.AutonStartPositions.right.getY();
-  //     autonR = Constants.AutonStartPositions.right.getRotation().getDegrees();
-  //   } else {
-  //     autonX = Constants.AutonStartPositions.left.getX();
-  //     autonY = Constants.AutonStartPositions.left.getY();
-  //     autonR = Constants.AutonStartPositions.left.getRotation().getDegrees();
-  //   }
+    if (Math.abs(curPose.getY() - Constants.AutonStartPositions.middle.getY())
+        < Math.abs(
+            (Constants.AutonStartPositions.middle.getY()
+                    - Constants.AutonStartPositions.right.getY())
+                / 2)) {
+      autonX = Constants.AutonStartPositions.middle.getX();
+      autonY = Constants.AutonStartPositions.middle.getY();
+      autonR = Constants.AutonStartPositions.middle.getRotation().getDegrees();
+    } else if (curPose.getY() < Constants.AutonStartPositions.middle.getY()) {
+      autonX = Constants.AutonStartPositions.right.getX();
+      autonY = Constants.AutonStartPositions.right.getY();
+      autonR = Constants.AutonStartPositions.right.getRotation().getDegrees();
+    } else {
+      autonX = Constants.AutonStartPositions.left.getX();
+      autonY = Constants.AutonStartPositions.left.getY();
+      autonR = Constants.AutonStartPositions.left.getRotation().getDegrees();
+    }
 
-  //   offsetX = curPose.getX() - autonX;
-  //   offsetY = curPose.getY() - autonY;
-  //   offsetR = Math.abs(curPose.getRotation().getDegrees()) - autonR;
+    offsetX = curPose.getX() - autonX;
+    offsetY = curPose.getY() - autonY;
+    offsetR = Math.abs(curPose.getRotation().getDegrees()) - autonR;
 
-  //   offsetXOK = (Math.abs(offsetX) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR /
-  // 2));
-  //   offsetYOK = (Math.abs(offsetY) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR /
-  // 2));
-  //   offsetROK = (Math.abs(offsetR) < (Constants.AutonStartPositions.ROTATION_START_ERROR / 2));
+    offsetXOK = (Math.abs(offsetX) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR / 2));
+    offsetYOK = (Math.abs(offsetY) < (Constants.AutonStartPositions.TRANSLATION_START_ERROR / 2));
+    offsetROK = (Math.abs(offsetR) < (Constants.AutonStartPositions.ROTATION_START_ERROR / 2));
 
-  //   SmartDashboard.putNumber("Auto/offset_X:", offsetX);
-  //   SmartDashboard.putNumber("Auto/offset_Y:", offsetY);
-  //   SmartDashboard.putNumber("Auto/offset_ROT:", offsetR);
-  //   SmartDashboard.putBoolean("Auto/offset_X_OK:", offsetXOK);
-  //   SmartDashboard.putBoolean("Auto/offset_Y_OK:", offsetYOK);
-  //   SmartDashboard.putBoolean("Auto/offset_ROT_OK:", offsetROK);
+    SmartDashboard.putNumber("Auto/offset_X:", offsetX);
+    SmartDashboard.putNumber("Auto/offset_Y:", offsetY);
+    SmartDashboard.putNumber("Auto/offset_ROT:", offsetR);
+    SmartDashboard.putBoolean("Auto/offset_X_OK:", offsetXOK);
+    SmartDashboard.putBoolean("Auto/offset_Y_OK:", offsetYOK);
+    SmartDashboard.putBoolean("Auto/offset_ROT_OK:", offsetROK);
 
-  //   try {
-  //     // m_autonName = autoChooser.get().getName();
-  //   } catch (Exception e) {
-  //     m_autonName = "";
-  //   }
+    // Object m_autonName;
+    //     try {
+    //       m_autonName = auton.getAutoChooser().get().;
+    // } catch (Exception e) {
+    //   m_autonName = "";
+    // }
 
-  //   robotStateOK =
-  //       (m_autonName.contains("LEFT")
-  //               || m_autonName.contains("CENTER")
-  //               || m_autonName.contains("RIGHT"))
-  //           && m_xboxController.isConnected()
-  //           && m_ps4Controller.isConnected()
-  //           && intakeCoralSensor.isDetected()
-  //           && elevatorWrist.getWrist().getPosition() < 0.01
-  //           && elevatorWrist.getElevator().getPositionRotations() < 0.01;
+    // robotStateOK =
+    //     (m_autonName.contains("LEFT")
+    //             || m_autonName.contains("CENTER")
+    //             || m_autonName.contains("RIGHT"))
+    //         && m_xboxController.isConnected()
+    //         && m_ps4Controller.isConnected()
+    //         && intakeCoralSensor.isDetected()
+    //         && elevatorWrist.getWrist().getPosition() < 0.01
+    //         && elevatorWrist.getElevator().getPositionRotations() < 0.01;
 
-  //   SmartDashboard.putBoolean(
-  //       "Match Ready/auton_selected",
-  //       m_autonName.contains("LEFT")
-  //           || m_autonName.contains("CENTER")
-  //           || m_autonName.contains("RIGHT"));
-  //   SmartDashboard.putBoolean("Match Ready/coral_loaded", intakeCoralSensor.isDetected());
-  //   SmartDashboard.putBoolean(
-  //       "Match Ready/wrist_zeroed", elevatorWrist.getWrist().getPosition() < 0.01);
-  //   SmartDashboard.putBoolean(
-  //       "Match Ready/elevator_zeroed", elevatorWrist.getElevator().getPositionRotations() <
-  // 0.01);
+    // SmartDashboard.putBoolean(
+    //     "Match Ready/auton_selected",
+    //     m_autonName.contains("LEFT")
+    //         || m_autonName.contains("CENTER")
+    //         || m_autonName.contains("RIGHT"));
+    SmartDashboard.putBoolean("Match Ready/coral_loaded", intakeCoralSensor.isDetected());
+    SmartDashboard.putBoolean(
+        "Match Ready/wrist_zeroed", elevatorWrist.getWrist().getPosition() < 0.01);
+    SmartDashboard.putBoolean(
+        "Match Ready/elevator_zeroed", elevatorWrist.getElevator().getPositionRotations() < 0.01);
 
-  //   // set LEDs
-  //   if (robotStateOK && offsetXOK && offsetYOK && offsetROK) {
-  //     LED.setBandAnimation(LEDColor.GREEN, LEDSegment.ALL);
-  //   } else {
-  //     // all auton ready but position
-  //     if (robotStateOK) {
-  //       LED.setSolidColor(LEDColor.GREEN, LEDSegment.LEFT_SIDE);
-  //       LED.setSolidColor(LEDColor.GREEN, LEDSegment.RIGHT_SIDE);
-  //     } else {
-  //       LED.setSolidColor(LEDColor.RED, LEDSegment.LEFT_SIDE);
-  //       LED.setSolidColor(LEDColor.RED, LEDSegment.RIGHT_SIDE);
-  //     }
+    // set LEDs
+    if (robotStateOK && offsetXOK && offsetYOK && offsetROK) {
+      LED.setBandAnimation(LEDColor.GREEN, LEDSegment.ALL);
+    } else {
+      // all auton ready but position
+      if (robotStateOK) {
+        LED.setSolidColor(LEDColor.GREEN, LEDSegment.LEFT_SIDE);
+        LED.setSolidColor(LEDColor.GREEN, LEDSegment.RIGHT_SIDE);
+      } else {
+        LED.setSolidColor(LEDColor.RED, LEDSegment.LEFT_SIDE);
+        LED.setSolidColor(LEDColor.RED, LEDSegment.RIGHT_SIDE);
+      }
 
-  //     // X offset LEDs
-  //     if (offsetXOK) {
-  //       LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
-  //       LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
-  //     } else {
-  //       if (offsetX < 0) {
-  //         LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_X_LEFT);
-  //         LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
-  //       } else {
-  //         LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
-  //         LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_X_RIGHT);
-  //       }
-  //     }
+      // X offset LEDs
+      if (offsetXOK) {
+        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
+        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
+      } else {
+        if (offsetX < 0) {
+          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_X_LEFT);
+          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_RIGHT);
+        } else {
+          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_X_LEFT);
+          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_X_RIGHT);
+        }
+      }
 
-  //     // Y offset LEDs
-  //     if (offsetYOK) {
-  //       LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
-  //       LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
-  //     } else {
-  //       if (offsetY < 0) {
-  //         LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_Y_LEFT);
-  //         LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
-  //       } else {
-  //         LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
-  //         LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_Y_RIGHT);
-  //       }
-  //     }
+      // Y offset LEDs
+      if (offsetYOK) {
+        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
+        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
+      } else {
+        if (offsetY < 0) {
+          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_Y_LEFT);
+          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_RIGHT);
+        } else {
+          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_Y_LEFT);
+          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_Y_RIGHT);
+        }
+      }
 
-  //     // rotation offset LEDs
-  //     if (offsetROK) {
-  //       LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
-  //       LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
-  //     } else {
-  //       if (offsetR < 0) {
-  //         LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_R_LEFT);
-  //         LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
-  //       } else {
-  //         LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
-  //         LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_R_RIGHT);
-  //       }
-  //     }
-  //   }
-  // }
+      // rotation offset LEDs
+      if (offsetROK) {
+        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
+        LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
+      } else {
+        if (offsetR < 0) {
+          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_R_LEFT);
+          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_RIGHT);
+        } else {
+          LED.setSolidColor(LEDColor.GREEN, LEDSegment.AUTON_R_LEFT);
+          LED.setSolidColor(LEDColor.RED, LEDSegment.AUTON_R_RIGHT);
+        }
+      }
+    }
+  }
 
   public void updateAlerts() {
     xboxDisconnectedAlert.set(!m_xboxController.isConnected());
     ps4DisconnectedAlert.set(!m_ps4Controller.isConnected());
   }
 
-  public Command staticClimberCharacterization(double outputRampRate) {
-    final StaticCharacterizationState state = new StaticCharacterizationState();
-    Timer timer = new Timer();
-    return Commands.startRun(
-            () -> {
-              // stopProfile = true;
-              timer.restart();
-            },
-            () -> {
-              state.characterizationOutput = outputRampRate * timer.get();
-              climber.setVolts(state.characterizationOutput);
-              Logger.recordOutput(
-                  "Climber/StaticCharacterizationOutput", state.characterizationOutput);
-            })
-        .until(() -> climber.getPosition() >= Constants.CLIMBER.DEPLOY)
-        .finallyDo(
-            () -> {
-              // stopProfile = false;
-              timer.stop();
-              Logger.recordOutput("Climber/CharacterizationOutput", state.characterizationOutput);
-            });
-  }
-
-  private static class StaticCharacterizationState {
-    public double characterizationOutput = 0.0;
-  }
-
   public void StopSubSystems() {
     elevatorWrist.stop();
     intakeShooter.stop();
+    intakeShooter.zero();
     intakeShooterLow.stop();
     climber.stop();
   }

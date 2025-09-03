@@ -40,11 +40,11 @@ public class Module {
   private static final LoggedTunableNumber turnkD = new LoggedTunableNumber("Drive/Module/TurnkD");
 
   static {
+    drivekP.initDefault(3.0);
+    drivekD.initDefault(0);
     drivekS.initDefault(0.12);
     drivekV.initDefault(0.116);
     drivekA.initDefault(0.007);
-    drivekP.initDefault(2.0);
-    drivekD.initDefault(0);
     turnkP.initDefault(100.0);
     turnkD.initDefault(0.5);
   }

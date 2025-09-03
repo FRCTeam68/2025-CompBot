@@ -4,8 +4,13 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.SlotConfigs;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.superstructure.SuperstructureConstants;
 import frc.robot.util.LoggedTunableNumber;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
@@ -58,6 +63,8 @@ public class Elevator extends SubsystemBase {
     disconnected = new Alert("Lead elevator motor disconnected!", Alert.AlertType.kError);
     followerDisconnected =
         new Alert("Follower elevator motor disconnected!", Alert.AlertType.kError);
+
+    SmartDashboard.putData(pathName + "/Zero In Place", Commands.runOnce(() -> zero()));
   }
 
   public void periodic() {
@@ -65,7 +72,7 @@ public class Elevator extends SubsystemBase {
     Logger.processInputs("Elevator", inputs);
     disconnected.set(!inputs.connected);
     followerDisconnected.set(!inputs.followerConnected);
-    Logger.recordOutput("Elevator/At position", atPosition());
+    Logger.recordOutput(pathName + "/At position", atPosition());
 
     // Update tunable numbers
     if (Constants.tuningMode) {
@@ -194,5 +201,32 @@ public class Elevator extends SubsystemBase {
   /** Sets the current mechanism position to zero */
   public void zero() {
     io.zero();
+  }
+
+  public Command staticElevatorCharacterization(double outputRampRate) {
+    final StaticCharacterizationState state = new StaticCharacterizationState();
+    Timer timer = new Timer();
+    return Commands.startRun(
+            () -> {
+              // stopProfile = true;
+              timer.restart();
+            },
+            () -> {
+              state.characterizationOutput = outputRampRate * timer.get();
+              setVolts(state.characterizationOutput);
+              Logger.recordOutput(
+                  "Elevator/StaticCharacterizationOutput", state.characterizationOutput);
+            })
+        .until(() -> getPositionRotations() >= SuperstructureConstants.ELEVATOR.max - 1)
+        .finallyDo(
+            () -> {
+              // stopProfile = false;
+              timer.stop();
+              Logger.recordOutput("Elevator/CharacterizationOutput", state.characterizationOutput);
+            });
+  }
+
+  private static class StaticCharacterizationState {
+    public double characterizationOutput = 0.0;
   }
 }
