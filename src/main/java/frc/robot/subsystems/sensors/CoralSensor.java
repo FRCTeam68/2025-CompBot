@@ -14,7 +14,7 @@ public class CoralSensor extends SubsystemBase {
   private final RangeSensorIO io;
   protected final RangeSystemIOInputsAutoLogged inputs = new RangeSystemIOInputsAutoLogged();
 
-  private final Segment indicator = new Segment(3, 3, 0);
+  private final Segment indicator = new Segment(2, 2, 0);
   private RGBWColor indicatorColor = LEDColor.RED;
   private RGBWColor prevIndicatorColor = new RGBWColor();
 
@@ -41,7 +41,9 @@ public class CoralSensor extends SubsystemBase {
     }
 
     if (indicatorColor != prevIndicatorColor) {
+      // only send when color changes so not using CAN bus every 20ms
       LED.setSolidColor(indicatorColor, indicator);
+      prevIndicatorColor = indicatorColor;
     }
   }
 
