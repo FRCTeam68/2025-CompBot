@@ -199,7 +199,7 @@ public final class Constants {
 
   public static final class CLIMBER {
     public static final double DEPLOY = 0.15;
-    public static final double RETRACT = -0.17;
+    public static final double RETRACT = -0.23;
     public static final double BUMP_VALUE = 0.05;
     public static final double ZEROING_SPEED = -70; // speed when zeroing
     public static final double ZEROING_CURRENT_LIMIT = 45; // current limit when zeroing
