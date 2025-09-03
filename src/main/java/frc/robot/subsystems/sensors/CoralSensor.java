@@ -14,7 +14,7 @@ public class CoralSensor extends SubsystemBase {
   private final RangeSensorIO io;
   protected final RangeSystemIOInputsAutoLogged inputs = new RangeSystemIOInputsAutoLogged();
 
-  private final Segment indicator = new Segment(3, 3, 0);
+  private final Segment indicator = new Segment(2, 2, 0);
   private RGBWColor indicatorColor = LEDColor.RED;
   private RGBWColor prevIndicatorColor = new RGBWColor();
 
