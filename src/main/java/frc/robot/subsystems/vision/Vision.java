@@ -49,6 +49,7 @@ public class Vision extends SubsystemBase {
       new Alert(
           "Robot rotation not initalized. Face robot toward april tag. If all cameras are disconnected, cycle power with reef camera facing red driver station",
           AlertType.kError);
+  private boolean skipMegaTag1 = false;
 
   public Vision(Lights LED, VisionConsumer consumer, VisionIO... io) {
     this.LED = LED;
@@ -100,17 +101,13 @@ public class Vision extends SubsystemBase {
     }
     // TODO does this work?
     // rotationSamples = null;
-    for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
-      inputs[cameraIndex].skipMegaTag1 = false;
-    }
+    skipMegaTag1 = false;
     LED.setSolidColor(LEDColor.RED, rotationInitalizedIndicator);
     rotationNotInitalizedAlert.set(true);
   }
 
   public void disableMegaTag1() {
-    for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
-      inputs[cameraIndex].skipMegaTag1 = true;
-    }
+    skipMegaTag1 = true;
     LED.setSolidColor(LEDColor.GREEN, rotationInitalizedIndicator);
     rotationNotInitalizedAlert.set(false);
   }
@@ -130,7 +127,7 @@ public class Vision extends SubsystemBase {
     boolean anyConnected = false;
 
     // Loop over cameras
-    for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
+    for (int cameraIndex = 1; cameraIndex < io.length; cameraIndex++) {
       // Update disconnected alert
       disconnectedAlert[cameraIndex].set(!inputs[cameraIndex].connected);
       if (inputs[cameraIndex].connected) anyConnected = true;
@@ -163,7 +160,10 @@ public class Vision extends SubsystemBase {
                 || observation.pose().getX() < 0.0
                 || observation.pose().getX() > aprilTagLayout.getFieldLength()
                 || observation.pose().getY() < 0.0
-                || observation.pose().getY() > aprilTagLayout.getFieldWidth();
+                || observation.pose().getY() > aprilTagLayout.getFieldWidth()
+
+                // Reject MegaTag 1 data if skip flag is set
+                || (observation.type() == PoseObservationType.MEGATAG_1 && skipMegaTag1);
 
         // Add pose to log
         robotPoses.add(observation.pose());
