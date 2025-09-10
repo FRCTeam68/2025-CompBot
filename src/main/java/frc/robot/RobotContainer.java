@@ -353,7 +353,7 @@ public class RobotContainer {
     // Reset robot rotation
     m_xboxController
         .back()
-        .and(m_xboxController.a())
+        .and(m_xboxController.x())
         .onTrue(
             Commands.runOnce(
                     () ->
@@ -368,7 +368,7 @@ public class RobotContainer {
     // turn on megatag1 again to resync with april tags
     m_xboxController
         .back()
-        .and(m_xboxController.b())
+        .and(m_xboxController.y())
         .onTrue(
             Commands.runOnce(() -> vision.enableMegaTag1())
                 .andThen(() -> LED.setBandAnimation(LEDColor.ORANGE, LEDSegment.ALL))
