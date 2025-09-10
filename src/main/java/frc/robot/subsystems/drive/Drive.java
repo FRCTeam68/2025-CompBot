@@ -24,6 +24,8 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
+import com.therekrab.autopilot.APTarget;
+
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -31,6 +33,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -480,4 +483,27 @@ public class Drive extends SubsystemBase {
     return MetersPerSecond.of(
         new Translation2d(cs.vxMetersPerSecond, cs.vyMetersPerSecond).getNorm());
   }
+
+  
+  public Command align(APTarget target) {
+  return this.run(() -> {
+    ChassisSpeeds robotRelativeSpeeds = kinematics.toChassisSpeeds(setpointStates);
+    Pose2d pose = this.getCurrentPose();
+
+    Transform2d output = Constants.kAutopilot.calculate(pose, robotRelativeSpeeds, target);
+
+    /* these speeds are field relative */
+    double veloX = output.getX();
+    double veloY = output.getY();
+    Rotation2d headingReference = output.getRotation();
+
+    this.runVelocity(new ChassisSpeeds(veloX,veloY,headingReference));
+    // this.setControl(m_fieldRelativeRequest
+    //     .withVelocityX(veloX)
+    //     .withVelocityY(veloY)
+    //     .withTargetDirection(headingReference));
+  })
+      .until(() -> Constants.kAutopilot.atTarget(this.getCurrentPose(), target))
+      .finallyDo(() -> this.stop());
+}
 }
