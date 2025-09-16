@@ -12,6 +12,7 @@ import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
+import com.therekrab.autopilot.APTarget;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -178,43 +179,43 @@ public class ReefCentering {
           nearestSide = calculateNearestSide();
 
           Pose2d scoringPosition = calculatePath();
-          Command pathCommand;
-          if (side == Side.Left || side == Side.Right || side == Side.Middle) {
-            // will allow left to right to left
-            pathCommand = getPathFromWaypoint(scoringPosition);
-          } else {
-            // straight path to pose
-            pathCommand = getPathFromPose(scoringPosition);
-          }
+          // Command pathCommand;
+          // if (side == Side.Left || side == Side.Right || side == Side.Middle) {
+          //   // will allow left to right to left
+          //   pathCommand = getPathFromWaypoint(scoringPosition);
+          // } else {
+          //   // straight path to pose
+          //   pathCommand = getPathFromPose(scoringPosition);
+          // }
 
-          return pathCommand;
+          return m_drive.align(new APTarget(scoringPosition));
           // return m_drive.driveToPose(scoringPosition,
           // Constants.PathPlannerConstants.slowConstraints, 0);
         },
         Set.of(m_drive));
   }
 
-  private Command getPathFromPose(Pose2d scoringPose) {
+  // private Command getPathFromPose(Pose2d scoringPose) {
 
-    PathConstraints pathContraints;
+  //   PathConstraints pathContraints;
 
-    switch (selectedSide) {
-      case Left, Middle, Right:
-        pathContraints = Constants.PathPlannerConstants.slowConstraints;
-        break;
-      case Back:
-        pathContraints = Constants.PathPlannerConstants.defaultConstraints;
-        break;
-      case Barge:
-        pathContraints = Constants.PathPlannerConstants.defaultConstraints;
-        break;
-      default:
-        pathContraints = Constants.PathPlannerConstants.defaultConstraints;
-        break;
-    }
+  //   switch (selectedSide) {
+  //     case Left, Middle, Right:
+  //       pathContraints = Constants.PathPlannerConstants.slowConstraints;
+  //       break;
+  //     case Back:
+  //       pathContraints = Constants.PathPlannerConstants.defaultConstraints;
+  //       break;
+  //     case Barge:
+  //       pathContraints = Constants.PathPlannerConstants.defaultConstraints;
+  //       break;
+  //     default:
+  //       pathContraints = Constants.PathPlannerConstants.defaultConstraints;
+  //       break;
+  //   }
 
-    return AutoBuilder.pathfindToPose(
-        scoringPose, pathContraints, 0.0 // Goal end velocity in meters/sec
-        );
-  }
+  //   return AutoBuilder.pathfindToPose(
+  //       scoringPose, pathContraints, 0.0 // Goal end velocity in meters/sec
+  //       );
+  // }
 }
