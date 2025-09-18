@@ -29,7 +29,7 @@ public final class SuperstructureConstants {
     public static final double min = 0;
     public static final double bump = 0.008;
 
-    public static final double L2_4 = 0.0672;
+    public static final double L2_4 = 0.0677;
     public static final double A1_2 = 0.44;
 
     public static final double minElevate = 0.059;
@@ -45,16 +45,16 @@ public final class SuperstructureConstants {
 
   public static enum Pose {
     L1(1.6, 0.44),
-    L2(0.9, WRIST.L2_4),
-    L3(2.4, WRIST.L2_4),
-    L4(4.6, WRIST.L2_4),
-    A1(1.8, WRIST.A1_2),
-    A2(3.1, WRIST.A1_2),
+    L2(1.0, WRIST.L2_4),
+    L3(2.5, WRIST.L2_4),
+    L4(4.7, WRIST.L2_4),
+    A1(1.9, WRIST.A1_2),
+    A2(3.2, WRIST.A1_2),
     processor(0.68, 0.528),
     preBarge(5.33, 0.352),
     shootBarge(5.33, 0.1),
     cradle(0, 0.192),
-    intakeCoral(0, 0.012);
+    intakeCoral(0, 0.017);
 
     Pose(double elevator, double wrist) {
       this.elevator = elevator;
