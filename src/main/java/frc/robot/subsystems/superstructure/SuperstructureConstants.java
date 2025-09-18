@@ -6,7 +6,7 @@ public final class SuperstructureConstants {
     public static final double min = 0;
     public static final double bump = 0.1;
 
-    public static final double maxLowSafe = 0.2;
+    public static final double maxLowSafe = 0.4;
     public static final double minMidSafe = 2.356;
     public static final double maxMidSafe = 3.2;
     public static final double minHighSafe = 4.8;

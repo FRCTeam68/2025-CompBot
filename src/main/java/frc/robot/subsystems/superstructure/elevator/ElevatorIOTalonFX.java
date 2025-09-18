@@ -41,6 +41,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   // Status signals
   private final StatusSignal<Angle> position;
+  private final StatusSignal<Angle> followerPosition;
   private final StatusSignal<AngularVelocity> velocity;
   private final StatusSignal<Voltage> appliedVoltage;
   private final StatusSignal<Current> supplyCurrent;
@@ -90,6 +91,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     // Configure status signals
     position = talon.getPosition();
+    followerPosition = followerTalon.getPosition();
     velocity = talon.getVelocity();
     appliedVoltage = talon.getMotorVoltage();
     supplyCurrent = talon.getSupplyCurrent();
@@ -106,6 +108,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             BaseStatusSignal.setUpdateFrequencyForAll(
                 50.0,
                 position,
+                followerPosition,
                 velocity,
                 appliedVoltage,
                 torqueCurrent,
@@ -123,7 +126,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   public void updateInputs(ElevatorIOInputs inputs) {
     inputs.connected =
         connectedDebouncer.calculate(
-            BaseStatusSignal.refreshAll(position, velocity, appliedVoltage, torqueCurrent).isOK());
+            BaseStatusSignal.refreshAll(
+                    position, followerPosition, velocity, appliedVoltage, torqueCurrent)
+                .isOK());
     inputs.position = position.getValueAsDouble();
     inputs.velocityRotsPerSec = velocity.getValueAsDouble();
     inputs.appliedVoltage = appliedVoltage.getValueAsDouble();
