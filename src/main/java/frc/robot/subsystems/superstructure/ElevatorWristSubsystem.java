@@ -246,10 +246,10 @@ public class ElevatorWristSubsystem extends SubsystemBase {
           Command sequence1;
           Command sequence2;
           Command sequenceInital =
-          Commands.parallel(
-              Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence0", "NULL")),
-              Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence1", "NULL")),
-              Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence2", "NULL")));
+              Commands.parallel(
+                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence0", "NULL")),
+                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence1", "NULL")),
+                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence2", "NULL")));
           Command sequenceFinal =
               Commands.parallel(
                   Commands.waitUntil(() -> wrist.atPosition()),
@@ -455,7 +455,11 @@ public class ElevatorWristSubsystem extends SubsystemBase {
                     setPositionCmdFailsafe(e_goal, w_goal));
           }
           // execute sequence
-          return sequenceInital.andThen(sequence0).andThen(sequence1).andThen(sequence2).andThen(sequenceFinal);
+          return sequenceInital
+              .andThen(sequence0)
+              .andThen(sequence1)
+              .andThen(sequence2)
+              .andThen(sequenceFinal);
         },
         Set.of(this));
   }

@@ -54,6 +54,8 @@ public class Climber extends SubsystemBase {
             .withMotionMagicJerk(mmJ.get()));
 
     SmartDashboard.putData(pathName + "/Zero In Place", Commands.runOnce(() -> zero()));
+    SmartDashboard.putData(
+        pathName + "/Move to Zero Position", Commands.runOnce(() -> setPosition(0.0)));
   }
 
   public void periodic() {

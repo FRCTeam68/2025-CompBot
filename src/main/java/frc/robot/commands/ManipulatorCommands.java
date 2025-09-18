@@ -313,7 +313,7 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.runOnce(() -> scoringPosition = ScoringPosition.Algae),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "P1")),
-        myElevatorWrist.setPositionCmd(SuperstructureConstants.Pose.processor));
+        myElevatorWrist.setPositionCmd(SuperstructureConstants.Pose.processor, 1));
   }
 
   public static Command AlgaeAtA2(ElevatorWristSubsystem myElevatorWrist) {
