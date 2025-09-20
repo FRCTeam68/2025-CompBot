@@ -374,7 +374,8 @@ public class RobotContainer {
             Commands.runOnce(() -> vision.enableMegaTag1())
                 .andThen(() -> LED.setBandAnimation(LEDColor.ORANGE, LEDSegment.ALL))
                 .andThen(Commands.waitSeconds(2))
-                .andThen(() -> LED.disableLEDs(LEDSegment.ALL)).ignoringDisable(true));
+                .andThen(() -> LED.disableLEDs(LEDSegment.ALL))
+                .ignoringDisable(true));
 
     m_xboxController
         .start()
