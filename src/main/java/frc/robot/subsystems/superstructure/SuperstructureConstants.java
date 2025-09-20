@@ -9,14 +9,14 @@ public final class SuperstructureConstants {
     public static final double maxLowSafe = 0.4;
     public static final double minMidSafe = 2.356;
     public static final double maxMidSafe = 3.2;
-    public static final double minHighSafe = 4.8;
+    public static final double minHighSafe = 4.83;
     public static final double minAtProcessor = 0.68;
     public static final double maxLowWristMoveFromSafe =
         0.6; // height to start wrist move if wrist is in safe position
 
     // Old block values used in failsafe elevator wrist command
     // TODO Remove these and use values above
-    public static final double MAX_POSITION_BLOCK5 = 4.8; // ????
+    public static final double MAX_POSITION_BLOCK5 = 4.83; // ????
     public static final double MAX_POSITION_BLOCK4 = 4.2; // ????
     public static final double SAFE_IN_BLOCK4 = 2.5;
     public static final double MIN_POSITION_BLOCK4 = 2.1; // ????
@@ -47,7 +47,7 @@ public final class SuperstructureConstants {
     L1(1.6, 0.44),
     L2(1.0, WRIST.L2_4),
     L3(2.5, WRIST.L2_4),
-    L4(4.7, WRIST.L2_4),
+    L4(4.8, WRIST.L2_4),
     A1(1.9, WRIST.A1_2),
     A2(3.2, WRIST.A1_2),
     processor(0.68, 0.528),
