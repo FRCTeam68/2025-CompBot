@@ -508,7 +508,17 @@ public class RobotContainer {
                     ManipulatorCommands.intakeCmd(
                         intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)));
 
-    m_ps4Controller.touchpad().onTrue(Commands.runOnce(() -> elevatorWrist.getElevator().zero()));
+    m_ps4Controller
+        .touchpad()
+        .onTrue(
+            Commands.either(
+                Commands.runOnce(() -> elevatorWrist.getElevator().zero()),
+                Commands.none(),
+                () -> {
+                  return (elevatorWrist.getElevator().getPositionRotations() < 0.1)
+                      && (elevatorWrist.getElevator().getSetpoint() == 0)
+                      && (elevatorWrist.getElevator().getSpeed() == 0.1);
+                }));
 
     // Right Joystick Y
     m_ps4Controller
