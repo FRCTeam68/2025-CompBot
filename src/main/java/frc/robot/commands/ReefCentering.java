@@ -188,7 +188,8 @@ public class ReefCentering {
           //   pathCommand = getPathFromPose(scoringPosition);
           // }
 
-          return m_drive.align(new APTarget(scoringPosition));
+          return m_drive.align(
+              new APTarget(scoringPosition).withEntryAngle(scoringPosition.getRotation()));
           // return m_drive.driveToPose(scoringPosition,
           // Constants.PathPlannerConstants.slowConstraints, 0);
         },

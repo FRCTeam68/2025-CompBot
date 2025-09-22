@@ -33,6 +33,7 @@ import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -45,6 +46,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -498,6 +500,11 @@ public class Drive extends SubsystemBase {
   }
 
   public Command align(APTarget target) {
+    // Create PID controller
+    ProfiledPIDController angleController =
+        new ProfiledPIDController(5, 0.0, .4, new TrapezoidProfile.Constraints(40, 100));
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
+
     return this.run(
             () -> {
               ChassisSpeeds robotRelativeSpeeds = kinematics.toChassisSpeeds(setpointStates);
@@ -505,13 +512,20 @@ public class Drive extends SubsystemBase {
 
               APResult output = autoPilot.calculate(pose, robotRelativeSpeeds, target);
 
+              // Calculate angular speed
+              double omega =
+                  angleController.calculate(
+                      this.getOdometryHeading().getRadians(), output.targetAngle().getRadians());
+
               /* these speeds are field relative */
               double veloX = output.vx().baseUnitMagnitude();
               double veloY = output.vy().baseUnitMagnitude();
-              double headingReference = output.targetAngle().getRadians();
+              // double headingReference = output.targetAngle().getRadians();
 
-              this.runVelocity(new ChassisSpeeds(veloX, veloY, headingReference));
+              this.runVelocity(new ChassisSpeeds(veloX, veloY, omega));
             })
+        // Reset PID controller when command starts
+        .beforeStarting(() -> angleController.reset(this.getHeading().getRadians()))
         .until(() -> autoPilot.atTarget(this.getPose(), target))
         .finallyDo(() -> this.stop());
   }
