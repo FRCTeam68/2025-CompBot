@@ -404,7 +404,8 @@ public class ElevatorWristSubsystem extends SubsystemBase {
                                       <= SuperstructureConstants.ELEVATOR.maxMidSafe)
                                   && (elevator.getPositionRotations()
                                       >= SuperstructureConstants.ELEVATOR.minMidSafe)));
-              if (e_goal > elevator.getPositionRotations()) {
+              if (e_goal > elevator.getPositionRotations()
+                  && w_goal >= SuperstructureConstants.WRIST.safe) {
                 sequence2 =
                     Commands.sequence(
                         Commands.runOnce(

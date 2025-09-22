@@ -42,7 +42,7 @@ public class Vision extends SubsystemBase {
   private final Alert[] disconnectedAlert;
   private final Alert allDisconnectedAlert =
       new Alert("All vision cameras disconnected.", AlertType.kError);
-  private Double[] rotationSamples = new Double[10]; // Amount of rotation samples to use
+  private Double[] rotationSamples = new Double[25]; // Amount of rotation samples to use
   private final double maxRotationError = 3; // Acceptable error in degrees
   private final Segment rotationInitalizedIndicator = new Segment(3, 3, 0);
   private final Alert rotationNotInitalizedAlert =

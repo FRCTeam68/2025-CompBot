@@ -22,13 +22,13 @@ public class Elevator extends SubsystemBase {
   private final Alert disconnected;
   private final Alert followerDisconnected;
 
-  private LoggedTunableNumber kP0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kP", 5.5);
+  private LoggedTunableNumber kP0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kP", 3.8);
   private LoggedTunableNumber kI0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kI", 0);
   private LoggedTunableNumber kD0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kD", 0);
-  private LoggedTunableNumber kS0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kS", 0.5);
+  private LoggedTunableNumber kS0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kS", 0.4);
   private LoggedTunableNumber kV0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kV", 0.2);
   private LoggedTunableNumber kA0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kA", 0);
-  private LoggedTunableNumber kG0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kG", 0.5);
+  private LoggedTunableNumber kG0 = new LoggedTunableNumber(pathName + "/Slot 0 Configs/kG", 0.6);
 
   private LoggedTunableNumber mmV =
       new LoggedTunableNumber(pathName + "/Motion Magic Configs/Velocity", 40);
