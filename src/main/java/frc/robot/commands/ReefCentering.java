@@ -6,22 +6,14 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.GoalEndState;
-import com.pathplanner.lib.path.IdealStartingState;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.path.Waypoint;
 import com.therekrab.autopilot.APTarget;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Constants;
 import frc.robot.Constants.FieldPoses;
 import frc.robot.subsystems.drive.Drive;
-import java.util.List;
 import java.util.Set;
 
 public class ReefCentering {
@@ -116,47 +108,47 @@ public class ReefCentering {
     return false;
   }
 
-  private Command getPathFromWaypoint(Pose2d waypoint) {
+  // private Command getPathFromWaypoint(Pose2d waypoint) {
 
-    List<Waypoint> waypoints =
-        PathPlannerPath.waypointsFromPoses(
-            new Pose2d(
-                m_drive.getPose().getTranslation(),
-                getPathVelocityHeading(m_drive.getFieldVelocity(), waypoint)),
-            waypoint);
+  //   List<Waypoint> waypoints =
+  //       PathPlannerPath.waypointsFromPoses(
+  //           new Pose2d(
+  //               m_drive.getPose().getTranslation(),
+  //               getPathVelocityHeading(m_drive.getFieldVelocity(), waypoint)),
+  //           waypoint);
 
-    if (waypoints.get(0).anchor().getDistance(waypoints.get(1).anchor()) < 0.01) {
-      return Commands.print("Auto alignment too close to desired position to continue");
-    }
+  //   if (waypoints.get(0).anchor().getDistance(waypoints.get(1).anchor()) < 0.01) {
+  //     return Commands.print("Auto alignment too close to desired position to continue");
+  //   }
 
-    PathConstraints pathContraints;
+  //   PathConstraints pathContraints;
 
-    switch (selectedSide) {
-      case Left, Middle, Right:
-        pathContraints = Constants.PathPlannerConstants.slowConstraints;
-        break;
-      case Back:
-        pathContraints = Constants.PathPlannerConstants.slowConstraints;
-        break;
-      case Barge:
-        pathContraints = Constants.PathPlannerConstants.slowConstraints;
-        break;
-      default:
-        pathContraints = Constants.PathPlannerConstants.defaultConstraints;
-        break;
-    }
+  //   switch (selectedSide) {
+  //     case Left, Middle, Right:
+  //       pathContraints = Constants.PathPlannerConstants.slowConstraints;
+  //       break;
+  //     case Back:
+  //       pathContraints = Constants.PathPlannerConstants.slowConstraints;
+  //       break;
+  //     case Barge:
+  //       pathContraints = Constants.PathPlannerConstants.slowConstraints;
+  //       break;
+  //     default:
+  //       pathContraints = Constants.PathPlannerConstants.defaultConstraints;
+  //       break;
+  //   }
 
-    PathPlannerPath path =
-        new PathPlannerPath(
-            waypoints,
-            pathContraints,
-            new IdealStartingState(m_drive.getVelocityMagnitude(), m_drive.getHeading()),
-            new GoalEndState(0.0, waypoint.getRotation()));
+  //   PathPlannerPath path =
+  //       new PathPlannerPath(
+  //           waypoints,
+  //           pathContraints,
+  //           new IdealStartingState(m_drive.getVelocityMagnitude(), m_drive.getHeading()),
+  //           new GoalEndState(0.0, waypoint.getRotation()));
 
-    path.preventFlipping = true;
+  //   path.preventFlipping = true;
 
-    return AutoBuilder.followPath(path);
-  }
+  //   return AutoBuilder.followPath(path);
+  // }
 
   /**
    * @param cs field relative chassis speeds

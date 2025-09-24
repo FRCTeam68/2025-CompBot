@@ -286,12 +286,12 @@ public final class Constants {
             // add(new Pose2d(5.285, 5.408, new Rotation2d(Units.degreesToRadians(241.0))));
             // add(new Pose2d(3.689, 5.408, new Rotation2d(Units.degreesToRadians(301.0))));
 
-            add(new Pose2d(3.174, 4.025, new Rotation2d(Units.degreesToRadians(1.00)))); // AB
-            add(new Pose2d(3.829, 2.902, new Rotation2d(Units.degreesToRadians(61.0)))); // CD
+            add(new Pose2d(3.174, 4.025, new Rotation2d(Units.degreesToRadians(1.00)))); // AB  -
+            add(new Pose2d(3.829, 2.902, new Rotation2d(Units.degreesToRadians(61.0)))); // CD  -
             add(new Pose2d(5.157, 2.902, new Rotation2d(Units.degreesToRadians(121.0)))); // EF
             add(new Pose2d(5.772, 4.025, new Rotation2d(Units.degreesToRadians(181.0)))); // GH
             add(new Pose2d(5.139, 5.144, new Rotation2d(Units.degreesToRadians(241.0)))); // IJ
-            add(new Pose2d(3.849, 5.144, new Rotation2d(Units.degreesToRadians(301.0)))); // KL
+            add(new Pose2d(3.849, 5.144, new Rotation2d(Units.degreesToRadians(301.0)))); // KL -
           }
         };
 
@@ -312,12 +312,12 @@ public final class Constants {
             // add(new Pose2d(14.007, 5.144, new Rotation2d(Units.degreesToRadians(241.0))));
             // add(new Pose2d(12.105, 5.144, new Rotation2d(Units.degreesToRadians(301.0))));
 
-            add(new Pose2d(11.750, 4.025, new Rotation2d(Units.degreesToRadians(1.0)))); // GH
-            add(new Pose2d(12.405, 2.902, new Rotation2d(Units.degreesToRadians(61.0)))); // IJ
+            add(new Pose2d(11.750, 4.025, new Rotation2d(Units.degreesToRadians(1.0)))); // GH   -
+            add(new Pose2d(12.405, 2.902, new Rotation2d(Units.degreesToRadians(61.0)))); // IJ  -
             add(new Pose2d(13.733, 2.902, new Rotation2d(Units.degreesToRadians(121.0)))); // KL
             add(new Pose2d(14.348, 4.025, new Rotation2d(Units.degreesToRadians(181.0)))); // AB
             add(new Pose2d(13.715, 5.144, new Rotation2d(Units.degreesToRadians(241.0)))); // CD
-            add(new Pose2d(12.425, 5.144, new Rotation2d(Units.degreesToRadians(301.0)))); // EF
+            add(new Pose2d(12.425, 5.144, new Rotation2d(Units.degreesToRadians(301.0)))); // EF -
           }
         };
 
