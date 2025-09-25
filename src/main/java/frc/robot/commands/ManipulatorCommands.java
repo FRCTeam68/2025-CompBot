@@ -223,64 +223,83 @@ public class ManipulatorCommands {
   }
 
   public static Command CoralL4Cmd(ElevatorWristSubsystem myElevatorWrist) {
-    return Commands.parallel(
-        Commands.runOnce(() -> scoringPosition = ScoringPosition.CoralL2_4),
-        Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L4")),
-        Commands.either(
-            Commands.sequence(
-                myElevatorWrist.setPositionCmd(SuperstructureConstants.Pose.L4),
-                Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(true))),
-            Commands.none(),
-            () -> {
-              return indexing || havePiece || RobotContainer.isM_overideMode();
-            }));
+    Command command =
+        Commands.parallel(
+            Commands.runOnce(() -> scoringPosition = ScoringPosition.CoralL2_4),
+            Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L4")),
+            Commands.either(
+                Commands.sequence(
+                    myElevatorWrist.setPositionCmd(SuperstructureConstants.Pose.L4),
+                    Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(true))),
+                Commands.none(),
+                () -> {
+                  return indexing || havePiece || RobotContainer.isM_overideMode();
+                }));
+    command.addRequirements(myElevatorWrist);
+    return command;
   }
 
   public static Command CoralL3Cmd(ElevatorWristSubsystem myElevatorWrist) {
-    return Commands.sequence(
-        Commands.runOnce(() -> scoringPosition = ScoringPosition.CoralL2_4),
-        Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L3")),
-        Commands.either(
-            Commands.sequence(
-                myElevatorWrist.setPositionCmd(SuperstructureConstants.Pose.L3),
-                Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(true))),
-            Commands.none(),
-            () -> {
-              return indexing || havePiece || RobotContainer.isM_overideMode();
-            }));
+    Command command =
+        Commands.sequence(
+            Commands.runOnce(() -> scoringPosition = ScoringPosition.CoralL2_4),
+            Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L3")),
+            Commands.either(
+                Commands.sequence(
+                    myElevatorWrist.setPositionCmd(SuperstructureConstants.Pose.L3),
+                    Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(true))),
+                Commands.none(),
+                () -> {
+                  return indexing || havePiece || RobotContainer.isM_overideMode();
+                }));
+    command.addRequirements(myElevatorWrist);
+    return command;
   }
 
   public static Command CoralL2Cmd(ElevatorWristSubsystem myElevatorWrist) {
-    return Commands.sequence(
-        Commands.runOnce(() -> scoringPosition = ScoringPosition.CoralL2_4),
-        Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L2")),
-        Commands.either(
-            Commands.sequence(
-                myElevatorWrist.setPositionCmd(SuperstructureConstants.Pose.L2),
-                Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(true))),
-            Commands.none(),
-            () -> {
-              return indexing || havePiece || RobotContainer.isM_overideMode();
-            }));
+    Command command =
+        Commands.sequence(
+            Commands.runOnce(() -> scoringPosition = ScoringPosition.CoralL2_4),
+            Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L2")),
+            Commands.either(
+                Commands.sequence(
+                    myElevatorWrist.setPositionCmd(SuperstructureConstants.Pose.L2),
+                    Commands.runOnce(() -> myElevatorWrist.setLookingToShoot(true))),
+                Commands.none(),
+                () -> {
+                  return indexing || havePiece || RobotContainer.isM_overideMode();
+                }));
+    command.addRequirements(myElevatorWrist);
+    return command;
   }
 
   public static Command CoralL1Cmd(ElevatorWristSubsystem myElevatorWrist) {
-    return Commands.sequence(
-        Commands.runOnce(() -> scoringPosition = ScoringPosition.CoralL1),
-        Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L1")),
-        Commands.either(
-            myElevatorWrist.setPositionCmd(SuperstructureConstants.Pose.L1, 1),
-            Commands.none(),
-            () -> {
-              return indexing || havePiece || RobotContainer.isM_overideMode();
-            }));
+    Command command =
+        Commands.sequence(
+            Commands.runOnce(() -> scoringPosition = ScoringPosition.CoralL1),
+            Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "L1")),
+            Commands.either(
+                myElevatorWrist.setPositionCmd(SuperstructureConstants.Pose.L1, 1),
+                Commands.none(),
+                () -> {
+                  return indexing || havePiece || RobotContainer.isM_overideMode();
+                }));
+    command.addRequirements(myElevatorWrist);
+    return command;
   }
 
   public static Command CoralIntakePositionCmd(ElevatorWristSubsystem myElevatorWrist) {
-    return Commands.sequence(
-        Commands.runOnce(() -> scoringPosition = ScoringPosition.CoralL2_4),
-        Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "INTAKE")),
-        myElevatorWrist.setPositionCmd(SuperstructureConstants.Pose.intakeCoral));
+    Command command =
+        Commands.sequence(
+            Commands.runOnce(() -> scoringPosition = ScoringPosition.CoralL2_4),
+            Commands.runOnce(
+                () -> Logger.recordOutput("Manipulator/ElevatorWristState", "INTAKE POSITION")),
+            myElevatorWrist.setPositionCmd(SuperstructureConstants.Pose.intakeCoral),
+            Commands.waitUntil(() -> myElevatorWrist.atPosition()),
+            Commands.runOnce(
+                () -> Logger.recordOutput("Manipulator/ElevatorWristState", "AT INTAKE POSITION")));
+    command.addRequirements(myElevatorWrist);
+    return command;
   }
 
   public static Command AlgaeToNetCmd(ElevatorWristSubsystem myElevatorWrist) {
@@ -294,7 +313,7 @@ public class ManipulatorCommands {
     return Commands.sequence(
         Commands.runOnce(() -> scoringPosition = ScoringPosition.Algae),
         Commands.runOnce(() -> Logger.recordOutput("Manipulator/ElevatorWristState", "P1")),
-        myElevatorWrist.setPositionCmd(SuperstructureConstants.Pose.processor));
+        myElevatorWrist.setPositionCmd(SuperstructureConstants.Pose.processor, 1));
   }
 
   public static Command AlgaeAtA2(ElevatorWristSubsystem myElevatorWrist) {

@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.PS4Controller.Axis;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -373,7 +374,8 @@ public class RobotContainer {
             Commands.runOnce(() -> vision.enableMegaTag1())
                 .andThen(() -> LED.setBandAnimation(LEDColor.ORANGE, LEDSegment.ALL))
                 .andThen(Commands.waitSeconds(2))
-                .andThen(() -> LED.disableLEDs(LEDSegment.ALL)));
+                .andThen(() -> LED.disableLEDs(LEDSegment.ALL))
+                .ignoringDisable(true));
 
     m_xboxController
         .start()
@@ -507,13 +509,7 @@ public class RobotContainer {
                     ManipulatorCommands.intakeCmd(
                         intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)));
 
-    m_ps4Controller
-        .touchpad()
-        .onTrue(
-            Commands.either(
-                ManipulatorCommands.climberToZeroCmd(climber, LED),
-                Commands.none(),
-                () -> m_overideMode));
+    m_ps4Controller.touchpad().onTrue(Commands.runOnce(() -> elevatorWrist.getElevator().zero()));
 
     // Right Joystick Y
     m_ps4Controller
@@ -752,5 +748,7 @@ public class RobotContainer {
     intakeShooter.zero();
     intakeShooterLow.stop();
     climber.stop();
+    CommandScheduler.getInstance().cancelAll();
+    CommandScheduler.getInstance().clearComposedCommands();
   }
 }

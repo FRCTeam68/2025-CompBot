@@ -245,13 +245,21 @@ public class ElevatorWristSubsystem extends SubsystemBase {
           Command sequence0;
           Command sequence1;
           Command sequence2;
+          Command sequenceInital =
+              Commands.parallel(
+                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence0", "NULL")),
+                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence1", "NULL")),
+                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence2", "NULL")));
           Command sequenceFinal =
               Commands.parallel(
                   Commands.waitUntil(() -> wrist.atPosition()),
-                  Commands.waitUntil(() -> elevator.atPosition()));
-          sequence0 = Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence0", "NULL"));
-          sequence1 = Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence1", "NULL"));
-          sequence2 = Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence2", "NULL"));
+                  Commands.waitUntil(() -> elevator.atPosition()),
+                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence0", "COMPLETE")),
+                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence1", "COMPLETE")),
+                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence2", "COMPLETE")));
+          sequence0 = Commands.none();
+          sequence1 = Commands.none();
+          sequence2 = Commands.none();
           ///// MOVE AWAY FROM SHOOTNET POSITION /////
           // if current elevator is above minimum high safe position
           // and commanded elevator is below the minimum high safe position
@@ -396,7 +404,8 @@ public class ElevatorWristSubsystem extends SubsystemBase {
                                       <= SuperstructureConstants.ELEVATOR.maxMidSafe)
                                   && (elevator.getPositionRotations()
                                       >= SuperstructureConstants.ELEVATOR.minMidSafe)));
-              if (e_goal > elevator.getPositionRotations()) {
+              if (e_goal > elevator.getPositionRotations()
+                  && w_goal >= SuperstructureConstants.WRIST.safe) {
                 sequence2 =
                     Commands.sequence(
                         Commands.runOnce(
@@ -444,10 +453,14 @@ public class ElevatorWristSubsystem extends SubsystemBase {
                 Commands.sequence(
                     Commands.runOnce(
                         () -> Logger.recordOutput("Manipulator/Sequence1", "FAILSAFE")),
-                    setPositionCmd(e_goal, w_goal));
+                    setPositionCmdFailsafe(e_goal, w_goal));
           }
           // execute sequence
-          return sequence0.andThen(sequence1).andThen(sequence2).andThen(sequenceFinal);
+          return sequenceInital
+              .andThen(sequence0)
+              .andThen(sequence1)
+              .andThen(sequence2)
+              .andThen(sequenceFinal);
         },
         Set.of(this));
   }
