@@ -126,7 +126,31 @@ public class Drive extends SubsystemBase {
           .withErrorTheta(Degrees.of(1))
           .withBeelineRadius(Centimeters.of(10));
 
-  public static final Autopilot autoPilot = new Autopilot(kTightProfile);
+  // public static final Autopilot kTightAutopilot = new Autopilot(kTightProfile);
+
+  private static final APConstraints kFastAPConstraints =
+      new APConstraints().withAcceleration(20).withJerk(8);
+
+  private static final APProfile kFastProfile =
+      new APProfile(kFastAPConstraints)
+          .withErrorXY(Centimeters.of(15))
+          .withErrorTheta(Degrees.of(5))
+          .withBeelineRadius(Centimeters.of(10));
+
+  // public static final Autopilot kFastAutopilot = new Autopilot(kFastProfile);
+
+  private static final APConstraints kSlowAPConstraints =
+      new APConstraints().withAcceleration(3).withJerk(1.5).withVelocity(3);
+
+  private static final APProfile kSlowProfile =
+      new APProfile(kSlowAPConstraints)
+          .withErrorXY(Inches.of(2))
+          .withErrorTheta(Degrees.of(3))
+          .withBeelineRadius(Centimeters.of(20));
+
+  // public static final Autopilot kSlowAutopilot = new Autopilot(kSlowProfile);
+
+  public static final Autopilot autoPilot = new Autopilot(kFastProfile);
 
   public Drive(
       GyroIO gyroIO,
