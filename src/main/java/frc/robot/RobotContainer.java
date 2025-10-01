@@ -234,6 +234,7 @@ public class RobotContainer {
     }
 
     elevatorWrist = new ElevatorWristSubsystem(LED, drive::getPose);
+    drive.setElevatorSupplier(() -> elevatorWrist.getElevator().getPositionRotations());
 
     // Configure reef centering
     reefCentering = new ReefCentering(drive);
