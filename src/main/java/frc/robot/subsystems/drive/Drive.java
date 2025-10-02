@@ -290,13 +290,13 @@ public class Drive extends SubsystemBase {
     newspeeds = speeds;
     // possibly adjust for elevator height
     double elevatorHeight = elevatorHeightSupplier.getAsDouble();
-    if (elevatorHeight > SuperstructureConstants.ELEVATOR.maxMidSafe) {
+    if (elevatorHeight > SuperstructureConstants.ELEVATOR.minMidSafe) {
       if (!DriverStation.isAutonomous()) {
         newspeeds =
             new ChassisSpeeds(
-                speeds.vxMetersPerSecond * 0.4,
-                speeds.vyMetersPerSecond * 0.4,
-                speeds.omegaRadiansPerSecond * 0.4);
+                speeds.vxMetersPerSecond * 0.3,
+                speeds.vyMetersPerSecond * 0.3,
+                speeds.omegaRadiansPerSecond * 0.3);
       }
     }
 
