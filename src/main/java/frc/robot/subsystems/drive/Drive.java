@@ -542,11 +542,26 @@ public class Drive extends SubsystemBase {
                       this.getOdometryHeading().getRadians(), output.targetAngle().getRadians());
 
               /* these speeds are field relative */
-              double veloX = output.vx().baseUnitMagnitude();
-              double veloY = output.vy().baseUnitMagnitude();
-              // double headingReference = output.targetAngle().getRadians();
+              // double veloX = output.vx().baseUnitMagnitude();
+              // double veloY = output.vy().baseUnitMagnitude();
+              // //double headingReference = output.targetAngle().getRadians();
 
-              this.runVelocity(new ChassisSpeeds(veloX, veloY, omega));
+              // this.runVelocity(new ChassisSpeeds(veloX, veloY, omega));
+
+              // Convert to field relative speeds & send command
+              ChassisSpeeds speeds =
+                  new ChassisSpeeds(
+                      output.vx().baseUnitMagnitude(), output.vy().baseUnitMagnitude(), omega);
+
+              boolean isFlipped =
+                  DriverStation.getAlliance().isPresent()
+                      && DriverStation.getAlliance().get() == Alliance.Red;
+              this.runVelocity(
+                  ChassisSpeeds.fromFieldRelativeSpeeds(
+                      speeds,
+                      isFlipped
+                          ? pose.getRotation().plus(new Rotation2d(Math.PI))
+                          : pose.getRotation()));
             })
         // Reset PID controller when command starts
         .beforeStarting(() -> angleController.reset(this.getHeading().getRadians()))
