@@ -150,7 +150,7 @@ public class Drive extends SubsystemBase {
 
   // public static final Autopilot kSlowAutopilot = new Autopilot(kSlowProfile);
 
-  public static final Autopilot autoPilot = new Autopilot(kFastProfile);
+  public static final Autopilot autoPilot = new Autopilot(kTightProfile);
 
   public Drive(
       GyroIO gyroIO,
