@@ -154,6 +154,8 @@ public class Drive extends SubsystemBase {
 
   public static final Autopilot autoPilot = new Autopilot(kFastProfile);
 
+  public boolean nearEndOfAuton;
+
   private DoubleSupplier elevatorHeightSupplier;
 
   public Drive(
@@ -171,6 +173,8 @@ public class Drive extends SubsystemBase {
         () -> {
           return 0.0;
         };
+
+    nearEndOfAuton = false;
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -291,7 +295,7 @@ public class Drive extends SubsystemBase {
     // possibly adjust for elevator height
     double elevatorHeight = elevatorHeightSupplier.getAsDouble();
     if (elevatorHeight > SuperstructureConstants.ELEVATOR.minMidSafe) {
-      if (!DriverStation.isAutonomous()) {
+      if ((DriverStation.isTeleop() || nearEndOfAuton)) {
         newspeeds =
             new ChassisSpeeds(
                 speeds.vxMetersPerSecond * 0.3,

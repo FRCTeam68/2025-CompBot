@@ -47,6 +47,7 @@ public class Robot extends LoggedRobot {
   private CANBus rioBus;
   private CANBus CANivoreBus;
   private Timer disabledTimer;
+  private Timer autonTimer;
 
   public Robot() {
     // Record metadata
@@ -131,6 +132,7 @@ public class Robot extends LoggedRobot {
     Logger.start();
 
     disabledTimer = new Timer();
+    autonTimer = new Timer();
   }
 
   /** This function is called periodically during all modes. */
@@ -188,6 +190,9 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    autonTimer.reset();
+    autonTimer.start();
+
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -200,7 +205,13 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    Logger.recordOutput("auton/autonTimer", autonTimer.get());
+    if (autonTimer.hasElapsed(13.5)) {
+      // tell drive to slow down incase its elevator is high at end of auton
+      robotContainer.setNearEndOfAuton(true);
+    }
+  }
 
   /** This function is called once when teleop is enabled. */
   @Override
@@ -214,6 +225,7 @@ public class Robot extends LoggedRobot {
     }
 
     robotContainer.setAutonOn(false);
+    robotContainer.setNearEndOfAuton(false);
   }
 
   /** This function is called periodically during operator control. */
