@@ -159,16 +159,16 @@ public final class Constants {
                 new FovParamsConfigs()
                     .withFOVCenterX(0)
                     .withFOVCenterY(0)
-                    .withFOVRangeX(6.75)
-                    .withFOVRangeY(6.75))
+                    .withFOVRangeX(20)
+                    .withFOVRangeY(20))
             .withProximityParams(
                 new ProximityParamsConfigs()
-                    .withProximityThreshold(400 / 1000.0)
-                    .withProximityHysteresis(10 / 1000.0)
+                    .withProximityThreshold(0.03) // was 400 / 1000.0
+                    .withProximityHysteresis(0.002) // was 10/1000
                     .withMinSignalStrengthForValidMeasurement(9000))
             .withToFParams(
                 new ToFParamsConfigs()
-                    .withUpdateMode(UpdateModeValue.ShortRange100Hz)
+                    .withUpdateMode(UpdateModeValue.LongRangeUserFreq)
                     .withUpdateFrequency(50));
   }
 

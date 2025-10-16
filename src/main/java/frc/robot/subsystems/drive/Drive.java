@@ -296,13 +296,19 @@ public class Drive extends SubsystemBase {
     double elevatorHeight = elevatorHeightSupplier.getAsDouble();
     if (elevatorHeight > SuperstructureConstants.ELEVATOR.minMidSafe) {
       if ((DriverStation.isTeleop() || nearEndOfAuton)) {
+        Logger.recordOutput("Drive/speedlimit", true);
         newspeeds =
             new ChassisSpeeds(
                 speeds.vxMetersPerSecond * 0.3,
                 speeds.vyMetersPerSecond * 0.3,
                 speeds.omegaRadiansPerSecond * 0.3);
+      } else {
+        Logger.recordOutput("Drive/speedlimit", false);
       }
+    } else {
+      Logger.recordOutput("Drive/speedlimit", false);
     }
+    Logger.recordOutput("Drive/nearEndOfAuton", nearEndOfAuton);
 
     // Calculate module setpoints
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(newspeeds, 0.02);

@@ -48,6 +48,7 @@ public class Robot extends LoggedRobot {
   private CANBus CANivoreBus;
   private Timer disabledTimer;
   private Timer autonTimer;
+  private boolean prevEnableState;
 
   public Robot() {
     // Record metadata
@@ -133,6 +134,7 @@ public class Robot extends LoggedRobot {
 
     disabledTimer = new Timer();
     autonTimer = new Timer();
+    prevEnableState = false;
   }
 
   /** This function is called periodically during all modes. */
@@ -175,6 +177,7 @@ public class Robot extends LoggedRobot {
 
     disabledTimer.reset(); // Reset the timer when entering disabled mode
     disabledTimer.start(); // Start the timer
+    prevEnableState = false;
   }
 
   /** This function is called periodically when disabled. */
@@ -191,7 +194,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     autonTimer.reset();
-    autonTimer.start();
+    prevEnableState = false;
 
     autonomousCommand = robotContainer.getAutonomousCommand();
 
@@ -207,7 +210,14 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousPeriodic() {
     Logger.recordOutput("auton/autonTimer", autonTimer.get());
-    if (autonTimer.hasElapsed(13.5)) {
+
+    if (prevEnableState == false && DriverStation.isEnabled()) {
+      // going from disabled to enabled.  start timer
+      autonTimer.start();
+      prevEnableState = true;
+    }
+
+    if (autonTimer.hasElapsed(12.8)) {
       // tell drive to slow down incase its elevator is high at end of auton
       robotContainer.setNearEndOfAuton(true);
     }
