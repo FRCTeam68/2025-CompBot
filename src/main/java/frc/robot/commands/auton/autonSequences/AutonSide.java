@@ -144,7 +144,7 @@ public class AutonSide {
         Commands.parallel(
             ManipulatorCommands.intakeCmd(
                 myIntake, myIntakeLow, myElevatorWrist, intake_sensor, LED),
-            AutonPathCommands.followPath(4) // to coral station
+            AutonPathCommands.followPath(5) // to coral station
             ));
   }
 }
