@@ -68,6 +68,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.AllianceFlipUtil;
 import lombok.Getter;
+import org.littletonrobotics.junction.Logger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -234,6 +235,7 @@ public class RobotContainer {
     }
 
     elevatorWrist = new ElevatorWristSubsystem(LED, drive::getPose);
+    drive.setElevatorSupplier(() -> elevatorWrist.getElevator().getPositionRotations());
 
     // Configure reef centering
     reefCentering = new ReefCentering(drive);
@@ -509,7 +511,7 @@ public class RobotContainer {
                     ManipulatorCommands.intakeCmd(
                         intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)));
 
-    m_ps4Controller.touchpad().onTrue(Commands.runOnce(() -> elevatorWrist.getElevator().zero()));
+    m_ps4Controller.PS().onTrue(Commands.runOnce(() -> elevatorWrist.getElevator().zero()));
 
     // Right Joystick Y
     m_ps4Controller
@@ -593,6 +595,11 @@ public class RobotContainer {
   public void setAutonOn(boolean state) {
     elevatorWrist.setAutoShootOn(state);
     SmartDashboard.putBoolean("AutoShoot", state);
+  }
+
+  public void setNearEndOfAuton(boolean state) {
+    drive.nearEndOfAuton = state;
+    Logger.recordOutput("auton/nearEndOfAuton", state);
   }
 
   public void autonReadyStatus() {

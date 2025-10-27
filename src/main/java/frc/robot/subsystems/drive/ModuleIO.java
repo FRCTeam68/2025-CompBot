@@ -34,6 +34,9 @@ public interface ModuleIO {
     public double turnAppliedVolts = 0.0;
     public double turnCurrentAmps = 0.0;
     public double turnTemp = 0.0;
+    // for sysid to have in rotations
+    public double turnPositionRotations = 0.0;
+    public double turnVelocityRotPerSec = 0.0;
 
     public double[] odometryTimestamps = new double[] {};
     public double[] odometryDrivePositionsRad = new double[] {};

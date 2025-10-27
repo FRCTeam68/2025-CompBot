@@ -58,9 +58,11 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.superstructure.SuperstructureConstants;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -152,6 +154,10 @@ public class Drive extends SubsystemBase {
 
   public static final Autopilot autoPilot = new Autopilot(kTightProfile);
 
+  public boolean nearEndOfAuton;
+
+  private DoubleSupplier elevatorHeightSupplier;
+
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
@@ -163,6 +169,12 @@ public class Drive extends SubsystemBase {
     modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
     modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
     modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
+    this.elevatorHeightSupplier =
+        () -> {
+          return 0.0;
+        };
+
+    nearEndOfAuton = false;
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -202,6 +214,10 @@ public class Drive extends SubsystemBase {
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+  }
+
+  public void setElevatorSupplier(DoubleSupplier elevatorHeightSupplier) {
+    this.elevatorHeightSupplier = elevatorHeightSupplier;
   }
 
   @Override
@@ -274,8 +290,29 @@ public class Drive extends SubsystemBase {
    * @param speeds Speeds in meters/sec
    */
   public void runVelocity(ChassisSpeeds speeds) {
+    ChassisSpeeds newspeeds;
+    newspeeds = speeds;
+    // possibly adjust for elevator height
+    double elevatorHeight = elevatorHeightSupplier.getAsDouble();
+    if (elevatorHeight > SuperstructureConstants.ELEVATOR.minMidSafe) {
+      if ((DriverStation.isTeleop() || nearEndOfAuton)) {
+        Logger.recordOutput("Drive/speedlimit", true);
+        newspeeds =
+            new ChassisSpeeds(
+                speeds.vxMetersPerSecond * 0.3,
+                speeds.vyMetersPerSecond * 0.3,
+                speeds.omegaRadiansPerSecond * 0.3);
+      } else {
+        Logger.recordOutput("Drive/speedlimit", false);
+      }
+    } else {
+      Logger.recordOutput("Drive/speedlimit", false);
+    }
+    Logger.recordOutput("Drive/nearEndOfAuton", nearEndOfAuton);
+
     // Calculate module setpoints
-    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+    ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(newspeeds, 0.02);
+
     setpointStates = kinematics.toSwerveModuleStates(discreteSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
 

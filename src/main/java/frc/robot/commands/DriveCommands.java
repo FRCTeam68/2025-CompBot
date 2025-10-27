@@ -47,9 +47,10 @@ public class DriveCommands {
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
-  private static final SlewRateLimiter slewX = new SlewRateLimiter(1.6);
-  private static final SlewRateLimiter slewY = new SlewRateLimiter(1.6);
-  private static final SlewRateLimiter slewOmega = new SlewRateLimiter(2);
+  // lower slew values = less abrupt stopping, but also lag to start
+  private static final SlewRateLimiter slewX = new SlewRateLimiter(1.3);
+  private static final SlewRateLimiter slewY = new SlewRateLimiter(1.3);
+  private static final SlewRateLimiter slewOmega = new SlewRateLimiter(1.6);
 
   private DriveCommands() {}
 

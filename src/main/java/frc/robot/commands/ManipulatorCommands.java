@@ -21,7 +21,6 @@ import frc.robot.Constants;
 import frc.robot.Constants.LEDColor;
 import frc.robot.Constants.LEDSegment;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.ShotVisualizer;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.rollers.RollerSystem;
@@ -191,7 +190,7 @@ public class ManipulatorCommands {
                 Commands.parallel(
                     Commands.runOnce(
                         () -> Logger.recordOutput("Manipulator/ElevatorWristState", "ShootNet")),
-                    ShotVisualizer.shootParabula(),
+                    // ShotVisualizer.shootParabula(),
                     myElevatorWrist.setPositionCmd(SuperstructureConstants.Pose.shootBarge, 1),
                     Commands.sequence(
                         Commands.waitSeconds(Constants.INTAKE_SHOOTER.ALGAE_NET_SHOOT_DELAY),
