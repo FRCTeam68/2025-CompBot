@@ -12,6 +12,7 @@ import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
+import com.therekrab.autopilot.APTarget;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -115,6 +116,7 @@ public class ReefCentering {
     return false;
   }
 
+  // used when pathplanner is used to generate a path
   private Command getPathFromWaypoint(Pose2d waypoint) {
 
     List<Waypoint> waypoints =
@@ -181,22 +183,22 @@ public class ReefCentering {
           Command pathCommand;
           if (side == Side.Left || side == Side.Right || side == Side.Middle) {
             // will allow left to right to left
-            pathCommand = getPathFromWaypoint(scoringPosition);
+            // pathCommand = getPathFromWaypoint(scoringPosition);
+            pathCommand =
+                m_drive.align(
+                    new APTarget(scoringPosition).withEntryAngle(scoringPosition.getRotation()));
           } else {
             // straight path to pose
-            pathCommand = getPathFromPose(scoringPosition);
+            // pathCommand = getPathFromPose(scoringPosition);
+            pathCommand = m_drive.align(new APTarget(scoringPosition));
           }
 
-          // return m_drive.align(
-          //     new APTarget(scoringPosition).withEntryAngle(scoringPosition.getRotation()));
-          return m_drive.align(new APTarget(scoringPosition));
-
-          // return m_drive.driveToPose(scoringPosition,
-          // Constants.PathPlannerConstants.slowConstraints, 0);
+          return pathCommand;
         },
         Set.of(m_drive));
   }
 
+  // used when pathplanner is used to generate a path
   private Command getPathFromPose(Pose2d scoringPose) {
 
     PathConstraints pathContraints;
