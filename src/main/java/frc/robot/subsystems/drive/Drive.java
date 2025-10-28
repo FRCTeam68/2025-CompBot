@@ -590,9 +590,9 @@ public class Drive extends SubsystemBase {
                   new ChassisSpeeds(
                       output.vx().baseUnitMagnitude(), output.vy().baseUnitMagnitude(), omega);
 
-              boolean isFlipped =
-                  DriverStation.getAlliance().isPresent()
-                      && DriverStation.getAlliance().get() == Alliance.Red;
+              boolean isFlipped = false;
+              // DriverStation.getAlliance().isPresent()
+              //     && DriverStation.getAlliance().get() == Alliance.Red;
               this.runVelocity(
                   ChassisSpeeds.fromFieldRelativeSpeeds(
                       speeds,
