@@ -47,7 +47,7 @@ public final class SuperstructureConstants {
     L1(1.6, 0.44),
     L2(1.0, WRIST.L2_4),
     L3(2.5, WRIST.L2_4),
-    L4(4.68, WRIST.L2_4),
+    L4(4.8, WRIST.L2_4),
     A1(1.9, WRIST.A1_2),
     A2(3.2, WRIST.A1_2),
     processor(0.68, 0.528),
