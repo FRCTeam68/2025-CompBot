@@ -563,7 +563,7 @@ public class Drive extends SubsystemBase {
   public Command align(APTarget target) {
     // Create PID controller
     ProfiledPIDController angleController =
-        new ProfiledPIDController(5, 0.0, .4, new TrapezoidProfile.Constraints(40, 100));
+        new ProfiledPIDController(5, 0.0, .4, new TrapezoidProfile.Constraints(8, 20));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
     return this.run(
@@ -576,32 +576,30 @@ public class Drive extends SubsystemBase {
               // Calculate angular speed
               double omega =
                   angleController.calculate(
-                      this.getOdometryHeading().getRadians(), output.targetAngle().getRadians());
-
-              /* these speeds are field relative */
-              // double veloX = output.vx().baseUnitMagnitude();
-              // double veloY = output.vy().baseUnitMagnitude();
-              // //double headingReference = output.targetAngle().getRadians();
-
-              // this.runVelocity(new ChassisSpeeds(veloX, veloY, omega));
+                      pose.getRotation().getRadians(), output.targetAngle().getRadians());
 
               // Convert to field relative speeds & send command
               ChassisSpeeds speeds =
                   new ChassisSpeeds(
                       output.vx().baseUnitMagnitude(), output.vy().baseUnitMagnitude(), omega);
+              Logger.recordOutput("Drive/APChassisSpeeds", speeds);
 
+              // no need to flip for red, but do adjust for robot current pose
               boolean isFlipped = false;
               // DriverStation.getAlliance().isPresent()
               //     && DriverStation.getAlliance().get() == Alliance.Red;
-              this.runVelocity(
+              ChassisSpeeds speeds2 =
                   ChassisSpeeds.fromFieldRelativeSpeeds(
                       speeds,
                       isFlipped
                           ? pose.getRotation().plus(new Rotation2d(Math.PI))
-                          : pose.getRotation()));
+                          : pose.getRotation());
+              Logger.recordOutput("Drive/APChassisSpeeds2", speeds2);
+
+              this.runVelocity(speeds2);
             })
         // Reset PID controller when command starts
-        .beforeStarting(() -> angleController.reset(this.getHeading().getRadians()))
+        .beforeStarting(() -> angleController.reset(this.getPose().getRotation().getRadians()))
         .until(() -> autoPilot.atTarget(this.getPose(), target))
         .finallyDo(() -> this.stop());
   }
