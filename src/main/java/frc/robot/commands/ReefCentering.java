@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldPoses;
+import frc.robot.FieldConstants;
 import frc.robot.subsystems.drive.Drive;
 import java.util.List;
 import java.util.Set;
@@ -35,7 +36,8 @@ public class ReefCentering {
     Middle,
     Right,
     Back,
-    Barge
+    Barge,
+    Processor
   }
 
   public ReefCentering(Drive drive) {
@@ -53,6 +55,9 @@ public class ReefCentering {
         nearest = calculateNearestSourceSide();
         break;
       case Barge:
+        nearest = calculateNearestBargeSide();
+        break;
+      case Processor:
         nearest = calculateNearestBargeSide();
         break;
       default:
@@ -75,6 +80,11 @@ public class ReefCentering {
   public Pose2d calculateNearestBargeSide() {
     if (m_drive.isRedSide()) return m_drive.getPose().nearest(FieldPoses.redBargePoses);
     else return m_drive.getPose().nearest(FieldPoses.blueBargePoses);
+  }
+
+  public Pose2d calculateNearestProcessor() {
+    if (m_drive.isRedSide()) return (FieldConstants.Processor.redCenterFace);
+    else return FieldConstants.Processor.blueCenterFace;
   }
 
   private Pose2d calculatePath() {

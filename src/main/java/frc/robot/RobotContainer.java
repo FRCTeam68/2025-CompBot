@@ -276,14 +276,22 @@ public class RobotContainer {
             () -> -m_xboxController.getLeftX(),
             () -> -m_xboxController.getRightX()));
 
+    // m_xboxController
+    //     .a()
+    //     .onTrue(
+    //         Commands.runOnce(() -> elevatorWrist.setAutoShootOn(!elevatorWrist.isAutoShootOn()))
+    //             .andThen(
+    //                 () ->
+    //                     SmartDashboard.putString(
+    //                         "AutoShoot", elevatorWrist.isAutoShootOn() ? "ON" : "OFF")));
+
     m_xboxController
-        .a()
-        .onTrue(
-            Commands.runOnce(() -> elevatorWrist.setAutoShootOn(!elevatorWrist.isAutoShootOn()))
-                .andThen(
-                    () ->
-                        SmartDashboard.putString(
-                            "AutoShoot", elevatorWrist.isAutoShootOn() ? "ON" : "OFF")));
+        .b()
+        .whileTrue(
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Processor)
+                .until(() -> reefCentering.haveConditionsChanged())
+                .repeatedly());
 
     // drive to nearest barge shotting location
     m_xboxController

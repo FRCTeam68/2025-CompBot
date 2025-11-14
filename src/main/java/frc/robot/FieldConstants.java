@@ -33,9 +33,14 @@ public class FieldConstants {
   public static final double algaeDiameter = Units.inchesToMeters(16);
 
   public static class Processor {
-    public static final Pose2d centerFace =
+    public static final Pose2d blueCenterFace =
         new Pose2d(
             AprilTagLayoutType.OFFICIAL.getLayout().getTagPose(16).get().getX(),
+            0,
+            Rotation2d.fromDegrees(90));
+    public static final Pose2d redCenterFace =
+        new Pose2d(
+            AprilTagLayoutType.OFFICIAL.getLayout().getTagPose(3).get().getX(),
             0,
             Rotation2d.fromDegrees(90));
   }
