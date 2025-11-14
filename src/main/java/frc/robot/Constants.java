@@ -333,7 +333,7 @@ public final class Constants {
     private static final double bargeXOffset = 0.588;
     // Rotation in degrees from straight
     // + is toward edge of field
-    private static final double bargeRotation = 27;
+    private static final double bargeRotation = 0;
 
     public static final List<Pose2d> blueBargePoses =
         new ArrayList<Pose2d>() {
