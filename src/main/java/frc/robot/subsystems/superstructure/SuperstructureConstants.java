@@ -26,7 +26,7 @@ public final class SuperstructureConstants {
 
   public static final class WRIST {
     public static final double max = 0.544;
-    public static final double min = 0;
+    public static final double min = -0.5;
     public static final double bump = 0.008;
 
     public static final double L2_4 = 0.0677;
@@ -35,7 +35,7 @@ public final class SuperstructureConstants {
     public static final double minElevate = 0.059;
     public static final double maxElevate = 0.075;
     public static final double elevate = 0.0672; // packaged position to lift elevator
-    public static final double safe = 0.232; // minimum position to move full elevator travel
+    public static final double safe = ; // was 0.232 // minimum position to move full elevator travel
     public static final double maxAtElevatorMinimum = 0.416;
     public static final double maxAtProcessor = 0.544;
 

@@ -221,6 +221,15 @@ public class ManipulatorCommands {
         Set.of(myIntake, myIntakeLow, myElevatorWrist));
   }
 
+  public static Command testMoveWrist(ElevatorWristSubsystem myElevatorWrist, Lights LED) {
+    return Commands.sequence(
+        Commands.runOnce(() -> LED.setSolidColor(, LEDSegment.ALL)),
+    Commands.runOnce(() -> myElevatorWrist.get().setPosition(SuperstructureConstants.WRIST.safe)),
+    Commands.waitSeconds(2),
+    Commands.runOnce(() -> myElevatorWrist.getWrist().setPosition(frc.robot.subsystems.superstructure.SuperstructureConstants.WRIST.min)),
+    Commands.runOnce(() -> LED.setSolidColor(LEDColor.GREEN, LEDSegment.ALL)));
+  }
+
   public static Command CoralL4Cmd(ElevatorWristSubsystem myElevatorWrist) {
     Command command =
         Commands.parallel(

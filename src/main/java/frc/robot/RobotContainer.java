@@ -259,6 +259,8 @@ public class RobotContainer {
 
     SmartDashboard.putBoolean("Override Mode", m_overideMode);
     SmartDashboard.putBoolean("AutoShoot", false);
+
+    SmartDashboard.putData("Tuning/TestWrist", ManipulatorCommands.testMoveWrist(elevatorWrist, LED));
   }
 
   /**
