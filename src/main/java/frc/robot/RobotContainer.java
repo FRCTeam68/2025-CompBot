@@ -286,7 +286,7 @@ public class RobotContainer {
     //                         "AutoShoot", elevatorWrist.isAutoShootOn() ? "ON" : "OFF")));
 
     m_xboxController
-        .b()
+        .a()
         .whileTrue(
             reefCentering
                 .createPathCommand(ReefCentering.Side.Processor)

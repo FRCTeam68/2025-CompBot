@@ -36,12 +36,12 @@ public class FieldConstants {
     public static final Pose2d blueCenterFace =
         new Pose2d(
             AprilTagLayoutType.OFFICIAL.getLayout().getTagPose(16).get().getX(),
-            0,
-            Rotation2d.fromDegrees(90));
+            (Units.inchesToMeters(34.75 / 2)),
+            Rotation2d.fromDegrees(270));
     public static final Pose2d redCenterFace =
         new Pose2d(
             AprilTagLayoutType.OFFICIAL.getLayout().getTagPose(3).get().getX(),
-            0,
+            fieldWidth - (Units.inchesToMeters(34.75 / 2)),
             Rotation2d.fromDegrees(90));
   }
 

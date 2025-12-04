@@ -58,7 +58,7 @@ public class ReefCentering {
         nearest = calculateNearestBargeSide();
         break;
       case Processor:
-        nearest = calculateNearestBargeSide();
+        nearest = calculateNearestProcessor();
         break;
       default:
         nearest = new Pose2d();
@@ -83,7 +83,8 @@ public class ReefCentering {
   }
 
   public Pose2d calculateNearestProcessor() {
-    if (m_drive.isRedSide()) return (FieldConstants.Processor.redCenterFace);
+    if (m_drive.getPose().getX() > (FieldConstants.fieldLength) / 2)
+      return (FieldConstants.Processor.redCenterFace);
     else return FieldConstants.Processor.blueCenterFace;
   }
 
@@ -191,7 +192,10 @@ public class ReefCentering {
 
           Pose2d scoringPosition = calculatePath();
           Command pathCommand;
-          if (side == Side.Left || side == Side.Right || side == Side.Middle) {
+          if (side == Side.Left
+              || side == Side.Right
+              || side == Side.Middle
+              || side == Side.Processor) {
             // will allow left to right to left
             // pathCommand = getPathFromWaypoint(scoringPosition);
             pathCommand =
