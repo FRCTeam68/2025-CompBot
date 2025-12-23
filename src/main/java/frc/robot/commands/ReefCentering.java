@@ -206,7 +206,8 @@ public class ReefCentering {
             // pathCommand = getPathFromPose(scoringPosition);
             pathCommand = m_drive.align(new APTarget(scoringPosition));
           }
-
+          pathCommand.setName(side.toString());
+          // System.out.println("path command: " + pathCommand.getName().toString());
           return pathCommand;
         },
         Set.of(m_drive));

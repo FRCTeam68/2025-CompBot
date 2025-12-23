@@ -276,10 +276,19 @@ public class RobotContainer {
             () -> -m_xboxController.getLeftX(),
             () -> -m_xboxController.getRightX()));
 
-    m_xboxController.a().onTrue(reefCentering.createPathCommand(ReefCentering.Side.Processor));
+    m_xboxController
+        .a()
+        .onTrue(
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Processor)
+                .onlyWhile(() -> (m_xboxController.y().getAsBoolean() == false)));
 
-    // drive to nearest barge shooting location
-    m_xboxController.b().onTrue(reefCentering.createPathCommand(ReefCentering.Side.Barge));
+    m_xboxController
+        .b()
+        .onTrue(
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Barge)
+                .onlyWhile(() -> (m_xboxController.y().getAsBoolean() == false)));
 
     m_xboxController
         .leftTrigger()
@@ -332,13 +341,33 @@ public class RobotContainer {
                 .andThen(elevatorWrist.haltCmd())
                 .andThen(Commands.runOnce(() -> System.out.printf("stop%n"))));
 
-    m_xboxController.povUp().onTrue(reefCentering.createPathCommand(ReefCentering.Side.Middle));
+    m_xboxController
+        .povUp()
+        .onTrue(
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Middle)
+                .onlyWhile(() -> (m_xboxController.y().getAsBoolean() == false)));
 
-    m_xboxController.povDown().onTrue(reefCentering.createPathCommand(ReefCentering.Side.Back));
+    m_xboxController
+        .povDown()
+        .onTrue(
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Back)
+                .onlyWhile(() -> (m_xboxController.y().getAsBoolean() == false)));
 
-    m_xboxController.povLeft().onTrue(reefCentering.createPathCommand(ReefCentering.Side.Left));
+    m_xboxController
+        .povLeft()
+        .onTrue(
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Left)
+                .onlyWhile(() -> (m_xboxController.y().getAsBoolean() == false)));
 
-    m_xboxController.povRight().onTrue(reefCentering.createPathCommand(ReefCentering.Side.Right));
+    m_xboxController
+        .povRight()
+        .onTrue(
+            reefCentering
+                .createPathCommand(ReefCentering.Side.Right)
+                .onlyWhile(() -> (m_xboxController.y().getAsBoolean() == false)));
 
     m_ps4Controller
         .triangle()
