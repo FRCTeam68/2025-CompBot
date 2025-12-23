@@ -276,76 +276,10 @@ public class RobotContainer {
             () -> -m_xboxController.getLeftX(),
             () -> -m_xboxController.getRightX()));
 
-    // m_xboxController
-    //     .a()
-    //     .onTrue(
-    //         Commands.runOnce(() -> elevatorWrist.setAutoShootOn(!elevatorWrist.isAutoShootOn()))
-    //             .andThen(
-    //                 () ->
-    //                     SmartDashboard.putString(
-    //                         "AutoShoot", elevatorWrist.isAutoShootOn() ? "ON" : "OFF")));
+    m_xboxController.a().onTrue(reefCentering.createPathCommand(ReefCentering.Side.Processor));
 
-    m_xboxController
-        .a()
-        .whileTrue(
-            reefCentering
-                .createPathCommand(ReefCentering.Side.Processor)
-                .until(() -> reefCentering.haveConditionsChanged())
-                .repeatedly());
-
-    // drive to nearest barge shotting location
-    m_xboxController
-        .b()
-        .whileTrue(
-            reefCentering
-                .createPathCommand(ReefCentering.Side.Barge)
-                .until(() -> reefCentering.haveConditionsChanged())
-                .repeatedly());
-
-    // lock to tag angle
-    // m_xboxController
-    //     .y()
-    //     .whileTrue(
-    //         DriveCommands.joystickDriveAtAngle(
-    //             drive,
-    //             () -> -m_xboxController.getLeftY(),
-    //             () -> -m_xboxController.getLeftX(),
-    //             () -> vision.getTagPose(1).getRotation()));
-
-    // // Reset gyro to 0° when B button is pressed
-    // m_xboxController
-    //     .back()
-    //     .onTrue(
-    //         Commands.runOnce(
-    //                 () ->
-    //                     drive.setPose(
-    //                         new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-    //                 drive)
-    //             .ignoringDisable(true));
-
-    // Auto aim command example
-    // @SuppressWarnings("resource")
-    // PIDController aimController = new PIDController(0.2, 0.0, 0.0);
-    // aimController.enableContinuousInput(-Math.PI, Math.PI);
-    // m_xboxController
-    //     .x()
-    //     .whileTrue(
-    //         Commands.startRun(
-    //             () -> {
-    //               aimController.reset();
-    //             },
-    //             () -> {
-    //               DriveCommands.joystickDriveAtAngle(
-    //                   drive,
-    //                   () -> -m_xboxController.getLeftY(),
-    //                   () -> -m_xboxController.getLeftX(),
-    //                   () ->
-    //                       new Rotation2d(
-    //                           aimController.calculate(vision.getTargetX(1).getRadians())));
-    //               Logger.recordOutput("DriveAtAngle/TargetX",
-    //                vision.getTargetX(1).getRadians());
-    //             },
-    //             drive));
+    // drive to nearest barge shooting location
+    m_xboxController.b().onTrue(reefCentering.createPathCommand(ReefCentering.Side.Barge));
 
     m_xboxController
         .leftTrigger()
@@ -358,8 +292,10 @@ public class RobotContainer {
         .onTrue(ManipulatorCommands.shootCmd(intakeShooter, intakeShooterLow, elevatorWrist, LED));
 
     // Reef alignment
-    m_xboxController.leftBumper().onTrue(new AlignToReefTagRelative(false, drive).withTimeout(3));
-    m_xboxController.rightBumper().onTrue(new AlignToReefTagRelative(true, drive).withTimeout(3));
+    // m_xboxController.leftBumper().onTrue(new AlignToReefTagRelative(false,
+    // drive).withTimeout(3));
+    // m_xboxController.rightBumper().onTrue(new AlignToReefTagRelative(true,
+    // drive).withTimeout(3));
 
     // Reset robot rotation
     m_xboxController
@@ -396,34 +332,13 @@ public class RobotContainer {
                 .andThen(elevatorWrist.haltCmd())
                 .andThen(Commands.runOnce(() -> System.out.printf("stop%n"))));
 
-    m_xboxController
-        .povUp()
-        .whileTrue(
-            reefCentering
-                .createPathCommand(ReefCentering.Side.Middle)
-                .until(() -> reefCentering.haveConditionsChanged())
-                .repeatedly());
-    m_xboxController
-        .povDown()
-        .whileTrue(
-            reefCentering
-                .createPathCommand(ReefCentering.Side.Back)
-                .until(() -> reefCentering.haveConditionsChanged())
-                .repeatedly());
-    m_xboxController
-        .povLeft()
-        .whileTrue(
-            reefCentering
-                .createPathCommand(ReefCentering.Side.Left)
-                .until(() -> reefCentering.haveConditionsChanged())
-                .repeatedly());
-    m_xboxController
-        .povRight()
-        .whileTrue(
-            reefCentering
-                .createPathCommand(ReefCentering.Side.Right)
-                .until(() -> reefCentering.haveConditionsChanged())
-                .repeatedly());
+    m_xboxController.povUp().onTrue(reefCentering.createPathCommand(ReefCentering.Side.Middle));
+
+    m_xboxController.povDown().onTrue(reefCentering.createPathCommand(ReefCentering.Side.Back));
+
+    m_xboxController.povLeft().onTrue(reefCentering.createPathCommand(ReefCentering.Side.Left));
+
+    m_xboxController.povRight().onTrue(reefCentering.createPathCommand(ReefCentering.Side.Right));
 
     m_ps4Controller
         .triangle()

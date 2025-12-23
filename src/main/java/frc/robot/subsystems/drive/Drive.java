@@ -124,7 +124,7 @@ public class Drive extends SubsystemBase {
 
   private static final APProfile kTightProfile =
       new APProfile(kTightAutopilotAPConstraints)
-          .withErrorXY(Centimeters.of(1))
+          .withErrorXY(Centimeters.of(3))
           .withErrorTheta(Degrees.of(1))
           .withBeelineRadius(Centimeters.of(10));
 
