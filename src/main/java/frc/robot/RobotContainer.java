@@ -386,7 +386,7 @@ public class RobotContainer {
                 .setSpeedCmd(0)
                 .andThen(intakeShooterLow.setSpeedCmd(0))
                 .andThen(elevatorWrist.haltCmd())
-                .andThen(Commands.runOnce(() -> System.out.printf("stop%n"))));
+                .andThen(Commands.runOnce(() -> System.out.printf("stop%n"))).withName("stopManipulator"));
 
     m_xboxController
         .povUp()
@@ -430,7 +430,8 @@ public class RobotContainer {
                               return elevatorWrist.isReefPostDetectedRaw()
                                   && elevatorWrist.isAutoShootOn()
                                   && ManipulatorCommands.isHavePiece();
-                            })));
+                            }))
+                .withName("CoralL4Cmd_SEQ"));
 
     m_ps4Controller
         .circle()
@@ -445,7 +446,8 @@ public class RobotContainer {
                               return elevatorWrist.isReefPostDetectedRaw()
                                   && elevatorWrist.isAutoShootOn()
                                   && ManipulatorCommands.isHavePiece();
-                            })));
+                            }))
+                .withName("CoralL3Cmd_SEQ"));
 
     m_ps4Controller
         .square()
@@ -460,7 +462,8 @@ public class RobotContainer {
                               return elevatorWrist.isReefPostDetectedRaw()
                                   && elevatorWrist.isAutoShootOn()
                                   && ManipulatorCommands.isHavePiece();
-                            })));
+                            }))
+                .withName("CoralL2Cmd_SEQ"));
 
     m_ps4Controller.cross().onTrue(ManipulatorCommands.CoralL1Cmd(elevatorWrist));
 
@@ -490,7 +493,7 @@ public class RobotContainer {
         .share()
         .onTrue(
             Commands.runOnce(() -> m_overideMode = !m_overideMode)
-                .andThen(() -> SmartDashboard.putBoolean("Override Mode", m_overideMode)));
+                .andThen(() -> SmartDashboard.putBoolean("Override Mode", m_overideMode)).withName("toggleOverride"));
 
     m_ps4Controller
         .povLeft()
@@ -509,7 +512,7 @@ public class RobotContainer {
             ManipulatorCommands.CoralIntakePositionCmd(elevatorWrist)
                 .andThen(
                     ManipulatorCommands.intakeCmd(
-                        intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)));
+                        intakeShooter, intakeShooterLow, elevatorWrist, intakeCoralSensor, LED)).withName("CoralIntakePositionCmd"));
 
     m_ps4Controller.PS().onTrue(Commands.runOnce(() -> elevatorWrist.getElevator().zero()));
 

@@ -237,256 +237,283 @@ public class ElevatorWristSubsystem extends SubsystemBase {
   }
 
   public Command setPositionCmd(double e_goal, double w_goal, int wristSlot) {
-    return new DeferredCommand(
-        () -> {
-          // initialization
-          double e_current = elevator.getPositionRotations();
-          double w_current = wrist.getPosition();
-          Command sequence0;
-          Command sequence1;
-          Command sequence2;
-          Command sequenceInital =
-              Commands.parallel(
-                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence0", "NULL")),
-                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence1", "NULL")),
-                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence2", "NULL")));
-          Command sequenceFinal =
-              Commands.parallel(
-                  Commands.waitUntil(() -> wrist.atPosition()),
-                  Commands.waitUntil(() -> elevator.atPosition()),
-                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence0", "COMPLETE")),
-                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence1", "COMPLETE")),
-                  Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence2", "COMPLETE")));
-          sequence0 = Commands.none();
-          sequence1 = Commands.none();
-          sequence2 = Commands.none();
-          ///// MOVE AWAY FROM SHOOTNET POSITION /////
-          // if current elevator is above minimum high safe position
-          // and commanded elevator is below the minimum high safe position
-          // and
-          // if current wrist position is less then safe position
-          if ((e_current >= SuperstructureConstants.ELEVATOR.minHighSafe
-                  && e_goal < SuperstructureConstants.ELEVATOR.minHighSafe)
-              && w_current < SuperstructureConstants.WRIST.safe) {
-            sequence0 =
-                Commands.sequence(
-                    Commands.runOnce(
-                        () -> Logger.recordOutput("Manipulator/Sequence0", "HIGH WRIST TO SAFE")),
-                    Commands.runOnce(
-                        () -> wrist.setPosition(SuperstructureConstants.WRIST.safe, wristSlot)));
-            // Commands.waitSeconds(.02));
-          }
-          ///// MOVE FROM MIN ELEVATOR TO L1, A1, OR A2 //////
-          // if elevator is near zero
-          // and
-          // if current wrist position is less then the cradle position
-          // and commanded wrist position is greater then the safe position
-
-          if (e_current <= SuperstructureConstants.ELEVATOR.maxLowSafe
-              && (w_current <= SuperstructureConstants.Pose.cradle.wrist
-                  && w_goal >= SuperstructureConstants.WRIST.safe)) {
-            sequence1 =
-                Commands.sequence(
-                    Commands.runOnce(
-                        () -> Logger.recordOutput("Manipulator/Sequence1", "SLOWED WRIST")),
-                    Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
-                    Commands.runOnce(() -> elevator.setPosition(e_goal)),
-                    Commands.waitUntil(
-                        () ->
-                            (elevator.getPositionRotations()
-                                    >= SuperstructureConstants.ELEVATOR.minMidSafe)
-                                || elevator.atPosition()));
-
-            // MAX_LOW_WRIST_MOVE_FROM_SAFE
-
-            // Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)));
-            // Commands.waitUntil(() -> wrist.atPosition()),
-            // Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)));
-
-            ///// MOVE FROM MIN ELEVATOR OR BETWEEN SIMILAR WRIST POSITIONS //////
-            // if elevator is near zero
-            // or
-            // if current and commanded wrist position is greater then the safe position
-            // or
-            // if current and commanded wrist position is elevate position
-            // or
-            // if current and commanded elevator position are above minimum safe position
-            //
-          } else if (e_current <= SuperstructureConstants.ELEVATOR.maxLowSafe
-              || (w_current >= SuperstructureConstants.WRIST.safe
-                  && w_goal >= SuperstructureConstants.WRIST.safe)
-              || (w_current >= SuperstructureConstants.WRIST.minElevate
-                  && w_current <= SuperstructureConstants.WRIST.maxElevate
-                  && w_goal == SuperstructureConstants.WRIST.elevate)
-              || (e_current >= SuperstructureConstants.ELEVATOR.minHighSafe
-                  && e_goal >= SuperstructureConstants.ELEVATOR.minHighSafe)) {
-            sequence1 =
-                Commands.parallel(
-                    Commands.runOnce(
-                        () -> Logger.recordOutput("Manipulator/Sequence1", "SIMULTANEOUS")),
-                    Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
-                    Commands.runOnce(() -> elevator.setPosition(e_goal)));
-            ///// MOVE TO INTAKE POSITION //////
-            // if commanded elevator position is the minimum
-            // and
-            // if current wrist position is near elevate position
-            // or current wrist position is greater than safe position
-            // or current elevator position is above high safe limit
-          } else if (e_goal <= SuperstructureConstants.ELEVATOR.maxLowSafe
-              && ((w_current >= SuperstructureConstants.WRIST.minElevate
-                      && w_current <= SuperstructureConstants.WRIST.maxElevate)
-                  || w_current >= (SuperstructureConstants.WRIST.safe - 0.05)
-                  || e_current >= SuperstructureConstants.ELEVATOR.minHighSafe)) {
-            if (w_current >= SuperstructureConstants.WRIST.minElevate
-                && w_current <= SuperstructureConstants.WRIST.maxElevate) {
-              sequence1 =
-                  Commands.sequence(
+    Command cmd =
+        new DeferredCommand(
+            () -> {
+              // initialization
+              double e_current = elevator.getPositionRotations();
+              double w_current = wrist.getPosition();
+              Command sequence0;
+              Command sequence1;
+              Command sequence2;
+              Command sequenceInital =
+                  Commands.parallel(
+                      Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence0", "NULL")),
+                      Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence1", "NULL")),
+                      Commands.runOnce(() -> Logger.recordOutput("Manipulator/Sequence2", "NULL")));
+              Command sequenceFinal =
+                  Commands.parallel(
+                      Commands.waitUntil(() -> wrist.atPosition()),
+                      Commands.waitUntil(() -> elevator.atPosition()),
                       Commands.runOnce(
-                          () ->
-                              Logger.recordOutput(
-                                  "Manipulator/Sequence1", "THROUGH LOW SAFE (ELEVATE)")),
+                          () -> Logger.recordOutput("Manipulator/Sequence0", "COMPLETE")),
                       Commands.runOnce(
-                          () ->
-                              wrist.setPosition(SuperstructureConstants.WRIST.elevate, wristSlot)),
-                      Commands.runOnce(() -> elevator.setPosition(e_goal)),
-                      Commands.waitUntil(
-                          () ->
-                              elevator.getPositionRotations()
-                                  <= SuperstructureConstants.ELEVATOR.maxLowSafe),
-                      Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
-                      Commands.waitUntil(() -> elevator.atPosition()));
-            } else {
-              sequence1 =
-                  Commands.sequence(
+                          () -> Logger.recordOutput("Manipulator/Sequence1", "COMPLETE")),
                       Commands.runOnce(
-                          () ->
-                              Logger.recordOutput(
-                                  "Manipulator/Sequence1", "THROUGH LOW SAFE (SAFE)")),
-                      Commands.runOnce(
-                          () -> wrist.setPosition(SuperstructureConstants.WRIST.safe, wristSlot)),
-                      Commands.runOnce(() -> elevator.setPosition(e_goal)),
-                      Commands.waitUntil(
-                          () ->
-                              elevator.getPositionRotations()
-                                  <= SuperstructureConstants.ELEVATOR.maxLowWristMoveFromSafe),
-                      Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)));
-            }
-            ///// MOVE TO/FROM CORAL POSITIONS //////
-            // if current wrist position is near elevate position
-            // or
-            // current wrist position is greater than safe position
-            // or
-            // current elevator position is above high safe limit
-          } else if ((w_current >= SuperstructureConstants.WRIST.minElevate
-                  && w_current <= SuperstructureConstants.WRIST.maxElevate)
-              || w_current >= (SuperstructureConstants.WRIST.safe - 0.05)
-              || e_current >= SuperstructureConstants.ELEVATOR.minHighSafe) {
-            if (w_current >= SuperstructureConstants.WRIST.minElevate
-                && w_current <= SuperstructureConstants.WRIST.maxElevate) {
-              sequence1 =
-                  Commands.sequence(
-                      Commands.runOnce(
-                          () ->
-                              Logger.recordOutput(
-                                  "Manipulator/Sequence1", "THROUGH MID SAFE (ELEVATE)")),
-                      Commands.runOnce(
-                          () ->
-                              wrist.setPosition(SuperstructureConstants.WRIST.elevate, wristSlot)),
-                      Commands.runOnce(
-                          () ->
-                              elevator.setPosition(
-                                  (SuperstructureConstants.ELEVATOR.maxMidSafe
-                                          + SuperstructureConstants.ELEVATOR.minMidSafe)
-                                      / 2)),
-                      Commands.waitUntil(
-                          () ->
-                              (elevator.getPositionRotations()
-                                      <= SuperstructureConstants.ELEVATOR.maxMidSafe)
-                                  && (elevator.getPositionRotations()
-                                      >= SuperstructureConstants.ELEVATOR.minMidSafe)));
-              if (e_goal > elevator.getPositionRotations()
-                  && w_goal >= SuperstructureConstants.WRIST.safe) {
-                sequence2 =
+                          () -> Logger.recordOutput("Manipulator/Sequence2", "COMPLETE")));
+              sequence0 = Commands.none();
+              sequence1 = Commands.none();
+              sequence2 = Commands.none();
+              sequenceInital.setName("setPositionCmd_Init");
+              sequenceFinal.setName("setPositionCmd_Final");
+              sequence0.setName("setPositionCmd_SEQ0");
+              sequence1.setName("setPositionCmd_SEQ1");
+              sequence2.setName("setPositionCmd_SEQ2");
+              ///// MOVE AWAY FROM SHOOTNET POSITION /////
+              // if current elevator is above minimum high safe position
+              // and commanded elevator is below the minimum high safe position
+              // and
+              // if current wrist position is less then safe position
+              if ((e_current >= SuperstructureConstants.ELEVATOR.minHighSafe
+                      && e_goal < SuperstructureConstants.ELEVATOR.minHighSafe)
+                  && w_current < SuperstructureConstants.WRIST.safe) {
+                sequence0 =
                     Commands.sequence(
                         Commands.runOnce(
                             () ->
-                                Logger.recordOutput("Manipulator/Sequence2", "Wrist -> Elevator")),
+                                Logger.recordOutput("Manipulator/Sequence0", "HIGH WRIST TO SAFE")),
+                        Commands.runOnce(
+                            () ->
+                                wrist.setPosition(SuperstructureConstants.WRIST.safe, wristSlot)));
+                // Commands.waitSeconds(.02));
+              }
+              ///// MOVE FROM MIN ELEVATOR TO L1, A1, OR A2 //////
+              // if elevator is near zero
+              // and
+              // if current wrist position is less then the cradle position
+              // and commanded wrist position is greater then the safe position
+
+              if (e_current <= SuperstructureConstants.ELEVATOR.maxLowSafe
+                  && (w_current <= SuperstructureConstants.Pose.cradle.wrist
+                      && w_goal >= SuperstructureConstants.WRIST.safe)) {
+                sequence1 =
+                    Commands.sequence(
+                        Commands.runOnce(
+                            () -> Logger.recordOutput("Manipulator/Sequence1", "SLOWED WRIST")),
                         Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
+                        Commands.runOnce(() -> elevator.setPosition(e_goal)),
                         Commands.waitUntil(
-                            () -> wrist.getPosition() >= SuperstructureConstants.WRIST.safe),
-                        Commands.runOnce(() -> elevator.setPosition(e_goal)));
-              } else {
-                sequence2 =
+                            () ->
+                                (elevator.getPositionRotations()
+                                        >= SuperstructureConstants.ELEVATOR.minMidSafe)
+                                    || elevator.atPosition()));
+
+                // MAX_LOW_WRIST_MOVE_FROM_SAFE
+
+                // Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)));
+                // Commands.waitUntil(() -> wrist.atPosition()),
+                // Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)));
+
+                ///// MOVE FROM MIN ELEVATOR OR BETWEEN SIMILAR WRIST POSITIONS //////
+                // if elevator is near zero
+                // or
+                // if current and commanded wrist position is greater then the safe position
+                // or
+                // if current and commanded wrist position is elevate position
+                // or
+                // if current and commanded elevator position are above minimum safe position
+                //
+              } else if (e_current <= SuperstructureConstants.ELEVATOR.maxLowSafe
+                  || (w_current >= SuperstructureConstants.WRIST.safe
+                      && w_goal >= SuperstructureConstants.WRIST.safe)
+                  || (w_current >= SuperstructureConstants.WRIST.minElevate
+                      && w_current <= SuperstructureConstants.WRIST.maxElevate
+                      && w_goal == SuperstructureConstants.WRIST.elevate)
+                  || (e_current >= SuperstructureConstants.ELEVATOR.minHighSafe
+                      && e_goal >= SuperstructureConstants.ELEVATOR.minHighSafe)) {
+                sequence1 =
                     Commands.parallel(
                         Commands.runOnce(
-                            () -> Logger.recordOutput("Manipulator/Sequence2", "Wrist + Elevator")),
+                            () -> Logger.recordOutput("Manipulator/Sequence1", "SIMULTANEOUS")),
                         Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
                         Commands.runOnce(() -> elevator.setPosition(e_goal)));
+                ///// MOVE TO INTAKE POSITION //////
+                // if commanded elevator position is the minimum
+                // and
+                // if current wrist position is near elevate position
+                // or current wrist position is greater than safe position
+                // or current elevator position is above high safe limit
+              } else if (e_goal <= SuperstructureConstants.ELEVATOR.maxLowSafe
+                  && ((w_current >= SuperstructureConstants.WRIST.minElevate
+                          && w_current <= SuperstructureConstants.WRIST.maxElevate)
+                      || w_current >= (SuperstructureConstants.WRIST.safe - 0.05)
+                      || e_current >= SuperstructureConstants.ELEVATOR.minHighSafe)) {
+                if (w_current >= SuperstructureConstants.WRIST.minElevate
+                    && w_current <= SuperstructureConstants.WRIST.maxElevate) {
+                  sequence1 =
+                      Commands.sequence(
+                          Commands.runOnce(
+                              () ->
+                                  Logger.recordOutput(
+                                      "Manipulator/Sequence1", "THROUGH LOW SAFE (ELEVATE)")),
+                          Commands.runOnce(
+                              () ->
+                                  wrist.setPosition(
+                                      SuperstructureConstants.WRIST.elevate, wristSlot)),
+                          Commands.runOnce(() -> elevator.setPosition(e_goal)),
+                          Commands.waitUntil(
+                              () ->
+                                  elevator.getPositionRotations()
+                                      <= SuperstructureConstants.ELEVATOR.maxLowSafe),
+                          Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
+                          Commands.waitUntil(() -> elevator.atPosition()));
+                } else {
+                  sequence1 =
+                      Commands.sequence(
+                          Commands.runOnce(
+                              () ->
+                                  Logger.recordOutput(
+                                      "Manipulator/Sequence1", "THROUGH LOW SAFE (SAFE)")),
+                          Commands.runOnce(
+                              () ->
+                                  wrist.setPosition(SuperstructureConstants.WRIST.safe, wristSlot)),
+                          Commands.runOnce(() -> elevator.setPosition(e_goal)),
+                          Commands.waitUntil(
+                              () ->
+                                  elevator.getPositionRotations()
+                                      <= SuperstructureConstants.ELEVATOR.maxLowWristMoveFromSafe),
+                          Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)));
+                }
+                ///// MOVE TO/FROM CORAL POSITIONS //////
+                // if current wrist position is near elevate position
+                // or
+                // current wrist position is greater than safe position
+                // or
+                // current elevator position is above high safe limit
+              } else if ((w_current >= SuperstructureConstants.WRIST.minElevate
+                      && w_current <= SuperstructureConstants.WRIST.maxElevate)
+                  || w_current >= (SuperstructureConstants.WRIST.safe - 0.05)
+                  || e_current >= SuperstructureConstants.ELEVATOR.minHighSafe) {
+                if (w_current >= SuperstructureConstants.WRIST.minElevate
+                    && w_current <= SuperstructureConstants.WRIST.maxElevate) {
+                  sequence1 =
+                      Commands.sequence(
+                          Commands.runOnce(
+                              () ->
+                                  Logger.recordOutput(
+                                      "Manipulator/Sequence1", "THROUGH MID SAFE (ELEVATE)")),
+                          Commands.runOnce(
+                              () ->
+                                  wrist.setPosition(
+                                      SuperstructureConstants.WRIST.elevate, wristSlot)),
+                          Commands.runOnce(
+                              () ->
+                                  elevator.setPosition(
+                                      (SuperstructureConstants.ELEVATOR.maxMidSafe
+                                              + SuperstructureConstants.ELEVATOR.minMidSafe)
+                                          / 2)),
+                          Commands.waitUntil(
+                              () ->
+                                  (elevator.getPositionRotations()
+                                          <= SuperstructureConstants.ELEVATOR.maxMidSafe)
+                                      && (elevator.getPositionRotations()
+                                          >= SuperstructureConstants.ELEVATOR.minMidSafe)));
+                  if (e_goal > elevator.getPositionRotations()
+                      && w_goal >= SuperstructureConstants.WRIST.safe) {
+                    sequence2 =
+                        Commands.sequence(
+                            Commands.runOnce(
+                                () ->
+                                    Logger.recordOutput(
+                                        "Manipulator/Sequence2", "Wrist -> Elevator")),
+                            Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
+                            Commands.waitUntil(
+                                () -> wrist.getPosition() >= SuperstructureConstants.WRIST.safe),
+                            Commands.runOnce(() -> elevator.setPosition(e_goal)));
+                  } else {
+                    sequence2 =
+                        Commands.parallel(
+                            Commands.runOnce(
+                                () ->
+                                    Logger.recordOutput(
+                                        "Manipulator/Sequence2", "Wrist + Elevator")),
+                            Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
+                            Commands.runOnce(() -> elevator.setPosition(e_goal)));
+                  }
+                } else {
+                  sequence1 =
+                      Commands.sequence(
+                          Commands.runOnce(
+                              () ->
+                                  Logger.recordOutput(
+                                      "Manipulator/Sequence1", "THROUGH MID SAFE (SAFE)")),
+                          Commands.runOnce(
+                              () ->
+                                  wrist.setPosition(SuperstructureConstants.WRIST.safe, wristSlot)),
+                          Commands.runOnce(
+                              () ->
+                                  elevator.setPosition(
+                                      (SuperstructureConstants.ELEVATOR.maxMidSafe
+                                              + SuperstructureConstants.ELEVATOR.minMidSafe)
+                                          / 2)),
+                          Commands.waitUntil(
+                              () ->
+                                  (elevator.getPositionRotations()
+                                          <= SuperstructureConstants.ELEVATOR.maxMidSafe)
+                                      && (elevator.getPositionRotations()
+                                          >= SuperstructureConstants.ELEVATOR.minMidSafe)),
+                          // Commands.waitSeconds(.05),
+                          Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
+                          Commands.runOnce(() -> elevator.setPosition(e_goal)));
+                }
+              } else { // fallback to failsafe sequence
+                sequence1 =
+                    Commands.sequence(
+                        Commands.runOnce(
+                            () -> Logger.recordOutput("Manipulator/Sequence1", "FAILSAFE")),
+                        setPositionCmdFailsafe(e_goal, w_goal));
               }
-            } else {
-              sequence1 =
-                  Commands.sequence(
-                      Commands.runOnce(
-                          () ->
-                              Logger.recordOutput(
-                                  "Manipulator/Sequence1", "THROUGH MID SAFE (SAFE)")),
-                      Commands.runOnce(
-                          () -> wrist.setPosition(SuperstructureConstants.WRIST.safe, wristSlot)),
-                      Commands.runOnce(
-                          () ->
-                              elevator.setPosition(
-                                  (SuperstructureConstants.ELEVATOR.maxMidSafe
-                                          + SuperstructureConstants.ELEVATOR.minMidSafe)
-                                      / 2)),
-                      Commands.waitUntil(
-                          () ->
-                              (elevator.getPositionRotations()
-                                      <= SuperstructureConstants.ELEVATOR.maxMidSafe)
-                                  && (elevator.getPositionRotations()
-                                      >= SuperstructureConstants.ELEVATOR.minMidSafe)),
-                      // Commands.waitSeconds(.05),
-                      Commands.runOnce(() -> wrist.setPosition(w_goal, wristSlot)),
-                      Commands.runOnce(() -> elevator.setPosition(e_goal)));
-            }
-          } else { // fallback to failsafe sequence
-            sequence1 =
-                Commands.sequence(
-                    Commands.runOnce(
-                        () -> Logger.recordOutput("Manipulator/Sequence1", "FAILSAFE")),
-                    setPositionCmdFailsafe(e_goal, w_goal));
-          }
-          // execute sequence
-          return sequenceInital
-              .andThen(sequence0)
-              .andThen(sequence1)
-              .andThen(sequence2)
-              .andThen(sequenceFinal);
-        },
-        Set.of(this));
+              // execute sequence
+              return sequenceInital
+                  .andThen(sequence0)
+                  .andThen(sequence1)
+                  .andThen(sequence2)
+                  .andThen(sequenceFinal);
+            },
+            Set.of(this));
+
+    cmd.setName("ElevatorWristSetPositionCmd");
+    return cmd;
   }
 
   // no checks.  you better know what you are doing !
   public Command setPositionElevatorCmd(double e_goal, boolean waitForIt) {
-    return Commands.sequence(
-        runOnce(() -> elevator.setPosition(e_goal)),
-        new ConditionalCommand(
-            new WaitUntilCommand(() -> elevator.atPosition()),
-            Commands.none(),
-            () -> {
-              return waitForIt;
-            }));
+    Command cmd =
+        Commands.sequence(
+            runOnce(() -> elevator.setPosition(e_goal)),
+            new ConditionalCommand(
+                new WaitUntilCommand(() -> elevator.atPosition()),
+                Commands.none(),
+                () -> {
+                  return waitForIt;
+                }));
+    cmd.setName("setPositionElevatorCmd");
+    return cmd;
   }
 
   // no checks.  you better know what you are doing !
   public Command setPositionWristCmd(double w_goal, int slot, boolean waitForIt) {
-    return Commands.sequence(
-        runOnce(() -> wrist.setPosition(w_goal, slot)),
-        new ConditionalCommand(
-            new WaitUntilCommand(() -> wrist.atPosition()),
-            Commands.none(),
-            () -> {
-              return waitForIt;
-            }));
+    Command cmd =
+        Commands.sequence(
+            runOnce(() -> wrist.setPosition(w_goal, slot)),
+            new ConditionalCommand(
+                new WaitUntilCommand(() -> wrist.atPosition()),
+                Commands.none(),
+                () -> {
+                  return waitForIt;
+                }));
+    cmd.setName("setPositionWristCmd");
+    return cmd;
   }
 
   public boolean atPosition() {

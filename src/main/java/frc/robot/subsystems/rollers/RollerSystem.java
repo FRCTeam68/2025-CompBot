@@ -185,7 +185,9 @@ public class RollerSystem extends SubsystemBase {
   @AutoLogOutput
   public Command setSpeedCmd(double speed) {
     // in rotations per second
-    return this.runOnce(() -> setSpeed(speed));
+    Command cmd = this.runOnce(() -> setSpeed(speed));
+    cmd.setName(name + "_stop");
+    return cmd;
   }
 
   public void setPosition(double position) {
